@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPMessage;
+import javax.xml.ws.Binding;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
@@ -22,7 +23,7 @@ public class SOAPLogHandler implements SOAPHandler<SOAPMessageContext> {
 	public SOAPLogHandler(String name) {
 		this._name = name;
 	}
-
+	
 	public static void addLogHandler(Object service) {
 		Binder.addHandler((BindingProvider) service, new SOAPLogHandler(service.getClass().getSimpleName()));
 	}
@@ -33,7 +34,18 @@ public class SOAPLogHandler implements SOAPHandler<SOAPMessageContext> {
 		else
 			Binder.addHandler((BindingProvider) service, new SOAPLogHandler(serviceName));
 	}
+	
+	public static void addLogHandler(Binding binding) {
+		Binder.addHandler(binding, new SOAPLogHandler(binding.getClass().getSimpleName()));
+	}
 
+	public static void addLogHandler(Binding binding, String serviceName) {
+		if (serviceName == null)
+			addLogHandler(binding);
+		else
+			Binder.addHandler(binding, new SOAPLogHandler(serviceName));
+	}
+	
 	@Override
 	public boolean handleMessage(final SOAPMessageContext context) {
 

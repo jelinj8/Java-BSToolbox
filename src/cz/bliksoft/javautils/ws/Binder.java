@@ -35,4 +35,16 @@ public class Binder {
 			binding.setHandlerChain(handlerList);
 		}
 	}
+
+	@SuppressWarnings("rawtypes")
+	public static void addHandler(Binding binding, SOAPHandler<SOAPMessageContext> sh){
+		if(sh!=null){
+			List<Handler> handlerList = binding.getHandlerChain();
+			if (handlerList == null)
+				handlerList = new ArrayList<Handler>();
+
+			handlerList.add(sh);
+			binding.setHandlerChain(handlerList);
+		}
+	}
 }

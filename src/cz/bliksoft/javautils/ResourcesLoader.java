@@ -8,10 +8,6 @@ import org.apache.commons.io.IOUtils;
 
 public class ResourcesLoader {
 
-	// public ResourcesLoader() {
-	// // TODO Auto-generated constructor stub
-	// }
-
 	public static String loadString(String classpathName) {
 		InputStream in = ResourcesLoader.class.getResourceAsStream(classpathName);
 		if (in == null)

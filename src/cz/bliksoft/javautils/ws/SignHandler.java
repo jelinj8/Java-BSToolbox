@@ -20,7 +20,7 @@ import org.w3c.dom.Node;
 
 import cz.bliksoft.javautils.logging.LogUtils;
 import cz.bliksoft.javautils.threads.MessageInterceptWorker;
-import cz.bliksoft.javautils.xml.NISSXmlUtils;
+import cz.bliksoft.javautils.xml.XmlUtils;
 
 public class SignHandler implements SOAPHandler<SOAPMessageContext> {
 	private Logger log = Logger.getLogger(SignHandler.class.toString());
@@ -63,10 +63,10 @@ public class SignHandler implements SOAPHandler<SOAPMessageContext> {
 
 					if (_signType == SignType.ROOT) {
 						vstupNode = body.getDocumentElement();
-						worker.setPreparedRecord(NISSXmlUtils.getStringFromNode(vstupNode));
+						worker.setPreparedRecord(XmlUtils.getStringFromNode(vstupNode));
 					} else if (_signType == SignType.FIRSTCHILD) {
 						vstupNode = body.getDocumentElement().getFirstChild();
-						worker.setPreparedRecord(NISSXmlUtils.getStringFromNode(vstupNode.getLastChild()));
+						worker.setPreparedRecord(XmlUtils.getStringFromNode(vstupNode.getLastChild()));
 					}
 
 					if (worker.signedLock.tryAcquire(5, TimeUnit.MINUTES)) {
@@ -80,7 +80,7 @@ public class SignHandler implements SOAPHandler<SOAPMessageContext> {
 							Node signedRecord = null;
 
 							try {
-								node = NISSXmlUtils.convertStringToNode(worker.getModifiedRecord());
+								node = XmlUtils.convertStringToNode(worker.getModifiedRecord());
 								signedRecord = body.importNode(node, true);
 							} catch (Exception e) {
 								log.severe("Unable to parse signed record XML! " + e.getMessage());

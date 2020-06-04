@@ -18,6 +18,8 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.codec.binary.Base64;
 
 public class CryptUtils {
+	private static final String defaultPWD = "jkbhge";
+	
 	public static SecretKeySpec createSecretKey(char[] password, byte[] salt, int iterationCount, int keyLength) throws NoSuchAlgorithmException, InvalidKeySpecException {
         //SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
 		SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
@@ -79,7 +81,7 @@ public class CryptUtils {
      */
     public static String decrypt(String base64data, String salt){
     	try {
-			return decrypt(base64data, createKey("NISSystems", salt));
+			return decrypt(base64data, createKey(defaultPWD, salt));
 		} catch (GeneralSecurityException | IOException e) {
 			e.printStackTrace();
 		}
@@ -94,7 +96,7 @@ public class CryptUtils {
      */
     public static String encrypt(String content, String salt){
     	try {
-			return encrypt(content, createKey("NISSystems", salt));
+			return encrypt(content, createKey(defaultPWD, salt));
 		} catch (GeneralSecurityException | IOException e) {
 			e.printStackTrace();
 		}

@@ -16,7 +16,10 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.xml.bind.JAXBException;
+
 import cz.bliksoft.javautils.streams.NoCloseOutputStream;
+import cz.bliksoft.javautils.xml.XmlUtils;
 
 public class LogUtils {
 
@@ -55,7 +58,7 @@ public class LogUtils {
 		if ("true".equals(configuration.getProperty("logPKCS11", "false").toLowerCase()))
 			setPKCSLogging();
 
-		appName = configuration.getProperty("appName", "default");
+		appName = configuration.getProperty("appName");
 	}
 
 	// public static void
@@ -69,8 +72,8 @@ public class LogUtils {
 
 		Date curdate = new Date();
 		String timestamp = sdf.format(curdate);
-		String path = MessageFormat.format("{0}{1}_{2}_{3}.{4}", logDir + File.separatorChar, timestamp, appName, name,
-				extension);
+		String path = MessageFormat.format("{0}{1}_{3}.{4}", logDir + File.separatorChar, timestamp,
+				(appName == null ? "" : (appName + "_")), name, extension);
 
 		log.info("Log file: " + path);
 		return path;
@@ -114,6 +117,23 @@ public class LogUtils {
 			fw.write(message);
 		} catch (IOException e) {
 			log.log(Level.INFO, "Error logging to file " + f, e);
+			e.printStackTrace();
+		}
+	}
+
+	public static void logFile(Object annotatedObject, String name, String extension) {
+
+		if (logDir == null)
+			return;
+
+		try (OutputStream os = LogUtils.createOutputStream(name, extension)) {
+			try (PrintWriter out = new PrintWriter(os, true)) {
+				XmlUtils.marshal(annotatedObject, out);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (JAXBException e) {
+			log.log(Level.INFO, "Error logging XMLObject file (Marshalling failed)", e);
 			e.printStackTrace();
 		}
 	}

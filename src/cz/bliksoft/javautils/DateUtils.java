@@ -6,8 +6,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-import javax.swing.text.DateFormatter;
-
 public class DateUtils {
 	public static SimpleDateFormat timestampFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-SSS");
 	public static SimpleDateFormat ISO8824TimestampFormat = new SimpleDateFormat("yyyyMMddHHmmss");

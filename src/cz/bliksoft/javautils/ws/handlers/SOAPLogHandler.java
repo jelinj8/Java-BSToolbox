@@ -1,4 +1,4 @@
-package cz.bliksoft.javautils.logging;
+package cz.bliksoft.javautils.ws.handlers;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -13,6 +13,7 @@ import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
+import cz.bliksoft.javautils.logging.LogUtils;
 import cz.bliksoft.javautils.ws.Binder;
 
 public class SOAPLogHandler implements SOAPHandler<SOAPMessageContext> {
@@ -52,7 +53,7 @@ public class SOAPLogHandler implements SOAPHandler<SOAPMessageContext> {
 		// Indicator telling us which direction this message is going in
 		final Boolean outInd = (Boolean) context.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
 
-		File logFile = LogUtils.getFile("SOAP{" + this._name + "}_" + (outInd ? "req" : "resp"), "xml");
+		File logFile = LogUtils.getFile("SOAP{" + this._name + "}_" + (outInd ? "out" : "in"), "xml");
 
 		if (logFile == null)
 			return true;
@@ -62,7 +63,7 @@ public class SOAPLogHandler implements SOAPHandler<SOAPMessageContext> {
 
 			message.writeTo(fos);
 		} catch (Exception e) {
-			log.severe("Error logging SOAP{" + this._name + "}_" + (outInd ? "req" : "resp") + " message: "
+			log.severe("Error logging SOAP{" + this._name + "}_" + (outInd ? "out" : "in") + " message: "
 					+ e.getMessage());
 		}
 
@@ -75,7 +76,7 @@ public class SOAPLogHandler implements SOAPHandler<SOAPMessageContext> {
 	public boolean handleFault(SOAPMessageContext context) {
 		final Boolean outInd = (Boolean) context.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
 
-		File logFile = LogUtils.getFile("SOAP{" + this._name + "}_" + (outInd ? "req" : "resp") + "_FAULT", "xml");
+		File logFile = LogUtils.getFile("SOAP{" + this._name + "}_" + (outInd ? "out" : "in") + "_FAULT", "xml");
 
 		if (logFile == null)
 			return true;
@@ -85,7 +86,7 @@ public class SOAPLogHandler implements SOAPHandler<SOAPMessageContext> {
 
 			message.writeTo(fos);
 		} catch (Exception e) {
-			log.severe("Error logging SOAP{" + this._name + "}_" + (outInd ? "req" : "resp") + " FAULT message: "
+			log.severe("Error logging SOAP{" + this._name + "}_" + (outInd ? "out" : "in") + " FAULT message: "
 					+ e.getMessage());
 		}
 

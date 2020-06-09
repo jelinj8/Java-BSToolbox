@@ -51,6 +51,9 @@ public class LogUtils {
 			}
 		}
 
+		if (logDir != null)
+			System.setProperty("logFilePath", logDir);
+		
 		if ("true".equals(configuration.getProperty("logSSL", "false").toLowerCase()))
 			setSSLLogging();
 		if ("true".equals(configuration.getProperty("logSOAP", "false").toLowerCase()))

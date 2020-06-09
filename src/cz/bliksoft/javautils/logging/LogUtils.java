@@ -1,6 +1,7 @@
 package cz.bliksoft.javautils.logging;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -14,6 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBException;
@@ -23,16 +25,18 @@ import cz.bliksoft.javautils.xml.XmlUtils;
 
 public class LogUtils {
 
-	private static Logger log = Logger.getLogger(LogUtils.class.toString());
+	private static Logger log;
 
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-SSS");
 
 	// private static Properties props;
 	private static String logDir = null;
+	private static File logDirFile = null;
 	private static String appName;
 
 	// private static LogUtils _instance;
 	public static void init(Properties configuration) {
+
 		logDir = configuration.getProperty("logDir", null);
 		if (logDir != null) {
 			File f = new File(logDir);
@@ -40,20 +44,31 @@ public class LogUtils {
 				try {
 					f.mkdirs();
 				} catch (Exception e) {
-					log.severe("Unable to create log directory " + logDir);
+					// log.severe("Unable to create log directory " + logDir);
 				}
 			}
 
 			if (f.exists()) {
 				logDir = f.getAbsolutePath();
+				logDirFile = f;
 			} else {
 				logDir = null;
 			}
 		}
 
-		if (logDir != null)
-			System.setProperty("logFilePath", logDir);
-		
+		File logProps = new File("logging.properties");
+		if (logProps.exists()) {
+			try {
+				LogManager.getLogManager().readConfiguration(new FileInputStream(logProps));
+			} catch (SecurityException | IOException e) {
+				e.printStackTrace();
+			}
+		} else {
+			System.setProperty("java.util.logging.SimpleFormatter.format", "%1$tF %1$tT [%4$s] {%3$s} %5$s%6$s%n");
+		}
+
+		log = Logger.getLogger(LogUtils.class.toString());
+
 		if ("true".equals(configuration.getProperty("logSSL", "false").toLowerCase()))
 			setSSLLogging();
 		if ("true".equals(configuration.getProperty("logSOAP", "false").toLowerCase()))
@@ -64,6 +79,10 @@ public class LogUtils {
 		appName = configuration.getProperty("appName");
 	}
 
+	public static File getLogDir() {
+		return logDirFile;
+	}
+	
 	// public static void
 
 	public static String getFileName(String name, String extension) {

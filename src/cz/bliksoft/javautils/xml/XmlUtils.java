@@ -33,7 +33,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
-//import cz.bliksoft.javautils.streams.xml.ElementWriter;
+import cz.bliksoft.javautils.StringUtils;
+import cz.bliksoft.javautils.streams.xml.ElementWriter;
 
 /**
  * https://www.codenotfound.com/2013/07/jaxb-marshal-element-missing-xmlrootelement-annotation.html
@@ -72,17 +73,17 @@ public class XmlUtils {
 		return sw.toString();
 	}
 
-//	public static String marshalSimpleElement(Object obj) throws JAXBException, XMLStreamException {
-//		StringWriter sw = new StringWriter();
-//		getMarshaller(obj).marshal(obj, ElementWriter.filter(sw));
-//		return sw.toString();
-//	}
+	public static String marshalSimpleElement(Object obj) throws JAXBException, XMLStreamException {
+		StringWriter sw = new StringWriter();
+		getMarshaller(obj).marshal(obj, ElementWriter.filter(sw));
+		return sw.toString();
+	}
 
 	@SuppressWarnings("unchecked")
 	public static String marshalUnanotated(Object obj) throws JAXBException {
 		StringWriter sw = new StringWriter();
 		Marshaller m = getMarshaller(obj);
-		QName qName = new QName(null, obj.getClass().getName());
+		QName qName = new QName(null, StringUtils.hasTextDefault(obj.getClass().getSimpleName(), "Object"));
 		Class<Object> cls = (Class<Object>) obj.getClass();
 		JAXBElement<Object> root = new JAXBElement<Object>(qName, cls, obj);
 		m.marshal(root, sw);

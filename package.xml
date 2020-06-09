@@ -1,19 +1,30 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project default="create_run_jar" name="OracleCalloutReceiver package">
-    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
-    <!--ANT 1.7 is required                                        -->
-    <target name="create_run_jar">
-        <jar destfile="./dist/NISSCommonJavaUtils.jar" filesetmanifest="mergewithoutmain">
-            <!--<manifest>
-                <attribute name="Main-Class" value="eu.pcscare.oraclecallout.CalloutReceiverMain"/>
-                <attribute name="Class-Path" value="."/>
-            </manifest>-->
-            <fileset dir="./bin"/>
-        </jar>
-    	<!-- <copy todir="../bin/" file="database.properties" /> 
-    	<copy todir="./dist/" file="clientcerts.jks" />-->
-    	<copy todir="./dist/lib/">
-    		<fileset dir="./lib/" />
-    	</copy>
-    </target>
-</project>
+<assembly
+	xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+	<id>zip</id>
+	<includeBaseDirectory>true</includeBaseDirectory>
+
+	<formats>
+		<format>zip</format>
+	</formats>
+	<fileSets>
+		<fileSet>
+			<directory>${project.basedir}/config</directory>
+		</fileSet>
+	</fileSets>
+	<files>
+		<file>
+			<source> ${project.build.directory}/${project.artifactId}-${project.version}.jar</source>
+			<outputDirectory>/</outputDirectory>
+		</file>
+	</files>
+	<dependencySets>
+		<dependencySet>
+			<outputDirectory>lib</outputDirectory>
+			<excludes>
+				<exclude>${project.groupId}:${project.artifactId}:jar:*</exclude>
+			</excludes>
+		</dependencySet>
+	</dependencySets>
+</assembly>

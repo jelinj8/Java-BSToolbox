@@ -82,7 +82,7 @@ public class LogUtils {
 	public static File getLogDir() {
 		return logDirFile;
 	}
-	
+
 	// public static void
 
 	public static String getFileName(String name, String extension) {
@@ -140,6 +140,22 @@ public class LogUtils {
 		} catch (IOException e) {
 			log.log(Level.INFO, "Error logging to file " + f, e);
 			e.printStackTrace();
+		}
+	}
+
+	public static void logFile(byte[] message, String name, String extension) {
+
+		if (logDir == null)
+			return;
+
+		File f = getFile(name, extension);
+
+		try (FileOutputStream fos = new FileOutputStream(f)) {
+			fos.write(message);
+		} catch (IOException e) {
+			log.log(Level.INFO, "Error logging to file " + f, e);
+			e.printStackTrace();
+
 		}
 	}
 

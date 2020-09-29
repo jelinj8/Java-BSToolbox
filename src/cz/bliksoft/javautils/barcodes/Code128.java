@@ -69,6 +69,17 @@ public class Code128 {
 					break;
 		return mini;
 	}
+	
+	private static boolean evenDigits(char[] text, int startAt) {
+		boolean result = true;
+		while(startAt < text.length) {
+			if ((text[startAt] < 48) || (text[startAt] > 57))
+				break;
+			startAt++;
+			result = !result;
+		}
+		return result;
+	}
 
 	/**
 	 * Barcode 128 encoder...</br>
@@ -99,6 +110,10 @@ public class Code128 {
 				// si les mini caractères à partir de index sont numériques, alors mini = 0
 				mini = testNumeric(text, i, mini);
 
+				// switch to C only for odd count of following digits
+				if(mini < 0 && !evenDigits(text, i))
+					mini = 0;
+				
 				// si mini < 0 on passe en table C
 				if (mini < 0) {
 					code128 += (char) (i == 0 ? START_C : CODE_C); // débuter sur la table C ou commuter sur la table C

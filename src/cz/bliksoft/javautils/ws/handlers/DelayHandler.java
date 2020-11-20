@@ -1,4 +1,4 @@
-package cz.bliksoft.javautils.ws;
+package cz.bliksoft.javautils.ws.handlers;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -19,9 +19,8 @@ public class DelayHandler implements SOAPHandler<SOAPMessageContext> {
 	@Override
 	public boolean handleMessage(final SOAPMessageContext msgCtx) {
 		// Indicator telling us which direction this message is going in
-		final Boolean outInd = (Boolean) msgCtx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+//		final Boolean outInd = (Boolean) msgCtx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
 
-		// Handler must only add security headers to outbound messages
 		// if (outInd.booleanValue()) {
 		try {
 			Thread.sleep(_delay);
@@ -31,8 +30,6 @@ public class DelayHandler implements SOAPHandler<SOAPMessageContext> {
 		// }
 		return true;
 	}
-
-	// Other required methods on interface need no guts
 
 	@Override
 	public boolean handleFault(SOAPMessageContext context) {

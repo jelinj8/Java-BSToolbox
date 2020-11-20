@@ -3,7 +3,6 @@ package cz.bliksoft.javautils.ws;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Service;
 
-import cz.bliksoft.javautils.ws.Binder;
 import cz.bliksoft.javautils.ws.handlers.SOAPLogHandler;
 
 public abstract class BaseService_common<T> {

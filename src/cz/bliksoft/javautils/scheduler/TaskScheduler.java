@@ -191,6 +191,7 @@ public class TaskScheduler {
 
 		List<Task> taskList = new ArrayList<Task>();
 		long ts = DateUtils.millis();
+		
 		synchronized (tasks) {
 			while (!tasks.isEmpty()) {
 				taskList.add(tasks.pollFirst());

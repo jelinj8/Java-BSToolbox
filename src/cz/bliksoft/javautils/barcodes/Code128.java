@@ -8,17 +8,19 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import javax.swing.JLabel;
-import javax.swing.text.AbstractDocument.BranchElement;
-
-import cz.bliksoft.javautils.logging.LogUtils;
 
 /**
  * https://grandzebu.net/informatique/codbar-en/code128.htm Jean-Luc BLOECHLE:
  * https://grandzebu.net/informatique/codbar/code128_java2.asc
+ * 
+ * fixed compression for multiple consecutive numbers (one char shorter in some
+ * cases, e.g. Hi12345 -startC H i 1 switchB 23 45 check STOP- instead of
+ * -startC H i switchB 12 34 switchC 5 check STOP- )
+ * 
+ * fixed charcodes for attached repaired font
  * 
  * @author jakub
  *
@@ -28,14 +30,14 @@ public class Code128 {
 	static Logger log = Logger.getLogger(Code128.class.getName());
 
 	private static final int CODE_OFFSET = -5;
-	private static final int CODE_A = 206 + CODE_OFFSET;
+//	private static final int CODE_A = 206 + CODE_OFFSET;
 	private static final int CODE_B = 205 + CODE_OFFSET;
 	private static final int CODE_C = 204 + CODE_OFFSET;
-	private static final int START_A = 208 + CODE_OFFSET;
+//	private static final int START_A = 208 + CODE_OFFSET;
 	private static final int START_B = 209 + CODE_OFFSET;
 	private static final int START_C = 210 + CODE_OFFSET;
 	private static final int STOP = 211 + CODE_OFFSET;
-	
+
 	private static Font code128Font = null;
 
 	{
@@ -48,7 +50,7 @@ public class Code128 {
 
 		try {
 			code128Font = Font.createFont(Font.TRUETYPE_FONT, Code128.class.getResourceAsStream("code128_fixed.ttf"));
-					//.deriveFont(Font.TRUETYPE_FONT, 50);
+			// .deriveFont(Font.TRUETYPE_FONT, 50);
 			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 			ge.registerFont(code128Font);
 			log.info("Loaded and registered font: " + code128Font.getFontName());
@@ -69,10 +71,10 @@ public class Code128 {
 					break;
 		return mini;
 	}
-	
+
 	private static boolean evenDigits(char[] text, int startAt) {
 		boolean result = true;
-		while(startAt < text.length) {
+		while (startAt < text.length) {
 			if ((text[startAt] < 48) || (text[startAt] > 57))
 				break;
 			startAt++;
@@ -111,9 +113,9 @@ public class Code128 {
 				mini = testNumeric(text, i, mini);
 
 				// switch to C only for odd count of following digits
-				if(mini < 0 && !evenDigits(text, i))
+				if (mini < 0 && !evenDigits(text, i))
 					mini = 0;
-				
+
 				// si mini < 0 on passe en table C
 				if (mini < 0) {
 					code128 += (char) (i == 0 ? START_C : CODE_C); // débuter sur la table C ou commuter sur la table C
@@ -161,9 +163,8 @@ public class Code128 {
 		String code = codeIt(value);
 		BufferedImage img = new BufferedImage(10, 10, BufferedImage.TYPE_INT_ARGB);
 
-		getFont();//.deriveFont(Font.TRUETYPE_FONT, size);
+		getFont();// .deriveFont(Font.TRUETYPE_FONT, size);
 		Font fnt = new Font("Code 128", Font.TRUETYPE_FONT, size);
-
 
 		Graphics2D g2d = img.createGraphics();
 		g2d.setFont(fnt);

@@ -1,8 +1,8 @@
 package cz.bliksoft.javautils.ws.handlers;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.Set;
+
 import javax.xml.namespace.QName;
 import javax.xml.soap.Node;
 import javax.xml.soap.SOAPBody;
@@ -19,6 +19,7 @@ import javax.xml.ws.soap.SOAPFaultException;
 
 public abstract class MacAddressValidationHandlerBase implements SOAPHandler<SOAPMessageContext> {
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public boolean handleMessage(SOAPMessageContext context) {
 		Boolean isRequest = (Boolean) context.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);

@@ -69,11 +69,11 @@ public class LogUtils {
 
 		log = Logger.getLogger(LogUtils.class.toString());
 
-		if ("true".equals(configuration.getProperty("logSSL", "false").toLowerCase()))
+		if ("true".equalsIgnoreCase(configuration.getProperty("logSSL", "false")))
 			setSSLLogging();
-		if ("true".equals(configuration.getProperty("logSOAP", "false").toLowerCase()))
+		if ("true".equalsIgnoreCase(configuration.getProperty("logSOAP", "false")))
 			setSOAPLogging();
-		if ("true".equals(configuration.getProperty("logPKCS11", "false").toLowerCase()))
+		if ("true".equalsIgnoreCase(configuration.getProperty("logPKCS11", "false")))
 			setPKCSLogging();
 
 		appName = configuration.getProperty("appName");

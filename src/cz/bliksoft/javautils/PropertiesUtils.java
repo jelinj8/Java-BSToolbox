@@ -24,7 +24,7 @@ public class PropertiesUtils {
 	 * @throws IOException
 	 */
 	public static void saveProperties(Properties properties, String fileName, String comment, boolean makeBackup)
-			throws FileNotFoundException, IOException {
+			throws IOException {
 		File propFile = new File(fileName);
 		if (makeBackup) {
 			Files.copy(new File(fileName).toPath(), new File(fileName + ".bak").toPath(),

@@ -23,11 +23,11 @@ public class PropertiesUtils {
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	public static void saveProperties(Properties properties, String fileName, String comment, boolean makeBackup)
+	public static void saveProperties(Properties properties, File propFile, String comment, boolean makeBackup)
 			throws IOException {
-		File propFile = new File(fileName);
 		if (makeBackup) {
-			Files.copy(new File(fileName).toPath(), new File(fileName + ".bak").toPath(),
+
+			Files.copy(propFile.toPath(), new File(propFile.getParent(), propFile.getName() + ".bak").toPath(),
 					StandardCopyOption.REPLACE_EXISTING);
 		}
 

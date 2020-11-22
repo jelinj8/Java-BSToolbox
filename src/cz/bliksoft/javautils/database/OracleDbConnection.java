@@ -3,6 +3,7 @@ package cz.bliksoft.javautils.database;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.text.MessageFormat;
@@ -18,7 +19,8 @@ public class OracleDbConnection {
 	static Logger log = Logger.getLogger(OracleDbConnection.class.toString());
 
 	private static OracleDbConnection _instance = null;
-	private static Properties properties = null;
+//	private static Properties properties = null;
+	private File propertiesFile;
 
 	public static OracleDbConnection getInstance() throws Exception {
 		if (_instance == null) {
@@ -28,8 +30,7 @@ public class OracleDbConnection {
 	}
 
 	private OracleDbConnection(File propertiesFile) throws Exception {
-		Properties properties = new Properties();
-		properties.load(new FileInputStream(propertiesFile));
+		this.propertiesFile = propertiesFile;
 	}
 
 	private OracleDbConnection() throws Exception {
@@ -84,28 +85,21 @@ public class OracleDbConnection {
 	private String oraPassword;
 	private String oraDatabase;
 
-	private void processOptions() {
-		try {
-			if (properties == null) {
-				properties = new Properties();
-				properties.load(new FileInputStream("database.properties"));
+	private void processOptions() throws GeneralSecurityException {
+		Properties properties = PropertiesUtils.loadFromFile(propertiesFile);
+
+		oraPassword = CryptUtils.getPwdFromProperties(properties, "oraPassword");
+		oraDatabase = properties.getProperty("oraDatabase");
+		oraAddr = properties.getProperty("oraAddr");
+		oraServerPort = Integer.parseInt(properties.getProperty("oraServerPort", "1521"));
+		oraUserName = properties.getProperty("oraUserName");
+
+		if (CryptUtils.lastPwdModified) {
+			try {
+				PropertiesUtils.saveProperties(properties, propertiesFile, "saved after encoding PWD", true);
+			} catch (Exception e) {
+				log.severe("Faiiled to save encrypted properties: " + e.getMessage());
 			}
-
-			oraPassword = CryptUtils.getPwdFromProperties(properties, "oraPassword");
-			oraDatabase = properties.getProperty("oraDatabase");
-			oraAddr = properties.getProperty("oraAddr");
-			oraServerPort = Integer.parseInt(properties.getProperty("oraServerPort", "1521"));
-			oraUserName = properties.getProperty("oraUserName");
-
-			if (CryptUtils.lastPwdModified) {
-				try {
-					PropertiesUtils.saveProperties(properties, "database.properties", "saved after encoding PWD", true);
-				} catch (Exception e) {
-					log.severe("Faiiled to save properties: " + e.getMessage());
-				}
-			}
-		} catch (IOException e) {
-
 		}
 	}
 }

@@ -18,22 +18,30 @@ import cz.bliksoft.javautils.PropertiesUtils;
 public class OracleDbConnection {
 	static Logger log = Logger.getLogger(OracleDbConnection.class.toString());
 
-	private static OracleDbConnection _instance = null;
-//	private static Properties properties = null;
+	private static OracleDbConnection singletonInstance = null;
 	private File propertiesFile;
+	private static File globalPropertiesFile;
 
 	public static OracleDbConnection getInstance() throws Exception {
-		if (_instance == null) {
-			_instance = new OracleDbConnection();
+		if (singletonInstance == null) {
+			if (globalPropertiesFile == null)
+				throw new Exception("setProipertiesFile not called!");
+			singletonInstance = new OracleDbConnection(globalPropertiesFile);
+			singletonInstance.init();
 		}
-		return _instance;
+		return singletonInstance;
 	}
 
-	private OracleDbConnection(File propertiesFile) throws Exception {
+	public OracleDbConnection(File propertiesFile) throws Exception {
 		this.propertiesFile = propertiesFile;
+		init();
 	}
 
-	private OracleDbConnection() throws Exception {
+	public static void setPropertiesFile(File propertiesFile) {
+		globalPropertiesFile = propertiesFile;
+	}
+
+	private void init() throws Exception {
 		processOptions();
 		log.info("Loading OJDBC driver.");
 

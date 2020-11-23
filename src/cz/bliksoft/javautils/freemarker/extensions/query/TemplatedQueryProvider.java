@@ -37,7 +37,7 @@ public class TemplatedQueryProvider implements IQueryProvider {
 	}
 
 	@Override
-	public boolean createQuery(String name) {
+	public boolean createQuery(String name) throws TemplateModelException {
 		if (sqlCache != null && sqlCache.containsKey(name)) {
 			lastSql = sqlCache.get(name);
 			lastParameters = partypesCache.get(name);
@@ -80,11 +80,8 @@ public class TemplatedQueryProvider implements IQueryProvider {
 
 			return true;
 		} catch (Exception e) {
-			log.severe("Error while creating query: " + e.getMessage());
-			e.printStackTrace();
+			throw new TemplateModelException("Failed to create query.", e);
 		}
-
-		return false;
 	}
 
 	@Override

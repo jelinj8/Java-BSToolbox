@@ -22,7 +22,7 @@ import cz.bliksoft.javautils.threads.MessageInterceptWorker;
 import cz.bliksoft.javautils.xml.XmlUtils;
 
 public class SignHandler implements SOAPHandler<SOAPMessageContext> {
-	private Logger log = Logger.getLogger(SignHandler.class.toString());
+	private Logger log = Logger.getLogger(SignHandler.class.getName());
 
 	private String _name;
 

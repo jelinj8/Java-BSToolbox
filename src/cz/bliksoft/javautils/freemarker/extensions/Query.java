@@ -10,6 +10,7 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import cz.bliksoft.javautils.database.IDBConnectionProvider;
@@ -41,7 +42,7 @@ public class Query implements TemplateMethodModelEx {
 		try {
 			if (!args.isEmpty()) {
 				String queryID = args.get(0).toString();
-				log.info("Executing Query " + queryID);
+				log.log(Level.INFO, "Executing Query {0}", queryID);
 				try {
 					queryProvider.createQuery(queryID);
 				} catch (Exception e) {
@@ -49,32 +50,39 @@ public class Query implements TemplateMethodModelEx {
 				}
 
 				if (queryProvider.getArgumentTypes(queryID).size() != args.size() - 1) {
-					String arguments = "";
+					StringBuilder arguments = new StringBuilder();
 					for (Integer parType : queryProvider.getArgumentTypes(queryID)) {
-						if (arguments != "")
-							arguments += ", ";
+						if (arguments.length() != 0)
+							arguments.append(", ");
 						switch (parType) {
 						case Types.VARCHAR:
-							arguments += "VARCHAR";
+							arguments.append("VARCHAR");
 							break;
 						case Types.DATE:
-							arguments += "DATE";
+							arguments.append("DATE");
 							break;
 						case Types.TIMESTAMP:
-							arguments += "TIMESTAMP";
+							arguments.append("TIMESTAMP");
+							break;
+						case Types.TINYINT:
+							arguments.append("TINYINT");
 							break;
 						case Types.INTEGER:
-							arguments += "INTEGER";
+							arguments.append("INTEGER");
+							break;
+						case Types.NUMERIC:
+							arguments.append("NUMERIC");
 							break;
 						case Types.DOUBLE:
-							arguments += "DOUBLE";
+							arguments.append("DOUBLE");
 							break;
 						default:
 							throw new TemplateModelException("Unsupported SQL parameter type " + parType);
 						}
 					}
-					throw new TemplateModelException("Wrong number of query parameters (" + (args.size() - 1)
-							+ "), expected " + queryProvider.getArgumentTypes(queryID).size() + ": " + arguments);
+					throw new TemplateModelException(
+							"Wrong number of query parameters (" + (args.size() - 1) + "), expected "
+									+ queryProvider.getArgumentTypes(queryID).size() + ": " + arguments.toString());
 				}
 
 				try (PreparedStatement pstmnt = con.prepareStatement(queryProvider.getSql(queryID))) {
@@ -89,6 +97,12 @@ public class Query implements TemplateMethodModelEx {
 						case Types.DATE:
 						case Types.TIMESTAMP:
 							val = null;
+							break;
+						case Types.NUMERIC:
+							val = Long.valueOf(args.get(pID).toString());
+							break;
+						case Types.TINYINT:
+							val = Integer.valueOf(args.get(pID).toString());
 							break;
 						case Types.INTEGER:
 							val = Integer.valueOf(args.get(pID).toString());
@@ -118,6 +132,8 @@ public class Query implements TemplateMethodModelEx {
 									Object val = null;
 									switch (md.getColumnType(cID)) {
 									case Types.INTEGER:
+										val = rs.getInt(cID);
+										break;
 									case Types.TINYINT:
 										val = rs.getInt(cID);
 										break;
@@ -133,7 +149,7 @@ public class Query implements TemplateMethodModelEx {
 										val = rs.getDate(cID);
 										break;
 									case Types.NUMERIC:
-										val = rs.getInt(cID);
+										val = rs.getLong(cID);
 										break;
 									case Types.LONGVARCHAR:
 										try (Reader rdr = rs.getCharacterStream(cID)) {
@@ -152,12 +168,15 @@ public class Query implements TemplateMethodModelEx {
 									default:
 										val = "UNKNOWN COL TYPE " + md.getColumnType(cID) + ":"
 												+ md.getColumnTypeName(cID);
+										log.log(Level.SEVERE, "Unsupported column type: {0}",
+												md.getColumnTypeName(cID));
 									}
 									String name = md.getColumnName(cID);
 									row.put(name, val);
 								}
 								result.add(row);
 							}
+							log.log(Level.INFO, "Result count: {0}", result.size());
 							return result;
 						}
 					} else {
@@ -165,6 +184,8 @@ public class Query implements TemplateMethodModelEx {
 					}
 				} catch (SQLException e) {
 					throw new TemplateModelException("SQL Exception. " + e.getSQLState(), e);
+				} catch (Exception e) {
+					throw new TemplateModelException("Generic exception while processing query " + queryID, e);
 				}
 			} else {
 				throw new TemplateModelException("First parameter must be a Query identifier!");

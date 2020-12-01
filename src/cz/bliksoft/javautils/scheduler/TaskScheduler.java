@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.TreeSet;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import cz.bliksoft.javautils.DateUtils;
@@ -49,7 +50,7 @@ public class TaskScheduler {
 
 	}
 
-	private Thread SchedulerThread = null;
+	private Thread schedulerThread = null;
 	private final Semaphore waitSemaphore = new Semaphore(0, true);
 
 	TreeSet<Task> tasks = new TreeSet<>(new Comparator<Task>() {
@@ -189,9 +190,9 @@ public class TaskScheduler {
 			return;
 		log.fine(">> >> >> >> >> >> >> Task scheduler " + getName() + " starting (" + tasks.size() + " task(s))...");
 
-		List<Task> taskList = new ArrayList<Task>();
+		List<Task> taskList = new ArrayList<>();
 		long ts = DateUtils.millis();
-		
+
 		synchronized (tasks) {
 			while (!tasks.isEmpty()) {
 				taskList.add(tasks.pollFirst());
@@ -215,7 +216,7 @@ public class TaskScheduler {
 		}
 
 		startedTS = DateUtils.millis();
-		SchedulerThread = new Thread(new Runnable() {
+		schedulerThread = new Thread(new Runnable() {
 
 			@Override
 			public void run() {
@@ -226,7 +227,8 @@ public class TaskScheduler {
 							if (waitSemaphore.tryAcquire(nextRun - DateUtils.millis(), TimeUnit.MILLISECONDS)) {
 								log.fine("Wait for task interrupted");
 							} else {
-								log.fine("Wait for task finished" + (nextTask == null ? " (NO TASK)" : ""));
+								log.log(Level.FINE, "Wait for task finished {0}",
+										(nextTask == null ? " (NO TASK)" : ""));
 							}
 						} else {
 							// nemáme plán, čekáme na změnu
@@ -266,7 +268,7 @@ public class TaskScheduler {
 								}
 							}
 						} else {
-							log.fine(status + ": No task to run now.");
+							log.log(Level.FINE, "{0}: No task to run now.", status);
 						}
 					} catch (InterruptedException e) {
 						break;
@@ -274,8 +276,8 @@ public class TaskScheduler {
 				}
 			}
 		}, "TaskScheduler[" + name + "]");
-		SchedulerThread.start();
-		log.info("|> Started, " + tasks.size() + " task(s).");
+		schedulerThread.start();
+		log.log(Level.INFO, "|> Started, {0} task(s).", tasks.size());
 	}
 
 	/**
@@ -306,11 +308,11 @@ public class TaskScheduler {
 		log.fine("[] Task scheduler stopping...");
 		waitSemaphore.release();
 		try {
-			SchedulerThread.join();
+			schedulerThread.join();
 		} catch (InterruptedException e) {
 			log.warning("Error terminating scheduler thread: " + e.getLocalizedMessage());
 		}
-		SchedulerThread = null;
+		schedulerThread = null;
 
 		log.info("Stopped.");
 	}

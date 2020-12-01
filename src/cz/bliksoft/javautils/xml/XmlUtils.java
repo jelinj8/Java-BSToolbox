@@ -3,6 +3,7 @@ package cz.bliksoft.javautils.xml;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -27,11 +28,16 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import cz.bliksoft.javautils.StringUtils;
 import cz.bliksoft.javautils.streams.xml.ElementWriter;
@@ -48,8 +54,8 @@ import cz.bliksoft.javautils.streams.xml.ElementWriter;
  *
  */
 public class XmlUtils {
-	private static Logger log = Logger.getLogger(XmlUtils.class.toString());
-	
+	private static Logger log = Logger.getLogger(XmlUtils.class.getName());
+
 	private static Marshaller getMarshaller(Object obj) throws JAXBException {
 		JAXBContext context;
 
@@ -89,8 +95,7 @@ public class XmlUtils {
 		m.marshal(root, sw);
 		return sw.toString();
 	}
-	
-	
+
 	public static Object unmarshal(String xml, Class<?> cls) throws XMLStreamException, JAXBException {
 		JAXBContext jaxbContext = JAXBContext.newInstance(cls);
 		Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
@@ -98,8 +103,9 @@ public class XmlUtils {
 		XMLEventReader someSource = factory.createXMLEventReader(new StringReader(xml));
 		return jaxbUnmarshaller.unmarshal(someSource, cls).getValue();
 	}
-	
-	public static Object unmarshal(File xml, Class<?> cls) throws XMLStreamException, JAXBException, FileNotFoundException {
+
+	public static Object unmarshal(File xml, Class<?> cls)
+			throws XMLStreamException, JAXBException, FileNotFoundException {
 		JAXBContext jaxbContext = JAXBContext.newInstance(cls);
 		Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 		XMLInputFactory factory = XMLInputFactory.newInstance();
@@ -107,33 +113,29 @@ public class XmlUtils {
 		return jaxbUnmarshaller.unmarshal(someSource, cls).getValue();
 	}
 
-	public static Document convertStringToDocument(String xmlStr) {
+	public static Document convertStringToDocument(String xmlStr)
+			throws SAXException, IOException, ParserConfigurationException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		factory.setNamespaceAware(true);
 		DocumentBuilder builder;
-		try {
-			builder = factory.newDocumentBuilder();
-			Document doc = builder.parse(new InputSource(new StringReader(xmlStr)));
-			return doc;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
+		builder = factory.newDocumentBuilder();
+		Document doc = builder.parse(new InputSource(new StringReader(xmlStr)));
+		return doc;
 	}
 
 	public static Node convertStringToNode(String xmlStr) throws Exception {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		factory.setNamespaceAware(true);
 		DocumentBuilder builder;
-//		try {
-			builder = factory.newDocumentBuilder();
-			Document doc = builder.parse(new InputSource(new StringReader(xmlStr)));
-			Node n = doc.getDocumentElement();
-			return n;
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		return null;
+		//		try {
+		builder = factory.newDocumentBuilder();
+		Document doc = builder.parse(new InputSource(new StringReader(xmlStr)));
+		Node n = doc.getDocumentElement();
+		return n;
+		//		} catch (Exception e) {
+		//			e.printStackTrace();
+		//		}
+		//		return null;
 	}
 
 	public static String getStringFromDocument(Document doc) {
@@ -169,7 +171,7 @@ public class XmlUtils {
 			return null;
 		}
 	}
-	
+
 	public static Document createDocument(String rootName) {
 		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder docBuilder;
@@ -183,6 +185,33 @@ public class XmlUtils {
 			log.warning("Unable to create XML document");
 			return null;
 		}
+	}
+
+	public static String prettyPrintXml(String source) throws Exception {
+		Document doc = XmlUtils.convertStringToDocument(source);
+		return prettyPrintXml(doc);
+	}
+
+	public static String prettyPrintXml(Document doc) throws Exception {
+		doc.getDocumentElement().normalize();
+		XPathExpression xpath;
+		NodeList blankTextNodes = null;
+		xpath = XPathFactory.newInstance().newXPath().compile("//text()[normalize-space(.) = '']");
+		blankTextNodes = (NodeList) xpath.evaluate(doc, XPathConstants.NODESET);
+		for (int i = 0; i < blankTextNodes.getLength(); i++) {
+			blankTextNodes.item(i).getParentNode().removeChild(blankTextNodes.item(i));
+		}
+
+		Transformer transformer = null;
+		transformer = TransformerFactory.newInstance().newTransformer();
+		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+		transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+		transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+		StringWriter sw = new StringWriter();
+		StreamResult result = new StreamResult(sw);
+		DOMSource src = new DOMSource(doc.getDocumentElement());
+		transformer.transform(src, result);
+		return sw.toString();
 	}
 
 }

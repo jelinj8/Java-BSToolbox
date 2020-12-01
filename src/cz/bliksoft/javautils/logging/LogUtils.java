@@ -36,23 +36,24 @@ public class LogUtils {
 
 	// private static LogUtils _instance;
 	public static void init(Properties configuration) {
-
-		logDir = configuration.getProperty("logDir", null);
-		if (logDir != null) {
-			File f = new File(logDir);
-			if (!f.exists()) {
-				try {
-					f.mkdirs();
-				} catch (Exception e) {
-					// log.severe("Unable to create log directory " + logDir);
+		if (configuration != null) {
+			logDir = configuration.getProperty("logDir", null);
+			if (logDir != null) {
+				File f = new File(logDir);
+				if (!f.exists()) {
+					try {
+						f.mkdirs();
+					} catch (Exception e) {
+						// log.severe("Unable to create log directory " + logDir);
+					}
 				}
-			}
 
-			if (f.exists()) {
-				logDir = f.getAbsolutePath();
-				logDirFile = f;
-			} else {
-				logDir = null;
+				if (f.exists()) {
+					logDir = f.getAbsolutePath();
+					logDirFile = f;
+				} else {
+					logDir = null;
+				}
 			}
 		}
 
@@ -67,16 +68,18 @@ public class LogUtils {
 			System.setProperty("java.util.logging.SimpleFormatter.format", "%1$tF %1$tT [%4$s] {%3$s} %5$s%6$s%n");
 		}
 
-		log = Logger.getLogger(LogUtils.class.toString());
+		log = Logger.getLogger(LogUtils.class.getName());
 
-		if ("true".equalsIgnoreCase(configuration.getProperty("logSSL", "false")))
-			setSSLLogging();
-		if ("true".equalsIgnoreCase(configuration.getProperty("logSOAP", "false")))
-			setSOAPLogging();
-		if ("true".equalsIgnoreCase(configuration.getProperty("logPKCS11", "false")))
-			setPKCSLogging();
+		if (configuration != null) {
+			if ("true".equalsIgnoreCase(configuration.getProperty("logSSL", "false")))
+				setSSLLogging();
+			if ("true".equalsIgnoreCase(configuration.getProperty("logSOAP", "false")))
+				setSOAPLogging();
+			if ("true".equalsIgnoreCase(configuration.getProperty("logPKCS11", "false")))
+				setPKCSLogging();
 
-		appName = configuration.getProperty("appName");
+			appName = configuration.getProperty("appName");
+		}
 	}
 
 	public static File getLogDir() {

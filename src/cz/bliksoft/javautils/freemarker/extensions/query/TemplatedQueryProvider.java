@@ -65,6 +65,12 @@ public class TemplatedQueryProvider implements IQueryProvider {
 				case "INTEGER":
 					lastParameters.add(Types.INTEGER);
 					break;
+				case "TINYINT":
+					lastParameters.add(Types.TINYINT);
+					break;
+				case "NUMERIC":
+					lastParameters.add(Types.NUMERIC);
+					break;
 				case "DOUBLE":
 					lastParameters.add(Types.DOUBLE);
 					break;

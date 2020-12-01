@@ -1,13 +1,13 @@
 package cz.bliksoft.javautils.database;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.text.MessageFormat;
 import java.util.Properties;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 //import org.apache.commons.cli.Options;
@@ -16,7 +16,7 @@ import cz.bliksoft.javautils.CryptUtils;
 import cz.bliksoft.javautils.PropertiesUtils;
 
 public class OracleDbConnection {
-	static Logger log = Logger.getLogger(OracleDbConnection.class.toString());
+	static Logger log = Logger.getLogger(OracleDbConnection.class.getName());
 
 	private static OracleDbConnection singletonInstance = null;
 	private File propertiesFile;
@@ -41,7 +41,7 @@ public class OracleDbConnection {
 		globalPropertiesFile = propertiesFile;
 	}
 
-	private void init() throws Exception {
+	private void init() throws ClassNotFoundException, GeneralSecurityException, IOException {
 		processOptions();
 		log.info("Loading OJDBC driver.");
 
@@ -50,9 +50,8 @@ public class OracleDbConnection {
 			Class.forName(driverName);
 			log.info("OJDBC driver loaded.");
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			log.severe("Loading of OJDBC driver failed.");
-			throw new Exception("Loading of OJDBC driver failed.");
+			log.log(Level.SEVERE, "Loading of OJDBC driver failed.", e);
+			throw new ClassNotFoundException("Class oracle.jdbc.driver.OracleDriver not found.", e);
 		}
 	}
 
@@ -68,9 +67,10 @@ public class OracleDbConnection {
 			}
 			reason = MessageFormat.format("{0}:{1} {2}", ste.getFileName(), ste.getLineNumber(), ste.getMethodName());
 		}
-		log.info(MessageFormat.format("Connecting to {0} as {1} ({2})", getOraServerString(), oraUserName, reason));
-		Connection connection = DriverManager.getConnection(getOraServerString(), oraUserName, oraPassword);
-		return connection;
+		String serverString = getOraServerString();
+		if(log.isLoggable(Level.INFO))
+			log.info(MessageFormat.format("Connecting to {0} as {1} ({2})", serverString, oraUserName, reason));
+		return DriverManager.getConnection(serverString, oraUserName, oraPassword);
 	}
 
 	private String getOraServerString() {
@@ -93,7 +93,7 @@ public class OracleDbConnection {
 	private String oraPassword;
 	private String oraDatabase;
 
-	private void processOptions() throws GeneralSecurityException {
+	private void processOptions() throws GeneralSecurityException, IOException {
 		Properties properties = PropertiesUtils.loadFromFile(propertiesFile);
 
 		oraPassword = CryptUtils.getPwdFromProperties(properties, "oraPassword");
@@ -102,7 +102,7 @@ public class OracleDbConnection {
 		oraServerPort = Integer.parseInt(properties.getProperty("oraServerPort", "1521"));
 		oraUserName = properties.getProperty("oraUserName");
 
-		if (CryptUtils.lastPwdModified) {
+		if (CryptUtils.passwordRewritten()) {
 			try {
 				PropertiesUtils.saveProperties(properties, propertiesFile, "saved after encoding PWD", true);
 			} catch (Exception e) {

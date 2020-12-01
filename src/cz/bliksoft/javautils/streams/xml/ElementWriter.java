@@ -36,13 +36,11 @@ public class ElementWriter extends DelegatingXMLStreamWriter {
 
   @Override
 	public void writeStartDocument() throws XMLStreamException {
-		// TODO Auto-generated method stub
 //		super.writeStartDocument();
 	}
   
   @Override
 	public void writeNamespace(String prefix, String uri) throws XMLStreamException {
-		// TODO Auto-generated method stub
 //		super.writeNamespace(prefix, uri);	  
 	}
   

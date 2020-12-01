@@ -7,14 +7,18 @@ import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Constructor;
 import java.nio.charset.StandardCharsets;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.logging.Logger;
 
 import cz.bliksoft.javautils.freemarker.extensions.Code128Encode;
 import cz.bliksoft.javautils.freemarker.extensions.HtmlPreformat;
 import cz.bliksoft.javautils.freemarker.extensions.ImageResource;
+import cz.bliksoft.javautils.freemarker.extensions.PrettyPrintXml;
 import cz.bliksoft.javautils.freemarker.extensions.Regroup;
 import cz.bliksoft.javautils.freemarker.extensions.Remap;
 import cz.bliksoft.javautils.freemarker.extensions.SwitchTemplate;
@@ -31,6 +35,8 @@ import freemarker.template.TemplateException;
  * @author hroch
  */
 public class FreemarkerGenerator {
+	Logger log = Logger.getLogger(FreemarkerGenerator.class.getName());
+
 	private Configuration cfg;
 
 	private static TemplateLoader defaultTemplateLoader = null;
@@ -39,18 +45,30 @@ public class FreemarkerGenerator {
 		FreemarkerGenerator.defaultTemplateLoader = defaultTemplateLoader;
 	}
 
+	private static boolean skipJ8TimeAPI = false;
+	private static Object java8TimeAPIWrapper = null;
+
 	private void commonInit() {
 		cfg = new Configuration(Configuration.VERSION_2_3_30);
 		cfg.setEncoding(Locale.getDefault(), "UTF8");
-		try {
-			Class<?> j8api = Class.forName("no.api.freemarker.java8.Java8ObjectWrapper");
-			if (j8api != null) {
-				Constructor<?> ctor = j8api.getConstructor(String.class);
-				Object object = ctor.newInstance(Configuration.VERSION_2_3_30);
-				cfg.setObjectWrapper((ObjectWrapper) object);
-			}
-		} catch (Exception e) {
+		if (!skipJ8TimeAPI) {
+			if (java8TimeAPIWrapper == null) {
+				try {
+					Class<?> j8api = Class.forName("no.api.freemarker.java8.Java8ObjectWrapper");
+					if (j8api != null) {
+						Constructor<?> ctor = j8api.getConstructor(String.class);
+						java8TimeAPIWrapper = ctor.newInstance(Configuration.VERSION_2_3_30);
+						log.info("no.api.freemarker.java8.Java8ObjectWrapper loaded, registering ObjectWrapper");
+					}
+				} catch (ClassNotFoundException e) {
+					log.info("no.api.freemarker.java8.Java8ObjectWrapper not present");
+					skipJ8TimeAPI = true;
+				} catch (Exception e) {
 
+				}
+			}
+			if (java8TimeAPIWrapper != null)
+				cfg.setObjectWrapper((ObjectWrapper) java8TimeAPIWrapper);
 		}
 	}
 
@@ -136,7 +154,8 @@ public class FreemarkerGenerator {
 
 		root.put("toMap", new Remap());
 		root.put("regroup", new Regroup());
-		
+		root.put("prettyXML", new PrettyPrintXml());
+
 		root.put("TXTTOHTML", //$NON-NLS-1$
 				new TextReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;", "\"", "&quot;", "'", "&#39;", "\n", "<br>\n"));
 		root.put("TXTTOHTML_WHITESPACE", new TextReplacer("&", "&amp;", " ", "&nbsp;", "\t", "&nbsp;&nbsp;&nbsp;", "<", //$NON-NLS-1$
@@ -178,6 +197,16 @@ public class FreemarkerGenerator {
 
 	public void setVariable(String name, Object value) {
 		variables.put(name, value);
+	}
+
+	@SuppressWarnings("unchecked")
+	public void setVariables(Properties props) {
+		Enumeration<String> enums = (Enumeration<String>) props.propertyNames();
+		while (enums.hasMoreElements()) {
+			String key = enums.nextElement();
+			String value = props.getProperty(key);
+			setVariable(key, value);
+		}
 	}
 
 	public Object getVariable(String name) {

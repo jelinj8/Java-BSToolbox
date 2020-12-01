@@ -2,10 +2,12 @@ package cz.bliksoft.javautils;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.AlgorithmParameters;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Base64;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -17,15 +19,24 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.apache.commons.codec.binary.Base64;
-
 public class CryptUtils {
 	private static Logger log = Logger.getLogger(CryptUtils.class.getName());
 
 	private static String defaultPWD = null;
+	private static String cypherSpec = "AES/GCM/NoPadding";
 
 	public static void setDefaultPassword(String passwd) {
 		defaultPWD = passwd;
+	}
+
+	/**
+	 * Used to change from default cypher specification (recommended
+	 * AES/GCM/NoPadding) to e.g. AES/CBC/PKCS5Padding
+	 * 
+	 * @param cypherSpec
+	 */
+	public static void setCypherSpec(String cypherSpec) {
+		CryptUtils.cypherSpec = cypherSpec;
 	}
 
 	public static SecretKeySpec createSecretKey(char[] password, byte[] salt, int iterationCount, int keyLength)
@@ -37,31 +48,30 @@ public class CryptUtils {
 		return new SecretKeySpec(keyTmp.getEncoded(), "AES");
 	}
 
-	public static String encrypt(String property, SecretKeySpec key)
-			throws GeneralSecurityException, UnsupportedEncodingException {
-		Cipher pbeCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+	public static String encrypt(String property, SecretKeySpec key) throws GeneralSecurityException {
+		Cipher pbeCipher = Cipher.getInstance(cypherSpec);
 		pbeCipher.init(Cipher.ENCRYPT_MODE, key);
 		AlgorithmParameters parameters = pbeCipher.getParameters();
 		IvParameterSpec ivParameterSpec = parameters.getParameterSpec(IvParameterSpec.class);
-		byte[] cryptoText = pbeCipher.doFinal(property.getBytes("UTF-8"));
+		byte[] cryptoText = pbeCipher.doFinal(property.getBytes(StandardCharsets.UTF_8));
 		byte[] iv = ivParameterSpec.getIV();
 		return base64Encode(iv) + ":" + base64Encode(cryptoText);
 	}
 
 	public static String base64Encode(byte[] bytes) {
-		return Base64.encodeBase64String(bytes);
+		return Base64.getEncoder().encodeToString(bytes);
 	}
 
-	public static String decrypt(String string, SecretKeySpec key) throws GeneralSecurityException, IOException {
+	public static String decrypt(String string, SecretKeySpec key) throws GeneralSecurityException {
 		String iv = string.split(":")[0];
 		String property = string.split(":")[1];
-		Cipher pbeCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+		Cipher pbeCipher = Cipher.getInstance(cypherSpec);
 		pbeCipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(base64Decode(iv)));
-		return new String(pbeCipher.doFinal(base64Decode(property)), "UTF-8");
+		return new String(pbeCipher.doFinal(base64Decode(property)), StandardCharsets.UTF_8);
 	}
 
-	public static byte[] base64Decode(String property) throws IOException {
-		return Base64.decodeBase64(property);
+	public static byte[] base64Decode(String property) {
+		return Base64.getDecoder().decode(property);
 	}
 
 	public static SecretKeySpec createKey(String pwd, String salt)
@@ -90,8 +100,7 @@ public class CryptUtils {
 	 * @throws InvalidKeySpecException
 	 * @throws NoSuchAlgorithmException
 	 */
-	public static String decrypt(String base64data, String salt)
-			throws NoSuchAlgorithmException, InvalidKeySpecException, GeneralSecurityException, IOException {
+	public static String decrypt(String base64data, String salt) throws GeneralSecurityException, IOException {
 		if (defaultPWD == null)
 			throw new GeneralSecurityException("Default app password not set.");
 		return decrypt(base64data, createKey(defaultPWD, salt));
@@ -109,7 +118,7 @@ public class CryptUtils {
 	 * @throws NoSuchAlgorithmException
 	 */
 	public static String decrypt(String base64data, String password, String salt)
-			throws NoSuchAlgorithmException, InvalidKeySpecException, GeneralSecurityException, IOException {
+			throws GeneralSecurityException, IOException {
 		return decrypt(base64data, createKey(password, salt));
 	}
 
@@ -124,8 +133,7 @@ public class CryptUtils {
 	 * @throws NoSuchAlgorithmException
 	 * @throws UnsupportedEncodingException
 	 */
-	public static String encrypt(String content, String salt) throws UnsupportedEncodingException,
-			NoSuchAlgorithmException, InvalidKeySpecException, GeneralSecurityException {
+	public static String encrypt(String content, String salt) throws GeneralSecurityException {
 		if (defaultPWD == null)
 			throw new GeneralSecurityException("Default app password not set.");
 		return encrypt(content, createKey(defaultPWD, salt));
@@ -142,15 +150,18 @@ public class CryptUtils {
 	 * @throws NoSuchAlgorithmException
 	 * @throws UnsupportedEncodingException
 	 */
-	public static String encrypt(String content, String password, String salt) throws UnsupportedEncodingException,
-			NoSuchAlgorithmException, InvalidKeySpecException, GeneralSecurityException {
+	public static String encrypt(String content, String password, String salt) throws GeneralSecurityException {
 		return encrypt(content, createKey(password, salt));
 	}
+
+	private static boolean lastPwdModified = false;
 
 	/**
 	 * po volání getPwdFromProperties indikuje zda došlo ke změně properties
 	 */
-	public static boolean lastPwdModified = false;
+	public static boolean passwordRewritten() {
+		return lastPwdModified;
+	}
 
 	/**
 	 * vezme heslo, pokud není šifrované zašifruje a nastaví lastPwdModified na true

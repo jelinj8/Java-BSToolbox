@@ -17,7 +17,7 @@ import cz.bliksoft.javautils.logging.LogUtils;
 import cz.bliksoft.javautils.ws.Binder;
 
 public class SOAPLogHandler implements SOAPHandler<SOAPMessageContext> {
-	private static Logger log = Logger.getLogger(SOAPLogHandler.class.toString());
+	private static Logger log = Logger.getLogger(SOAPLogHandler.class.getName());
 
 	private String _name;
 

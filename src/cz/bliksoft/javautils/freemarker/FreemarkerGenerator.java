@@ -18,9 +18,9 @@ import java.util.logging.Logger;
 import cz.bliksoft.javautils.freemarker.extensions.Code128Encode;
 import cz.bliksoft.javautils.freemarker.extensions.HtmlPreformat;
 import cz.bliksoft.javautils.freemarker.extensions.ImageResource;
+import cz.bliksoft.javautils.freemarker.extensions.ParseXml;
 import cz.bliksoft.javautils.freemarker.extensions.PrettyPrintXml;
 import cz.bliksoft.javautils.freemarker.extensions.Regroup;
-import cz.bliksoft.javautils.freemarker.extensions.Remap;
 import cz.bliksoft.javautils.freemarker.extensions.SwitchTemplate;
 import cz.bliksoft.javautils.freemarker.extensions.TextReplacer;
 import freemarker.cache.FileTemplateLoader;
@@ -134,7 +134,7 @@ public class FreemarkerGenerator {
 		registerExtensions(root);
 		registerVariables(root);
 		try (FileOutputStream fos = new FileOutputStream(outfile)) {
-			try (OutputStreamWriter out = new OutputStreamWriter(fos, StandardCharsets.UTF_8)) { // $NON-NLS-1$
+			try (OutputStreamWriter out = new OutputStreamWriter(fos, StandardCharsets.UTF_8)) {
 				temp.process(root, out);
 			}
 		}
@@ -152,9 +152,9 @@ public class FreemarkerGenerator {
 		root.put("imgRes", new ImageResource()); //$NON-NLS-1$
 		root.put("code128", new Code128Encode()); //$NON-NLS-1$
 
-		root.put("toMap", new Remap());
-		root.put("regroup", new Regroup());
-		root.put("prettyXML", new PrettyPrintXml());
+		root.put("regroup", new Regroup()); //$NON-NLS-1$
+		root.put("prettyXML", new PrettyPrintXml()); //$NON-NLS-1$
+		root.put("parseXML", new ParseXml()); //$NON-NLS-1$
 
 		root.put("TXTTOHTML", //$NON-NLS-1$
 				new TextReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;", "\"", "&quot;", "'", "&#39;", "\n", "<br>\n"));

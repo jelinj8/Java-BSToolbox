@@ -13,11 +13,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import cz.bliksoft.javautils.freemarker.extensions.Code128Encode;
 import cz.bliksoft.javautils.freemarker.extensions.HtmlPreformat;
 import cz.bliksoft.javautils.freemarker.extensions.ImageResource;
+import cz.bliksoft.javautils.freemarker.extensions.Log;
 import cz.bliksoft.javautils.freemarker.extensions.ParseXml;
 import cz.bliksoft.javautils.freemarker.extensions.PrettyPrintXml;
 import cz.bliksoft.javautils.freemarker.extensions.Regroup;
@@ -25,10 +27,12 @@ import cz.bliksoft.javautils.freemarker.extensions.SwitchTemplate;
 import cz.bliksoft.javautils.freemarker.extensions.TextReplacer;
 import freemarker.cache.FileTemplateLoader;
 import freemarker.cache.TemplateLoader;
+import freemarker.core.Environment;
 import freemarker.template.Configuration;
 import freemarker.template.ObjectWrapper;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import freemarker.template.TemplateModel;
 
 /**
  *
@@ -47,6 +51,16 @@ public class FreemarkerGenerator {
 
 	private static boolean skipJ8TimeAPI = false;
 	private static Object java8TimeAPIWrapper = null;
+	private boolean storeEnvironment = false;
+	private Environment lastEnvironment = null;
+
+	public void storeEnvironment() {
+		this.storeEnvironment = true;
+	}
+	
+	public Environment getLastEnvironment() {
+		return lastEnvironment;
+	}
 
 	private void commonInit() {
 		cfg = new Configuration(Configuration.VERSION_2_3_30);
@@ -123,7 +137,12 @@ public class FreemarkerGenerator {
 			root.put("data", data);
 		registerVariables(root);
 		StringWriter s = new StringWriter();
-		temp.process(root, s);
+		if (storeEnvironment) {
+			lastEnvironment = temp.createProcessingEnvironment(root, s);
+			lastEnvironment.process(); // process the template
+		} else {
+			temp.process(root, s);
+		}
 		return s.toString();
 	}
 
@@ -135,7 +154,12 @@ public class FreemarkerGenerator {
 		registerVariables(root);
 		try (FileOutputStream fos = new FileOutputStream(outfile)) {
 			try (OutputStreamWriter out = new OutputStreamWriter(fos, StandardCharsets.UTF_8)) {
-				temp.process(root, out);
+				if (storeEnvironment) {
+					lastEnvironment = temp.createProcessingEnvironment(root, out);
+					lastEnvironment.process(); // process the template
+				} else {
+					temp.process(root, out);
+				}
 			}
 		}
 	}

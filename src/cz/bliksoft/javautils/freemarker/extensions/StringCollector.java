@@ -34,4 +34,8 @@ public class StringCollector implements TemplateMethodModelEx {
 	public List<String> getValues() {
 		return values;
 	}
+
+	public String getValue() {
+		return values.get(0);
+	}
 }

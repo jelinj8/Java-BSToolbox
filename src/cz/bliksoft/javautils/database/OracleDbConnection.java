@@ -3,12 +3,18 @@ package cz.bliksoft.javautils.database;
 import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.sql.Array;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Types;
 import java.text.MessageFormat;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 //import org.apache.commons.cli.Options;
 
@@ -68,7 +74,7 @@ public class OracleDbConnection {
 			reason = MessageFormat.format("{0}:{1} {2}", ste.getFileName(), ste.getLineNumber(), ste.getMethodName());
 		}
 		String serverString = getOraServerString();
-		if(log.isLoggable(Level.INFO))
+		if (log.isLoggable(Level.INFO))
 			log.info(MessageFormat.format("Connecting to {0} as {1} ({2})", serverString, oraUserName, reason));
 		return DriverManager.getConnection(serverString, oraUserName, oraPassword);
 	}
@@ -109,5 +115,40 @@ public class OracleDbConnection {
 				log.severe("Faiiled to save encrypted properties: " + e.getMessage());
 			}
 		}
+	}
+
+	public static String captureDbmsOut(Connection connection, String sql) throws SQLException {
+		StringBuilder sb = new StringBuilder();
+		try (Statement s = connection.createStatement()) {
+			try {
+				s.executeUpdate("begin dbms_output.enable(100000); end;");
+
+				try (CallableStatement call = connection.prepareCall(sql)) {
+					call.execute();
+				}
+
+				try (CallableStatement call = connection
+						.prepareCall("declare num integer := 10000; begin dbms_output.get_lines(?, num); end;")) {
+					call.registerOutParameter(1, Types.ARRAY, "DBMSOUTPUT_LINESARRAY");
+					call.execute();
+
+					Array array = null;
+					try {
+						array = call.getArray(1);
+						Stream.of((Object[]) array.getArray()).forEach(a -> {
+							if (a != null)
+								sb.append(a);
+							sb.append("\n");
+						});
+					} finally {
+						if (array != null)
+							array.free();
+					}
+				}
+			} finally {
+				s.executeUpdate("begin dbms_output.disable(); end;");
+			}
+		}
+		return sb.toString();
 	}
 }

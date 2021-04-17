@@ -13,18 +13,17 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import cz.bliksoft.javautils.freemarker.extensions.Code128Encode;
+import cz.bliksoft.javautils.freemarker.extensions.Code128Width;
 import cz.bliksoft.javautils.freemarker.extensions.HtmlPreformat;
 import cz.bliksoft.javautils.freemarker.extensions.ImageResource;
-import cz.bliksoft.javautils.freemarker.extensions.Log;
 import cz.bliksoft.javautils.freemarker.extensions.ParseXml;
 import cz.bliksoft.javautils.freemarker.extensions.PrettyPrintXml;
 import cz.bliksoft.javautils.freemarker.extensions.Regroup;
-import cz.bliksoft.javautils.freemarker.extensions.SwitchTemplate;
 import cz.bliksoft.javautils.freemarker.extensions.TextReplacer;
+import freemarker.cache.ClassTemplateLoader;
 import freemarker.cache.FileTemplateLoader;
 import freemarker.cache.TemplateLoader;
 import freemarker.core.Environment;
@@ -32,7 +31,6 @@ import freemarker.template.Configuration;
 import freemarker.template.ObjectWrapper;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
-import freemarker.template.TemplateModel;
 
 /**
  *
@@ -49,6 +47,14 @@ public class FreemarkerGenerator {
 		FreemarkerGenerator.defaultTemplateLoader = defaultTemplateLoader;
 	}
 
+	public static void setDefaultTemplateLoader(File templateRootFolder) throws IOException {
+		FreemarkerGenerator.defaultTemplateLoader = new FileTemplateLoader(templateRootFolder);
+	}
+
+	public static void setDefaultTemplateLoader(Class<?> templateClassNeighbour) {
+		FreemarkerGenerator.defaultTemplateLoader = new ClassTemplateLoader(templateClassNeighbour, "");
+	}
+
 	private static boolean skipJ8TimeAPI = false;
 	private static Object java8TimeAPIWrapper = null;
 	private boolean storeEnvironment = false;
@@ -57,9 +63,13 @@ public class FreemarkerGenerator {
 	public void storeEnvironment() {
 		this.storeEnvironment = true;
 	}
-	
+
 	public Environment getLastEnvironment() {
 		return lastEnvironment;
+	}
+
+	public Configuration getConfiguration() {
+		return cfg;
 	}
 
 	private void commonInit() {
@@ -97,7 +107,6 @@ public class FreemarkerGenerator {
 		commonInit();
 
 		cfg.setTemplateLoader(defaultTemplateLoader);
-		cfg.setLocalizedLookup(false);
 	}
 
 	/**
@@ -109,7 +118,6 @@ public class FreemarkerGenerator {
 		commonInit();
 
 		cfg.setTemplateLoader(new FileTemplateLoader(basePath));
-		cfg.setLocalizedLookup(false);
 	}
 
 	/**
@@ -121,6 +129,10 @@ public class FreemarkerGenerator {
 	public FreemarkerGenerator(Class<?> templateLoaderClass) {
 		commonInit();
 		cfg.setClassForTemplateLoading(templateLoaderClass, ".");
+	}
+
+	public void disableLocalizedTemplateLookup() {
+		cfg.setLocalizedLookup(false);
 	}
 
 	public String generate(String templateName) throws IOException, TemplateException {
@@ -172,9 +184,9 @@ public class FreemarkerGenerator {
 
 	private void registerExtensions(Map<String, Object> root) {
 		root.put("formatAsHTML", new HtmlPreformat()); //$NON-NLS-1$
-		root.put("switchTemplate", new SwitchTemplate()); //$NON-NLS-1$
 		root.put("imgRes", new ImageResource()); //$NON-NLS-1$
 		root.put("code128", new Code128Encode()); //$NON-NLS-1$
+		root.put("code128width", new Code128Width()); //$NON-NLS-1$
 
 		root.put("regroup", new Regroup()); //$NON-NLS-1$
 		root.put("prettyXML", new PrettyPrintXml()); //$NON-NLS-1$

@@ -11,6 +11,8 @@ import java.util.Base64;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.CRC32;
+import java.util.zip.Checksum;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -218,5 +220,27 @@ public class CryptUtils {
 				throw new GeneralSecurityException("Failed to decrypt password property.", e);
 			}
 		}
+	}
+
+	public static long getCRC32Checksum(String value) {
+		return getCRC32Checksum(value.getBytes());
+	}
+
+	public static String getNumericChecksum(String value, int length) {
+		String crc32 = String.valueOf(getCRC32Checksum(value.getBytes()));
+		if (crc32.length() < length) {
+			while (crc32.length() < length) {
+				crc32 = "9" + crc32;
+			}
+			return crc32;
+		} else {
+			return "9" + crc32.substring(crc32.length() - length + 1);
+		}
+	}
+
+	public static long getCRC32Checksum(byte[] bytes) {
+		Checksum crc32 = new CRC32();
+		crc32.update(bytes, 0, bytes.length);
+		return crc32.getValue();
 	}
 }

@@ -32,10 +32,21 @@ public class LogUtils {
 	// private static Properties props;
 	private static String logDir = null;
 	private static File logDirFile = null;
-	private static String appName;
+	private static String logName;
+
+	public static void setLogName(String name) {
+		logName = name;
+	}
+
+	public static void initLog4J(File configPath) {
+		System.setProperty("log4j2.configurationFile",
+				(configPath != null ? configPath.getPath() : (new File("log4j2.xml").getPath())));
+		System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
+	}
 
 	// private static LogUtils _instance;
 	public static void init(Properties configuration) {
+		File logProps;
 		if (configuration != null) {
 			logDir = configuration.getProperty("logDir", null);
 			if (logDir != null) {
@@ -55,9 +66,21 @@ public class LogUtils {
 					logDir = null;
 				}
 			}
+			System.setProperty("logDir", logDir);
+			if (logName != null)
+				System.setProperty("logName", logName);
+			logProps = new File(configuration.getProperty("loggingProperties", "logging.properties"));
+			String log4jConfigName = configuration.getProperty("log4j");
+			if (log4jConfigName != null) {
+				File log4jConfig = new File(log4jConfigName);
+				if (log4jConfig.exists()) {
+					initLog4J(log4jConfig);
+				}
+			}
+		} else {
+			logProps = new File("logging.properties");
 		}
 
-		File logProps = new File("logging.properties");
 		if (logProps.exists()) {
 			try {
 				LogManager.getLogManager().readConfiguration(new FileInputStream(logProps));
@@ -78,7 +101,7 @@ public class LogUtils {
 			if ("true".equalsIgnoreCase(configuration.getProperty("logPKCS11", "false")))
 				setPKCSLogging();
 
-			appName = configuration.getProperty("appName");
+			logName = configuration.getProperty("appName");
 		}
 	}
 
@@ -97,8 +120,7 @@ public class LogUtils {
 
 		Date curdate = new Date();
 		String timestamp = sdf.format(curdate);
-		String path = MessageFormat.format("{0}{1}_{3}.{4}", logDir + File.separatorChar, timestamp,
-				(appName == null ? "" : (appName + "_")), name, extension);
+		String path = MessageFormat.format("{0}{1}_{2}.{3}", logDir + File.separatorChar, timestamp, name, extension);
 
 		log.info("Log file: " + path);
 		return path;

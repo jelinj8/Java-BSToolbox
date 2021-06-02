@@ -83,12 +83,19 @@ public class OracleDbConnection {
 		String dbUrl = "jdbc:oracle:thin:@"; //$NON-NLS-1$
 
 		if ((oraAddr == null) || (oraAddr.length() == 0)) {
-			dbUrl += oraDatabase;
+			dbUrl += oraSID;
 		} else {
 			if ((oraServerPort == null) || (oraServerPort == 0))
-				dbUrl += oraAddr + oraDatabase; // $NON-NLS-1$ //$NON-NLS-2$
-			else
-				dbUrl += oraAddr + ":" + oraServerPort + ":" + oraDatabase; //$NON-NLS-1$ //$NON-NLS-2$
+				if (serviceName != null)
+					dbUrl += "//" + oraAddr + "/" + serviceName; // $NON-NLS-1$ //$NON-NLS-2$
+				else
+					dbUrl += oraAddr + ":" + oraSID; // $NON-NLS-1$ //$NON-NLS-2$
+			else {
+				if (serviceName != null)
+					dbUrl += "//" + oraAddr + ":" + oraServerPort + "/" + serviceName; //$NON-NLS-1$ //$NON-NLS-2$
+				else
+					dbUrl += oraAddr + ":" + oraServerPort + ":" + oraSID; //$NON-NLS-1$ //$NON-NLS-2$
+			}
 		}
 		return dbUrl;
 	}
@@ -97,13 +104,15 @@ public class OracleDbConnection {
 	private Integer oraServerPort;
 	private String oraUserName;
 	private String oraPassword;
-	private String oraDatabase;
+	private String oraSID;
+	private String serviceName;
 
 	private void processOptions() throws GeneralSecurityException, IOException {
 		Properties properties = PropertiesUtils.loadFromFile(propertiesFile);
 
 		oraPassword = CryptUtils.getPwdFromProperties(properties, "oraPassword");
-		oraDatabase = properties.getProperty("oraDatabase");
+		oraSID = properties.getProperty("oraDatabase");
+		serviceName = properties.getProperty("oraService");
 		oraAddr = properties.getProperty("oraAddr");
 		oraServerPort = Integer.parseInt(properties.getProperty("oraServerPort", "1521"));
 		oraUserName = properties.getProperty("oraUserName");

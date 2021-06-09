@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -73,6 +75,10 @@ public class XmlUtils {
 		getMarshaller(obj).marshal(obj, writer);
 	}
 
+	public static void marshal(Object obj, OutputStream writer) throws JAXBException {
+		getMarshaller(obj).marshal(obj, writer);
+	}
+
 	public static String marshal(Object obj) throws JAXBException {
 		StringWriter sw = new StringWriter();
 		getMarshaller(obj).marshal(obj, sw);
@@ -113,6 +119,15 @@ public class XmlUtils {
 		return jaxbUnmarshaller.unmarshal(someSource, cls).getValue();
 	}
 
+	public static Object unmarshal(InputStream xml, Class<?> cls)
+			throws XMLStreamException, JAXBException, FileNotFoundException {
+		JAXBContext jaxbContext = JAXBContext.newInstance(cls);
+		Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+		XMLInputFactory factory = XMLInputFactory.newInstance();
+		XMLEventReader someSource = factory.createXMLEventReader(xml);
+		return jaxbUnmarshaller.unmarshal(someSource, cls).getValue();
+	}
+
 	public static Document convertStringToDocument(String xmlStr)
 			throws SAXException, IOException, ParserConfigurationException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -127,15 +142,15 @@ public class XmlUtils {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		factory.setNamespaceAware(true);
 		DocumentBuilder builder;
-		//		try {
+		// try {
 		builder = factory.newDocumentBuilder();
 		Document doc = builder.parse(new InputSource(new StringReader(xmlStr)));
 		Node n = doc.getDocumentElement();
 		return n;
-		//		} catch (Exception e) {
-		//			e.printStackTrace();
-		//		}
-		//		return null;
+		// } catch (Exception e) {
+		// e.printStackTrace();
+		// }
+		// return null;
 	}
 
 	public static String getStringFromDocument(Document doc) {

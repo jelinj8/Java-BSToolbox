@@ -22,6 +22,7 @@ import cz.bliksoft.javautils.freemarker.extensions.ImageResource;
 import cz.bliksoft.javautils.freemarker.extensions.ParseXml;
 import cz.bliksoft.javautils.freemarker.extensions.PrettyPrintXml;
 import cz.bliksoft.javautils.freemarker.extensions.Regroup;
+import cz.bliksoft.javautils.freemarker.extensions.Reindex;
 import cz.bliksoft.javautils.freemarker.extensions.TextReplacer;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.cache.FileTemplateLoader;
@@ -189,6 +190,7 @@ public class FreemarkerGenerator {
 		root.put("code128width", new Code128Width()); //$NON-NLS-1$
 
 		root.put("regroup", new Regroup()); //$NON-NLS-1$
+		root.put("reindex", new Reindex()); //$NON-NLS-1$
 		root.put("prettyXML", new PrettyPrintXml()); //$NON-NLS-1$
 		root.put("parseXML", new ParseXml()); //$NON-NLS-1$
 

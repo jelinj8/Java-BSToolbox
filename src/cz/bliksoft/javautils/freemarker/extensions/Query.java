@@ -153,10 +153,8 @@ public class Query implements TemplateMethodModelEx {
 									Object val = null;
 									switch (md.getColumnType(cID)) {
 									case Types.INTEGER:
-										colType = "INTEGER";
-										val = rs.getInt(cID);
-										break;
 									case Types.TINYINT:
+									case Types.SMALLINT:
 										colType = "INTEGER";
 										val = rs.getInt(cID);
 										break;
@@ -175,8 +173,14 @@ public class Query implements TemplateMethodModelEx {
 										val = rs.getDate(cID);
 										break;
 									case Types.NUMERIC:
-										colType = "LONG";
-										val = rs.getLong(cID);
+									case Types.DECIMAL:
+										colType = "DECIMAL";
+										val = rs.getBigDecimal(cID);
+										break;
+									case Types.DOUBLE:
+									case Types.FLOAT:
+										colType = "DOUBLE";
+										val = rs.getDouble(cID);
 										break;
 									case Types.LONGVARCHAR:
 										try (Reader rdr = rs.getCharacterStream(cID)) {

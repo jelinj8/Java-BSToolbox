@@ -10,14 +10,27 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import cz.bliksoft.javautils.database.IDBConnectionProvider;
 import cz.bliksoft.javautils.freemarker.extensions.query.IQueryProvider;
+import freemarker.core.Environment;
+import freemarker.template.DefaultArrayAdapter;
+import freemarker.template.DefaultListAdapter;
+import freemarker.template.SimpleSequence;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
+import freemarker.template.WrappingTemplateModel;
 
+/**
+ * Call a SQL query. Sets LastQuery hashmap with. [columns, columnTypes, SQL,
+ * parameters, resultCount]
+ * 
+ * @author jakub
+ *
+ */
 public class Query implements TemplateMethodModelEx {
 
 	Logger log = Logger.getLogger(Query.class.getName());
@@ -85,7 +98,9 @@ public class Query implements TemplateMethodModelEx {
 									+ queryProvider.getArgumentTypes(queryID).size() + ": " + arguments.toString());
 				}
 
-				try (PreparedStatement pstmnt = con.prepareStatement(queryProvider.getSql(queryID))) {
+				String query = queryProvider.getSql(queryID);
+				List<Object> queryParameters = new ArrayList<>();
+				try (PreparedStatement pstmnt = con.prepareStatement(query)) {
 					int pID = 1;
 					for (Integer parType : queryProvider.getArgumentTypes(queryID)) {
 						Object val = null;
@@ -118,12 +133,18 @@ public class Query implements TemplateMethodModelEx {
 							pstmnt.setNull(pID, parType);
 						else
 							pstmnt.setObject(pID, val, parType);
+						queryParameters.add(val);
 
 						pID++;
 					}
 
 					if (pstmnt.execute()) {
+						log.log(Level.INFO, "Fetching result for query {0}", queryID);
 						List<HashMap<String, Object>> result = new ArrayList<>();
+						List<String> colNames = new ArrayList<>();
+						List<String> colTypes = new ArrayList<>();
+						String colType;
+						boolean firstRow = true;
 						try (ResultSet rs = pstmnt.getResultSet()) {
 							ResultSetMetaData md = rs.getMetaData();
 							while (rs.next()) {
@@ -132,27 +153,34 @@ public class Query implements TemplateMethodModelEx {
 									Object val = null;
 									switch (md.getColumnType(cID)) {
 									case Types.INTEGER:
+										colType = "INTEGER";
 										val = rs.getInt(cID);
 										break;
 									case Types.TINYINT:
+										colType = "INTEGER";
 										val = rs.getInt(cID);
 										break;
 									case Types.CHAR:
 									case Types.CLOB:
 									case Types.VARCHAR:
+										colType = "STRING";
 										val = rs.getString(cID);
 										break;
 									case Types.TIMESTAMP:
+										colType = "TIMESTAMP";
 										val = rs.getTimestamp(cID);
 										break;
 									case Types.DATE:
+										colType = "DATE";
 										val = rs.getDate(cID);
 										break;
 									case Types.NUMERIC:
+										colType = "LONG";
 										val = rs.getLong(cID);
 										break;
 									case Types.LONGVARCHAR:
 										try (Reader rdr = rs.getCharacterStream(cID)) {
+											colType = "STRING";
 											final int buflen = 8 * 1024;
 											char[] arr = new char[buflen];
 											StringBuilder buffer = new StringBuilder();
@@ -166,6 +194,7 @@ public class Query implements TemplateMethodModelEx {
 										}
 										break;
 									default:
+										colType = "UNKNOWN";
 										val = "UNKNOWN COL TYPE " + md.getColumnType(cID) + ":"
 												+ md.getColumnTypeName(cID);
 										log.log(Level.SEVERE, "Unsupported column type: {0}",
@@ -173,10 +202,25 @@ public class Query implements TemplateMethodModelEx {
 									}
 									String name = md.getColumnName(cID);
 									row.put(name, val);
+									if (firstRow) {
+										colNames.add(name);
+										colTypes.add(colType);
+									}
 								}
 								result.add(row);
+								firstRow = false;
 							}
 							log.log(Level.INFO, "Result count: {0}", result.size());
+							Map<String, Object> qParams = new HashMap<>();
+							qParams.put("columns", colNames);
+							qParams.put("columnTypes", colTypes);
+							qParams.put("SQL", query);
+							qParams.put("parameters", queryParameters);
+							qParams.put("resultCount", result.size());
+
+							Environment.getCurrentEnvironment().setVariable("LastQuery",
+									Environment.getCurrentEnvironment().getObjectWrapper().wrap(qParams));
+
 							return result;
 						}
 					} else {

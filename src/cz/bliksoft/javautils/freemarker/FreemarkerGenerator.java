@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 
 import cz.bliksoft.javautils.freemarker.extensions.Code128Encode;
 import cz.bliksoft.javautils.freemarker.extensions.Code128Width;
+import cz.bliksoft.javautils.freemarker.extensions.GUIPrompt;
 import cz.bliksoft.javautils.freemarker.extensions.HtmlPreformat;
 import cz.bliksoft.javautils.freemarker.extensions.ImageResource;
 import cz.bliksoft.javautils.freemarker.extensions.ParseXml;
@@ -191,6 +192,8 @@ public class FreemarkerGenerator {
 		root.put("regroup", new Regroup()); //$NON-NLS-1$
 		root.put("prettyXML", new PrettyPrintXml()); //$NON-NLS-1$
 		root.put("parseXML", new ParseXml()); //$NON-NLS-1$
+
+		root.put("GUIPrompt", new GUIPrompt()); //$NON-NLS-1$
 
 		root.put("TXTTOHTML", //$NON-NLS-1$
 				new TextReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;", "\"", "&quot;", "'", "&#39;", "\n", "<br>\n"));

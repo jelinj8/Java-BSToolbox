@@ -1,6 +1,7 @@
 package cz.bliksoft.javautils.scheduler;
 
 import java.util.Date;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public abstract class Task {
@@ -19,8 +20,7 @@ public abstract class Task {
 	}
 
 	public void exception(Exception e) {
-		System.out.println("Task " + name + " threw an exception: " + e.getMessage());
-		e.printStackTrace();
+		log.log(Level.SEVERE, "Task " + name + " threw an exception: ", e);
 	}
 
 	/**

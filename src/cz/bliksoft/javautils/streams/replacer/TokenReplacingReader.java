@@ -14,8 +14,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.CharBuffer;
 
 /**
- * http://tutorials.jenkov.com/java-howto/replace-strings-in-streams-arrays-
- * files.html
+ * http://tutorials.jenkov.com/java-howto/replace-strings-in-streams-arrays-files.html
  * 
  * @author Jakob Jenkov
  * 
@@ -31,8 +30,7 @@ public class TokenReplacingReader extends Reader {
 		this(new InputStreamReader(source, "UTF-8"), resolver);
 	}
 
-	public TokenReplacingReader(File source, ITokenResolver resolver)
-			throws FileNotFoundException {
+	public TokenReplacingReader(File source, ITokenResolver resolver) throws FileNotFoundException {
 		this(new FileReader(source), resolver);
 	}
 
@@ -81,8 +79,7 @@ public class TokenReplacingReader extends Reader {
 			data = this.pushbackReader.read();
 		}
 
-		this.tokenValue = this.tokenResolver.resolveToken(this.tokenNameBuffer
-				.toString());
+		this.tokenValue = this.tokenResolver.resolveToken(this.tokenNameBuffer.toString());
 
 		if (this.tokenValue == null) {
 			this.tokenValue = "${" + this.tokenNameBuffer.toString() + "}";

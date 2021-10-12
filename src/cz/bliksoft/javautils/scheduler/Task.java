@@ -8,7 +8,7 @@ public abstract class Task {
 
 	protected Logger log = null;
 
-	public Task(String name) {
+	protected Task(String name) {
 		this.name = name;
 		log = Logger.getLogger(this.getClass().getSimpleName() + "[" + this.name + "]");
 	}

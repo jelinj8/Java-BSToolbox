@@ -23,29 +23,30 @@ abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * <pre>
-	 *	switch (method) {
-	 *	case "GET":
-	 *	case "POST":
-	 *		break;
-	 *	default:
-	 *		throw new IOException("Unsupported method: " + method);
-	 *	}
+	 * switch (method) {
+	 * case "GET":
+	 * case "POST":
+	 * 	break;
+	 * default:
+	 * 	throw new IOException("Unsupported method: " + method);
+	 * }
 	 *
-	 *	switch (path) {
-	 *	case "/test":
-	 *		sendOK(t, testRequest(path, params));
-	 *		break;
-	 *	default:
-	 *		sendERR(t, "Unknown path: " + path);
+	 * switch (path) {
+	 * case "/test":
+	 * 	sendOK(t, testRequest(path, params));
+	 * 	break;
+	 * default:
+	 * 	sendERR(t, "Unknown path: " + path);
 	 * }
 	 * </pre>
+	 * 
 	 * @param httpExchange
-	 * @param path URI, starts with '/'
+	 * @param path         URI, starts with '/'
 	 * @param params
 	 * @throws IOException
 	 */
-	public abstract void handle(HttpExchange httpExchange, String path, String method, Map<String, List<Optional<String>>> params)
-			throws IOException;
+	public abstract void handle(HttpExchange httpExchange, String path, String method,
+			Map<String, List<Optional<String>>> params) throws IOException;
 
 	@Override
 	public void handle(HttpExchange httpExchange) throws IOException {
@@ -108,16 +109,15 @@ abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 		List<Optional<String>> vals = parameters.get(paramName);
 		if (vals == null)
 			return null;
-		if (!vals.get(0).isPresent())
+		if (vals.get(0).isPresent())
+			return vals.get(0).get();
+		else
 			return "";
-		return vals.get(0).get();
 	}
 
 	protected List<Optional<String>> getParameterValues(Map<String, List<Optional<String>>> parameters,
 			String paramName) {
 		List<Optional<String>> vals = parameters.get(paramName);
-		if (vals == null)
-			return null;
 		return vals;
 	}
 

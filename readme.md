@@ -49,7 +49,7 @@ When you actually use JAXB, you will need also some implementation in runtime cl
 
 or for EclipseLink MOXy implementation add a file *jaxb.properties* with ```javax.xml.bind.context.factory=org.eclipse.persistence.jaxb.JAXBContextFactory``` and dependency
 ```
-<dependency> 
+<dependency>
 	<groupId>org.eclipse.persistence</groupId>
 	<artifactId>org.eclipse.persistence.moxy</artifactId>
 	<version>2.7.3</version>

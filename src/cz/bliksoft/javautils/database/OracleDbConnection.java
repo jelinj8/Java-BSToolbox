@@ -31,7 +31,7 @@ public class OracleDbConnection {
 	public static OracleDbConnection getInstance() throws Exception {
 		if (singletonInstance == null) {
 			if (globalPropertiesFile == null)
-				throw new Exception("setProipertiesFile not called!");
+				throw new Exception("setPropertiesFile not called!");
 			singletonInstance = new OracleDbConnection(globalPropertiesFile);
 			singletonInstance.init();
 		}
@@ -85,12 +85,13 @@ public class OracleDbConnection {
 		if ((oraAddr == null) || (oraAddr.length() == 0)) {
 			dbUrl += oraSID;
 		} else {
-			if ((oraServerPort == null) || (oraServerPort == 0))
-				if (serviceName != null)
+			if ((oraServerPort == null) || (oraServerPort == 0)) {
+				if (serviceName != null) {
 					dbUrl += "//" + oraAddr + "/" + serviceName; // $NON-NLS-1$ //$NON-NLS-2$
-				else
+				} else {
 					dbUrl += oraAddr + ":" + oraSID; // $NON-NLS-1$ //$NON-NLS-2$
-			else {
+				}
+			} else {
 				if (serviceName != null)
 					dbUrl += "//" + oraAddr + ":" + oraServerPort + "/" + serviceName; //$NON-NLS-1$ //$NON-NLS-2$
 				else

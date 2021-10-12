@@ -5,7 +5,7 @@ import javax.xml.ws.Service;
 
 import cz.bliksoft.javautils.ws.handlers.SOAPLogHandler;
 
-public abstract class BaseService_common<T> {
+public abstract class BaseService<T> {
 	protected SecurityHandler securityHandler = null;
 
 	public SecurityHandler getSecurityHandler() {
@@ -25,7 +25,7 @@ public abstract class BaseService_common<T> {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected BaseService_common(Service svc, Class<?> cls, String endpoint) {
+	protected BaseService(Service svc, Class<?> cls, String endpoint) {
 		serviceClass = cls;
 		service = (T) svc.getPort(cls);
 		securityHandler = new SecurityHandler();
@@ -33,7 +33,7 @@ public abstract class BaseService_common<T> {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected BaseService_common(Service svc, Class<?> cls, String endpoint, SecurityHandler securityHandler) {
+	protected BaseService(Service svc, Class<?> cls, String endpoint, SecurityHandler securityHandler) {
 		serviceClass = cls;
 		service = (T) svc.getPort(cls);
 		if (securityHandler != null) {

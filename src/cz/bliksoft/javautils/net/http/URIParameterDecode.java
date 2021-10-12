@@ -1,7 +1,6 @@
 package cz.bliksoft.javautils.net.http;
 
 import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import static java.util.stream.Collectors.*;
 

@@ -1,4 +1,4 @@
-package cz.bliksoft.javautils.freemarker.extensions;
+package cz.bliksoft.javautils.freemarker.extensions.global;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,7 +10,7 @@ import freemarker.template.DefaultListAdapter;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
 
-public class Reindex implements TemplateMethodModelEx {
+public class Regroup implements TemplateMethodModelEx {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
@@ -18,7 +18,7 @@ public class Reindex implements TemplateMethodModelEx {
 		HashMap<String, Object> result = null;
 		if (args.size() < 2)
 			throw new TemplateModelException(
-					"Incorrect parameter count for reindexing, expected iterable list of Map<String, ?>, groupcol1, [groupcol2]...");
+					"Incorrect parameter count for regrouping, expected iterable list of Map<String, ?>, groupcol1, [groupcol2]...");
 
 		DefaultListAdapter wrapper = (DefaultListAdapter) args.get(0);
 
@@ -42,21 +42,16 @@ public class Reindex implements TemplateMethodModelEx {
 					targetKey = "_NULL_";
 				if (target.containsKey(targetKey))
 					if (level == mappingColumns.size()) {
-						StringBuilder sb = new StringBuilder();
-						for (String kc : mappingColumns) {
-							sb.append(" ");
-							sb.append(kc);
-							sb.append("='");
-							sb.append(_hashMap.get(kc));
-							sb.append("'");
-						}
-						throw new TemplateModelException("Duplicate keys:" + sb.toString());
+						targetList = (List<Map<String, Object>>) target.get(targetKey);
+						targetList.add(_hashMap);
 					} else {
 						target = (Map<String, Object>) target.get(targetKey);
 					}
 				else {
 					if (level == mappingColumns.size()) {
-						target.put(targetKey, _hashMap);
+						targetList = new ArrayList<>();
+						target.put(targetKey, targetList);
+						targetList.add(_hashMap);
 					} else {
 						Map<String, Object> newMap = new HashMap<>();
 						target.put(targetKey, newMap);

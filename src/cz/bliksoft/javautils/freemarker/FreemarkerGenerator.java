@@ -15,18 +15,20 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-import cz.bliksoft.javautils.freemarker.extensions.Code128Encode;
-import cz.bliksoft.javautils.freemarker.extensions.Code128Width;
-import cz.bliksoft.javautils.freemarker.extensions.GUIPrompt;
-import cz.bliksoft.javautils.freemarker.extensions.HtmlPreformat;
-import cz.bliksoft.javautils.freemarker.extensions.ImageResource;
-import cz.bliksoft.javautils.freemarker.extensions.ParseXml;
-import cz.bliksoft.javautils.freemarker.extensions.PrettyPrintXml;
-import cz.bliksoft.javautils.freemarker.extensions.Regroup;
-import cz.bliksoft.javautils.freemarker.extensions.Reindex;
 import cz.bliksoft.javautils.freemarker.extensions.TextReplacer;
+import cz.bliksoft.javautils.freemarker.extensions.global.Code128Encode;
+import cz.bliksoft.javautils.freemarker.extensions.global.Code128Width;
+import cz.bliksoft.javautils.freemarker.extensions.global.GUIPrompt;
+import cz.bliksoft.javautils.freemarker.extensions.global.HtmlPreformat;
+import cz.bliksoft.javautils.freemarker.extensions.global.ImageResource;
+import cz.bliksoft.javautils.freemarker.extensions.global.ParseXml;
+import cz.bliksoft.javautils.freemarker.extensions.global.PrettyPrintXml;
+import cz.bliksoft.javautils.freemarker.extensions.global.Regroup;
+import cz.bliksoft.javautils.freemarker.extensions.global.Reindex;
+import cz.bliksoft.javautils.freemarker.extensions.local.VariableRegistrator;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.cache.FileTemplateLoader;
+import freemarker.cache.MultiTemplateLoader;
 import freemarker.cache.TemplateLoader;
 import freemarker.core.Environment;
 import freemarker.template.Configuration;
@@ -90,7 +92,7 @@ public class FreemarkerGenerator {
 					log.info("no.api.freemarker.java8.Java8ObjectWrapper not present");
 					skipJ8TimeAPI = true;
 				} catch (Exception e) {
-
+					;
 				}
 			}
 			if (java8TimeAPIWrapper != null)
@@ -109,6 +111,28 @@ public class FreemarkerGenerator {
 		commonInit();
 
 		cfg.setTemplateLoader(defaultTemplateLoader);
+	}
+
+	/**
+	 * generování pomocí TemplateLoaderu
+	 * 
+	 * @param templateLoader
+	 * @throws Exception
+	 */
+	public FreemarkerGenerator(TemplateLoader templateLoader) {
+		commonInit();
+		cfg.setTemplateLoader(templateLoader);
+	}
+
+	/**
+	 * generování pomocí TemplateLoaderu
+	 * 
+	 * @param templateLoader
+	 * @throws Exception
+	 */
+	public FreemarkerGenerator(TemplateLoader... templateLoaders) {
+		commonInit();
+		cfg.setTemplateLoader(new MultiTemplateLoader(templateLoaders));
 	}
 
 	/**
@@ -184,26 +208,38 @@ public class FreemarkerGenerator {
 		return temp;
 	}
 
-	private void registerExtensions(Map<String, Object> root) {
-		root.put("formatAsHTML", new HtmlPreformat()); //$NON-NLS-1$
-		root.put("imgRes", new ImageResource()); //$NON-NLS-1$
-		root.put("code128", new Code128Encode()); //$NON-NLS-1$
-		root.put("code128width", new Code128Width()); //$NON-NLS-1$
+	private static Map<String, Object> getDefaultGlobalExtensions() {
+		Map<String, Object> res = new HashMap<>();
+		res.put("formatAsHTML", new HtmlPreformat()); //$NON-NLS-1$
+		res.put("imgRes", new ImageResource()); //$NON-NLS-1$
+		res.put("code128", new Code128Encode()); //$NON-NLS-1$
+		res.put("code128width", new Code128Width()); //$NON-NLS-1$
 
-		root.put("regroup", new Regroup()); //$NON-NLS-1$
-		root.put("reindex", new Reindex()); //$NON-NLS-1$
-		root.put("prettyXML", new PrettyPrintXml()); //$NON-NLS-1$
-		root.put("parseXML", new ParseXml()); //$NON-NLS-1$
+		res.put("regroup", new Regroup()); //$NON-NLS-1$
+		res.put("reindex", new Reindex()); //$NON-NLS-1$
+		res.put("prettyXML", new PrettyPrintXml()); //$NON-NLS-1$
+		res.put("parseXML", new ParseXml()); //$NON-NLS-1$
 
-		root.put("GUIPrompt", new GUIPrompt()); //$NON-NLS-1$
+		res.put("GUIPrompt", new GUIPrompt()); //$NON-NLS-1$
 
-		root.put("TXTTOHTML", //$NON-NLS-1$
+		res.put("TXTTOHTML", //$NON-NLS-1$
 				new TextReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;", "\"", "&quot;", "'", "&#39;", "\n", "<br>\n"));
-		root.put("TXTTOHTML_WHITESPACE", new TextReplacer("&", "&amp;", " ", "&nbsp;", "\t", "&nbsp;&nbsp;&nbsp;", "<", //$NON-NLS-1$
-				"&lt;", ">", "&gt;", "\"", "&quot;", "'", "&#39;", "\n", "<br>\n"));
-		root.put("TXTTOHTML_SAFE", //$NON-NLS-1$
+		res.put("TXTTOHTML_WHITESPACE", //$NON-NLS-1$
+				new TextReplacer("&", "&amp;", " ", "&nbsp;", "\t", "&nbsp;&nbsp;&nbsp;", "<", "&lt;", ">", "&gt;",
+						"\"", "&quot;", "'", "&#39;", "\n", "<br>\n"));
+		res.put("TXTTOHTML_SAFE", //$NON-NLS-1$
 				new TextReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;", "\"", "&quot;", "'", "&#39;"));
+		return res;
+	}
 
+	private Map<String, Object> getDefaultLocalExtensions() {
+		Map<String, Object> res = new HashMap<>();
+		res.put("registerVariable", new VariableRegistrator(this));
+
+		return res;
+	}
+
+	private void registerExtensions(Map<String, Object> root) {
 		root.putAll(globalExtensions);
 		root.putAll(localExtensions);
 	}
@@ -214,7 +250,7 @@ public class FreemarkerGenerator {
 		}
 	}
 
-	private static HashMap<String, Object> globalExtensions = new HashMap<>();
+	private static Map<String, Object> globalExtensions = getDefaultGlobalExtensions();
 
 	public static void addGlobalExtension(String key, Object ext) {
 		globalExtensions.put(key, ext);
@@ -224,7 +260,7 @@ public class FreemarkerGenerator {
 		globalExtensions.remove(key);
 	}
 
-	private HashMap<String, Object> localExtensions = new HashMap<>();
+	private Map<String, Object> localExtensions = getDefaultLocalExtensions();
 
 	public void addExtension(String key, Object ext) {
 		localExtensions.put(key, ext);

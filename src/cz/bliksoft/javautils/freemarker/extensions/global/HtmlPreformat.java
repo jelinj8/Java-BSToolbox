@@ -1,4 +1,4 @@
-package cz.bliksoft.javautils.freemarker.extensions;
+package cz.bliksoft.javautils.freemarker.extensions.global;
 
 import java.util.List;
 

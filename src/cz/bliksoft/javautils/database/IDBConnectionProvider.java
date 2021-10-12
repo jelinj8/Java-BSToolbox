@@ -4,5 +4,5 @@ import java.sql.Connection;
 
 public interface IDBConnectionProvider {
 	public Connection getConnection(Object lockObject) throws Exception;
-	public void release(Object lockObject);
+	public void releaseConnection(Object lockObject);
 }

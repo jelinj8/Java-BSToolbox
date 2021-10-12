@@ -1,12 +1,10 @@
 package cz.bliksoft.javautils.freemarker.extensions;
 
-import java.text.MessageFormat;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import freemarker.template.TemplateMethodModelEx;
-import freemarker.template.TemplateModel;
 import freemarker.template.TemplateModelException;
 
 public class Log implements TemplateMethodModelEx {

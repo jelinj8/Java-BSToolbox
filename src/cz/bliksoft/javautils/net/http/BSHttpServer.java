@@ -44,6 +44,7 @@ public class BSHttpServer {
 	 * @throws Exception
 	 */
 	public BSHttpServer(int port, HttpsConfigurator httpsConfigurator) throws Exception {
+		this.httpPort = port;
 		this.httpsConfigurator = httpsConfigurator;
 	}
 
@@ -74,7 +75,7 @@ public class BSHttpServer {
 		if (!beforeStop())
 			return false;
 
-		for (Object h : httpHandlers.values()) {
+		for (HttpHandler h : httpHandlers.values()) {
 			if (h instanceof BasicHTTPHandler)
 				if (!((BasicHTTPHandler) h).canClose())
 					return false;
@@ -84,7 +85,7 @@ public class BSHttpServer {
 
 		server.stop(2);
 
-		for (Object h : httpHandlers.values()) {
+		for (HttpHandler h : httpHandlers.values()) {
 			if (h instanceof BasicHTTPHandler)
 				((BasicHTTPHandler) h).close();
 		}
@@ -104,14 +105,14 @@ public class BSHttpServer {
 			} else {
 				server = HttpServer.create(new InetSocketAddress(httpPort), 0);
 			}
-			for (Entry<String, HttpHandler> var : httpHandlers.entrySet()) {
-				server.createContext(var.getKey(), (HttpHandler) var.getValue());
+			for (Entry<String, HttpHandler> handlers : httpHandlers.entrySet()) {
+				server.createContext(handlers.getKey(), handlers.getValue());
 			}
 
 			server.setExecutor(null);
 			server.start();
 
-			for (Object h : httpHandlers.values()) {
+			for (HttpHandler h : httpHandlers.values()) {
 				if (h instanceof BasicHTTPHandler)
 					((BasicHTTPHandler) h).start();
 			}
@@ -122,6 +123,6 @@ public class BSHttpServer {
 
 	public boolean beforeStop() {
 		return true;
-	};
+	}
 
 }

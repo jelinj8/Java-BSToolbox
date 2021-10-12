@@ -86,6 +86,18 @@ public class TaskScheduler {
 	private long startedTS = 0;
 	private long stoppedTS = 0;
 
+	public long getStoppedTSMillis() {
+		return stoppedTS;
+	}
+
+	public long getStartedTSMillis() {
+		return startedTS;
+	}
+
+	public long getPausedTSMillis() {
+		return pausedTS;
+	}
+
 	/**
 	 * podle aktuální nejbližší úlohy upraví příští úlohu musí se volat v
 	 * synchronized (tasks) { }
@@ -106,14 +118,13 @@ public class TaskScheduler {
 	/**
 	 * zavolá se, pokud dojde ke změně následující události
 	 * 
-	 * @param task
-	 *            úloha
+	 * @param task úloha
 	 */
 	private void setNextSchedule(Task task) {
 		if (task != null) {
 			nextRun = task.nextRun;
 			nextTask = task;
-			log.info("Next task is \"" + task.getName() + "\" on " + DateUtils.millisTimestampString(task.nextRun)
+			log.fine("Next task is \"" + task.getName() + "\" on " + DateUtils.millisTimestampString(task.nextRun)
 					+ " (in " + DateUtils.millisIntervalString(task.nextRun - DateUtils.millis()) + ")");
 
 			if (!waitSemaphore.tryAcquire())
@@ -128,8 +139,7 @@ public class TaskScheduler {
 	/**
 	 * naplánuje spuštění úlohy
 	 * 
-	 * @param task
-	 *            úloha
+	 * @param task úloha
 	 */
 	public void schedule(Task task) {
 		synchronized (tasks) {
@@ -146,10 +156,8 @@ public class TaskScheduler {
 	/**
 	 * naplánuje spuštění úlohy po intervalu (ms)
 	 * 
-	 * @param task
-	 *            úloha
-	 * @param delay
-	 *            zpoždění (ms)
+	 * @param task  úloha
+	 * @param delay zpoždění (ms)
 	 */
 	public void scheduleIn(Task task, long delay) {
 		synchronized (tasks) {
@@ -252,13 +260,13 @@ public class TaskScheduler {
 									if (repeatInterval < 0) {
 										scheduleIn(nextTask, repeatInterval);
 									}
-									log.info(">>> Starting task \"" + taskToPerform.getName() + "\"");
+									log.finer(">>> Starting task \"" + taskToPerform.getName() + "\"");
 									try {
 										taskToPerform.doRun();
 									} catch (Exception e) {
 										log.severe("Error performing scheduled task: " + e.getMessage());
 									}
-									log.info("Task \"" + taskToPerform.getName() + "\" processing took "
+									log.finer("Task \"" + taskToPerform.getName() + "\" processing took "
 											+ DateUtils.millisIntervalString(taskToPerform.getLastTimeConsumed())
 											+ " >>>");
 
@@ -277,7 +285,7 @@ public class TaskScheduler {
 			}
 		}, "TaskScheduler[" + name + "]");
 		schedulerThread.start();
-		log.log(Level.INFO, "|> Started, {0} task(s).", tasks.size());
+		log.log(Level.FINE, "|> Started, {0} task(s).", tasks.size());
 	}
 
 	/**
@@ -287,7 +295,7 @@ public class TaskScheduler {
 	 */
 	public void pause() {
 		status = SCHEDULER_STATUS.PAUSED;
-		log.info("|| Paused.");
+		log.fine("|| Paused.");
 		pausedTS = DateUtils.millis();
 		synchronized (tasks) {
 			checkHead();
@@ -314,7 +322,7 @@ public class TaskScheduler {
 		}
 		schedulerThread = null;
 
-		log.info("Stopped.");
+		log.fine("Stopped.");
 	}
 
 	public static TaskScheduler getDefault() {

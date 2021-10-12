@@ -17,12 +17,8 @@ import java.util.logging.Logger;
 import cz.bliksoft.javautils.database.IDBConnectionProvider;
 import cz.bliksoft.javautils.freemarker.extensions.query.IQueryProvider;
 import freemarker.core.Environment;
-import freemarker.template.DefaultArrayAdapter;
-import freemarker.template.DefaultListAdapter;
-import freemarker.template.SimpleSequence;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
-import freemarker.template.WrappingTemplateModel;
 
 /**
  * Call a SQL query. Sets LastQuery hashmap with. [columns, columnTypes, SQL,
@@ -59,7 +55,7 @@ public class Query implements TemplateMethodModelEx {
 				try {
 					queryProvider.createQuery(queryID);
 				} catch (Exception e) {
-					throw new TemplateModelException("Can't create query " + queryID, e);
+					throw new TemplateModelException("Can't create query '" + queryID + "': " + e.getMessage(), e);
 				}
 
 				if (queryProvider.getArgumentTypes(queryID).size() != args.size() - 1) {
@@ -240,7 +236,7 @@ public class Query implements TemplateMethodModelEx {
 			}
 
 		} finally {
-			connectionProvider.release(this);
+			connectionProvider.releaseConnection(this);
 		}
 	}
 }

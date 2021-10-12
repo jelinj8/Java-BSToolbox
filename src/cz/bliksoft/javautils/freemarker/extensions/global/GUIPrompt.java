@@ -1,4 +1,4 @@
-package cz.bliksoft.javautils.freemarker.extensions;
+package cz.bliksoft.javautils.freemarker.extensions.global;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ public class GUIPrompt implements TemplateMethodModelEx {
 	}
 
 	@Override
-	public Object exec(List arguments) throws TemplateModelException {
+	public Object exec(@SuppressWarnings("rawtypes") List arguments) throws TemplateModelException {
 		String prompt = String.valueOf(arguments.get(0));
 		String title = null;
 		String currentValue = null;

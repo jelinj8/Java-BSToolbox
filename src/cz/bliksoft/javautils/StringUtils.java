@@ -308,8 +308,7 @@ public class StringUtils {
 			return null;
 		text = escapeForHTML(text);
 		String[] paragraphs = text.split("\\n");
-		//		text = "<p>" + concatenateList("</p>\n<p>", (Object[]) paragraphs) + "</p>";
-		text = appendToEach("<BR>\n", "", paragraphs);
+		text = appendToEach("<br/>\n", null, paragraphs);
 		return text;
 	}
 

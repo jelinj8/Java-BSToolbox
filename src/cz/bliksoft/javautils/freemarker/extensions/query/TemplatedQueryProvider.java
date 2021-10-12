@@ -86,7 +86,7 @@ public class TemplatedQueryProvider implements IQueryProvider {
 
 			return true;
 		} catch (Exception e) {
-			throw new TemplateModelException("Failed to create query.", e);
+			throw new TemplateModelException("Failed to create query: " + e.getMessage(), e);
 		}
 	}
 

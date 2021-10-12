@@ -7,12 +7,12 @@ import java.util.List;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
 
-public class LocalDateTimeSupport implements TemplateMethodModelEx {
+public class LocalDateTimeFormatter implements TemplateMethodModelEx {
 
 	private String format;
 	DateTimeFormatter formatter;
 
-	public LocalDateTimeSupport(String format) {
+	public LocalDateTimeFormatter(String format) {
 		this.format = format;
 		formatter = DateTimeFormatter.ofPattern(this.format);
 	}

@@ -27,6 +27,11 @@ import javax.mail.internet.MimeMessage;
  *
  */
 public class Mail {
+	
+	private Mail() {
+		
+	}
+	
 	private static Logger log = Logger.getLogger(Mail.class.getName());
 
 	private static String host = "localhost";

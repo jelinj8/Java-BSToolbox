@@ -44,7 +44,7 @@ public class Query implements TemplateMethodModelEx {
 		Connection con;
 
 		try {
-			con = connectionProvider.getConnection(null);
+			con = connectionProvider.getConnection(this);
 		} catch (Exception e) {
 			throw new TemplateModelException("Failed to get SQL Connection", e);
 		}
@@ -96,9 +96,11 @@ public class Query implements TemplateMethodModelEx {
 
 				String query = queryProvider.getSql(queryID);
 				List<Object> queryParameters = new ArrayList<>();
+				String phase = "setting arguments";
 				try (PreparedStatement pstmnt = con.prepareStatement(query)) {
 					int pID = 1;
 					for (Integer parType : queryProvider.getArgumentTypes(queryID)) {
+						phase = "setting argument " + pID;
 						Object val = null;
 
 						switch (parType) {
@@ -134,6 +136,7 @@ public class Query implements TemplateMethodModelEx {
 						pID++;
 					}
 
+					phase = "executing query";
 					if (pstmnt.execute()) {
 						log.log(Level.INFO, "Fetching result for query {0}", queryID);
 						List<HashMap<String, Object>> result = new ArrayList<>();
@@ -141,6 +144,7 @@ public class Query implements TemplateMethodModelEx {
 						List<String> colTypes = new ArrayList<>();
 						String colType;
 						boolean firstRow = true;
+						phase = " fetching reseult";
 						try (ResultSet rs = pstmnt.getResultSet()) {
 							ResultSetMetaData md = rs.getMetaData();
 							while (rs.next()) {
@@ -211,6 +215,7 @@ public class Query implements TemplateMethodModelEx {
 								firstRow = false;
 							}
 							log.log(Level.INFO, "Result count: {0}", result.size());
+							phase = " setting LastQuery vars";
 							Map<String, Object> qParams = new HashMap<>();
 							qParams.put("columns", colNames);
 							qParams.put("columnTypes", colTypes);
@@ -229,7 +234,8 @@ public class Query implements TemplateMethodModelEx {
 				} catch (SQLException e) {
 					throw new TemplateModelException("SQL Exception. " + e.getSQLState(), e);
 				} catch (Exception e) {
-					throw new TemplateModelException("Generic exception while processing query " + queryID, e);
+					throw new TemplateModelException(
+							"Generic exception while processing query " + queryID + " while " + phase, e);
 				}
 			} else {
 				throw new TemplateModelException("First parameter must be a Query identifier!");

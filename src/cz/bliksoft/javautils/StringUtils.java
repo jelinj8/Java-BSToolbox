@@ -12,6 +12,11 @@ import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
 
 public class StringUtils {
+
+	private StringUtils() {
+		
+	}
+	
 	private static SecureRandom random = null;
 
 	/**
@@ -32,11 +37,7 @@ public class StringUtils {
 	 * @return
 	 */
 	public static boolean isEmpty(String value) {
-		if (value == null)
-			return true;
-		if (value.length() == 0)
-			return true;
-		return false;
+		return (value == null || value.length() == 0);
 	}
 
 	/**
@@ -66,14 +67,12 @@ public class StringUtils {
 			return false;
 		return value.length() > 0;
 	}
-	
+
 	/**
 	 * pospojuje řetězce do seznamu s oddělovačem
 	 * 
-	 * @param separator
-	 *            oddělovač, který bude vložen mezi spojované hodnoty
-	 * @param args
-	 *            hodnoty pro spojení
+	 * @param separator oddělovač, který bude vložen mezi spojované hodnoty
+	 * @param args      hodnoty pro spojení
 	 * @return spojený řetězec
 	 */
 	public static String concatenateList(String separator, Object... args) {
@@ -92,12 +91,9 @@ public class StringUtils {
 	/**
 	 * poskládá řetězec z X opakování jedné hodnoty, oddělené oddělovačem
 	 * 
-	 * @param separator
-	 *            oddělovač
-	 * @param value
-	 *            opakovaná hodnota
-	 * @param count
-	 *            počet opakování
+	 * @param separator oddělovač
+	 * @param value     opakovaná hodnota
+	 * @param count     počet opakování
 	 * @return sestavený řetězec
 	 */
 	public static String repeatToString(String separator, Object value, int count) {
@@ -114,15 +110,12 @@ public class StringUtils {
 	}
 
 	/**
-	 * sestaví řetězec ze vstupních hodnot, oddělených oddělovačem a doplněných
-	 * o příponu (příklad: 'val1 = ?,val2 = ?,val3 = ?,val4 = ?,val5 = ?')
+	 * sestaví řetězec ze vstupních hodnot, oddělených oddělovačem a doplněných o
+	 * příponu (příklad: 'val1 = ?,val2 = ?,val3 = ?,val4 = ?,val5 = ?')
 	 * 
-	 * @param value
-	 *            přípona k doplnění ke každé hodnotě
-	 * @param separator
-	 *            oddělovač
-	 * @param args
-	 *            hodnoty
+	 * @param value     přípona k doplnění ke každé hodnotě
+	 * @param separator oddělovač
+	 * @param args      hodnoty
 	 * @return sestavený řetězec
 	 */
 	public static String appendToEach(String value, String separator, Object... args) {
@@ -142,15 +135,12 @@ public class StringUtils {
 	}
 
 	/**
-	 * sestaví řetězec ze vstupních hodnot, oddělených oddělovačem a doplněných
-	 * o příponu (příklad: 'val1 = ?,val2 = ?,val3 = ?,val4 = ?,val5 = ?')
+	 * sestaví řetězec ze vstupních hodnot, oddělených oddělovačem a doplněných o
+	 * příponu (příklad: 'val1 = ?,val2 = ?,val3 = ?,val4 = ?,val5 = ?')
 	 * 
-	 * @param value
-	 *            přípona k doplnění ke každé hodnotě
-	 * @param separator
-	 *            oddělovač
-	 * @param args
-	 *            hodnoty
+	 * @param value     přípona k doplnění ke každé hodnotě
+	 * @param separator oddělovač
+	 * @param args      hodnoty
 	 * @return sestavený řetězec
 	 */
 	public static String appendToEach(String value, String separator, String... args) {
@@ -172,8 +162,7 @@ public class StringUtils {
 	/**
 	 * kontrola, zda je řetězec prázdný
 	 * 
-	 * @param txt
-	 *            hodnota ke kontrole
+	 * @param txt hodnota ke kontrole
 	 * @return true pokud je řetězec neprázdný (!=null && length>0)
 	 */
 	public static boolean hasText(String txt) {
@@ -181,10 +170,10 @@ public class StringUtils {
 	}
 
 	public static boolean hasText(Object txt) {
-		if(txt==null)
+		if (txt == null)
 			return false;
-		if(txt instanceof String)
-			return hasText((String)txt);
+		if (txt instanceof String)
+			return hasText((String) txt);
 		return hasText(txt.toString());
 	}
 
@@ -230,16 +219,13 @@ public class StringUtils {
 	}
 
 	/**
-	 * otestuje hodnotu řetězce, zda obsahuje text a vrátí jeden ze dvou
-	 * parametrů. Pokud je návratový parametr řetězec a hodnota není prázdná, je
-	 * tento řetězec použit jako MessageFormat
+	 * otestuje hodnotu řetězce, zda obsahuje text a vrátí jeden ze dvou parametrů.
+	 * Pokud je návratový parametr řetězec a hodnota není prázdná, je tento řetězec
+	 * použit jako MessageFormat
 	 * 
-	 * @param txt
-	 *            hodnota, která má být testována na obsah textu
-	 * @param hasTextResult
-	 *            návratová hodnota nebo formátovací řetězec
-	 * @param hasntTextResult
-	 *            návratová hodnota
+	 * @param txt             hodnota, která má být testována na obsah textu
+	 * @param hasTextResult   návratová hodnota nebo formátovací řetězec
+	 * @param hasntTextResult návratová hodnota
 	 * @return
 	 */
 	public static Object hasTextSelect(String txt, Object hasTextResult, Object hasntTextResult) {
@@ -267,7 +253,8 @@ public class StringUtils {
 	}
 
 	public static String innerXml(Node node) {
-		DOMImplementationLS lsImpl = (DOMImplementationLS) node.getOwnerDocument().getImplementation().getFeature("LS", "3.0");
+		DOMImplementationLS lsImpl = (DOMImplementationLS) node.getOwnerDocument().getImplementation().getFeature("LS",
+				"3.0");
 		LSSerializer lsSerializer = lsImpl.createLSSerializer();
 		lsSerializer.getDomConfig().setParameter("xml-declaration", false);
 		NodeList childNodes = node.getChildNodes();
@@ -279,16 +266,17 @@ public class StringUtils {
 	}
 
 	public static String outerXml(Node node) {
-		DOMImplementationLS lsImpl = (DOMImplementationLS) node.getOwnerDocument().getImplementation().getFeature("LS", "3.0");
+		DOMImplementationLS lsImpl = (DOMImplementationLS) node.getOwnerDocument().getImplementation().getFeature("LS",
+				"3.0");
 		LSSerializer lsSerializer = lsImpl.createLSSerializer();
 		lsSerializer.getDomConfig().setParameter("xml-declaration", false);
 		return lsSerializer.writeToString(node);
-		//	    NodeList childNodes = node.getChildNodes();
-		//	    StringBuilder sb = new StringBuilder();
-		//	    for (int i = 0; i < childNodes.getLength(); i++) {
-		//	       sb.append(lsSerializer.writeToString(childNodes.item(i)));
-		//	    }
-		//	    return sb.toString(); 
+		// NodeList childNodes = node.getChildNodes();
+		// StringBuilder sb = new StringBuilder();
+		// for (int i = 0; i < childNodes.getLength(); i++) {
+		// sb.append(lsSerializer.writeToString(childNodes.item(i)));
+		// }
+		// return sb.toString();
 	}
 
 	public static boolean isHtmlString(String text) {
@@ -349,5 +337,14 @@ public class StringUtils {
 		} else {
 			return HTML;
 		}
+	}
+
+	public static boolean equalStrings(String value1, String value2) {
+		if (value1 == null && value2 == null)
+			return true;
+		if (value1 != null)
+			return value1.equals(value2);
+		else
+			return value2.equals(value1);
 	}
 }

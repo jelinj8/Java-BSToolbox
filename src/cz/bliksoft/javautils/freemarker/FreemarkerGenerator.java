@@ -157,6 +157,19 @@ public class FreemarkerGenerator {
 		cfg.setClassForTemplateLoading(templateLoaderClass, ".");
 	}
 
+	/**
+	 * generování pomocí šablon z filesystému a z classpath
+	 * 
+	 * @param templateLoaderClass
+	 * @throws IOException
+	 */
+	public FreemarkerGenerator(File templatesBasePath, Class<?> templateLoaderClass) throws IOException {
+		commonInit();
+		MultiTemplateLoader mtl = new MultiTemplateLoader(new TemplateLoader[] {
+				new FileTemplateLoader(templatesBasePath), new ClassTemplateLoader(templateLoaderClass) });
+		cfg.setTemplateLoader(mtl);
+	}
+
 	public void disableLocalizedTemplateLookup() {
 		cfg.setLocalizedLookup(false);
 	}

@@ -1,10 +1,16 @@
 package cz.bliksoft.javautils.net.http;
 
-import java.net.URLDecoder;
-import java.util.*;
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public class URIParameterDecode {
 	/**
@@ -25,8 +31,7 @@ public class URIParameterDecode {
 	 * {a=[Optional[1], Optional[4]], b=[Optional[2]], c=[Optional.empty]}
 	 * </pre>
 	 * 
-	 * @param query
-	 *            the query part of an URI
+	 * @param query the query part of an URI
 	 * @return map of parameters names into a list of their values.
 	 * 
 	 */
@@ -35,7 +40,10 @@ public class URIParameterDecode {
 			return Collections.emptyMap();
 		}
 
-		return Arrays.stream(query.split("&")).map(p -> splitQueryParameter(p)).collect(groupingBy(e -> e.get0(), // group by parameter name
+		return Arrays.stream(query.split("&")).map(p -> splitQueryParameter(p)).collect(groupingBy(e -> e.get0(), // group
+																													// by
+																													// parameter
+																													// name
 				mapping(e -> e.get1(), toList())));// keep parameter values and assemble into list
 	}
 
@@ -60,10 +68,8 @@ public class URIParameterDecode {
 	/**
 	 * A simple pair of two elements
 	 * 
-	 * @param <U>
-	 *            first element
-	 * @param <V>
-	 *            second element
+	 * @param <U> first element
+	 * @param <V> second element
 	 */
 	public static class Pair<U, V> {
 		U a;

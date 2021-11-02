@@ -8,9 +8,9 @@ import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpsServer;
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpsConfigurator;
+import com.sun.net.httpserver.HttpsServer;
 
 @SuppressWarnings("restriction")
 public class BSHttpServer {

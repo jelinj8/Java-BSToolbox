@@ -38,7 +38,7 @@ public class Log implements TemplateMethodModelEx {
 	@Override
 	public Object exec(List args) throws TemplateModelException {
 		if (logger.isLoggable(logLevel)) {
-			for(Object o:args) {
+			for (Object o : args) {
 				if (o != null)
 					logger.log(logLevel, o.toString());
 				else

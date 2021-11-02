@@ -6,7 +6,7 @@ import java.io.OutputStream;
 public class NoCloseOutputStream extends OutputStream {
 
 	private OutputStream os;
-	
+
 	public NoCloseOutputStream(OutputStream target) {
 		os = target;
 	}

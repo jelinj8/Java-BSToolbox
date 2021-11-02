@@ -1,4 +1,5 @@
 package cz.bliksoft.javautils.streams.xml;
+
 /**
  * https://stackoverflow.com/questions/17222902/remove-namespace-prefix-while-jaxb-marshalling
  */
@@ -14,47 +15,47 @@ import org.apache.cxf.staxutils.DelegatingXMLStreamWriter;
 
 public class ElementWriter extends DelegatingXMLStreamWriter {
 
-  private static final NamespaceContext emptyNamespaceContext = new NamespaceContext() {
+	private static final NamespaceContext emptyNamespaceContext = new NamespaceContext() {
 
-    @Override
-    public String getNamespaceURI(String prefix) {
-      return "";
-    }
+		@Override
+		public String getNamespaceURI(String prefix) {
+			return "";
+		}
 
-    @Override
-    public String getPrefix(String namespaceURI) {
-      return "";
-    }
+		@Override
+		public String getPrefix(String namespaceURI) {
+			return "";
+		}
 
-    @SuppressWarnings("rawtypes")
+		@SuppressWarnings("rawtypes")
+		@Override
+		public Iterator getPrefixes(String namespaceURI) {
+			return null;
+		}
+
+	};
+
 	@Override
-    public Iterator getPrefixes(String namespaceURI) {
-      return null;
-    }
-
-  };
-
-  @Override
 	public void writeStartDocument() throws XMLStreamException {
 //		super.writeStartDocument();
 	}
-  
-  @Override
+
+	@Override
 	public void writeNamespace(String prefix, String uri) throws XMLStreamException {
 //		super.writeNamespace(prefix, uri);	  
 	}
-  
-  public static XMLStreamWriter filter(Writer writer) throws XMLStreamException {
-    return new ElementWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
-  }
 
-  public ElementWriter(XMLStreamWriter writer) {
-    super(writer);
-  }
+	public static XMLStreamWriter filter(Writer writer) throws XMLStreamException {
+		return new ElementWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
+	}
 
-  @Override
-  public NamespaceContext getNamespaceContext() {
-    return emptyNamespaceContext;
-  }
+	public ElementWriter(XMLStreamWriter writer) {
+		super(writer);
+	}
+
+	@Override
+	public NamespaceContext getNamespaceContext() {
+		return emptyNamespaceContext;
+	}
 
 }

@@ -2,8 +2,10 @@ package cz.bliksoft.javautils.streams.replacer;
 
 import java.util.HashMap;
 import java.util.Map;
+
 /**
  * http://tutorials.jenkov.com/java-howto/replace-strings-in-streams-arrays-files.html
+ * 
  * @author Jakob Jenkov
  *
  */

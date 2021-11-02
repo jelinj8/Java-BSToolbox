@@ -14,9 +14,9 @@ import org.w3c.dom.ls.LSSerializer;
 public class StringUtils {
 
 	private StringUtils() {
-		
+
 	}
-	
+
 	private static SecureRandom random = null;
 
 	/**
@@ -346,5 +346,13 @@ public class StringUtils {
 			return value1.equals(value2);
 		else
 			return value2.equals(value1);
+	}
+
+	public static String ellipsis(String input, int length) {
+		if (input == null)
+			return null;
+		if (input.length() <= length)
+			return input;
+		return input.substring(0, length - 2) + "\u2026";
 	}
 }

@@ -12,7 +12,7 @@ import freemarker.template.TemplateModelException;
 
 public class TemplatedQueryProvider implements IQueryProvider {
 	Logger log = Logger.getLogger(TemplatedQueryProvider.class.getName());
-	
+
 	public static final String TEMPLATE_PARAMETER_PLACEHOLDER = "sqlParameter";
 
 	String basePath;

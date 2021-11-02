@@ -20,7 +20,8 @@ public class LocalDateTimeFormatter implements TemplateMethodModelEx {
 	@SuppressWarnings("rawtypes")
 	@Override
 	public Object exec(List args) throws TemplateModelException {
-		no.api.freemarker.java8.time.LocalDateTimeAdapter ldtAdapter = (no.api.freemarker.java8.time.LocalDateTimeAdapter) args.get(0);
+		no.api.freemarker.java8.time.LocalDateTimeAdapter ldtAdapter = (no.api.freemarker.java8.time.LocalDateTimeAdapter) args
+				.get(0);
 		if (ldtAdapter == null)
 			return "-??-";
 		LocalDateTime ldt = (LocalDateTime) ldtAdapter.getAdaptedObject(LocalDateTime.class);

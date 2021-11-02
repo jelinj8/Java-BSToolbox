@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,15 +15,15 @@ public class TimestampedHashMap<K, V> implements Map<K, V> {
 
 	private long validity = 0;
 
-	private HashMap<K, TimestampedObject<V>> values = new HashMap<>();
+	private Map<K, TimestampedObject<V>> values = new HashMap<>();
 
 	public TimestampedHashMap() {
 	}
-	
+
 	public TimestampedHashMap(long validity) {
 		this.validity = validity;
 	}
-	
+
 	@Override
 	public void clear() {
 		synchronized (values) {
@@ -47,7 +48,7 @@ public class TimestampedHashMap<K, V> implements Map<K, V> {
 	@Override
 	public Set<java.util.Map.Entry<K, V>> entrySet() {
 		synchronized (values) {
-			HashSet<java.util.Map.Entry<K, V>> entries = new HashSet<>();
+			Set<java.util.Map.Entry<K, V>> entries = new HashSet<>();
 			for (java.util.Map.Entry<K, TimestampedObject<V>> kvp : values.entrySet()) {
 				final java.util.Map.Entry<K, TimestampedObject<V>> e = kvp;
 				entries.add(new Entry<K, V>() {
@@ -144,7 +145,7 @@ public class TimestampedHashMap<K, V> implements Map<K, V> {
 	public Collection<V> values() {
 		synchronized (values) {
 
-			LinkedList<V> res = new LinkedList<>();
+			List<V> res = new LinkedList<>();
 			for (java.util.Map.Entry<K, TimestampedObject<V>> kvp : values.entrySet()) {
 				res.add(kvp.getValue().getValue());
 			}
@@ -157,7 +158,7 @@ public class TimestampedHashMap<K, V> implements Map<K, V> {
 			return;
 		synchronized (values) {
 			long treshold = (new Date()).getTime() - Math.abs(validity);
-			HashSet<K> toRemove = new HashSet<>();
+			Set<K> toRemove = new HashSet<>();
 			for (java.util.Map.Entry<K, TimestampedObject<V>> kvp : values.entrySet()) {
 				if (kvp.getValue().getTimestamp() < treshold)
 					toRemove.add(kvp.getKey());

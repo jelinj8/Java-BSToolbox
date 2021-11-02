@@ -1,16 +1,15 @@
 package cz.bliksoft.javautils.dialogs;
 
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import java.awt.GridBagLayout;
-import javax.swing.JLabel;
-
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
-
-import java.awt.Insets;
 import javax.swing.border.EmptyBorder;
 
 public class ValueDLG extends JPanel {
@@ -18,7 +17,7 @@ public class ValueDLG extends JPanel {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	private JLabel lblCaptionLabel;
 	private JTextField textField;
 	int result = JOptionPane.CANCEL_OPTION;

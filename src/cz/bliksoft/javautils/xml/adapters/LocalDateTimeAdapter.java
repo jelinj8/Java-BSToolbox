@@ -7,10 +7,10 @@ import java.time.format.DateTimeFormatter;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 public class LocalDateTimeAdapter extends XmlAdapter<String, LocalDateTime> {
-	
+
 //	public static DateFormat dateTimeFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 	public static DateTimeFormatter localDateTimeFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
-	
+
 	@Override
 	public LocalDateTime unmarshal(String v) throws Exception {
 		return LocalDateTime.parse(v);
@@ -30,7 +30,7 @@ public class LocalDateTimeAdapter extends XmlAdapter<String, LocalDateTime> {
 			return null;
 		return ts.toLocalDateTime();
 	}
-	
+
 	public static String toLocalDateTimeString(LocalDateTime ldt) {
 		return localDateTimeFormat.format(ldt);
 	}

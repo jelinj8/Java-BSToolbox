@@ -27,11 +27,11 @@ import javax.mail.internet.MimeMessage;
  *
  */
 public class Mail {
-	
+
 	private Mail() {
-		
+
 	}
-	
+
 	private static Logger log = Logger.getLogger(Mail.class.getName());
 
 	private static String host = "localhost";
@@ -41,14 +41,14 @@ public class Mail {
 	}
 
 	public static boolean sendMail(String from, String subject, String messageBody, String... recipients) {
-		//		String host = "localhost";//or IP address  
+		// String host = "localhost";//or IP address
 
-		//Get the session object  
+		// Get the session object
 		Properties properties = System.getProperties();
 		properties.setProperty("mail.smtp.host", host);
 		Session session = Session.getDefaultInstance(properties);
 
-		//compose the message  
+		// compose the message
 		try {
 			MimeMessage message = new MimeMessage(session);
 			message.setFrom(new InternetAddress(from));
@@ -58,7 +58,7 @@ public class Mail {
 			message.setSubject(subject);
 			message.setText(messageBody);
 
-			// Send message  
+			// Send message
 			Transport.send(message);
 			log.info("Message sent.");
 			return true;

@@ -7,11 +7,11 @@ import java.io.RandomAccessFile;
 public class RandomAccessFileInputStream extends InputStream {
 
 	RandomAccessFile ras;
-	
+
 	public RandomAccessFileInputStream(RandomAccessFile file) {
 		ras = file;
 	}
-	
+
 	@Override
 	public int read() throws IOException {
 		return ras.read();

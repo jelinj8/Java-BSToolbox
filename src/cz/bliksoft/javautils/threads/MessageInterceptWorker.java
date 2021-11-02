@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 
 public abstract class MessageInterceptWorker extends Thread {
 	protected Logger log = Logger.getLogger(this.getClass().toString());
-	
+
 	public final Semaphore prepareLock = new Semaphore(0, true);
 	// public final Lock prepareLock = new ReentrantLock(true);
 	private boolean prepared = false;
@@ -20,19 +20,21 @@ public abstract class MessageInterceptWorker extends Thread {
 	private String modifiedRecord;
 
 	/**
-	 * výjimka, ke které dojde během zpracovávání - pro pozdější vyhodnocení/logování 
+	 * výjimka, ke které dojde během zpracovávání - pro pozdější
+	 * vyhodnocení/logování
 	 */
 	protected Exception callException = null;
-	
+
 	/**
 	 * getter na výjimku zpracování
-	 * @see #callException 
+	 * 
+	 * @see #callException
 	 * @return
 	 */
-	public Exception getException(){
+	public Exception getException() {
 		return callException;
 	}
-	
+
 	public boolean waitForPrepare() throws Exception {
 		if (prepareLock.tryAcquire(5, TimeUnit.MINUTES)) {
 			prepareLock.release();
@@ -72,6 +74,5 @@ public abstract class MessageInterceptWorker extends Thread {
 			return null;
 		}
 	}
-
 
 }

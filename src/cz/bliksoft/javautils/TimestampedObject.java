@@ -16,8 +16,7 @@ public class TimestampedObject<T> {
 
 	/**
 	 * 
-	 * @param value
-	 *            vlastní hodnota
+	 * @param value vlastní hodnota
 	 */
 	public TimestampedObject(T value) {
 		this.value = value;
@@ -59,17 +58,17 @@ public class TimestampedObject<T> {
 				return value.equals(obj);
 		}
 	}
-	
-	public static Object valueOf(TimestampedObject<?> obj){
-		if(obj==null)
+
+	public static Object valueOf(TimestampedObject<?> obj) {
+		if (obj == null)
 			return null;
 		return obj.getValue();
 	}
-	
+
 	public long getTimestamp() {
 		return timestamp;
 	}
-	
+
 	public void setTimestamp(long timestamp) {
 		this.timestamp = timestamp;
 	}

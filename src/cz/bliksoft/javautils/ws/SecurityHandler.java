@@ -43,7 +43,7 @@ public class SecurityHandler implements SOAPHandler<SOAPMessageContext> {
 		this.user = user;
 		this.pass = password;
 	}
-	
+
 	public void setUser(String user) {
 		this.user = user;
 	}
@@ -58,8 +58,8 @@ public class SecurityHandler implements SOAPHandler<SOAPMessageContext> {
 	@Override
 	public boolean handleMessage(final SOAPMessageContext msgCtx) {
 		if (authType == AuthTypes.NONE)
-			return true; 
-		
+			return true;
+
 		// Indicator telling us which direction this message is going in
 		final Boolean outInd = (Boolean) msgCtx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
 

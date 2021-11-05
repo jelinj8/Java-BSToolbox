@@ -38,8 +38,6 @@ import javax.swing.event.EventListenerList;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
-import cz.bliksoft.javautils.binding.interfaces.IObservable;
-
 /**
  * Adds {@link javax.swing.ListModel} capabilities to its superclass. It allows
  * to observe changes in the content and structure. Useful for Lists that are

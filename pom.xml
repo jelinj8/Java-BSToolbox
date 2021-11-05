@@ -6,7 +6,36 @@
 	<artifactId>common-java-utils</artifactId>
 	<version>0.3</version>
 	<build>
-		<sourceDirectory>src</sourceDirectory>
+			<sourceDirectory>.</sourceDirectory>
+		<resources>
+			<resource>
+				<directory>src</directory>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</resource>
+			<resource>
+				<directory>other_src</directory>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</resource>
+		</resources>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.0</version>
+				<configuration>
+					<includes>
+						<include>src/**/*.java</include>
+						<include>other_src/**/*.java</include>
+					</includes>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+		</plugins>
+<!-- 		<sourceDirectory>src</sourceDirectory>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -34,7 +63,7 @@
 					</execution>
 				</executions>
 			</plugin>
-		</plugins>
+		</plugins> -->
 	</build>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

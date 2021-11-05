@@ -24,6 +24,7 @@ public class ObjectUtils {
 	 *
 	 * @since 1.1.1
 	 */
+	@SuppressWarnings("unchecked")
 	public static <T extends Serializable> T deepCopy(T original) {
 		if (original == null) {
 			return null;
@@ -37,7 +38,7 @@ public class ObjectUtils {
 			final ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
 			final ObjectInputStream ois = new ObjectInputStream(bais);
 			return (T) ois.readObject();
-		} catch (Throwable e) {
+		} catch (Exception e) {
 			throw new RuntimeException("Deep copy failed", e);
 		}
 	}

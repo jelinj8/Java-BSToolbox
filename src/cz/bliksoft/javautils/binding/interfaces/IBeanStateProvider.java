@@ -69,7 +69,7 @@ public interface IBeanStateProvider {
 
 		private static void notifyParentChildModified(IBeanStateProvider bean) {
 			if (bean instanceof IParentedBean) {
-				Object parent = ((IParentedBean) bean).getBeanParent();
+				Object parent = ((IParentedBean<?>) bean).getBeanParent();
 				if (parent instanceof IBeanStateProvider) {
 					((IBeanStateProvider) parent).childModifyBean();
 				}

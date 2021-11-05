@@ -55,7 +55,6 @@ import cz.bliksoft.javautils.binding.exceptions.PropertyNotBindableException;
 import cz.bliksoft.javautils.binding.exceptions.PropertyNotFoundException;
 import cz.bliksoft.javautils.binding.exceptions.PropertyUnboundException;
 import cz.bliksoft.javautils.binding.interfaces.IValueModel;
-import cz.bliksoft.javautils.binding.models.ComponentModel;
 import cz.bliksoft.javautils.binding.models.DefaultValueModel;
 
 /**

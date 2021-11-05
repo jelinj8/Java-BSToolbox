@@ -5,37 +5,14 @@
 	<groupId>cz.bliksoft.java</groupId>
 	<artifactId>common-java-utils</artifactId>
 	<version>0.3</version>
+	<name>BSToolbox</name>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+	</properties>
 	<build>
-			<sourceDirectory>.</sourceDirectory>
-		<resources>
-			<resource>
-				<directory>src</directory>
-				<excludes>
-					<exclude>**/*.java</exclude>
-				</excludes>
-			</resource>
-			<resource>
-				<directory>other_src</directory>
-				<excludes>
-					<exclude>**/*.java</exclude>
-				</excludes>
-			</resource>
-		</resources>
-		<plugins>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.0</version>
-				<configuration>
-					<includes>
-						<include>src/**/*.java</include>
-						<include>other_src/**/*.java</include>
-					</includes>
-					<source>1.8</source>
-					<target>1.8</target>
-				</configuration>
-			</plugin>
-		</plugins>
-<!-- 		<sourceDirectory>src</sourceDirectory>
+		<sourceDirectory>src</sourceDirectory>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -63,13 +40,9 @@
 					</execution>
 				</executions>
 			</plugin>
-		</plugins> -->
+		</plugins>
 	</build>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
-	</properties>
+
 
 	<dependencies>
 		<!-- https://mvnrepository.com/artifact/org.freemarker/freemarker -->
@@ -91,21 +64,12 @@
 		</dependency>
 
 		<!-- for Java 1.9+ -->
-		<!-- https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api -->
-		<dependency>
-			<groupId>javax.xml.bind</groupId>
-			<artifactId>jaxb-api</artifactId>
-			<scope>provided</scope>
-			<optional>true</optional>
-			<version>2.3.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.glassfish.jaxb</groupId>
-			<artifactId>jaxb-runtime</artifactId>
-			<version>2.3.1</version>
-			<optional>true</optional>
-			<scope>runtime</scope>
-		</dependency>
+		<!-- https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api <dependency> 
+			<groupId>javax.xml.bind</groupId> <artifactId>jaxb-api</artifactId> <scope>provided</scope> 
+			<optional>true</optional> <version>2.3.1</version> </dependency> <dependency> 
+			<groupId>org.glassfish.jaxb</groupId> <artifactId>jaxb-runtime</artifactId> 
+			<version>2.3.1</version> <optional>true</optional> <scope>runtime</scope> 
+			</dependency> -->
 
 		<!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
 		<dependency>

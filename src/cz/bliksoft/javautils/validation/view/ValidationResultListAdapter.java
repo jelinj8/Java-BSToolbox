@@ -35,6 +35,7 @@ import java.beans.PropertyChangeListener;
 
 import javax.swing.AbstractListModel;
 
+import cz.bliksoft.javautils.validation.ValidationMessage;
 import cz.bliksoft.javautils.validation.ValidationResultModel;
 
 /**
@@ -45,7 +46,12 @@ import cz.bliksoft.javautils.validation.ValidationResultModel;
  * @author Karsten Lentzsch
  * @version $Revision: 1.12 $
  */
-public final class ValidationResultListAdapter extends AbstractListModel {
+public final class ValidationResultListAdapter extends AbstractListModel<ValidationMessage> {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -97138619101820082L;
 
 	/**
 	 * Refers to this adapter's underlying validation result model that provides the
@@ -85,7 +91,7 @@ public final class ValidationResultListAdapter extends AbstractListModel {
 	 * @see javax.swing.ListModel#getElementAt(int)
 	 */
 	@Override
-	public Object getElementAt(int index) {
+	public ValidationMessage getElementAt(int index) {
 		return model.getResult().getMessages().get(index);
 	}
 

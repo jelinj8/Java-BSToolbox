@@ -58,6 +58,56 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>io.github.git-commit-id</groupId>
+				<artifactId>git-commit-id-maven-plugin</artifactId>
+				<version>4.9.9</version>
+				<executions>
+					<execution>
+						<id>get-the-git-infos</id>
+						<goals>
+							<goal>revision</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>validate-the-git-infos</id>
+						<goals>
+							<goal>validateRevision</goal>
+						</goals>
+						<!-- *NOTE*: The default phase of validateRevision is verify, but in 
+							case you want to change it, you can do so by adding the phase here -->
+						<phase>package</phase>
+					</execution>
+				</executions>
+				<configuration>
+					<dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+					<generateGitPropertiesFile>true</generateGitPropertiesFile>
+					<offline>false</offline>
+					<generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+					<commitIdGenerationMode>full</commitIdGenerationMode>
+					<validationProperties>
+						<validationProperty>
+							<name>validating project version</name>
+							<value>${project.version}</value>
+							<shouldMatchTo><![CDATA[^.*(?<!-SNAPSHOT)$]]></shouldMatchTo>
+						</validationProperty>
+						<validationProperty>
+							<name>validating git dirty</name>
+							<value>${git.dirty}</value>
+							<shouldMatchTo>false</shouldMatchTo>
+						</validationProperty>
+					</validationProperties>
+					<includeOnlyProperties>
+						<includeOnlyProperty>^git.build.(time|version)$</includeOnlyProperty>
+						<includeOnlyProperty>^git.commit.id.(abbrev|full)$</includeOnlyProperty>
+						<includeOnlyProperty>git.branch</includeOnlyProperty>
+						<includeOnlyProperty>git.closest.tag.commit.count</includeOnlyProperty>
+						<includeOnlyProperty>git.closest.tag.name</includeOnlyProperty>
+						<includeOnlyProperty>git.tags</includeOnlyProperty>
+						<includeOnlyProperty>git.dirty</includeOnlyProperty>
+					</includeOnlyProperties>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 

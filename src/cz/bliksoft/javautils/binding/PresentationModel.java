@@ -51,7 +51,7 @@ import cz.bliksoft.javautils.binding.exceptions.PropertyNotFoundException;
 import cz.bliksoft.javautils.binding.exceptions.PropertyUnboundException;
 import cz.bliksoft.javautils.binding.interfaces.IValueModel;
 import cz.bliksoft.javautils.binding.models.AbstractValueModel;
-import cz.bliksoft.javautils.binding.models.AbstractWrappedValueModel;
+import cz.bliksoft.javautils.binding.models.AbstractWrappedComponentValueModel;
 import cz.bliksoft.javautils.binding.models.BufferedValueModel;
 import cz.bliksoft.javautils.binding.models.ComponentValueModel;
 import cz.bliksoft.javautils.binding.models.DefaultComponentValueModel;
@@ -273,7 +273,7 @@ public class PresentationModel<B> extends BasicBean implements IPresentationMode
 	 * operation before listeners that handle the bean change are notified. See also
 	 * the class comment.
 	 */
-	public static final String PROPERTY_BEFORE_BEAN = "beforeBean";
+	public static final String PROPERTY_BEFORE_BEAN = "beforeBean"; //$NON-NLS-1$
 
 	/**
 	 * The name of the read-write bound property that holds the target bean.
@@ -281,7 +281,7 @@ public class PresentationModel<B> extends BasicBean implements IPresentationMode
 	 * @see #getBean()
 	 * @see #setBean(Object)
 	 */
-	public static final String PROPERTY_BEAN = "bean";
+	public static final String PROPERTY_BEAN = "bean"; //$NON-NLS-1$
 
 	/**
 	 * The property name used in the PropertyChangeEvent that is fired after the
@@ -289,7 +289,7 @@ public class PresentationModel<B> extends BasicBean implements IPresentationMode
 	 * operation after listeners that handle the bean change are notified. See also
 	 * the class comment.
 	 */
-	public static final String PROPERTY_AFTER_BEAN = "afterBean";
+	public static final String PROPERTY_AFTER_BEAN = "afterBean"; //$NON-NLS-1$
 
 	/**
 	 * The name of the read-write bound bean property for the trigger channel that
@@ -300,7 +300,7 @@ public class PresentationModel<B> extends BasicBean implements IPresentationMode
 	 * @see #setTriggerChannel(ValueModel)
 	 * @see #getBufferedModel(String)
 	 */
-	public static final String PROPERTY_TRIGGERCHANNEL = "triggerChannel";
+	public static final String PROPERTY_TRIGGERCHANNEL = "triggerChannel"; //$NON-NLS-1$
 
 	/**
 	 * The name of the read-only bound bean property that indicates whether one of
@@ -309,7 +309,7 @@ public class PresentationModel<B> extends BasicBean implements IPresentationMode
 	 * @see #isBuffering()
 	 * @see #getBufferedModel(String)
 	 */
-	public static final String PROPERTY_BUFFERING = "buffering";
+	public static final String PROPERTY_BUFFERING = "buffering"; //$NON-NLS-1$
 
 	/**
 	 * The name of the read-only bound bean property that indicates whether one of
@@ -320,7 +320,7 @@ public class PresentationModel<B> extends BasicBean implements IPresentationMode
 	 * @see #observeChanged(ValueModel)
 	 * @see #observeChanged(Object, String)
 	 */
-	public static final String PROPERTY_CHANGED = "changed";
+	public static final String PROPERTY_CHANGED = "changed"; //$NON-NLS-1$
 
 	// Fields *****************************************************************
 
@@ -398,7 +398,7 @@ public class PresentationModel<B> extends BasicBean implements IPresentationMode
 	 *
 	 * @see #getComponentModel(String)
 	 */
-	private final Map<String, AbstractWrappedValueModel<?>> componentModels;
+	private final Map<String, AbstractWrappedComponentValueModel<?>> componentModels;
 
 	/**
 	 * Maps property names to instances of ComponentValueModel. Used to ensure that
@@ -406,7 +406,7 @@ public class PresentationModel<B> extends BasicBean implements IPresentationMode
 	 *
 	 * @see #getBufferedComponentModel(String)
 	 */
-	private final Map<String, AbstractWrappedValueModel<?>> bufferedComponentModels;
+	private final Map<String, AbstractWrappedComponentValueModel<?>> bufferedComponentModels;
 
 	// Instance Creation ******************************************************
 
@@ -961,7 +961,7 @@ public class PresentationModel<B> extends BasicBean implements IPresentationMode
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public AbstractWrappedValueModel getComponentModel(String propertyName) {
+	public AbstractWrappedComponentValueModel getComponentModel(String propertyName) {
 		return componentModels.computeIfAbsent(propertyName,
 				propName -> new DefaultComponentValueModel(getModel(propName)));
 	}
@@ -1123,7 +1123,7 @@ public class PresentationModel<B> extends BasicBean implements IPresentationMode
 			checkArgument(
 					ObjectUtils.equals(getterName, wrappedBuffer.getterName)
 							&& ObjectUtils.equals(setterName, wrappedBuffer.setterName),
-					"You must not invoke this method twice with different getter and/or setter names.");
+					"You must not invoke this method twice with different getter and/or setter names."); //$NON-NLS-1$
 		}
 		return wrappedBuffer.buffer;
 	}
@@ -1180,7 +1180,7 @@ public class PresentationModel<B> extends BasicBean implements IPresentationMode
 	 * @since 1.1
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public AbstractWrappedValueModel getBufferedComponentModel(String propertyName) {
+	public AbstractWrappedComponentValueModel getBufferedComponentModel(String propertyName) {
 		return bufferedComponentModels.computeIfAbsent(propertyName,
 				propName -> new DefaultComponentValueModel(getBufferedModel(propName)));
 	}
@@ -1240,7 +1240,7 @@ public class PresentationModel<B> extends BasicBean implements IPresentationMode
 	 * @see #getTriggerChannel()
 	 */
 	public void setTriggerChannel(IValueModel<Boolean> newTriggerChannel) {
-		checkNotNull(newTriggerChannel, "The trigger channel must not be null.");
+		checkNotNull(newTriggerChannel, "The trigger channel must not be null."); //$NON-NLS-1$
 
 		IValueModel<Boolean> oldTriggerChannel = getTriggerChannel();
 		triggerChannel = newTriggerChannel;
@@ -1395,8 +1395,8 @@ public class PresentationModel<B> extends BasicBean implements IPresentationMode
 	 * @see #observeChanged(ValueModel)
 	 */
 	public void observeChanged(Object bean, String propertyName) {
-		checkNotNull(bean, "The bean must not be null.");
-		checkNotNull(propertyName, "The property name must not be null.");
+		checkNotNull(bean, "The bean must not be null."); //$NON-NLS-1$
+		checkNotNull(propertyName, "The property name must not be null."); //$NON-NLS-1$
 		BeanUtils.addPropertyChangeListener(bean, propertyName, changedUpdateHandler);
 	}
 
@@ -1410,7 +1410,7 @@ public class PresentationModel<B> extends BasicBean implements IPresentationMode
 	 * @see #observeChanged(Object, String)
 	 */
 	public void observeChanged(IValueModel<?> valueModel) {
-		checkNotNull(valueModel, "The ValueModel must not be null.");
+		checkNotNull(valueModel, "The ValueModel must not be null."); //$NON-NLS-1$
 		valueModel.addValueChangeListener(changedUpdateHandler);
 	}
 
@@ -1428,8 +1428,8 @@ public class PresentationModel<B> extends BasicBean implements IPresentationMode
 	 * @see #retractInterestFor(ValueModel)
 	 */
 	public void retractInterestFor(Object bean, String propertyName) {
-		checkNotNull(bean, "The bean must not be null.");
-		checkNotNull(propertyName, "The property name must not be null.");
+		checkNotNull(bean, "The bean must not be null."); //$NON-NLS-1$
+		checkNotNull(propertyName, "The property name must not be null."); //$NON-NLS-1$
 		BeanUtils.removePropertyChangeListener(bean, propertyName, changedUpdateHandler);
 	}
 
@@ -1443,7 +1443,7 @@ public class PresentationModel<B> extends BasicBean implements IPresentationMode
 	 * @see #retractInterestFor(Object, String)
 	 */
 	public void retractInterestFor(IValueModel<?> valueModel) {
-		checkNotNull(valueModel, "The ValueModel must not be null.");
+		checkNotNull(valueModel, "The ValueModel must not be null."); //$NON-NLS-1$
 		valueModel.removeValueChangeListener(changedUpdateHandler);
 	}
 

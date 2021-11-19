@@ -1,4 +1,4 @@
-package cz.bliksoft.javautils.binding.beans;
+package cz.bliksoft.javautils.binding.utils;
 
 /*
  * Copyright (c) 2002-2015 JGoodies Software GmbH. All Rights Reserved.

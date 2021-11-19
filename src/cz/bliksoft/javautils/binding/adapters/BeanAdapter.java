@@ -49,13 +49,13 @@ import java.util.logging.Logger;
 import cz.bliksoft.javautils.ObjectUtils;
 import cz.bliksoft.javautils.binding.BeanUtils;
 import cz.bliksoft.javautils.binding.beans.BasicBean;
-import cz.bliksoft.javautils.binding.beans.IndirectPropertyChangeSupport;
 import cz.bliksoft.javautils.binding.exceptions.PropertyAccessException;
 import cz.bliksoft.javautils.binding.exceptions.PropertyNotBindableException;
 import cz.bliksoft.javautils.binding.exceptions.PropertyNotFoundException;
 import cz.bliksoft.javautils.binding.exceptions.PropertyUnboundException;
 import cz.bliksoft.javautils.binding.interfaces.IValueModel;
 import cz.bliksoft.javautils.binding.models.DefaultValueModel;
+import cz.bliksoft.javautils.binding.utils.IndirectPropertyChangeSupport;
 
 /**
  * Converts multiple Java Bean properties into ValueModels. The bean properties
@@ -256,26 +256,6 @@ import cz.bliksoft.javautils.binding.models.DefaultValueModel;
  * constraints.
  * <p>
  *
- * TODO: Improve the class comment and focus on the main features.
- * <p>
- *
- * TODO: Consider adding a feature to ensure that update notifications are
- * performed in the event dispatch thread. In case the adapted bean is changed
- * in a thread other than the event dispatch thread, such a feature would help
- * complying with Swing's single thread rule. The feature could be implemented
- * by an extended PropertyChangeSupport.
- * <p>
- *
- * TODO: I plan to improve the support for adapting beans that do not fire
- * PropertyChangeEvents. This affects the classes PropertyAdapter, BeanAdapter,
- * and PresentationModel. Basically the PropertyAdapter and the BeanAdapter's
- * internal SimplePropertyAdapter's shall be able to optionally self-fire a
- * PropertyChangeEvent in case the bean does not. There are several downsides
- * with self-firing events compared to bound bean properties. See
- * <a href="https://binding.dev.java.net/issues/show_bug.cgi?id=49">Issue 49</a>
- * for more information about the downsides.
- * <p>
- *
  * The observeChanges constructor parameter shall be replaced by a more
  * fine-grained choice to not observe (former observeChanges=false), to observe
  * bound properties (former observeChanges=true), and a new setting for
@@ -306,7 +286,6 @@ import cz.bliksoft.javautils.binding.models.DefaultValueModel;
  */
 public class BeanAdapter<B> extends BasicBean {
 
-	// FIXME remove logging!
 	private final Logger log = Logger.getLogger(this.getClass().getName());
 
 	// Property Names *********************************************************
@@ -354,7 +333,7 @@ public class BeanAdapter<B> extends BasicBean {
 	 */
 	private /* final */ IValueModel<B> beanChannel;
 
-	private final IValueModel<Boolean> beanSetChannel = new DefaultValueModel<>(false);
+	private final IValueModel<Boolean> beanSetChannel = new DefaultValueModel<>("BeanSet value model", false);
 
 	/**
 	 * Specifies whether we observe property changes and in turn fire state changes.
@@ -485,7 +464,7 @@ public class BeanAdapter<B> extends BasicBean {
 
 		B initialBean = getBean();
 		if (initialBean != null) {
-			if (observeChanges && !BeanUtils.supportsBoundProperties(getBeanClass(initialBean))) {
+			if (observeChanges && !BeanUtils.supportsBoundProperties(initialBean.getClass())) {
 				throw new PropertyUnboundException("The bean must provide support for listening on property changes "
 						+ "as described in section 7.4.5 of the Java Bean Specification.");
 			}
@@ -1119,7 +1098,7 @@ public class BeanAdapter<B> extends BasicBean {
 			return;
 		}
 		propertyChangeHandler = new PropertyChangeHandler();
-// TODO: Replace the first with the second line if getBeanClass(bean)
+// TO-DO: Replace the first with the second line if getBeanClass(bean)
 //       may return a class other than bean.getClass().
 		BeanUtils.addPropertyChangeListener(bean, (Class<?>) null, propertyChangeHandler);
 //      BeanUtils.addPropertyChangeListener(bean, getBeanClass(bean), propertyChangeHandler);
@@ -1142,7 +1121,7 @@ public class BeanAdapter<B> extends BasicBean {
 		if (!observeChanges || bean == null || propertyChangeHandler == null) {
 			return;
 		}
-// TODO: Replace the first with the second line if getBeanClass(bean)
+// TO-DO: Replace the first with the second line if getBeanClass(bean)
 //      may return a class other than bean.getClass().
 		BeanUtils.removePropertyChangeListener(bean, (Class<?>) null, propertyChangeHandler);
 //      BeanUtils.removePropertyChangeListener(bean, getBeanClass(bean), propertyChangeHandler);
@@ -1151,26 +1130,6 @@ public class BeanAdapter<B> extends BasicBean {
 
 	// Helper Methods to Get and Set a Property Value *************************
 
-	/**
-	 * Returns the Java Bean class used by this adapter. The current implementation
-	 * just returns the given bean's class.
-	 * <p>
-	 *
-	 * A future version may return a type other than the concrete class of the given
-	 * bean. This beanClass could be specified in a new set of constructors. This is
-	 * useful if the beans are specified by public interfaces, and implemented by
-	 * package private classes. In this case, the class of the given bean object
-	 * shall be checked against the specified type.
-	 *
-	 * @param bean the bean that may be used to lookup the class from
-	 * @return the Java Bean class used for this adapter.
-	 */
-	private Class<?> getBeanClass(B bean) {
-		return bean.getClass();
-		// TODO: A future version shall add a check like
-		// beanClass.isInstance(bean) if the beanClass
-		// has been specified in the constructor.
-	}
 
 //	/**
 //	 * Returns the value of the specified property of the given bean, {@code null}
@@ -1268,237 +1227,5 @@ public class BeanAdapter<B> extends BasicBean {
 			}
 		}
 	}
-
-//	/**
-//	 * Implements the access to the individual bean properties. All
-//	 * SimplePropertyAdapters created by this BeanAdapter share a single
-//	 * PropertyChangeListener that is used to fire value changes in this
-//	 * SimplePropertyAdapter.
-//	 * <p>
-//	 *
-//	 * This class is public to enable reflection access.
-//	 */
-//	public class SimplePropertyAdapter<U> extends AbstractValueModel<U> {
-//
-//		/**
-//		 * Holds the name of the adapted property.
-//		 */
-//		private final String propertyName;
-//
-//		/**
-//		 * Holds the optional name of the property's getter. Used to create the
-//		 * PropertyDescriptor. Also used to reject potential misuse of
-//		 * {@link BeanAdapter#getValueModel(String)} and
-//		 * {@link BeanAdapter#getValueModel(String, String, String)}. See the latter
-//		 * methods for details.
-//		 */
-//		final String getterName;
-//
-//		/**
-//		 * Holds the optional name of the property's setter. Used to create the
-//		 * PropertyDescriptor. Also used to reject potential misuse of
-//		 * {@link BeanAdapter#getValueModel(String)} and
-//		 * {@link BeanAdapter#getValueModel(String, String, String)}. See the latter
-//		 * methods for details.
-//		 */
-//		final String setterName;
-//
-//		/**
-//		 * Describes the property accessor; basically a getter and setter.
-//		 */
-//		private transient PropertyAccessor<B, U> cachedPropertyDescriptor;
-//
-//		/**
-//		 * Holds the bean class associated with the cached property descriptor.
-//		 */
-//		private Class<?> cachedBeanClass;
-//
-//		// Instance Creation --------------------------------------------------
-//
-//		/**
-//		 * Constructs a SimplePropertyAdapter for the given property name, getter and
-//		 * setter name.
-//		 *
-//		 * @param propertyName the name of the property to adapt
-//		 * @param getterName   the name of the method that reads the value
-//		 * @param setterName   the name of the method that sets the value
-//		 */
-//		protected SimplePropertyAdapter(String propertyName, String getterName, String setterName) {
-//			this.propertyName = propertyName;
-//			this.getterName = getterName;
-//			this.setterName = setterName;
-//
-//			// Eagerly check the existence of the property to adapt.
-//			B bean = getBean();
-//			if (bean != null) {
-//				getPropertyAccessor(bean);
-//			}
-//		}
-//
-//		// Implementing ValueModel --------------------------------------------
-//
-//		/**
-//		 * Returns the value of the adapted bean property, or null if the bean is null.
-//		 *
-//		 * @return the value of the adapted bean property, null if the bean is null
-//		 */
-//		@Override
-//		public U getValue() {
-//			B bean = getBean();
-//			if (bean == null) {
-//				return null;
-//			}
-//			return getValue0(bean, getPropertyAccessor(bean));
-//		}
-//
-//		/**
-//		 * Sets the given object as new value of the adapted bean property. Does nothing
-//		 * if the bean is {@code null}. If the bean setter throws a
-//		 * PropertyVetoException, it is silently ignored. This write operation is
-//		 * supported only for writable bean properties.
-//		 * <p>
-//		 *
-//		 * Notifies any registered value listener if the bean reports a property change.
-//		 * Note that a bean may suppress PropertyChangeEvents if the old and new value
-//		 * are the same, or if the old and new value are equal.
-//		 *
-//		 * @param newValue the value to set
-//		 *
-//		 * @throws UnsupportedOperationException if the property is read-only
-//		 * @throws PropertyNotFoundException     if the property could not be found
-//		 * @throws PropertyAccessException       if the new value could not be set
-//		 */
-//		@Override
-//		public void setValue(Object newValue) {
-//			B bean = getBean();
-//			if (bean == null) {
-//				return;
-//			}
-//			try {
-//				setValue0(bean, getPropertyAccessor(bean), newValue);
-//			} catch (PropertyVetoException e) {
-//				// Silently ignore that someone vetoed against this change
-//			}
-//		}
-//
-//		/**
-//		 * Sets the given object as new value of the adapted bean property. Does nothing
-//		 * if the bean is {@code null}. If the bean setter throws a
-//		 * PropertyVetoExeption, this method throws the same exception. This write
-//		 * operation is supported only for writable bean properties.
-//		 * <p>
-//		 *
-//		 * Notifies any registered value listener if the bean reports a property change.
-//		 * Note that a bean may suppress PropertyChangeEvents if the old and new value
-//		 * are the same, or if the old and new value are equal.
-//		 *
-//		 * @param newValue the value to set
-//		 *
-//		 * @throws UnsupportedOperationException if the property is read-only
-//		 * @throws PropertyNotFoundException     if the property could not be found
-//		 * @throws PropertyAccessException       if the new value could not be set
-//		 * @throws PropertyVetoException         if the invoked bean setter throws a
-//		 *                                       PropertyVetoException
-//		 *
-//		 * @since 1.1
-//		 */
-//		public void setVetoableValue(Object newValue) throws PropertyVetoException {
-//			B bean = getBean();
-//			if (bean == null) {
-//				return;
-//			}
-//			setValue0(bean, getPropertyAccessor(bean), newValue);
-//		}
-//
-//		// Accessing the Cached Property Descriptor --------------------------
-//
-//		/**
-//		 * Looks up, lazily initializes and returns a PropertyAccessor for the given
-//		 * Java Bean and name of the adapted property. The concrete lookup is done by
-//		 * the current PropertyAccessorProvider, which is by default a provider that
-//		 * uses the Java Bean introspection.
-//		 * <p>
-//		 *
-//		 * The cached accessor is considered invalid, if the bean's class has changed.
-//		 * In this case we recompute the accessor.
-//		 *
-//		 * @param bean the bean that holds the property
-//		 * @return the PropertyAccessor as returned by the provider
-//		 * @throws PropertyNotFoundException if the property could not be found
-//		 */
-//		private <V> PropertyAccessor<B, V> getPropertyAccessor(B bean, Class<?> propertyClass) {
-//			Class<?> beanClass = getBeanClass(bean);
-//			if (cachedPropertyDescriptor == null || beanClass != cachedBeanClass) {
-//
-//				cachedPropertyDescriptor = new PropertyAccessor<B, Object>(beanClass, propertyName,
-//						getterName, setterName);
-//				cachedBeanClass = beanClass;
-//			}
-//			return cachedPropertyDescriptor;
-//		}
-//
-//		protected void fireChange(B currentBean) {
-//			Object newValue;
-//			if (currentBean == null) {
-//				newValue = null;
-//			} else {
-//				PropertyAccessor propertyDescriptor = getPropertyAccessor(currentBean);
-//				boolean isWriteOnly = propertyDescriptor.isWriteOnly();
-//				newValue = isWriteOnly ? null : getValue0(currentBean, propertyDescriptor);
-//			}
-//			fireValueChange(null, newValue);
-//		}
-//
-//		protected void fireChange(Object oldValue, Object newValue) {
-//			fireValueChange(oldValue, newValue, true);
-//		}
-//
-//		protected void setBean0(B oldBean, B newBean) {
-//			Object oldValue;
-//			Object newValue;
-//			if (oldBean == null) {
-//				oldValue = null;
-//			} else {
-//				PropertyAccessor propertyAccessor = getPropertyAccessor(oldBean);
-//				boolean isWriteOnly = propertyAccessor.isWriteOnly();
-//				oldValue = isWriteOnly ? null : getValue0(oldBean, propertyAccessor);
-//			}
-//			if (newBean == null) {
-//				newValue = null;
-//			} else {
-//				PropertyAccessor propertyAccessor = getPropertyAccessor(newBean);
-//				boolean isWriteOnly = propertyAccessor.isWriteOnly();
-//				newValue = isWriteOnly ? null : getValue0(newBean, propertyAccessor);
-//			}
-//			if (oldValue != null || newValue != null) {
-//				fireValueChange(oldValue, newValue, true);
-//			}
-//		}
-//
-//		@Override
-//		protected String paramString() {
-//			B bean = getBean();
-//			String beanType = null;
-//			Object value = getValue();
-//			String valueType = null;
-//			String propertyDescriptorName = null;
-//			String propertyType = null;
-//			Method propertyGetter = null;
-//			Method propertySetter = null;
-//			if (bean != null) {
-//				beanType = bean.getClass().getName();
-//				valueType = value == null ? null : value.getClass().getName();
-//				PropertyAccessor propertyDescriptor = getPropertyAccessor(bean);
-//				propertyDescriptorName = propertyDescriptor.getPropertyName();
-//				propertyType = propertyDescriptor.getPropertyType().getName();
-//				propertyGetter = propertyDescriptor.getReadMethod();
-//				propertySetter = propertyDescriptor.getWriteMethod();
-//			}
-//			return "bean=" + bean + "; bean type=" + beanType + "; value=" + value + "; value type=" + valueType
-//					+ "; property name=" + propertyDescriptorName + "; property type=" + propertyType
-//					+ "; property getter=" + propertyGetter + "; property setter=" + propertySetter;
-//		}
-//
-//	}
 
 }

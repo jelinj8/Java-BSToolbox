@@ -133,9 +133,9 @@ import cz.bliksoft.javautils.binding.models.DefaultValueModel;
  *
  * This binding library provides some help for firing PropertyChangeEvents if
  * the old ListModel and new ListModel are equal but not the same. Class
- * {@link com.jgoodies.binding.beans.ExtendedPropertyChangeSupport} allows to
- * permanently or individually check the identity (using {@code ==}) instead of
- * checking the equity (using {@code #equals}). Class
+ * {@link cz.bliksoft.javautils.binding.utils.jgoodies.binding.beans.ExtendedPropertyChangeSupport}
+ * allows to permanently or individually check the identity (using {@code ==})
+ * instead of checking the equity (using {@code #equals}). Class
  * {@link com.jgoodies.binding.beans.Model} uses this extended property change
  * support. And class {@link ValueHolder} uses it too and can be configured to
  * always test the identity.
@@ -184,7 +184,7 @@ import cz.bliksoft.javautils.binding.models.DefaultValueModel;
  * @see ListModel
  * @see com.jgoodies.binding.adapter.ComboBoxAdapter
  * @see com.jgoodies.binding.adapter.AbstractTableAdapter
- * @see com.jgoodies.binding.beans.ExtendedPropertyChangeSupport
+ * @see cz.bliksoft.javautils.binding.utils.jgoodies.binding.beans.ExtendedPropertyChangeSupport
  * @see com.jgoodies.binding.beans.Model
  * @see com.jgoodies.binding.value.ValueHolder
  *
@@ -1169,6 +1169,11 @@ public final class SelectionInList<E> extends IndirectListModel<E> implements IV
 			firePropertyChange(PROPERTY_SELECTION, theOldSelection, newSelection);
 			fireValueChange(theOldSelection, newSelection);
 		}
+	}
+
+	@Override
+	public void forceFireValueChanged() {
+		// no action
 	}
 
 }

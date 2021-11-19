@@ -130,7 +130,7 @@ public final class Bindings {
 	 * @see #flushImmediately()
 	 * @see BufferedValueModel
 	 */
-	private static final String COMMIT_ON_FOCUS_LOST_MODEL_KEY = "commitOnFocusListModel";
+	private static final String COMMIT_ON_FOCUS_LOST_MODEL_KEY = "commitOnFocusListModel"; //$NON-NLS-1$
 
 	/**
 	 * A JComponent client property key used to store and retrieve an associated
@@ -140,7 +140,7 @@ public final class Bindings {
 	 * @see #removeComponentPropertyHandler(JComponent)
 	 * @see ComponentValueModel
 	 */
-	private static final String COMPONENT_VALUE_MODEL_KEY = "componentValueModel";
+	private static final String COMPONENT_VALUE_MODEL_KEY = "componentValueModel"; //$NON-NLS-1$
 
 	/**
 	 * A JComponent client property key used to store and retrieve an associated
@@ -149,7 +149,7 @@ public final class Bindings {
 	 * @see #addComponentPropertyHandler(JComponent, ValueModel)
 	 * @see #removeComponentPropertyHandler(JComponent)
 	 */
-	private static final String COMPONENT_PROPERTY_HANDLER_KEY = "componentPropertyHandler";
+	private static final String COMPONENT_PROPERTY_HANDLER_KEY = "componentPropertyHandler"; //$NON-NLS-1$
 
 	/**
 	 * Triggers a commit in the shared focus lost trigger if focus is lost
@@ -325,7 +325,7 @@ public final class Bindings {
 	 * @since 1.1
 	 */
 	public static void bind(JColorChooser colorChooser, IValueModel<Color> valueModel, Color defaultColor) {
-		checkNotNull(defaultColor, "The default color must not be null.");
+		checkNotNull(defaultColor, "The default color must not be null."); //$NON-NLS-1$
 		colorChooser.setSelectionModel(new ColorSelectionAdapter(valueModel, defaultColor));
 	}
 
@@ -342,7 +342,7 @@ public final class Bindings {
 	 * @since 2.7
 	 */
 	public static <E> void bind(JComboBox<E> comboBox, ComboBoxModel<E> model) {
-		checkNotNull(model, MUST_NOT_BE_NULL, "combo box model");
+		checkNotNull(model, MUST_NOT_BE_NULL, "combo box model"); //$NON-NLS-1$
 		comboBox.setModel(model);
 	}
 
@@ -367,7 +367,7 @@ public final class Bindings {
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static void bind(JComboBox<?> comboBox, ComboBoxModel<?> model, String nullText) {
-		checkNotNull(model, MUST_NOT_BE_NULL, "combo box model");
+		checkNotNull(model, MUST_NOT_BE_NULL, "combo box model"); //$NON-NLS-1$
 		final NullElement nullElement = new NullElement(nullText);
 		comboBox.setModel(new NullElementComboBoxModel(model, nullElement));
 		comboBox.setRenderer(new NullElementComboBoxRenderer(comboBox.getRenderer(), nullElement));
@@ -403,7 +403,7 @@ public final class Bindings {
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static void bind(JComboBox<?> comboBox, SelectionInList<?> selectionInList) {
-		checkNotNull(selectionInList, MUST_NOT_BE_NULL, "SelectionInList");
+		checkNotNull(selectionInList, MUST_NOT_BE_NULL, "SelectionInList"); //$NON-NLS-1$
 		comboBox.setModel(new ComboBoxAdapter(selectionInList));
 		addComponentPropertyHandler(comboBox, selectionInList.getSelectionHolder());
 	}
@@ -463,7 +463,7 @@ public final class Bindings {
 	 * @throws NullPointerException if the text field or valueModel is {@code null}
 	 */
 	public static void bind(JFormattedTextField textField, IValueModel<String> valueModel) {
-		bind(textField, "value", valueModel);
+		bind(textField, "value", valueModel); //$NON-NLS-1$
 	}
 
 	/**
@@ -475,7 +475,7 @@ public final class Bindings {
 	 * @throws NullPointerException if the label or valueModel is {@code null}
 	 */
 	public static void bind(JLabel label, IValueModel<String> valueModel) {
-		bind(label, "text", valueModel);
+		bind(label, "text", valueModel); //$NON-NLS-1$
 	}
 
 	/**
@@ -499,7 +499,7 @@ public final class Bindings {
 	 *                              {@code null}
 	 */
 	public static <E> void bind(JList<E> list, SelectionInList<E> selectionInList) {
-		checkNotNull(selectionInList, MUST_NOT_BE_NULL, "SelectionInList");
+		checkNotNull(selectionInList, MUST_NOT_BE_NULL, "SelectionInList"); //$NON-NLS-1$
 		list.setModel(selectionInList);
 		list.setSelectionModel(new SingleListSelectionAdapter(selectionInList.getSelectionIndexHolder()));
 
@@ -528,7 +528,7 @@ public final class Bindings {
 	 * @since 2.2
 	 */
 	public static void bind(JTable table, SelectionInList<?> selectionInList) {
-		ListModel<?> listModel = checkNotNull(selectionInList, MUST_NOT_BE_NULL, "SelectionInList");
+		ListModel<?> listModel = checkNotNull(selectionInList, MUST_NOT_BE_NULL, "SelectionInList"); //$NON-NLS-1$
 		ListSelectionModel listSelectionModel = new SingleListSelectionAdapter(
 				selectionInList.getSelectionIndexHolder());
 		bind(table, listModel, listSelectionModel);
@@ -559,9 +559,9 @@ public final class Bindings {
 	@SuppressWarnings("unchecked")
 	public static <E> void bind(JTable table, ListModel<E> listModel, ListSelectionModel listSelectionModel) {
 		TableModel tableModel = table.getModel();
-		checkNotNull(listSelectionModel, MUST_NOT_BE_NULL, "ListSelectionModel");
+		checkNotNull(listSelectionModel, MUST_NOT_BE_NULL, "ListSelectionModel"); //$NON-NLS-1$
 		checkArgument(tableModel instanceof ListModelBindable,
-				"The table's TableModel must implement ListModelBindable to be bound.");
+				"The table's TableModel must implement ListModelBindable to be bound."); //$NON-NLS-1$
 		((ListModelBindable<E>) tableModel).setListModel(listModel);
 		if (table.getRowSorter() != null) {
 			table.setSelectionModel(new TableRowSorterListSelectionModel(listSelectionModel, table));
@@ -603,7 +603,7 @@ public final class Bindings {
 	 *                              {@code null}
 	 */
 	public static void bind(JTextArea textArea, IValueModel<String> valueModel, boolean commitOnFocusLost) {
-		checkNotNull(valueModel, MUST_NOT_BE_NULL, "value model");
+		checkNotNull(valueModel, MUST_NOT_BE_NULL, "value model"); //$NON-NLS-1$
 		IValueModel<String> textModel;
 		if (commitOnFocusLost) {
 			textModel = createCommitOnFocusLostModel(valueModel, textArea);
@@ -672,7 +672,7 @@ public final class Bindings {
 	 * @see JPasswordField#getPassword()
 	 */
 	public static void bind(JTextField textField, IValueModel<String> valueModel, boolean commitOnFocusLost) {
-		checkNotNull(valueModel, MUST_NOT_BE_NULL, "value model");
+		checkNotNull(valueModel, MUST_NOT_BE_NULL, "value model"); //$NON-NLS-1$
 		IValueModel<String> textModel;
 		if (commitOnFocusLost) {
 			textModel = createCommitOnFocusLostModel(valueModel, textField);
@@ -702,9 +702,9 @@ public final class Bindings {
 	 * @since 1.2
 	 */
 	public static void bind(JComponent component, String propertyName, IValueModel<?> valueModel) {
-		checkNotNull(component, MUST_NOT_BE_NULL, "component");
-		checkNotNull(valueModel, MUST_NOT_BE_NULL, "value model");
-		checkNotBlank(propertyName, MUST_NOT_BE_BLANK, "property name");
+		checkNotNull(component, MUST_NOT_BE_NULL, "component"); //$NON-NLS-1$
+		checkNotNull(valueModel, MUST_NOT_BE_NULL, "value model"); //$NON-NLS-1$
+		checkNotBlank(propertyName, MUST_NOT_BE_BLANK, "property name"); //$NON-NLS-1$
 		PropertyConnector.connectAndUpdate(valueModel, component, propertyName);
 
 		addComponentPropertyHandler(component, valueModel);
@@ -774,10 +774,10 @@ public final class Bindings {
 			return;
 		} else if (componentValueModel != null) {
 			throw new IllegalStateException(
-					"The component has a ComponentValueModel stored, " + "but lacks the ComponentPropertyHandler.");
+					"The component has a ComponentValueModel stored, " + "but lacks the ComponentPropertyHandler."); //$NON-NLS-1$ //$NON-NLS-2$
 		} else {
 			throw new IllegalStateException(
-					"The component has a ComponentPropertyHandler stored, " + "but lacks the ComponentValueModel.");
+					"The component has a ComponentPropertyHandler stored, " + "but lacks the ComponentValueModel."); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
@@ -868,7 +868,7 @@ public final class Bindings {
 	 * @throws NullPointerException if the value model is {@code null}
 	 */
 	private static <E> IValueModel<E> createCommitOnFocusLostModel(IValueModel<E> valueModel, Component component) {
-		checkNotNull(valueModel, "The value model must not be null.");
+		checkNotNull(valueModel, "The value model must not be null."); //$NON-NLS-1$
 		IValueModel<E> model = new BufferedValueModel<E>(valueModel, FOCUS_LOST_TRIGGER);
 		component.addFocusListener(FOCUS_LOST_HANDLER);
 		return model;
@@ -941,7 +941,7 @@ public final class Bindings {
 		// Instance Creation **************************************************
 
 		NullElement(String text) {
-			this.text = checkNotBlank(text, MUST_NOT_BE_BLANK, "text");
+			this.text = checkNotBlank(text, MUST_NOT_BE_BLANK, "text"); //$NON-NLS-1$
 		}
 
 		// Overriding Object Behavior *****************************************
@@ -970,8 +970,8 @@ public final class Bindings {
 		// Instance Creation --------------------------------------------------
 
 		NullElementComboBoxModel(ComboBoxModel<E> delegate, E nullElement) {
-			this.delegate = checkNotNull(delegate, MUST_NOT_BE_NULL, "wrapped ComboBoxModel");
-			this.nullElement = checkNotNull(nullElement, MUST_NOT_BE_NULL, "null element");
+			this.delegate = checkNotNull(delegate, MUST_NOT_BE_NULL, "wrapped ComboBoxModel"); //$NON-NLS-1$
+			this.nullElement = checkNotNull(nullElement, MUST_NOT_BE_NULL, "null element"); //$NON-NLS-1$
 		}
 
 		// ComboBoxModel Implementation ---------------------------------------
@@ -1031,8 +1031,8 @@ public final class Bindings {
 		// Instance Creation --------------------------------------------------
 
 		NullElementComboBoxRenderer(ListCellRenderer<?> delegate, NullElement nullElement) {
-			this.delegate = checkNotNull(delegate, MUST_NOT_BE_NULL, "wrapped ListCellRenderer");
-			this.nullElement = checkNotNull(nullElement, MUST_NOT_BE_NULL, "null element");
+			this.delegate = checkNotNull(delegate, MUST_NOT_BE_NULL, "wrapped ListCellRenderer"); //$NON-NLS-1$
+			this.nullElement = checkNotNull(nullElement, MUST_NOT_BE_NULL, "null element"); //$NON-NLS-1$
 		}
 
 		// Overriding Superclass Behavior -------------------------------------
@@ -1096,7 +1096,7 @@ public final class Bindings {
 		 */
 		@Override
 		public void setValue(Boolean newValue) {
-			checkArgument(newValue == null || newValue instanceof Boolean, "Trigger values must be of type Boolean.");
+			checkArgument(newValue == null || newValue instanceof Boolean, "Trigger values must be of type Boolean."); //$NON-NLS-1$
 			Boolean oldValue = value;
 			value = newValue;
 			fireValueChange(oldValue, newValue);
@@ -1128,7 +1128,7 @@ public final class Bindings {
 			if (listener == null) {
 				return;
 			}
-			changeSupport.addPropertyChangeListener("value", listener);
+			changeSupport.addPropertyChangeListener("value", listener); //$NON-NLS-1$
 		}
 
 		/**
@@ -1141,7 +1141,7 @@ public final class Bindings {
 			if (listener == null) {
 				return;
 			}
-			changeSupport.removePropertyChangeListener("value", listener);
+			changeSupport.removePropertyChangeListener("value", listener); //$NON-NLS-1$
 		}
 
 		/**
@@ -1155,7 +1155,7 @@ public final class Bindings {
 		 * @see java.beans.PropertyChangeSupport
 		 */
 		private void fireValueChange(Object oldValue, Object newValue) {
-			changeSupport.firePropertyChange("value", oldValue, newValue);
+			changeSupport.firePropertyChange("value", oldValue, newValue); //$NON-NLS-1$
 		}
 
 		// Triggering *************************************************************
@@ -1186,6 +1186,11 @@ public final class Bindings {
 				setValue(null);
 			}
 			setValue(Boolean.FALSE);
+		}
+
+		@Override
+		public void forceFireValueChanged() {
+			// no action
 		}
 
 	}

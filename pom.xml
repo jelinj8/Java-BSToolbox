@@ -80,7 +80,8 @@
 					</execution>
 				</executions>
 				<configuration>
-					<dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+					<useNativeGit>true</useNativeGit>
+					<!-- <dotGitDirectory>${project.basedir}/.git</dotGitDirectory> -->
 					<generateGitPropertiesFile>true</generateGitPropertiesFile>
 					<offline>false</offline>
 					<generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>

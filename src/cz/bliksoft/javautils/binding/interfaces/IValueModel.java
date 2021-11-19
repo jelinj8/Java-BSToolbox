@@ -22,4 +22,14 @@ public interface IValueModel<T> {
 	default void setIdentityCheckEnabled(boolean checkIdentity) {
 		throw new UnsupportedException("This ValueModel doesn't support identity checking.");
 	}
+	
+	@SuppressWarnings("unchecked")
+	default PropertyChangeListener getPropertyListener() {
+		return evt -> setValue((T) evt.getNewValue());
+	}
+	
+	/**
+	 * force notify as if value changed
+	 */
+	void forceFireValueChanged();
 }

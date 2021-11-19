@@ -13,7 +13,7 @@ public class PropertiesUtils {
 	public static void saveProperties(Properties properties, File propFile, String comment, boolean makeBackup)
 			throws IOException {
 		if (makeBackup) {
-			Files.copy(propFile.toPath(), new File(propFile.getParent(), propFile.getName() + ".bak").toPath(),
+			Files.copy(propFile.toPath(), new File(propFile.getParent(), propFile.getName() + ".bak").toPath(), //$NON-NLS-1$
 					StandardCopyOption.REPLACE_EXISTING);
 		}
 

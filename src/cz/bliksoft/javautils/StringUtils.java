@@ -243,20 +243,20 @@ public class StringUtils {
 	}
 
 	public static String hash(char[] password) throws NoSuchAlgorithmException {
-		MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+		MessageDigest sha256 = MessageDigest.getInstance("SHA-256"); //$NON-NLS-1$
 		byte[] passHash = sha256.digest((new String(password)).getBytes());
 		StringBuilder sb = new StringBuilder();
 		for (byte b : passHash) {
-			sb.append(String.format("%02X", b));
+			sb.append(String.format("%02X", b)); //$NON-NLS-1$
 		}
 		return sb.toString();
 	}
 
 	public static String innerXml(Node node) {
-		DOMImplementationLS lsImpl = (DOMImplementationLS) node.getOwnerDocument().getImplementation().getFeature("LS",
-				"3.0");
+		DOMImplementationLS lsImpl = (DOMImplementationLS) node.getOwnerDocument().getImplementation().getFeature("LS", //$NON-NLS-1$
+				"3.0"); //$NON-NLS-1$
 		LSSerializer lsSerializer = lsImpl.createLSSerializer();
-		lsSerializer.getDomConfig().setParameter("xml-declaration", false);
+		lsSerializer.getDomConfig().setParameter("xml-declaration", false); //$NON-NLS-1$
 		NodeList childNodes = node.getChildNodes();
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < childNodes.getLength(); i++) {
@@ -266,10 +266,10 @@ public class StringUtils {
 	}
 
 	public static String outerXml(Node node) {
-		DOMImplementationLS lsImpl = (DOMImplementationLS) node.getOwnerDocument().getImplementation().getFeature("LS",
-				"3.0");
+		DOMImplementationLS lsImpl = (DOMImplementationLS) node.getOwnerDocument().getImplementation().getFeature("LS", //$NON-NLS-1$
+				"3.0"); //$NON-NLS-1$
 		LSSerializer lsSerializer = lsImpl.createLSSerializer();
-		lsSerializer.getDomConfig().setParameter("xml-declaration", false);
+		lsSerializer.getDomConfig().setParameter("xml-declaration", false); //$NON-NLS-1$
 		return lsSerializer.writeToString(node);
 		// NodeList childNodes = node.getChildNodes();
 		// StringBuilder sb = new StringBuilder();
@@ -282,38 +282,38 @@ public class StringUtils {
 	public static boolean isHtmlString(String text) {
 		if (!hasText(text))
 			return false;
-		return text.toUpperCase().startsWith("<HTML>");
+		return text.toUpperCase().startsWith("<HTML>"); //$NON-NLS-1$
 	}
 
 	public static String escapeForHTML(String text) {
 		if (text == null)
 			return null;
-		return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+		return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
 	}
 
 	public static String preformatForHTML(String text) {
 		if (text == null)
 			return null;
 		text = escapeForHTML(text);
-		String[] paragraphs = text.split("\\n");
-		text = appendToEach("<br/>\n", null, paragraphs);
+		String[] paragraphs = text.split("\\n"); //$NON-NLS-1$
+		text = appendToEach("<br/>\n", null, paragraphs); //$NON-NLS-1$
 		return text;
 	}
 
 	public static String initCap(String text) {
 		if (hasText(text)) {
-			String[] txts = text.split(" ");
+			String[] txts = text.split(" "); //$NON-NLS-1$
 			StringBuilder result = new StringBuilder();
 			for (String s : txts) {
 				result.append(s.substring(0, 1).toUpperCase());
 				result.append(s.substring(1).toLowerCase());
-				result.append(" ");
+				result.append(" "); //$NON-NLS-1$
 			}
 			return result.toString().trim();
 		} else if (text == null) {
 			return null;
 		} else {
-			return "";
+			return ""; //$NON-NLS-1$
 		}
 
 	}
@@ -326,9 +326,9 @@ public class StringUtils {
 
 	public static String getHTMLBodyContent(String HTML) {
 		String doc = HTML.toUpperCase();
-		int bodyIndex = doc.indexOf("<BODY>");
+		int bodyIndex = doc.indexOf("<BODY>"); //$NON-NLS-1$
 		if (bodyIndex > -1) {
-			int endBodyIndex = doc.indexOf("</BODY>");
+			int endBodyIndex = doc.indexOf("</BODY>"); //$NON-NLS-1$
 			if (endBodyIndex == -1) {
 				return HTML.substring(bodyIndex + 6);
 			} else {
@@ -353,6 +353,6 @@ public class StringUtils {
 			return null;
 		if (input.length() <= length)
 			return input;
-		return input.substring(0, length - 2) + "\u2026";
+		return input.substring(0, length - 2) + "\u2026"; //$NON-NLS-1$
 	}
 }

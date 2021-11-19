@@ -11,7 +11,7 @@ public class GeneralUtils {
 
 	public static boolean browseFile(File f) {
 		if (!f.exists()) {
-			log.log(Level.SEVERE, "File to browse {0} not found.", f);
+			log.log(Level.SEVERE, Messages.getString("GeneralUtils.FileToBrowseNotFound"), f); //$NON-NLS-1$
 			return false;
 		}
 		if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
@@ -19,7 +19,7 @@ public class GeneralUtils {
 				Desktop.getDesktop().browse(f.toURI());
 				return true;
 			} catch (IOException e) {
-				log.log(Level.SEVERE, "Failed to open browser for file {0}", f);
+				log.log(Level.SEVERE, Messages.getString("GeneralUtils.FailedToOpenBrowserForFile"), f); //$NON-NLS-1$
 			}
 		}
 		return false;

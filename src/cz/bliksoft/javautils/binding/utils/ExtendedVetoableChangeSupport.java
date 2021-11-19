@@ -1,4 +1,4 @@
-package cz.bliksoft.javautils.binding.beans;
+package cz.bliksoft.javautils.binding.utils;
 
 import java.beans.VetoableChangeSupport;
 

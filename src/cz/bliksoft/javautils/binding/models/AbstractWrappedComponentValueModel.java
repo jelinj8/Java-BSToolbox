@@ -47,7 +47,8 @@ import cz.bliksoft.javautils.binding.interfaces.IValueModel;
  *
  * @since 2.4
  */
-public abstract class AbstractWrappedValueModel<V> extends AbstractValueModel<V> implements ComponentValueModel<V> {
+public abstract class AbstractWrappedComponentValueModel<V> extends AbstractValueModel<V>
+		implements ComponentValueModel<V> {
 
 	// Instance Fields ********************************************************
 
@@ -73,7 +74,7 @@ public abstract class AbstractWrappedValueModel<V> extends AbstractValueModel<V>
 	 *
 	 * @param wrappee the underlying or wrapped ValueModel
 	 */
-	protected AbstractWrappedValueModel(IValueModel<V> wrappee) {
+	protected AbstractWrappedComponentValueModel(IValueModel<V> wrappee) {
 		this.wrappee = checkNotNull(wrappee, "The wrapped model must not be null.");
 		this.componentPropertyProvider = wrappee instanceof ComponentModel ? (ComponentModel) wrappee
 				: new SimpleComponentModel();

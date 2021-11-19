@@ -27,7 +27,7 @@ public class XMLGregorianCalendarConverter {
 		try {
 			df = DatatypeFactory.newInstance();
 		} catch (DatatypeConfigurationException dce) {
-			throw new IllegalStateException("Exception while obtaining DatatypeFactory instance", dce);
+			throw new IllegalStateException("Exception while obtaining DatatypeFactory instance", dce); //$NON-NLS-1$
 		}
 	}
 
@@ -67,22 +67,22 @@ public class XMLGregorianCalendarConverter {
 			String format = null;
 			switch (date.length()) {
 			case 8:
-				format = "yyyyMMdd";
+				format = "yyyyMMdd"; //$NON-NLS-1$
 				break;
 			case 10:
-				if (date.contains("-"))
-					format = "yyyy-MM-dd";
+				if (date.contains("-")) //$NON-NLS-1$
+					format = "yyyy-MM-dd"; //$NON-NLS-1$
 				else
-					format = "yyyy/MM/dd";
+					format = "yyyy/MM/dd"; //$NON-NLS-1$
 				break;
 			case 15:
-				format = "yyyyMMdd_hhmmss";
+				format = "yyyyMMdd_hhmmss"; //$NON-NLS-1$
 				break;
 			case 19:
-				if (date.contains("-"))
-					format = "yyyy-MM-dd_hh:mm:ss";
+				if (date.contains("-")) //$NON-NLS-1$
+					format = "yyyy-MM-dd_hh:mm:ss"; //$NON-NLS-1$
 				else
-					format = "yyyy/MM/dd_hh:mm:ss";
+					format = "yyyy/MM/dd_hh:mm:ss"; //$NON-NLS-1$
 				break;
 			}
 			DateFormat parser = new SimpleDateFormat(format);
@@ -93,7 +93,7 @@ public class XMLGregorianCalendarConverter {
 		}
 	}
 
-	private static TimeZone tzUtc = TimeZone.getTimeZone("UTC");
+	private static TimeZone tzUtc = TimeZone.getTimeZone("UTC"); //$NON-NLS-1$
 	private static Locale loc = Locale.getDefault();
 
 	/**
@@ -145,8 +145,8 @@ public class XMLGregorianCalendarConverter {
 		}
 	}
 
-	public static DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
-	public static DateFormat dateTimeFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+	public static DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy"); //$NON-NLS-1$
+	public static DateFormat dateTimeFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss"); //$NON-NLS-1$
 
 	public static String asString(XMLGregorianCalendar xgc, DateFormat df) {
 		if (xgc == null) {

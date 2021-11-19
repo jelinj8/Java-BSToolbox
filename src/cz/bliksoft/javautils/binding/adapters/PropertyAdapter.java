@@ -38,6 +38,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyDescriptor;
 import java.beans.PropertyVetoException;
+import java.text.MessageFormat;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -252,7 +253,7 @@ import cz.bliksoft.javautils.binding.properties.PropertyAccessors;
  *
  * @param <B> the type of the adapted bean
  */
-public final class PropertyAdapter<B, V> extends AbstractValueModel<V> implements IValueModel<V> {
+public final class PropertyAdapter<B, V> extends AbstractValueModel<V> {
 
 	// Property Names *********************************************************
 
@@ -524,7 +525,7 @@ public final class PropertyAdapter<B, V> extends AbstractValueModel<V> implement
 	 */
 	public PropertyAdapter(IValueModel<B> beanChannel, String propertyName, String getterName, String setterName,
 			boolean observeChanges) {
-		this.beanChannel = beanChannel != null ? beanChannel : new DefaultValueModel<B>(null, true);
+		this.beanChannel = beanChannel != null ? beanChannel : new DefaultValueModel<>(null, true);
 		this.propertyName = propertyName;
 		this.getterName = getterName;
 		this.setterName = setterName;
@@ -546,7 +547,7 @@ public final class PropertyAdapter<B, V> extends AbstractValueModel<V> implement
 
 	public PropertyAdapter(IValueModel<B> beanChannel, String propertyName, Function<B, V> getterFunction,
 			BiConsumer<B, V> setterFunction, boolean observeChanges) {
-		this.beanChannel = beanChannel != null ? beanChannel : new DefaultValueModel<B>(null, true);
+		this.beanChannel = beanChannel != null ? beanChannel : new DefaultValueModel<>(null, true);
 		this.propertyName = propertyName;
 		this.getterName = null;
 		this.setterName = null;
@@ -816,6 +817,41 @@ public final class PropertyAdapter<B, V> extends AbstractValueModel<V> implement
 				+ propertyGetter + "; property setter=" + propertySetter;
 	}
 
+	protected String shortParamString() {
+		B bean = getBean();
+		String beanType = null;
+		Object value = getValue();
+//		String valueType = null;
+		String propertyAccessorName = null;
+		String propertyType = null;
+//		String propertySetter = null;
+//		String propertyGetter = null;
+		if (bean != null) {
+			beanType = bean.getClass().getSimpleName();
+//			valueType = value == null ? null : value.getClass().getSimpleName();
+
+			if (accessorType == AccessorType.METHOD) {
+				PropertyAccessor<Object, Object> propertyAccessor = getUniversalPropertyAccessor(bean);
+				propertyAccessorName = propertyAccessor.getPropertyName();
+				propertyType = propertyAccessor.getPropertyType().getSimpleName();
+//				propertyGetter = String.valueOf(propertyAccessor.getReadMethod());
+//				propertySetter = String.valueOf(propertyAccessor.getWriteMethod());
+			} else {
+				PropertyAccessor<B, V> propertyAccessor = getTypedPropertyAccessor(bean);
+				propertyAccessorName = propertyAccessor.getPropertyName();
+				propertyType = propertyAccessor.getPropertyType().getName();
+//				propertyGetter = String.valueOf(propertyAccessor.getGetterFunction());
+//				propertySetter = String.valueOf(propertyAccessor.getSetterFunction());
+			}
+
+		}
+		return MessageFormat.format("PropertyAdapter<{0}, {1}>({2})[{3}]={4}", beanType, propertyType, bean,
+				propertyAccessorName, value);
+//		return "bean='" + bean + "'; bean type=" + beanType + "; value=" + value + "; value type=" + valueType
+//				+ "; property name=" + propertyAccessorName + "; property type=" + propertyType + "; property getter="
+//				+ propertyGetter + "; property setter=" + propertySetter;
+	}
+
 	// Changing the Bean & Adding and Removing the PropertyChangeHandler ******
 
 	protected void setBean0(B oldBean, B newBean) {
@@ -1053,4 +1089,9 @@ public final class PropertyAdapter<B, V> extends AbstractValueModel<V> implement
 		}
 	}
 
+	@Override
+	public String toString() {
+		return shortParamString();
+	}
+	
 }

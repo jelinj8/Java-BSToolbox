@@ -30,11 +30,12 @@
 
 package cz.bliksoft.javautils.validation.message;
 
+import static cz.bliksoft.javautils.Preconditions.MUST_NOT_BE_BLANK;
 import static cz.bliksoft.javautils.Preconditions.checkNotBlank;
 
 import cz.bliksoft.javautils.ObjectUtils;
 import cz.bliksoft.javautils.validation.Severity;
-import static cz.bliksoft.javautils.Preconditions.MUST_NOT_BE_BLANK;
+import cz.bliksoft.javautils.validation.ValidationMessage;
 
 /**
  * A minimal implementation of {@link ValidationMessage} that just holds a text.

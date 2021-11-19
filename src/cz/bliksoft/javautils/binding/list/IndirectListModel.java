@@ -94,7 +94,7 @@ import cz.bliksoft.javautils.binding.models.DefaultValueModel;
  *
  * This binding library provides some help for firing PropertyChangeEvents if
  * the old ListModel and new ListModel are equal but not the same. Class
- * {@link com.jgoodies.binding.beans.ExtendedPropertyChangeSupport} allows to
+ * {@link cz.bliksoft.javautils.binding.utils.jgoodies.binding.beans.ExtendedPropertyChangeSupport} allows to
  * permanently or individually check the identity (using {@code ==}) instead of
  * checking the equity (using {@code #equals}). Class
  * {@link com.jgoodies.binding.beans.Model} uses this extended property change
@@ -125,7 +125,7 @@ import cz.bliksoft.javautils.binding.models.DefaultValueModel;
  * @see ValueModel
  * @see com.jgoodies.binding.adapter.ComboBoxAdapter
  * @see com.jgoodies.binding.adapter.AbstractTableAdapter
- * @see com.jgoodies.binding.beans.ExtendedPropertyChangeSupport
+ * @see cz.bliksoft.javautils.binding.utils.jgoodies.binding.beans.ExtendedPropertyChangeSupport
  * @see com.jgoodies.binding.beans.Model
  * @see com.jgoodies.binding.value.ValueHolder
  *

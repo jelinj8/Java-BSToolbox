@@ -22,32 +22,42 @@ public interface IBeanStateProvider {
 		}
 	}
 
-	default void modifyBean() {
+	/**
+	 * updates <code>beanState</code> to <code>MODIFIED</code> if necessary.
+	 * 
+	 * @return true if the state was changed.
+	 */
+	default boolean modifyBean() {
 		switch (this.getBeanState()) {
 		case CHILDREN_MODIFIED:
 		case SAVED:
 		case INITIAL:
 			this.setBeanState(BeanState.MODIFIED);
 			InnerTools.notifyParentChildModified(this);
-			break;
+			return true;
 		case CREATED:
-			break;
 		case DELETED:
-			break;
 		case MODIFIED:
-			break;
 		case SAVED_DELETED:
-			break;
 		case DUMMY:
-			break;
+			return false;
 		}
+		return false;
 	}
 
-	default void childModifyBean() {
+	/**
+	 * updates <code>beanState</code> to <code>CHILDREN_MODIFIED</code> and notifies
+	 * its parents if possible.
+	 * 
+	 * @return true if the state was changed.
+	 */
+	default boolean childModifyBean() {
 		if (this.getBeanState() == BeanState.SAVED || this.getBeanState() == BeanState.INITIAL) {
 			this.setBeanState(BeanState.CHILDREN_MODIFIED);
 			InnerTools.notifyParentChildModified(this);
-		}
+			return true;
+		} else
+			return false;
 	}
 
 	default boolean getBeanModified() {

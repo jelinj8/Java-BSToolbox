@@ -12,6 +12,7 @@ import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -227,10 +228,81 @@ public class LogUtils {
 		System.setProperty("com.sun.xml.internal.ws.transport.http.HttpAdapter.dumpTreshold", "32760");
 	}
 
-	public static String traceToString(Exception ex) {
+	/**
+	 * returns string content of Throwable's stack trace
+	 * 
+	 * @param throwable
+	 * @return
+	 */
+	public static String traceToString(Throwable throwable) {
 		StringWriter errors = new StringWriter();
-		ex.printStackTrace(new PrintWriter(errors));
+		throwable.printStackTrace(new PrintWriter(errors));
 		return errors.toString();
+	}
+
+	/**
+	 * formats stack trace to a string
+	 * @param stack
+	 * @return
+	 */
+	public static String traceToString(StackTraceElement[] stack) {
+		StringBuilder sb = new StringBuilder();
+		for (StackTraceElement e : stack) {
+			sb.append(MessageFormat.format("\t{0} ({1}:{2}) [{3}]\n", e.getClassName(), e.getFileName(),
+					e.getLineNumber(), e.getMethodName()));
+		}
+		return sb.toString();
+	}
+
+	/**
+	 * returns stack trace string representation
+	 * 
+	 * @param stack
+	 * @param skip     count of elements from top to skip
+	 * @param maxCount max printed elements count
+	 * @return
+	 */
+	public static String traceToString(StackTraceElement[] stack, int skip, int maxCount) {
+		StringBuilder sb = new StringBuilder();
+		int counter = (maxCount > 0 ? maxCount : 1000);
+		int toSkip = skip;
+		for (StackTraceElement e : stack) {
+			if (toSkip > 0) {
+				toSkip--;
+			} else {
+				counter--;
+				sb.append(MessageFormat.format("\t{0} ({1}:{2}) [{3}]\n", e.getClassName(), e.getFileName(),
+						e.getLineNumber(), e.getMethodName()));
+			}
+			if (counter == 0)
+				break;
+		}
+		return sb.toString();
+	}
+
+	/**
+	 * returns stack trace string representation
+	 * 
+	 * @param stack
+	 * @param skip     class to skip on top of stack (find first other flass)
+	 * @param maxCount max printed elements count
+	 * @return
+	 */
+	public static String traceToString(StackTraceElement[] stack, String skip, int maxCount) {
+		StringBuilder sb = new StringBuilder();
+		int counter = maxCount;
+		boolean endSkippping = skip == null;
+		for (StackTraceElement e : stack) {
+			if (endSkippping || !e.getClassName().equals(skip)) {
+				endSkippping = true;
+				counter--;
+				sb.append(MessageFormat.format("\t{0} ({1}:{2}) [{3}]\n", e.getClassName(), e.getFileName(),
+						e.getLineNumber(), e.getMethodName()));
+			}
+			if (counter == 0)
+				break;
+		}
+		return sb.toString();
 	}
 
 	public static String objectToString(Object o) {
@@ -254,5 +326,19 @@ public class LogUtils {
 		} else {
 			return o.toString();
 		}
+	}
+
+	/**
+	 * get current stack trace, skip the getting call + additional <code>skip</code>
+	 * levels.
+	 * 
+	 * @param maxCount maximal total length of result (0 for unlimited)
+	 * @param skip     additional levels to skip (0 for none)
+	 * @return
+	 */
+	public static StackTraceElement[] getStackTrace(int maxCount, int skip) {
+		int max = maxCount > 0 ? maxCount : 1000;
+		StackTraceElement[] result = Thread.currentThread().getStackTrace();
+		return Arrays.copyOfRange(result, 2 + skip, Math.min(result.length - 2, max));
 	}
 }

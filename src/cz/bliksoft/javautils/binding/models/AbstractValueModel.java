@@ -47,7 +47,7 @@ import cz.bliksoft.javautils.binding.interfaces.IValueModel;
  * @author Karsten Lentzsch
  * @version $Revision: 1.12 $
  *
- * @see com.jgoodies.binding.beans.ExtendedPropertyChangeSupport
+ * @see cz.bliksoft.javautils.binding.utils.jgoodies.binding.beans.ExtendedPropertyChangeSupport
  */
 
 public abstract class AbstractValueModel<T> extends BasicBean implements IValueModel<T> {
@@ -365,4 +365,8 @@ public abstract class AbstractValueModel<T> extends BasicBean implements IValueM
 		}
 	}
 
+	@Override
+	public void forceFireValueChanged() {
+		firePropertyChange(PROPERTY_VALUE, null, getValue());
+	}
 }

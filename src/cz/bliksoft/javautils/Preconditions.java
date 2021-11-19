@@ -7,8 +7,8 @@ public final class Preconditions {
 	private Preconditions() {
 	}
 
-	public static final String MUST_NOT_BE_NULL = "The {0} must not be null.";
-	public static final String MUST_NOT_BE_BLANK = "The {0} must not be null, empty, or whitespace.";
+	public static final String MUST_NOT_BE_NULL = "The {0} must not be null."; //$NON-NLS-1$
+	public static final String MUST_NOT_BE_BLANK = "The {0} must not be null, empty, or whitespace."; //$NON-NLS-1$
 
 	public static void checkArgument(boolean expression, String message) {
 		if (!expression) {

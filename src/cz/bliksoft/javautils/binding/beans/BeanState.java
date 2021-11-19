@@ -1,5 +1,7 @@
 package cz.bliksoft.javautils.binding.beans;
 
+import cz.bliksoft.javautils.Messages;
+
 /**
  * sada hodnot rozlišujících různé stavy entit - podle úprav, vytváření a
  * ukládání
@@ -42,7 +44,7 @@ public enum BeanState {
 	INITIAL;
 
 	public boolean isModified() {
-		return (this != SAVED) && (this != SAVED_DELETED) && (this != CHILDREN_MODIFIED) && (this != INITIAL) && (this != DUMMY);
+		return (this == MODIFIED) || (this == CREATED) || (this == DELETED);
 	}
 
 	public boolean isCreated() {
@@ -60,13 +62,13 @@ public enum BeanState {
 	public String toString() {
 		switch (this) {
 		case MODIFIED:
-			return "modif";//$NON-NLS-1$
+			return "modified";//$NON-NLS-1$
 		case CREATED:
 			return "new";//$NON-NLS-1$
 		case DELETED:
-			return "del";//$NON-NLS-1$
+			return "deleted";//$NON-NLS-1$
 		case SAVED_DELETED:
-			return "s_del";//$NON-NLS-1$
+			return "savedDeleted";//$NON-NLS-1$
 		case CHILDREN_MODIFIED:
 			return "childrenMod";//$NON-NLS-1$
 		case DUMMY:
@@ -74,53 +76,32 @@ public enum BeanState {
 		case INITIAL:
 			return "initial";//$NON-NLS-1$
 		case SAVED:
-		default:
 			return "saved";//$NON-NLS-1$
-
+		default:
+			return "UNKNOWN STATE";//$NON-NLS-1$
 		}
 	}
 
 	public String getName() {
 		switch (this) {
 		case MODIFIED:
-			return "modified";
+			return Messages.getString("BeanState.modified"); //$NON-NLS-1$
 		case CREATED:
-			return "new";
+			return Messages.getString("BeanState.new"); //$NON-NLS-1$
 		case DELETED:
-			return "deleted";
+			return Messages.getString("BeanState.deleted"); //$NON-NLS-1$
 		case SAVED_DELETED:
-			return "saved deleted";
+			return Messages.getString("BeanState.savedDeleted"); //$NON-NLS-1$
 		case CHILDREN_MODIFIED:
-			return "children modified";
+			return Messages.getString("BeanState.childrenModified"); //$NON-NLS-1$
 		case DUMMY:
-			return "dummy";
+			return Messages.getString("BeanState.dummy"); //$NON-NLS-1$
 		case INITIAL:
-			return "initial";
+			return Messages.getString("BeanState.initial"); //$NON-NLS-1$
 		case SAVED:
 		default:
-			return "saved";
-
+			return Messages.getString("BeanState.saved"); //$NON-NLS-1$
 		}
 	}
-//	public String getName() {
-//		switch (this) {
-//		case MODIFIED:
-//			return BSFWMessages.getString("EntityState.stateNameModified"); //$NON-NLS-1$
-//		case CREATED:
-//			return BSFWMessages.getString("EntityState.stateNameNew"); //$NON-NLS-1$
-//		case DELETED:
-//			return BSFWMessages.getString("EntityState.stateNameDel"); //$NON-NLS-1$
-//		case SAVED_DELETED:
-//			return BSFWMessages.getString("EntityState.stateNameDelSaved"); //$NON-NLS-1$
-//		case CHILDREN_MODIFIED:
-//			return BSFWMessages.getString("EntityState.stateNameChildModified"); //$NON-NLS-1$
-//		case DUMMY:
-//			return BSFWMessages.getString("EntityState.stateNameDummy"); //$NON-NLS-1$
-//		case SAVED:
-//		default:
-//			return BSFWMessages.getString("EntityState.stateNameSaved"); //$NON-NLS-1$
-//
-//		}
-//	}
 
 }

@@ -2,15 +2,25 @@ package cz.bliksoft.javautils.binding.beans;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 
 import cz.bliksoft.javautils.binding.interfaces.IBeanStateProvider;
-import cz.bliksoft.javautils.binding.interfaces.IObservable;
+import cz.bliksoft.javautils.binding.interfaces.IDefaultObservable;
 import cz.bliksoft.javautils.binding.interfaces.IVetoObservable;
+import cz.bliksoft.javautils.logging.LogUtils;
 
-public abstract class BasicBean implements IBeanStateProvider, IObservable, IVetoObservable {
+@XmlAccessorType(XmlAccessType.NONE)
+public abstract class BasicBean implements IBeanStateProvider, IDefaultObservable, IVetoObservable {
+
+	private static Logger log = Logger.getLogger(BasicBean.class.getName());
 
 	public static final String PROP_BEAN_STATE = IBeanStateProvider.PROP_BEAN_STATE;
 	public static final String PROP_BEAN_MODIFIED = "beanModified";
@@ -32,8 +42,12 @@ public abstract class BasicBean implements IBeanStateProvider, IObservable, IVet
 	@Override
 	public void setBeanState(BeanState newState) {
 		BeanState oldState = beanState;
+		if (oldState != newState && log.isLoggable(Level.FINER))
+			log.finer(MessageFormat.format("Bean '{'{4}'}' \"{0}\" state changed from [{1}] to [{2}]\n{3}", this,
+					oldState, newState, LogUtils.traceToString(LogUtils.getStackTrace(0, 1)),
+					this.getClass().getSimpleName()));
 		boolean oldModified = beanState.isModified();
-		this.beanState = newState;
+		beanState = newState;
 		getPropertyChangeSupport().firePropertyChange(PROP_BEAN_STATE, oldState, newState);
 		if (oldModified != beanState.isModified())
 			getPropertyChangeSupport().firePropertyChange(PROP_BEAN_MODIFIED, oldModified, beanState.isModified());
@@ -41,6 +55,9 @@ public abstract class BasicBean implements IBeanStateProvider, IObservable, IVet
 
 	public void monitorBeanState() {
 		if (beanStateMonitoringHandler == null) {
+			if (beanStateIgnoredProperties == null) {
+				beanStateIgnoredProperties = new HashSet<>(defaultIgnoredProperties);
+			}
 			beanStateMonitoringHandler = new StateChangeHandler();
 			addPropertyChangeListener(beanStateMonitoringHandler);
 		}
@@ -64,17 +81,11 @@ public abstract class BasicBean implements IBeanStateProvider, IObservable, IVet
 
 	public void ignorePropertyBeanState(String propertyName) {
 		monitorBeanState();
-		if (beanStateIgnoredProperties == null) {
-			beanStateIgnoredProperties = new HashSet<>(defaultIgnoredProperties);
-		}
 		beanStateIgnoredProperties.add(propertyName);
 	}
 
 	public void ignorePropertyBeanState(String... propertyNames) {
 		monitorBeanState();
-		if (beanStateIgnoredProperties == null) {
-			beanStateIgnoredProperties = new HashSet<>(defaultIgnoredProperties);
-		}
 		beanStateIgnoredProperties.addAll(Arrays.asList(propertyNames));
 	}
 
@@ -99,10 +110,13 @@ public abstract class BasicBean implements IBeanStateProvider, IObservable, IVet
 	private class StateChangeHandler implements PropertyChangeListener {
 		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
-			if (
-			!beanStateIgnoredProperties.contains(evt.getPropertyName())
-					&&(beanStateMonitoredProperties == null || beanStateMonitoredProperties.contains(evt.getPropertyName())))
-				modifyBean();
+			if (!beanStateIgnoredProperties.contains(evt.getPropertyName())
+					&& (beanStateMonitoredProperties == null
+							|| beanStateMonitoredProperties.contains(evt.getPropertyName()))
+					&& modifyBean() && log.isLoggable(Level.FINE)) {
+				log.fine(MessageFormat.format("Bean '{'{0}'}' \"{2}\" modified by change of property ''{1}''",
+						BasicBean.this.getClass().getSimpleName(), evt.getPropertyName(), BasicBean.this));
+			}
 		}
 	}
 }

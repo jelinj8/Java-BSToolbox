@@ -1,4 +1,4 @@
-package cz.bliksoft.javautils.binding.beans;
+package cz.bliksoft.javautils.binding.utils;
 
 /*
  * Copyright (c) 2002-2015 JGoodies Software GmbH. All Rights Reserved.
@@ -186,22 +186,22 @@ public final class ExtendedPropertyChangeSupport extends PropertyChangeSupport {
 		firePropertyChange(evt, checkIdentityDefault);
 	}
 
-	/**
-	 * Reports a bound property update to any registered listeners. Uses the default
-	 * test ({@code #equals} vs. {@code ==}) to determine whether the event's old
-	 * and new values are different. No event is fired if old and new value are the
-	 * same.
-	 *
-	 * @param propertyName The programmatic name of the property that was changed.
-	 * @param oldValue     The old value of the property.
-	 * @param newValue     The new value of the property.
-	 *
-	 * @see PropertyChangeSupport#firePropertyChange(String, Object, Object)
-	 */
-	@Override
-	public void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
-		firePropertyChange(propertyName, oldValue, newValue, checkIdentityDefault);
-	}
+//	/**
+//	 * Reports a bound property update to any registered listeners. Uses the default
+//	 * test ({@code #equals} vs. {@code ==}) to determine whether the event's old
+//	 * and new values are different. No event is fired if old and new value are the
+//	 * same.
+//	 *
+//	 * @param propertyName The programmatic name of the property that was changed.
+//	 * @param oldValue     The old value of the property.
+//	 * @param newValue     The new value of the property.
+//	 *
+//	 * @see PropertyChangeSupport#firePropertyChange(String, Object, Object)
+//	 */
+//	@Override
+//	public void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
+//		firePropertyChange(propertyName, oldValue, newValue, checkIdentityDefault);
+//	}
 
 	/**
 	 * Fires an existing PropertyChangeEvent to any registered listeners. The
@@ -272,8 +272,8 @@ public final class ExtendedPropertyChangeSupport extends PropertyChangeSupport {
 			fireUnchecked(evt);
 		} else {
 			if (log.isLoggable(Level.FINER))
-				log.finer("Property " + evt.getPropertyName() + " change from " + evt.getOldValue() + " to "
-						+ evt.getNewValue() + " on " + evt.getSource());
+				log.finer("Property '" + evt.getPropertyName() + "' change from \"" + evt.getOldValue() + "\" to \""
+						+ evt.getNewValue() + "\" (evt.src:" + evt.getSource() + ")");
 			super.firePropertyChange(evt);
 		}
 	}
@@ -282,6 +282,9 @@ public final class ExtendedPropertyChangeSupport extends PropertyChangeSupport {
 		if (checkIdentity) {
 			fireUnchecked(new PropertyChangeEvent(source, propertyName, oldValue, newValue));
 		} else {
+			if (log.isLoggable(Level.FINER))
+				log.finer("Property '" + propertyName + "' change from \"" + oldValue + "\" to \"" + newValue
+						+ "\" check identity:" + checkIdentity + " src:(" + source + ")");
 			super.firePropertyChange(propertyName, oldValue, newValue);
 		}
 	}

@@ -122,7 +122,7 @@ import cz.bliksoft.javautils.binding.interfaces.IValueModel;
  *
  * @since 2.4
  */
-public final class DefaultComponentValueModel<V> extends AbstractWrappedValueModel<V> {
+public final class DefaultComponentValueModel<V> extends AbstractWrappedComponentValueModel<V> {
 
 	// Instance Creation ******************************************************
 

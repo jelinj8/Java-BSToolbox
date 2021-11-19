@@ -7,11 +7,11 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public class DateUtils {
-	public static SimpleDateFormat timestampFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-SSS");
-	public static SimpleDateFormat ISO8824TimestampFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+	public static SimpleDateFormat timestampFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-SSS"); //$NON-NLS-1$
+	public static SimpleDateFormat ISO8824TimestampFormat = new SimpleDateFormat("yyyyMMddHHmmss"); //$NON-NLS-1$
 
 	// public static DateFormatter dF = DateFormatter. ofPattern("dd.MM.yyyy");
-	public static DateTimeFormatter dTF = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
+	public static DateTimeFormatter dTF = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"); //$NON-NLS-1$
 
 	public static String TimestampString() {
 		return timestampFormat.format(new Date());
@@ -65,6 +65,6 @@ public class DateUtils {
 		ts %= 60000;
 		final long sec = TimeUnit.MILLISECONDS.toSeconds(ts);
 		ts %= 1000;
-		return (days > 0 ? days + "d " : "") + String.format("%02d:%02d:%02d.%03d", hr, min, sec, ts);
+		return (days > 0 ? days + "d " : "") + String.format("%02d:%02d:%02d.%03d", hr, min, sec, ts); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 }

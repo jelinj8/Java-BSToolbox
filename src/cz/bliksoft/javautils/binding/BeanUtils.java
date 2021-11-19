@@ -10,11 +10,11 @@ import java.beans.VetoableChangeSupport;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import cz.bliksoft.javautils.binding.beans.ExtendedPropertyChangeSupport;
-import cz.bliksoft.javautils.binding.beans.ExtendedVetoableChangeSupport;
 import cz.bliksoft.javautils.binding.exceptions.PropertyNotBindableException;
 import cz.bliksoft.javautils.binding.exceptions.PropertyUnboundException;
 import cz.bliksoft.javautils.binding.interfaces.IObservable;
+import cz.bliksoft.javautils.binding.utils.ExtendedPropertyChangeSupport;
+import cz.bliksoft.javautils.binding.utils.ExtendedVetoableChangeSupport;
 import cz.bliksoft.javautils.collections.WeakIdentityHashMap;
 
 public class BeanUtils {
@@ -45,7 +45,7 @@ public class BeanUtils {
 
 	public static Method getPCLAdder(Class<?> clazz) {
 		try {
-			return clazz.getMethod("addPropertyChangeListener", PCL_PARAMS);
+			return clazz.getMethod("addPropertyChangeListener", PCL_PARAMS); //$NON-NLS-1$
 		} catch (NoSuchMethodException e) {
 			return null;
 		}
@@ -53,7 +53,7 @@ public class BeanUtils {
 
 	public static Method getPCLRemover(Class<?> clazz) {
 		try {
-			return clazz.getMethod("removePropertyChangeListener", PCL_PARAMS);
+			return clazz.getMethod("removePropertyChangeListener", PCL_PARAMS); //$NON-NLS-1$
 		} catch (NoSuchMethodException e) {
 			return null;
 		}
@@ -61,7 +61,7 @@ public class BeanUtils {
 
 	public static Method getNamedPCLAdder(Class<?> clazz) {
 		try {
-			return clazz.getMethod("addPropertyChangeListener", NAMED_PCL_PARAMS);
+			return clazz.getMethod("addPropertyChangeListener", NAMED_PCL_PARAMS); //$NON-NLS-1$
 		} catch (NoSuchMethodException e) {
 			return null;
 		}
@@ -69,18 +69,18 @@ public class BeanUtils {
 
 	public static Method getNamedPCLRemover(Class<?> clazz) {
 		try {
-			return clazz.getMethod("removePropertyChangeListener", NAMED_PCL_PARAMS);
+			return clazz.getMethod("removePropertyChangeListener", NAMED_PCL_PARAMS); //$NON-NLS-1$
 		} catch (NoSuchMethodException e) {
 			return null;
 		}
 	}
 
 	public static void addPropertyChangeListener(Object bean, Class<?> beanClass, PropertyChangeListener listener) {
-		checkNotNull(listener, "The listener must not be null.");
+		checkNotNull(listener, "The listener must not be null."); //$NON-NLS-1$
 		if (beanClass == null) {
 			beanClass = bean.getClass();
 		} else {
-			checkArgument(beanClass.isInstance(bean), "The bean {0} must be an instance of {1}", bean, beanClass);
+			checkArgument(beanClass.isInstance(bean), "The bean {0} must be an instance of {1}", bean, beanClass); //$NON-NLS-1$
 		}
 
 		if (bean instanceof IObservable) {
@@ -93,32 +93,32 @@ public class BeanUtils {
 		}
 
 		if (!BeanUtils.supportsBoundProperties(beanClass)) {
-			throw new PropertyUnboundException("Bound properties unsupported by bean class=" + beanClass
-					+ "\nThe Bean class must provide a pair of methods:"
-					+ "\npublic void addPropertyChangeListener(PropertyChangeListener x);"
-					+ "\npublic void removePropertyChangeListener(PropertyChangeListener x);");
+			throw new PropertyUnboundException("Bound properties unsupported by bean class=" + beanClass //$NON-NLS-1$
+					+ "\nThe Bean class must provide a pair of methods:" //$NON-NLS-1$
+					+ "\npublic void addPropertyChangeListener(PropertyChangeListener x);" //$NON-NLS-1$
+					+ "\npublic void removePropertyChangeListener(PropertyChangeListener x);"); //$NON-NLS-1$
 		}
 
 		Method multicastPCLAdder = getPCLAdder(beanClass);
 		try {
 			multicastPCLAdder.invoke(bean, listener);
 		} catch (InvocationTargetException e) {
-			throw new PropertyNotBindableException("Due to an InvocationTargetException we failed to add "
-					+ "a multicast PropertyChangeListener to bean: " + bean, e.getCause());
+			throw new PropertyNotBindableException("Due to an InvocationTargetException we failed to add " //$NON-NLS-1$
+					+ "a multicast PropertyChangeListener to bean: " + bean, e.getCause()); //$NON-NLS-1$
 		} catch (IllegalAccessException e) {
-			throw new PropertyNotBindableException("Due to an IllegalAccessException we failed to add "
-					+ "a multicast PropertyChangeListener to bean: " + bean, e);
+			throw new PropertyNotBindableException("Due to an IllegalAccessException we failed to add " //$NON-NLS-1$
+					+ "a multicast PropertyChangeListener to bean: " + bean, e); //$NON-NLS-1$
 		}
 	}
 
 	public static void addPropertyChangeListener(Object bean, Class<?> beanClass, String propertyName,
 			PropertyChangeListener listener) {
-		checkNotNull(propertyName, "The property name must not be null.");
-		checkNotNull(listener, "The listener must not be null.");
+		checkNotNull(propertyName, "The property name must not be null."); //$NON-NLS-1$
+		checkNotNull(listener, "The listener must not be null."); //$NON-NLS-1$
 		if (beanClass == null) {
 			beanClass = bean.getClass();
 		} else {
-			checkArgument(beanClass.isInstance(bean), "The bean {0} must be an instance of {1}", bean, beanClass);
+			checkArgument(beanClass.isInstance(bean), "The bean {0} must be an instance of {1}", bean, beanClass); //$NON-NLS-1$
 		}
 		if (bean instanceof IObservable) {
 			((IObservable) bean).addPropertyChangeListener(propertyName, listener);
@@ -130,18 +130,18 @@ public class BeanUtils {
 		}
 		Method namedPCLAdder = getNamedPCLAdder(beanClass);
 		if (namedPCLAdder == null) {
-			throw new PropertyNotBindableException("Could not find the bean method"
-					+ "\npublic void addPropertyChangeListener(String, PropertyChangeListener);" + "\nin bean: "
+			throw new PropertyNotBindableException("Could not find the bean method" //$NON-NLS-1$
+					+ "\npublic void addPropertyChangeListener(String, PropertyChangeListener);" + "\nin bean: " //$NON-NLS-1$ //$NON-NLS-2$
 					+ bean);
 		}
 		try {
 			namedPCLAdder.invoke(bean, propertyName, listener);
 		} catch (InvocationTargetException e) {
-			throw new PropertyNotBindableException("Due to an InvocationTargetException we failed to add "
-					+ "a named PropertyChangeListener to bean: " + bean, e.getCause());
+			throw new PropertyNotBindableException("Due to an InvocationTargetException we failed to add " //$NON-NLS-1$
+					+ "a named PropertyChangeListener to bean: " + bean, e.getCause()); //$NON-NLS-1$
 		} catch (IllegalAccessException e) {
-			throw new PropertyNotBindableException("Due to an IllegalAccessException we failed to add "
-					+ "a named PropertyChangeListener to bean: " + bean, e);
+			throw new PropertyNotBindableException("Due to an IllegalAccessException we failed to add " //$NON-NLS-1$
+					+ "a named PropertyChangeListener to bean: " + bean, e); //$NON-NLS-1$
 		}
 	}
 
@@ -154,11 +154,11 @@ public class BeanUtils {
 	}
 
 	public static void removePropertyChangeListener(Object bean, Class<?> beanClass, PropertyChangeListener listener) {
-		checkNotNull(listener, "The listener must not be null.");
+		checkNotNull(listener, "The listener must not be null."); //$NON-NLS-1$
 		if (beanClass == null) {
 			beanClass = bean.getClass();
 		} else {
-			checkArgument(beanClass.isInstance(bean), "The bean {0} must be an instance of {1}", bean, beanClass);
+			checkArgument(beanClass.isInstance(bean), "The bean {0} must be an instance of {1}", bean, beanClass); //$NON-NLS-1$
 		}
 		if (bean instanceof IObservable) {
 			((IObservable) bean).removePropertyChangeListener(listener);
@@ -170,29 +170,29 @@ public class BeanUtils {
 		}
 		Method multicastPCLRemover = getPCLRemover(beanClass);
 		if (multicastPCLRemover == null) {
-			throw new PropertyUnboundException("Could not find the method:"
-					+ "\npublic void removePropertyChangeListener(String, PropertyChangeListener x);" + "\nfor bean:"
+			throw new PropertyUnboundException("Could not find the method:" //$NON-NLS-1$
+					+ "\npublic void removePropertyChangeListener(String, PropertyChangeListener x);" + "\nfor bean:" //$NON-NLS-1$ //$NON-NLS-2$
 					+ bean);
 		}
 		try {
 			multicastPCLRemover.invoke(bean, listener);
 		} catch (InvocationTargetException e) {
-			throw new PropertyNotBindableException("Due to an InvocationTargetException we failed to remove "
-					+ "a multicast PropertyChangeListener from bean: " + bean, e.getCause());
+			throw new PropertyNotBindableException("Due to an InvocationTargetException we failed to remove " //$NON-NLS-1$
+					+ "a multicast PropertyChangeListener from bean: " + bean, e.getCause()); //$NON-NLS-1$
 		} catch (IllegalAccessException e) {
-			throw new PropertyNotBindableException("Due to an IllegalAccessException we failed to remove "
-					+ "a multicast PropertyChangeListener from bean: " + bean, e);
+			throw new PropertyNotBindableException("Due to an IllegalAccessException we failed to remove " //$NON-NLS-1$
+					+ "a multicast PropertyChangeListener from bean: " + bean, e); //$NON-NLS-1$
 		}
 	}
 
 	public static void removePropertyChangeListener(Object bean, Class<?> beanClass, String propertyName,
 			PropertyChangeListener listener) {
-		checkNotNull(propertyName, "The property name must not be null.");
-		checkNotNull(listener, "The listener must not be null.");
+		checkNotNull(propertyName, "The property name must not be null."); //$NON-NLS-1$
+		checkNotNull(listener, "The listener must not be null."); //$NON-NLS-1$
 		if (beanClass == null) {
 			beanClass = bean.getClass();
 		} else {
-			checkArgument(beanClass.isInstance(bean), "The bean {0} must be an instance of {1}", bean, beanClass);
+			checkArgument(beanClass.isInstance(bean), "The bean {0} must be an instance of {1}", bean, beanClass); //$NON-NLS-1$
 		}
 		if (bean instanceof IObservable) {
 			((IObservable) bean).removePropertyChangeListener(propertyName, listener);
@@ -204,18 +204,18 @@ public class BeanUtils {
 		}
 		Method namedPCLRemover = getNamedPCLRemover(beanClass);
 		if (namedPCLRemover == null) {
-			throw new PropertyNotBindableException("Could not find the bean method"
-					+ "\npublic void removePropertyChangeListener(String, PropertyChangeListener);" + "\nin bean: "
+			throw new PropertyNotBindableException("Could not find the bean method" //$NON-NLS-1$
+					+ "\npublic void removePropertyChangeListener(String, PropertyChangeListener);" + "\nin bean: " //$NON-NLS-1$ //$NON-NLS-2$
 					+ bean);
 		}
 		try {
 			namedPCLRemover.invoke(bean, propertyName, listener);
 		} catch (InvocationTargetException e) {
-			throw new PropertyNotBindableException("Due to an InvocationTargetException we failed to remove "
-					+ "a named PropertyChangeListener from bean: " + bean, e.getCause());
+			throw new PropertyNotBindableException("Due to an InvocationTargetException we failed to remove " //$NON-NLS-1$
+					+ "a named PropertyChangeListener from bean: " + bean, e.getCause()); //$NON-NLS-1$
 		} catch (IllegalAccessException e) {
-			throw new PropertyNotBindableException("Due to an IllegalAccessException we failed to remove "
-					+ "a named PropertyChangeListener from bean: " + bean, e);
+			throw new PropertyNotBindableException("Due to an IllegalAccessException we failed to remove " //$NON-NLS-1$
+					+ "a named PropertyChangeListener from bean: " + bean, e); //$NON-NLS-1$
 		}
 	}
 

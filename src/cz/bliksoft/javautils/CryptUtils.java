@@ -25,7 +25,7 @@ public class CryptUtils {
 	private static Logger log = Logger.getLogger(CryptUtils.class.getName());
 
 	private static String defaultPWD = null;
-	private static String cypherSpec = "AES/GCM/NoPadding";
+	private static String cypherSpec = "AES/GCM/NoPadding"; //$NON-NLS-1$
 
 	public static void setDefaultPassword(String passwd) {
 		defaultPWD = passwd;
@@ -44,10 +44,10 @@ public class CryptUtils {
 	public static SecretKeySpec createSecretKey(char[] password, byte[] salt, int iterationCount, int keyLength)
 			throws NoSuchAlgorithmException, InvalidKeySpecException {
 
-		SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+		SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1"); //$NON-NLS-1$
 		PBEKeySpec keySpec = new PBEKeySpec(password, salt, iterationCount, keyLength);
 		SecretKey keyTmp = keyFactory.generateSecret(keySpec);
-		return new SecretKeySpec(keyTmp.getEncoded(), "AES");
+		return new SecretKeySpec(keyTmp.getEncoded(), "AES"); //$NON-NLS-1$
 	}
 
 	public static String encrypt(String property, SecretKeySpec key) throws GeneralSecurityException {
@@ -57,7 +57,7 @@ public class CryptUtils {
 		IvParameterSpec ivParameterSpec = parameters.getParameterSpec(IvParameterSpec.class);
 		byte[] cryptoText = pbeCipher.doFinal(property.getBytes(StandardCharsets.UTF_8));
 		byte[] iv = ivParameterSpec.getIV();
-		return base64Encode(iv) + ":" + base64Encode(cryptoText);
+		return base64Encode(iv) + ":" + base64Encode(cryptoText); //$NON-NLS-1$
 	}
 
 	public static String base64Encode(byte[] bytes) {
@@ -65,8 +65,8 @@ public class CryptUtils {
 	}
 
 	public static String decrypt(String string, SecretKeySpec key) throws GeneralSecurityException {
-		String iv = string.split(":")[0];
-		String property = string.split(":")[1];
+		String iv = string.split(":")[0]; //$NON-NLS-1$
+		String property = string.split(":")[1]; //$NON-NLS-1$
 		Cipher pbeCipher = Cipher.getInstance(cypherSpec);
 		pbeCipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(base64Decode(iv)));
 		return new String(pbeCipher.doFinal(base64Decode(property)), StandardCharsets.UTF_8);
@@ -104,7 +104,7 @@ public class CryptUtils {
 	 */
 	public static String decrypt(String base64data, String salt) throws GeneralSecurityException, IOException {
 		if (defaultPWD == null)
-			throw new GeneralSecurityException("Default app password not set.");
+			throw new GeneralSecurityException("Default app password not set."); //$NON-NLS-1$
 		return decrypt(base64data, createKey(defaultPWD, salt));
 	}
 
@@ -137,7 +137,7 @@ public class CryptUtils {
 	 */
 	public static String encrypt(String content, String salt) throws GeneralSecurityException {
 		if (defaultPWD == null)
-			throw new GeneralSecurityException("Default app password not set.");
+			throw new GeneralSecurityException("Default app password not set."); //$NON-NLS-1$
 		return encrypt(content, createKey(defaultPWD, salt));
 	}
 
@@ -194,30 +194,30 @@ public class CryptUtils {
 			return null;
 		}
 
-		if (!pwdPropValue.startsWith("salt:")) {
+		if (!pwdPropValue.startsWith("salt:")) { //$NON-NLS-1$
 			try {
 				// nezašifrované heslo, zašifrujeme a nahradíme, uložení je na volajícím
-				String salt = "salt:" + StringUtils.randomString();
+				String salt = "salt:" + StringUtils.randomString(); //$NON-NLS-1$
 				if (password == null)
-					props.setProperty(propName + "_enc", encrypt(pwdPropValue, salt));
+					props.setProperty(propName + "_enc", encrypt(pwdPropValue, salt)); //$NON-NLS-1$
 				else
-					props.setProperty(propName + "_enc", encrypt(pwdPropValue, password, salt));
+					props.setProperty(propName + "_enc", encrypt(pwdPropValue, password, salt)); //$NON-NLS-1$
 				props.setProperty(propName, salt);
 				lastPwdModified = true;
 			} catch (Exception e) {
-				log.log(Level.SEVERE, "Failed to encrypt saved password.", e);
+				log.log(Level.SEVERE, "Failed to encrypt saved password.", e); //$NON-NLS-1$
 			}
 			return pwdPropValue;
 		} else {
 			// zašifrované heslo
-			String data = props.getProperty(propName + "_enc");
+			String data = props.getProperty(propName + "_enc"); //$NON-NLS-1$
 			try {
 				if (password == null)
 					return decrypt(data, pwdPropValue);
 				else
 					return decrypt(data, password, pwdPropValue);
 			} catch (Exception e) {
-				throw new GeneralSecurityException("Failed to decrypt password property.", e);
+				throw new GeneralSecurityException("Failed to decrypt password property.", e); //$NON-NLS-1$
 			}
 		}
 	}
@@ -230,11 +230,11 @@ public class CryptUtils {
 		String crc32 = String.valueOf(getCRC32Checksum(value.getBytes()));
 		if (crc32.length() < length) {
 			while (crc32.length() < length) {
-				crc32 = "9" + crc32;
+				crc32 = "9" + crc32; //$NON-NLS-1$
 			}
 			return crc32;
 		} else {
-			return "9" + crc32.substring(crc32.length() - length + 1);
+			return "9" + crc32.substring(crc32.length() - length + 1); //$NON-NLS-1$
 		}
 	}
 

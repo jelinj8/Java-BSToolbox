@@ -34,6 +34,7 @@ import static cz.bliksoft.javautils.Preconditions.checkNotNull;
 
 import cz.bliksoft.javautils.ObjectUtils;
 import cz.bliksoft.javautils.validation.Severity;
+import cz.bliksoft.javautils.validation.ValidationMessage;
 
 /**
  * An implementation of {@link ValidationMessage} that holds a text message, the

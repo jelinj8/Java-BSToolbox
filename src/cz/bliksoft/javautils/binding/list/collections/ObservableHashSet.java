@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import cz.bliksoft.javautils.binding.interfaces.IObservable;
+import cz.bliksoft.javautils.binding.interfaces.IDefaultObservable;
 
-public class ObservableHashSet<E> extends HashSet<E> implements IObservable {
+public class ObservableHashSet<E> extends HashSet<E> implements IDefaultObservable {
 
 	private static final long serialVersionUID = -2949992258573171695L;
 

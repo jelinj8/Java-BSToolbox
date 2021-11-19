@@ -39,7 +39,7 @@ public class ObjectUtils {
 			final ObjectInputStream ois = new ObjectInputStream(bais);
 			return (T) ois.readObject();
 		} catch (Exception e) {
-			throw new RuntimeException("Deep copy failed", e);
+			throw new RuntimeException("Deep copy failed", e); //$NON-NLS-1$
 		}
 	}
 
@@ -62,5 +62,16 @@ public class ObjectUtils {
 	 */
 	public static boolean equals(Object o1, Object o2) {
 		return o1 == o2 || o1 != null && o1.equals(o2);
+	}
+
+	/**
+	 * checks if both objects are not null and identic or equal
+	 * 
+	 * @param o1
+	 * @param o2
+	 * @return
+	 */
+	public static boolean equalsNotNull(Object o1, Object o2) {
+		return o1 != null && o2 != null && (o1 == o2 || o1.equals(o2));
 	}
 }

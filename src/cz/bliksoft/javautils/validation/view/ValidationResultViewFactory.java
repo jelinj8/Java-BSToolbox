@@ -171,7 +171,7 @@ public final class ValidationResultViewFactory {
 	 * @return a {@code JList} that shows validation messages
 	 */
 	public static JComponent createReportList(ValidationResultModel model, Color backgroundColor) {
-		JList list = new JList();
+		JList<ValidationMessage> list = new JList<>();
 		list.setFocusable(false);
 		list.setBackground(backgroundColor);
 		list.setCellRenderer(new BasicValidationMessageCellRenderer());
@@ -531,6 +531,7 @@ public final class ValidationResultViewFactory {
 	 * A {@code ListCellRenderer} implementation which renders labels for instances
 	 * of {@code ValidationMessage}.
 	 */
+	@SuppressWarnings("serial")
 	private static final class BasicValidationMessageCellRenderer extends DefaultListCellRenderer {
 
 		/**
@@ -540,7 +541,7 @@ public final class ValidationResultViewFactory {
 		 * message's formatted text.
 		 */
 		@Override
-		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
+		public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
 				boolean cellHasFocus) {
 			super.getListCellRendererComponent(list, value, index, false, // Ignore the selection state
 					false); // Ignore the cell focus state

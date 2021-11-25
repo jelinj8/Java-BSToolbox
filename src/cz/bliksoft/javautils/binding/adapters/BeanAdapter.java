@@ -333,7 +333,7 @@ public class BeanAdapter<B> extends BasicBean {
 	 */
 	private /* final */ IValueModel<B> beanChannel;
 
-	private final IValueModel<Boolean> beanSetChannel = new DefaultValueModel<>("BeanSet value model", false);
+	private final IValueModel<Boolean> beanSetChannel = new DefaultValueModel<>("BeanSet value model", Boolean.FALSE);
 
 	/**
 	 * Specifies whether we observe property changes and in turn fire state changes.
@@ -1129,7 +1129,6 @@ public class BeanAdapter<B> extends BasicBean {
 	}
 
 	// Helper Methods to Get and Set a Property Value *************************
-
 
 //	/**
 //	 * Returns the value of the specified property of the given bean, {@code null}

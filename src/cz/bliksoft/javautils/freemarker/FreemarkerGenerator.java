@@ -166,7 +166,7 @@ public class FreemarkerGenerator {
 	public FreemarkerGenerator(File templatesBasePath, Class<?> templateLoaderClass) throws IOException {
 		commonInit();
 		MultiTemplateLoader mtl = new MultiTemplateLoader(new TemplateLoader[] {
-				new FileTemplateLoader(templatesBasePath), new ClassTemplateLoader(templateLoaderClass) });
+				new FileTemplateLoader(templatesBasePath), new ClassTemplateLoader(templateLoaderClass, "") });
 		cfg.setTemplateLoader(mtl);
 	}
 

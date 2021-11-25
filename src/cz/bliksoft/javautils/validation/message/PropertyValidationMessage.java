@@ -71,6 +71,8 @@ import cz.bliksoft.javautils.validation.ValidationMessage;
  */
 public class PropertyValidationMessage extends AbstractValidationMessage {
 
+	private static final long serialVersionUID = -2925878408023505335L;
+
 	/**
 	 * Refers to the object that holds the validated property, for example an
 	 * instance of an {@code Address} class.

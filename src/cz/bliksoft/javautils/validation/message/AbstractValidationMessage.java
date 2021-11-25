@@ -53,6 +53,8 @@ import cz.bliksoft.javautils.validation.ValidationMessage;
  */
 public abstract class AbstractValidationMessage implements ValidationMessage, Serializable {
 
+	private static final long serialVersionUID = -6096293907786193473L;
+
 	/**
 	 * Holds this message's severity, either error or warning.
 	 */

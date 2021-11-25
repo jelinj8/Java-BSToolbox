@@ -57,6 +57,8 @@ import cz.bliksoft.javautils.validation.message.SimpleValidationMessage;
  */
 public final class ValidationResult implements Iterable<ValidationMessage>, Serializable {
 
+	private static final long serialVersionUID = 1339670234427794397L;
+
 	/**
 	 * A constant for an empty and unmodifiable validation result.
 	 */
@@ -79,7 +81,7 @@ public final class ValidationResult implements Iterable<ValidationMessage>, Seri
 	 * Constructs an empty modifiable ValidationResult.
 	 */
 	public ValidationResult() {
-		this(new ArrayList<ValidationMessage>(), true);
+		this(new ArrayList<>(), true);
 	}
 
 	/**
@@ -106,8 +108,7 @@ public final class ValidationResult implements Iterable<ValidationMessage>, Seri
 	 * @return an unmodifiable view of the specified validation result
 	 */
 	public static ValidationResult unmodifiableResult(ValidationResult validationResult) {
-		return validationResult.modifiable
-				? new ValidationResult(new ArrayList<ValidationMessage>(validationResult.messageList), false)
+		return validationResult.modifiable ? new ValidationResult(new ArrayList<>(validationResult.messageList), false)
 				: validationResult;
 	}
 
@@ -459,7 +460,7 @@ public final class ValidationResult implements Iterable<ValidationMessage>, Seri
 		if (messageKey == null) {
 			return EMPTY;
 		}
-		List<ValidationMessage> messages = new ArrayList<ValidationMessage>();
+		List<ValidationMessage> messages = new ArrayList<>();
 		for (ValidationMessage message : messageList) {
 			if (messageKey.equals(message.key())) {
 				messages.add(message);
@@ -486,7 +487,7 @@ public final class ValidationResult implements Iterable<ValidationMessage>, Seri
 		if (messageKeys == null) {
 			return EMPTY;
 		}
-		List<ValidationMessage> messages = new ArrayList<ValidationMessage>();
+		List<ValidationMessage> messages = new ArrayList<>();
 		for (ValidationMessage message : messageList) {
 			Object messageKey = message.key();
 			for (Object key : messageKeys) {
@@ -514,17 +515,14 @@ public final class ValidationResult implements Iterable<ValidationMessage>, Seri
 	 * @see ValidationMessage#key()
 	 */
 	public Map<Object, ValidationResult> keyMap() {
-		Map<Object, List<ValidationMessage>> messageMap = new HashMap<Object, List<ValidationMessage>>();
+		Map<Object, List<ValidationMessage>> messageMap = new HashMap<>();
 		for (ValidationMessage message : messageList) {
 			Object key = message.key();
-			List<ValidationMessage> associatedMessages = messageMap.get(key);
-			if (associatedMessages == null) {
-				associatedMessages = new LinkedList<ValidationMessage>();
-				messageMap.put(key, associatedMessages);
-			}
+			List<ValidationMessage> associatedMessages = messageMap.computeIfAbsent(key,
+					k -> new LinkedList<ValidationMessage>());
 			associatedMessages.add(message);
 		}
-		Map<Object, ValidationResult> resultMap = new HashMap<Object, ValidationResult>(messageMap.size());
+		Map<Object, ValidationResult> resultMap = new HashMap<>(messageMap.size());
 		for (Map.Entry<Object, List<ValidationMessage>> entry : messageMap.entrySet()) {
 			Object key = entry.getKey();
 			List<ValidationMessage> messages = entry.getValue();
@@ -820,7 +818,7 @@ public final class ValidationResult implements Iterable<ValidationMessage>, Seri
 	 */
 	private static List<ValidationMessage> getMessagesWithSeverity(List<ValidationMessage> messages,
 			Severity severity) {
-		List<ValidationMessage> errorMessages = new ArrayList<ValidationMessage>();
+		List<ValidationMessage> errorMessages = new ArrayList<>();
 		for (ValidationMessage message : messages) {
 			if (message.severity() == severity) {
 				errorMessages.add(message);

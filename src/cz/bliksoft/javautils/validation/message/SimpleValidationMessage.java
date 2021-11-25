@@ -47,6 +47,8 @@ public final class SimpleValidationMessage extends AbstractValidationMessage {
 
 	// Instance Creation ******************************************************
 
+	private static final long serialVersionUID = -19184630279387019L;
+
 	/**
 	 * Constructs a simple warning message for the given text.
 	 *

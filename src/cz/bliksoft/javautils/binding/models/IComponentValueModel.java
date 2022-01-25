@@ -88,7 +88,7 @@ import cz.bliksoft.javautils.binding.interfaces.IValueModel;
  *
  * @since 2.4
  */
-public interface ComponentValueModel<V> extends IValueModel<V>, ComponentModel {
+public interface IComponentValueModel<V> extends IValueModel<V>, IComponentModel {
 
 	// Just a combined interface
 

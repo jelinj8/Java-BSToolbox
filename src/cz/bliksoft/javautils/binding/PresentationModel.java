@@ -53,7 +53,7 @@ import cz.bliksoft.javautils.binding.interfaces.IValueModel;
 import cz.bliksoft.javautils.binding.models.AbstractValueModel;
 import cz.bliksoft.javautils.binding.models.AbstractWrappedComponentValueModel;
 import cz.bliksoft.javautils.binding.models.BufferedValueModel;
-import cz.bliksoft.javautils.binding.models.ComponentValueModel;
+import cz.bliksoft.javautils.binding.models.IComponentValueModel;
 import cz.bliksoft.javautils.binding.models.DefaultComponentValueModel;
 import cz.bliksoft.javautils.binding.models.DefaultValueModel;
 import cz.bliksoft.javautils.binding.models.Trigger;
@@ -950,7 +950,7 @@ public class PresentationModel<B> extends BasicBean implements IPresentationMode
 	 *                                   property name and a non-null getter or
 	 *                                   setter name
 	 *
-	 * @see ComponentValueModel
+	 * @see IComponentValueModel
 	 * @see AbstractValueModel
 	 * @see BeanAdapter
 	 * @see #getModel(String, String, String)
@@ -1167,7 +1167,7 @@ public class PresentationModel<B> extends BasicBean implements IPresentationMode
 	 *                                   property name and a non-null getter or
 	 *                                   setter name
 	 *
-	 * @see ComponentValueModel
+	 * @see IComponentValueModel
 	 * @see BufferedValueModel
 	 * @see ValueModel
 	 * @see Trigger

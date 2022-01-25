@@ -9,11 +9,11 @@ import cz.bliksoft.javautils.binding.interfaces.IObservable;
  * @author Karsten Lentzsch
  * @version $Revision: 1.15 $
  *
- * @see ComponentValueModel
+ * @see IComponentValueModel
  *
  * @since 2.4
  */
-public interface ComponentModel extends IObservable {
+public interface IComponentModel extends IObservable {
 
 	// Property Names *********************************************************
 

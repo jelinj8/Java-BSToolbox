@@ -636,7 +636,7 @@ public final class SelectionInList<E> extends IndirectListModel<E> implements IV
 	 *                              set
 	 */
 	public int getSelectionIndex() {
-		return ((Integer) getSelectionIndexHolder().getValue()).intValue();
+		return (getSelectionIndexHolder().getValue()).intValue();
 	}
 
 	/**
@@ -687,7 +687,7 @@ public final class SelectionInList<E> extends IndirectListModel<E> implements IV
 		IValueModel<E> oldSelectionHolder = getSelectionHolder();
 		oldSelectionHolder.removeValueChangeListener(selectionChangeHandler);
 		selectionHolder = newSelectionHolder;
-		oldSelection = (E) newSelectionHolder.getValue();
+		oldSelection = newSelectionHolder.getValue();
 		newSelectionHolder.addValueChangeListener(selectionChangeHandler);
 		firePropertyChange(PROPERTY_SELECTION_HOLDER, oldSelectionHolder, newSelectionHolder);
 	}
@@ -886,9 +886,7 @@ public final class SelectionInList<E> extends IndirectListModel<E> implements IV
 	 */
 	@SuppressWarnings("rawtypes")
 	private static int indexOf(Object aList, Object element) {
-		if (element == null) {
-			return NO_SELECTION_INDEX;
-		} else if (getSize(aList) == 0) {
+		if (element == null || getSize(aList) == 0) {
 			return NO_SELECTION_INDEX;
 		}
 		if (aList instanceof List) {

@@ -53,6 +53,7 @@ import cz.bliksoft.javautils.binding.exceptions.PropertyAccessException;
 import cz.bliksoft.javautils.binding.exceptions.PropertyNotBindableException;
 import cz.bliksoft.javautils.binding.exceptions.PropertyNotFoundException;
 import cz.bliksoft.javautils.binding.exceptions.PropertyUnboundException;
+import cz.bliksoft.javautils.binding.interfaces.IBeanChannel;
 import cz.bliksoft.javautils.binding.interfaces.IValueModel;
 import cz.bliksoft.javautils.binding.models.DefaultValueModel;
 import cz.bliksoft.javautils.binding.utils.IndirectPropertyChangeSupport;
@@ -284,7 +285,7 @@ import cz.bliksoft.javautils.binding.utils.IndirectPropertyChangeSupport;
  *
  * @param <B> the type of the bean managed by this BeanAdapter
  */
-public class BeanAdapter<B> extends BasicBean {
+public class BeanAdapter<B> extends BasicBean implements IBeanChannel<B> {
 
 	private final Logger log = Logger.getLogger(this.getClass().getName());
 
@@ -333,7 +334,7 @@ public class BeanAdapter<B> extends BasicBean {
 	 */
 	private /* final */ IValueModel<B> beanChannel;
 
-	private final IValueModel<Boolean> beanSetChannel = new DefaultValueModel<>("BeanSet value model", Boolean.FALSE);
+	private final IValueModel<Boolean> beanSetChannel = new DefaultValueModel<>(Boolean.FALSE);
 
 	/**
 	 * Specifies whether we observe property changes and in turn fire state changes.
@@ -383,6 +384,25 @@ public class BeanAdapter<B> extends BasicBean {
 	private BeanChangeHandler beanChangeHandler = new BeanChangeHandler();
 
 	// Instance creation ****************************************************
+
+	/**
+	 * Constructs a BeanAdapter for the given bean; does not observe changes.
+	 * <p>
+	 *
+	 * Installs a default bean channel that checks the identity not equity to ensure
+	 * that listeners are re-registered properly if the old and new bean are equal
+	 * but not the same.
+	 * 
+	 * Binds to other BeanAdapter's property as a source bean.
+	 * 
+	 * @param beanAdapter
+	 * @param propertyName
+	 */
+	@SuppressWarnings("unchecked")
+	public BeanAdapter(BeanAdapter<?> beanAdapter, String propertyName, boolean observeChanges) {
+		this((B) null, observeChanges);
+		beanAdapter.getValueModel(propertyName).addValueChangeListener(l -> setBean((B) l.getNewValue()));
+	}
 
 	/**
 	 * Constructs a BeanAdapter for the given bean; does not observe changes.
@@ -489,6 +509,7 @@ public class BeanAdapter<B> extends BasicBean {
 	 *
 	 * @since 1.3
 	 */
+	@Override
 	public IValueModel<B> getBeanChannel() {
 		return beanChannel;
 	}

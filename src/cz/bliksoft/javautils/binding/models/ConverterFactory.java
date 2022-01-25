@@ -36,6 +36,7 @@ import static cz.bliksoft.javautils.Preconditions.checkNotNull;
 import java.text.Format;
 import java.text.ParseException;
 
+import cz.bliksoft.javautils.binding.interfaces.IBindingConverter;
 import cz.bliksoft.javautils.binding.interfaces.IValueModel;
 
 /**
@@ -336,7 +337,7 @@ public final class ConverterFactory {
 	 * Negates Booleans leaving null unchanged. Maps Boolean.TRUE to Boolean.FALSE,
 	 * Boolean.FALSE to Boolean.TRUE, and null to null.
 	 */
-	public static final class BooleanNegator implements BindingConverter<Boolean, Boolean> {
+	public static final class BooleanNegator implements IBindingConverter<Boolean, Boolean> {
 
 		/**
 		 * Returns the negated source Boolean leaving null unchanged.
@@ -371,7 +372,7 @@ public final class ConverterFactory {
 	 * Converts Booleans to Strings and vice-versa using given texts for true,
 	 * false, and null.
 	 */
-	public static final class BooleanToStringConverter implements BindingConverter<Boolean, String> {
+	public static final class BooleanToStringConverter implements IBindingConverter<Boolean, String> {
 
 		private final String trueText;
 		private final String falseText;
@@ -422,7 +423,7 @@ public final class ConverterFactory {
 	/**
 	 * Converts Doubles using a given multiplier.
 	 */
-	public static final class DoubleConverter implements BindingConverter<Double, Double> {
+	public static final class DoubleConverter implements IBindingConverter<Double, Double> {
 
 		private final double multiplier;
 
@@ -457,7 +458,7 @@ public final class ConverterFactory {
 	/**
 	 * Converts Doubles to Integers and vice-versa.
 	 */
-	public static final class DoubleToIntegerConverter implements BindingConverter<Double, Integer> {
+	public static final class DoubleToIntegerConverter implements IBindingConverter<Double, Integer> {
 
 		private final int multiplier;
 
@@ -500,7 +501,7 @@ public final class ConverterFactory {
 	/**
 	 * Converts Floats using a given multiplier.
 	 */
-	public static final class FloatConverter implements BindingConverter<Float, Float> {
+	public static final class FloatConverter implements IBindingConverter<Float, Float> {
 
 		private final float multiplier;
 
@@ -537,7 +538,7 @@ public final class ConverterFactory {
 	/**
 	 * Converts Floats to Integers and vice-versa.
 	 */
-	public static final class FloatToIntegerConverter implements BindingConverter<Float, Integer> {
+	public static final class FloatToIntegerConverter implements IBindingConverter<Float, Integer> {
 
 		private final int multiplier;
 
@@ -575,7 +576,7 @@ public final class ConverterFactory {
 	/**
 	 * Converts Longs using a given multiplier.
 	 */
-	public static final class LongConverter implements BindingConverter<Long, Long> {
+	public static final class LongConverter implements IBindingConverter<Long, Long> {
 
 		private final double multiplier;
 
@@ -607,7 +608,7 @@ public final class ConverterFactory {
 	/**
 	 * Converts Integers using a given multiplier.
 	 */
-	public static final class IntegerConverter implements BindingConverter<Integer, Integer> {
+	public static final class IntegerConverter implements IBindingConverter<Integer, Integer> {
 
 		private final double multiplier;
 
@@ -640,7 +641,7 @@ public final class ConverterFactory {
 	/**
 	 * Converts Longs to Integers and vice-versa.
 	 */
-	public static final class LongToIntegerConverter implements BindingConverter<Long, Integer> {
+	public static final class LongToIntegerConverter implements IBindingConverter<Long, Integer> {
 
 		private final int multiplier;
 
@@ -682,7 +683,7 @@ public final class ConverterFactory {
 	/**
 	 * Converts Values to Strings and vice-versa using a given Format.
 	 */
-	public static final class StringConverter implements BindingConverter<Object, String> {
+	public static final class StringConverter implements IBindingConverter<Object, String> {
 
 		/**
 		 * Holds the {@code Format} used to format and parse.

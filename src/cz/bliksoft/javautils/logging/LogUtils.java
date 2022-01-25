@@ -19,6 +19,7 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+import javax.swing.SwingUtilities;
 import javax.xml.bind.JAXBException;
 
 import cz.bliksoft.javautils.streams.NoCloseOutputStream;
@@ -242,6 +243,7 @@ public class LogUtils {
 
 	/**
 	 * formats stack trace to a string
+	 * 
 	 * @param stack
 	 * @return
 	 */
@@ -340,5 +342,11 @@ public class LogUtils {
 		int max = maxCount > 0 ? maxCount : 1000;
 		StackTraceElement[] result = Thread.currentThread().getStackTrace();
 		return Arrays.copyOfRange(result, 2 + skip, Math.min(result.length - 2, max));
+	}
+
+	public static void warnIfNotEDT(String message) {
+		if (!SwingUtilities.isEventDispatchThread()) {
+			log.severe(message + "\n" + LogUtils.traceToString(LogUtils.getStackTrace(0, 1)));
+		}
 	}
 }

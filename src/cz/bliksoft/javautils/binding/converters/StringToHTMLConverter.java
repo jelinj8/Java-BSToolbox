@@ -1,11 +1,11 @@
 package cz.bliksoft.javautils.binding.converters;
 
 import cz.bliksoft.javautils.StringUtils;
+import cz.bliksoft.javautils.binding.interfaces.IBindingConverter;
 import cz.bliksoft.javautils.binding.interfaces.IValueModel;
-import cz.bliksoft.javautils.binding.models.BindingConverter;
 import cz.bliksoft.javautils.binding.models.ConverterValueModel;
 
-public class StringToHTMLConverter implements BindingConverter<String, String> {
+public class StringToHTMLConverter implements IBindingConverter<String, String> {
 
 	private StringToHTMLConverter() {
 

@@ -1,7 +1,7 @@
 package cz.bliksoft.javautils.binding.converters;
 
+import cz.bliksoft.javautils.binding.interfaces.IBindingConverter;
 import cz.bliksoft.javautils.binding.interfaces.IValueModel;
-import cz.bliksoft.javautils.binding.models.BindingConverter;
 import cz.bliksoft.javautils.binding.models.ConverterValueModel;
 
 /**
@@ -10,7 +10,7 @@ import cz.bliksoft.javautils.binding.models.ConverterValueModel;
  * @author jjelinek
  *
  */
-public class InvertingConverter implements BindingConverter<Boolean, Boolean> {
+public class InvertingConverter implements IBindingConverter<Boolean, Boolean> {
 
 	private InvertingConverter() {
 

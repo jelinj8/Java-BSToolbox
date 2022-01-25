@@ -1,8 +1,8 @@
 package cz.bliksoft.javautils.binding.converters;
 
-import cz.bliksoft.javautils.binding.models.BindingConverter;
+import cz.bliksoft.javautils.binding.interfaces.IBindingConverter;
 
-public class ObjectToTrueConverter implements BindingConverter<Object, Boolean> {
+public class ObjectToTrueConverter implements IBindingConverter<Object, Boolean> {
 	private ObjectToTrueConverter() {
 
 	}

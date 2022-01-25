@@ -1,11 +1,11 @@
 package cz.bliksoft.javautils.binding.converters;
 
+import cz.bliksoft.javautils.binding.interfaces.IBindingConverter;
 import cz.bliksoft.javautils.binding.interfaces.IValueModel;
-import cz.bliksoft.javautils.binding.models.BindingConverter;
 import cz.bliksoft.javautils.binding.models.ConverterValueModel;
 import cz.bliksoft.javautils.strings.ITranslatable;
 
-public class ObjectToStringValueConverter implements BindingConverter<Object, String> {
+public class ObjectToStringValueConverter implements IBindingConverter<Object, String> {
 
 	private static ObjectToStringValueConverter instance = null;
 

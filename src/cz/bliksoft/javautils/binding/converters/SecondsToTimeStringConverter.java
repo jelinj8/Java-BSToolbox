@@ -2,8 +2,8 @@ package cz.bliksoft.javautils.binding.converters;
 
 import java.text.MessageFormat;
 
+import cz.bliksoft.javautils.binding.interfaces.IBindingConverter;
 import cz.bliksoft.javautils.binding.interfaces.IValueModel;
-import cz.bliksoft.javautils.binding.models.BindingConverter;
 import cz.bliksoft.javautils.binding.models.ConverterValueModel;
 
 /**
@@ -12,7 +12,7 @@ import cz.bliksoft.javautils.binding.models.ConverterValueModel;
  * @author hroch
  * 
  */
-public class SecondsToTimeStringConverter implements BindingConverter<Integer, String> {
+public class SecondsToTimeStringConverter implements IBindingConverter<Integer, String> {
 
 	private SecondsToTimeStringConverter() {
 

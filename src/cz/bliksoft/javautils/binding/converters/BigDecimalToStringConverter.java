@@ -1,5 +1,7 @@
 package cz.bliksoft.javautils.binding.converters;
 
+import java.math.BigDecimal;
+
 import cz.bliksoft.javautils.StringUtils;
 import cz.bliksoft.javautils.binding.interfaces.IBindingConverter;
 import cz.bliksoft.javautils.binding.interfaces.IValueModel;
@@ -11,40 +13,40 @@ import cz.bliksoft.javautils.binding.models.ConverterValueModel;
  * @author hroch
  * 
  */
-public class IntegerToStringConverter implements IBindingConverter<Integer, String> {
+public class BigDecimalToStringConverter implements IBindingConverter<BigDecimal, String> {
 
-	private IntegerToStringConverter() {
+	private BigDecimalToStringConverter() {
 
 	}
 
-	private static IntegerToStringConverter instance = null;
+	private static BigDecimalToStringConverter instance = null;
 
-	public static IntegerToStringConverter getDefault() {
+	public static BigDecimalToStringConverter getDefault() {
 		if (instance == null) {
-			instance = new IntegerToStringConverter();
+			instance = new BigDecimalToStringConverter();
 		}
 		return instance;
 	}
 
 	@Override
-	public Integer sourceValue(String stringNumber) {
+	public BigDecimal sourceValue(String stringNumber) {
 		if (StringUtils.isEmpty(stringNumber))
 			return null;
 		try {
-			return Integer.valueOf(stringNumber);
+			return new BigDecimal(stringNumber);
 		} catch (NumberFormatException e) {
 			return null;
 		}
 	}
 
 	@Override
-	public String targetValue(Integer intNumber) {
-		if (intNumber == null)
-			return ""; //$NON-NLS-1$
-		return Integer.toString(intNumber);
+	public String targetValue(BigDecimal number) {
+		if (number == null)
+			return "";
+		return number.toPlainString();
 	}
 
-	public static IValueModel<String> wrapAsString(IValueModel<Integer> source) {
+	public static IValueModel<String> wrapAsString(IValueModel<BigDecimal> source) {
 		return new ConverterValueModel<>(source, getDefault());
 	}
 }

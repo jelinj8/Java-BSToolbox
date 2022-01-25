@@ -1,8 +1,8 @@
 package cz.bliksoft.javautils.binding.converters;
 
-import cz.bliksoft.javautils.binding.models.BindingConverter;
+import cz.bliksoft.javautils.binding.interfaces.IBindingConverter;
 
-public class IntegerToBooleanConverter implements BindingConverter<Integer, Boolean> {
+public class IntegerToBooleanConverter implements IBindingConverter<Integer, Boolean> {
 	private IntegerToBooleanConverter() {
 
 	}

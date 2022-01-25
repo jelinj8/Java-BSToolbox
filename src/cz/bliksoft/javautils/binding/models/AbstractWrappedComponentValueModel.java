@@ -48,7 +48,7 @@ import cz.bliksoft.javautils.binding.interfaces.IValueModel;
  * @since 2.4
  */
 public abstract class AbstractWrappedComponentValueModel<V> extends AbstractValueModel<V>
-		implements ComponentValueModel<V> {
+		implements IComponentValueModel<V> {
 
 	// Instance Fields ********************************************************
 
@@ -61,7 +61,7 @@ public abstract class AbstractWrappedComponentValueModel<V> extends AbstractValu
 	 * Provides the component properties: enabled, visible, editable. Is either the
 	 * wrapped ValueModel or a simple bean.
 	 */
-	private final ComponentModel componentPropertyProvider;
+	private final IComponentModel componentPropertyProvider;
 
 	private final PropertyChangeListener valueChangeHandler;
 	private final PropertyChangeListener componentPropertyChangeHandler;
@@ -70,13 +70,13 @@ public abstract class AbstractWrappedComponentValueModel<V> extends AbstractValu
 
 	/**
 	 * Constructs a DefaultComponentValueModel that wraps the given ValueModel and
-	 * adds {@link ComponentModel} Properties.
+	 * adds {@link IComponentModel} Properties.
 	 *
 	 * @param wrappee the underlying or wrapped ValueModel
 	 */
 	protected AbstractWrappedComponentValueModel(IValueModel<V> wrappee) {
 		this.wrappee = checkNotNull(wrappee, "The wrapped model must not be null.");
-		this.componentPropertyProvider = wrappee instanceof ComponentModel ? (ComponentModel) wrappee
+		this.componentPropertyProvider = wrappee instanceof IComponentModel ? (IComponentModel) wrappee
 				: new SimpleComponentModel();
 		this.valueChangeHandler = createValueChangeHandler();
 		this.componentPropertyChangeHandler = new ComponentPropertyChangeHandler();
@@ -199,7 +199,7 @@ public abstract class AbstractWrappedComponentValueModel<V> extends AbstractValu
 
 	// Helper Class ***********************************************************
 
-	private static final class SimpleComponentModel extends BasicBean implements ComponentModel {
+	private static final class SimpleComponentModel extends BasicBean implements IComponentModel {
 
 		private boolean enabled;
 		private boolean visible;

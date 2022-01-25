@@ -82,8 +82,8 @@ import cz.bliksoft.javautils.binding.interfaces.ListModelBindable;
 import cz.bliksoft.javautils.binding.list.SelectionInList;
 import cz.bliksoft.javautils.binding.list.TableRowSorterListSelectionModel;
 import cz.bliksoft.javautils.binding.models.BufferedValueModel;
-import cz.bliksoft.javautils.binding.models.ComponentModel;
-import cz.bliksoft.javautils.binding.models.ComponentValueModel;
+import cz.bliksoft.javautils.binding.models.IComponentModel;
+import cz.bliksoft.javautils.binding.models.IComponentValueModel;
 
 /**
  * Consists only of static methods that bind Swing components to ValueModels.
@@ -138,7 +138,7 @@ public final class Bindings {
 	 *
 	 * @see #addComponentPropertyHandler(JComponent, ValueModel)
 	 * @see #removeComponentPropertyHandler(JComponent)
-	 * @see ComponentValueModel
+	 * @see IComponentValueModel
 	 */
 	private static final String COMPONENT_VALUE_MODEL_KEY = "componentValueModel"; //$NON-NLS-1$
 
@@ -272,7 +272,7 @@ public final class Bindings {
 	 * <p>
 	 *
 	 * Since the color chooser is considered a container, not a single component, it
-	 * is not synchronized with the valueModel's {@link ComponentValueModel}
+	 * is not synchronized with the valueModel's {@link IComponentValueModel}
 	 * properties - if any.
 	 * <p>
 	 *
@@ -304,7 +304,7 @@ public final class Bindings {
 	 * <p>
 	 *
 	 * Since the color chooser is considered a container, not a single component, it
-	 * is not synchronized with the valueModel's {@link ComponentValueModel}
+	 * is not synchronized with the valueModel's {@link IComponentValueModel}
 	 * properties - if any.
 	 * <p>
 	 *
@@ -385,7 +385,7 @@ public final class Bindings {
 	 *
 	 * Since version 2.0 the combo's <em>enabled</em> and <em>visible</em> state is
 	 * synchronized with the selectionInList's selection holder, if it's a
-	 * {@link ComponentValueModel}.
+	 * {@link IComponentValueModel}.
 	 *
 	 * @param comboBox        the combo box to be bound
 	 * @param selectionInList provides the list and selection; if the selection
@@ -420,7 +420,7 @@ public final class Bindings {
 	 *
 	 * Since version 2.0 the combo's <em>enabled</em> and <em>visible</em> state is
 	 * synchronized with the selectionInList's selection holder, if it's a
-	 * {@link ComponentValueModel}.
+	 * {@link IComponentValueModel}.
 	 * <p>
 	 * 
 	 * TODO: Add a style checks that {@code nullText} shall be enclosed in
@@ -486,7 +486,7 @@ public final class Bindings {
 	 *
 	 * Since version 2.0 the list's <em>enabled</em> and <em>visible</em> state is
 	 * synchronized with the selectionInList's selection holder, if it's a
-	 * {@link ComponentValueModel}.
+	 * {@link IComponentValueModel}.
 	 *
 	 * @param list            the list to be bound
 	 * @param selectionInList provides the list and selection; if the selection
@@ -727,15 +727,15 @@ public final class Bindings {
 	 * @param valueModel the model to observe
 	 *
 	 * @see #removeComponentPropertyHandler(JComponent)
-	 * @see ComponentValueModel
+	 * @see IComponentValueModel
 	 *
 	 * @since 1.1
 	 */
 	public static void addComponentPropertyHandler(JComponent component, IValueModel<?> valueModel) {
-		if (!(valueModel instanceof ComponentValueModel)) {
+		if (!(valueModel instanceof IComponentValueModel)) {
 			return;
 		}
-		ComponentValueModel<?> cvm = (ComponentValueModel<?>) valueModel;
+		IComponentValueModel<?> cvm = (IComponentValueModel<?>) valueModel;
 		PropertyChangeListener componentHandler = new ComponentPropertyHandler(component);
 		cvm.addPropertyChangeListener(componentHandler);
 		component.putClientProperty(COMPONENT_VALUE_MODEL_KEY, cvm);
@@ -757,12 +757,12 @@ public final class Bindings {
 	 * @param component the component to remove the listener from
 	 *
 	 * @see #addComponentPropertyHandler(JComponent, ValueModel)
-	 * @see ComponentValueModel
+	 * @see IComponentValueModel
 	 *
 	 * @since 1.1
 	 */
 	public static void removeComponentPropertyHandler(JComponent component) {
-		ComponentValueModel<?> componentValueModel = (ComponentValueModel<?>) component
+		IComponentValueModel<?> componentValueModel = (IComponentValueModel<?>) component
 				.getClientProperty(COMPONENT_VALUE_MODEL_KEY);
 		PropertyChangeListener componentHandler = (PropertyChangeListener) component
 				.getClientProperty(COMPONENT_PROPERTY_HANDLER_KEY);
@@ -898,7 +898,7 @@ public final class Bindings {
 	 * Listens to property changes in a ComponentValueModel and updates the
 	 * associated component state.
 	 *
-	 * @see ComponentValueModel
+	 * @see IComponentValueModel
 	 */
 	private static final class ComponentPropertyHandler implements PropertyChangeListener {
 
@@ -912,12 +912,12 @@ public final class Bindings {
 		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
 			String propertyName = evt.getPropertyName();
-			ComponentValueModel<?> model = (ComponentValueModel) evt.getSource();
-			if (ComponentModel.PROPERTY_ENABLED.equals(propertyName)) {
+			IComponentValueModel<?> model = (IComponentValueModel) evt.getSource();
+			if (IComponentModel.PROPERTY_ENABLED.equals(propertyName)) {
 				component.setEnabled(model.isEnabled());
-			} else if (ComponentModel.PROPERTY_VISIBLE.equals(propertyName)) {
+			} else if (IComponentModel.PROPERTY_VISIBLE.equals(propertyName)) {
 				component.setVisible(model.isVisible());
-			} else if (ComponentModel.PROPERTY_EDITABLE.equals(propertyName)) {
+			} else if (IComponentModel.PROPERTY_EDITABLE.equals(propertyName)) {
 				if (component instanceof JTextComponent) {
 					((JTextComponent) component).setEditable(model.isEditable());
 				}

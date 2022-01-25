@@ -41,7 +41,7 @@ import javax.swing.JTextField;
 import javax.swing.ListModel;
 
 import cz.bliksoft.javautils.binding.Bindings;
-import cz.bliksoft.javautils.binding.models.BindingConverter;
+import cz.bliksoft.javautils.binding.interfaces.IBindingConverter;
 import cz.bliksoft.javautils.binding.models.ConverterFactory;
 
 /**
@@ -105,7 +105,7 @@ public interface ValueModelBindingBuilder {
 	 *
 	 * @since 2.7
 	 */
-	ValueModelBindingBuilder converted(BindingConverter<?, ?> converter);
+	ValueModelBindingBuilder converted(IBindingConverter<?, ?> converter);
 
 	/**
 	 * Wraps this builder's ValueModel with a string converter and creates and

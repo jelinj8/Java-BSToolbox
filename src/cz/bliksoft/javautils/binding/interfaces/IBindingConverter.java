@@ -1,4 +1,4 @@
-package cz.bliksoft.javautils.binding.models;
+package cz.bliksoft.javautils.binding.interfaces;
 
 /*
  * Copyright (c) 2012-2015 JGoodies Software GmbH. All Rights Reserved.
@@ -43,7 +43,7 @@ import java.text.Format;
  * @param <T> the target type
  * @since 2.7
  */
-public interface BindingConverter<S, T> {
+public interface IBindingConverter<S, T> {
 
 	/**
 	 * Returns the converted source value for use by the binding target.

@@ -1,6 +1,7 @@
 package cz.bliksoft.javautils;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
@@ -12,6 +13,14 @@ public class DateUtils {
 
 	// public static DateFormatter dF = DateFormatter. ofPattern("dd.MM.yyyy");
 	public static DateTimeFormatter dTF = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"); //$NON-NLS-1$
+
+	public static LocalDateTime LocalDateTimeFromString(String value) {
+		return LocalDateTime.parse(value, dTF);
+	}
+
+	public static String LocalDateTimeToString(LocalDateTime td) {
+		return dTF.format(td);
+	}
 
 	public static String TimestampString() {
 		return timestampFormat.format(new Date());
@@ -27,7 +36,7 @@ public class DateUtils {
 	 * @param value
 	 * @return
 	 */
-	public static String XMLTimestampString(String value) {
+	public static String ZonedToLocalDateTimeString(String value) {
 		ZonedDateTime ldt = ZonedDateTime.parse(value, dTF);
 		return DateTimeFormatter.ISO_ZONED_DATE_TIME.format(ldt);
 	}

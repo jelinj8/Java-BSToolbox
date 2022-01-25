@@ -128,7 +128,7 @@ public final class DefaultComponentValueModel<V> extends AbstractWrappedComponen
 
 	/**
 	 * Constructs a DefaultComponentValueModel that wraps the given ValueModel and
-	 * adds {@link ComponentModel} Properties.
+	 * adds {@link IComponentModel} Properties.
 	 *
 	 * @param wrappee the underlying or wrapped ValueModel
 	 */

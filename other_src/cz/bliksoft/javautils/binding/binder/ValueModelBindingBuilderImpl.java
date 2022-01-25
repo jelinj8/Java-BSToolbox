@@ -46,9 +46,9 @@ import javax.swing.JTextField;
 import javax.swing.ListModel;
 
 import cz.bliksoft.javautils.binding.Bindings;
+import cz.bliksoft.javautils.binding.interfaces.IBindingConverter;
 import cz.bliksoft.javautils.binding.interfaces.IValueModel;
 import cz.bliksoft.javautils.binding.list.SelectionInList;
-import cz.bliksoft.javautils.binding.models.BindingConverter;
 import cz.bliksoft.javautils.binding.models.ConverterFactory;
 import cz.bliksoft.javautils.binding.models.ConverterValueModel;
 
@@ -112,7 +112,7 @@ public class ValueModelBindingBuilderImpl implements ValueModelBindingBuilder {
 	// Conversions ************************************************************
 
 	@Override
-	public ValueModelBindingBuilder converted(BindingConverter converter) {
+	public ValueModelBindingBuilder converted(IBindingConverter converter) {
 		return new ValueModelBindingBuilderImpl(new ConverterValueModel(getValueModel(), converter), getPropertyName());
 	}
 

@@ -33,6 +33,7 @@ package cz.bliksoft.javautils.binding.models;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import cz.bliksoft.javautils.binding.interfaces.IBindingConverter;
 import cz.bliksoft.javautils.binding.interfaces.IValueModel;
 
 /**
@@ -64,7 +65,7 @@ public final class ConverterValueModel<S, T> extends AbstractValueModel<T> {
 	/**
 	 * Converts values from the source to the target and vice versa.
 	 */
-	private final BindingConverter<S, T> converter;
+	private final IBindingConverter<S, T> converter;
 
 	// Instance creation ******************************************************
 
@@ -76,7 +77,7 @@ public final class ConverterValueModel<S, T> extends AbstractValueModel<T> {
 	 * @param converter converts source values to target values and vice versa
 	 * @throws NullPointerException if {@code source} is {@code null}
 	 */
-	public ConverterValueModel(IValueModel<S> source, BindingConverter<S, T> converter) {
+	public ConverterValueModel(IValueModel<S> source, IBindingConverter<S, T> converter) {
 		this.source = source;
 		this.source.addValueChangeListener(new ValueChangeHandler());
 		this.converter = converter;

@@ -79,6 +79,7 @@ public class FreemarkerGenerator {
 	private void commonInit() {
 		cfg = new Configuration(Configuration.VERSION_2_3_30);
 		cfg.setEncoding(Locale.getDefault(), "UTF8");
+		setNumberFormat(NumberFormats.COMPUTER);
 		if (!skipJ8TimeAPI) {
 			if (java8TimeAPIWrapper == null) {
 				try {
@@ -305,6 +306,27 @@ public class FreemarkerGenerator {
 
 	public void clearVariables() {
 		variables.clear();
+	}
+
+	public void setNumberFormat(NumberFormats format) {
+		switch (format) {
+		case COMPUTER:
+			cfg.setNumberFormat("computer");
+			break;
+		case CURRENCY:
+			cfg.setNumberFormat("currency");
+			break;
+		case DEFAULT:
+			cfg.setNumberFormat("number");
+			break;
+		case PERCENT:
+			cfg.setNumberFormat("percent");
+			break;
+		}
+	}
+
+	public enum NumberFormats {
+		DEFAULT, PERCENT, COMPUTER, CURRENCY
 	}
 
 }

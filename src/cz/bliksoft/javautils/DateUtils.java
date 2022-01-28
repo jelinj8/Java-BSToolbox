@@ -27,7 +27,7 @@ public class DateUtils {
 	}
 
 	public static String XMLTimestampString() {
-		return DateTimeFormatter.ISO_ZONED_DATE_TIME.format(ZonedDateTime.now());
+		return DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now());
 	}
 
 	/**
@@ -38,7 +38,7 @@ public class DateUtils {
 	 */
 	public static String ZonedToLocalDateTimeString(String value) {
 		ZonedDateTime ldt = ZonedDateTime.parse(value, dTF);
-		return DateTimeFormatter.ISO_ZONED_DATE_TIME.format(ldt);
+		return DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(ldt);
 	}
 
 	/**

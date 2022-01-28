@@ -1,29 +1,29 @@
 @media print {
-	.noprint{
+	.noprint {
 		display: none;
 	}
 }
 
 .box {
-  display: flex;
-  flex-flow: column;
-  height: 100%;
+	display: flex;
+	flex-flow: column;
+	height: 100%;
 }
 
 .box .row.header {
-  flex: 0 1 auto;
-  padding: 5px;
+	flex: 0 1 auto;
+	padding: 5px;
 }
 
 .box .row.content {
-  flex: 1 1 auto;
-  overflow: auto;
-  padding: 5px;
+	flex: 1 1 auto;
+	overflow: auto;
+	padding: 5px;
 }
 
 .box .row.footer {
-  flex: 0 1 auto;
-  padding: 5px;
+	flex: 0 1 auto;
+	padding: 5px;
 }
 
 .button {
@@ -62,7 +62,7 @@
 }
 
 table {
-	width:auto;
+	width: auto;
 }
 
 th {

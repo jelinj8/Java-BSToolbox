@@ -3,6 +3,7 @@ package cz.bliksoft.javautils.freemarker;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Constructor;
@@ -199,19 +200,27 @@ public class FreemarkerGenerator {
 	}
 
 	public void generate(File outfile, String templateName) throws IOException, TemplateException {
+		try (FileOutputStream fos = new FileOutputStream(outfile)) {
+			generate(fos, templateName);
+		}
+	}
+
+	public void generate(OutputStream out, String templateName) throws IOException, TemplateException {
 		Template temp = getTemplate(templateName);
 
 		Map<String, Object> root = new HashMap<>();
 		registerExtensions(root);
 		registerVariables(root);
-		try (FileOutputStream fos = new FileOutputStream(outfile)) {
-			try (OutputStreamWriter out = new OutputStreamWriter(fos, StandardCharsets.UTF_8)) {
-				if (storeEnvironment) {
-					lastEnvironment = temp.createProcessingEnvironment(root, out);
-					lastEnvironment.process(); // process the template
-				} else {
-					temp.process(root, out);
-				}
+		generate(out, temp, root);
+	}
+
+	private void generate(OutputStream outfile, Template tpl, Map<String, Object> root) throws IOException, TemplateException {
+		try (OutputStreamWriter out = new OutputStreamWriter(outfile, StandardCharsets.UTF_8)) {
+			if (storeEnvironment) {
+				lastEnvironment = tpl.createProcessingEnvironment(root, out);
+				lastEnvironment.process(); // process the template
+			} else {
+				tpl.process(root, out);
 			}
 		}
 	}
@@ -241,8 +250,8 @@ public class FreemarkerGenerator {
 		res.put("TXTTOHTML_WHITESPACE", //$NON-NLS-1$
 				new TextReplacer("&", "&amp;", " ", "&nbsp;", "\t", "&nbsp;&nbsp;&nbsp;", "<", "&lt;", ">", "&gt;",
 						"\"", "&quot;", "'", "&#39;", "\n", "<br>\n"));
-		res.put("TXTTOHTML_SAFE", //$NON-NLS-1$
-				new TextReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;", "\"", "&quot;", "'", "&#39;"));
+//		res.put("TXTTOHTML_SAFE", //$NON-NLS-1$
+//				new TextReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;", "\"", "&quot;", "'", "&#39;"));
 		return res;
 	}
 

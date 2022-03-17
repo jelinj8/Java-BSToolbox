@@ -6,6 +6,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 public class PropertiesUtils {
@@ -29,6 +31,14 @@ public class PropertiesUtils {
 			res = new Properties();
 			res.load(fis);
 		}
+		return res;
+	}
+
+	public static Map<String, String> toMap(Properties props) {
+		Map<String, String> res = new HashMap<>();
+		props.forEach((k, v) -> {
+			res.put(k.toString(), v.toString());
+		});
 		return res;
 	}
 }

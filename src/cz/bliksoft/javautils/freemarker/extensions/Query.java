@@ -232,7 +232,8 @@ public class Query implements TemplateMethodModelEx {
 						throw new TemplateModelException("No result");
 					}
 				} catch (SQLException e) {
-					throw new TemplateModelException("SQL Exception.\n" + query + "\n" + e.getSQLState(), e);
+					throw new TemplateModelException(
+							"SQL Exception.\n" + e.getSQLState() + ": " + e.getMessage() + "\n" + query + "\n", e);
 				} catch (Exception e) {
 					throw new TemplateModelException(
 							"Generic exception while processing query " + queryID + " while " + phase, e);

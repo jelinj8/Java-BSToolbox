@@ -1,4 +1,4 @@
-package cz.bliksoft.javautils.freemarker.includes;
+package cz.bliksoft.javautils.freemarker;
 
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.cache.MultiTemplateLoader;
@@ -10,7 +10,7 @@ public class BuiltinTemplateLoader {
 
 	}
 
-	private static TemplateLoader builtin = new ClassTemplateLoader(BuiltinTemplateLoader.class, ".");
+	private static TemplateLoader builtin = new ClassTemplateLoader(BuiltinTemplateLoader.class, "includes");
 
 	public static TemplateLoader getBuiltinTemplateLoader() {
 		return builtin;

@@ -10,7 +10,7 @@ import com.sun.net.httpserver.HttpExchange;
 import cz.bliksoft.javautils.StringUtils;
 
 @SuppressWarnings("restriction")
-class DefaultFileHTTPHandler extends BasicHTTPHandler implements Closeable {
+public class DefaultFileHTTPHandler extends BasicHTTPHandler implements Closeable {
 	private static Logger log = Logger.getLogger(DefaultFileHTTPHandler.class.getName());
 
 	private File pages;

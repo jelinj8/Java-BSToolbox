@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-//import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
 import com.sun.net.httpserver.HttpExchange;
@@ -154,8 +154,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 				sendERR(httpExchange, "File not found.", HTTPErrorCodes.CLIENT_NOT_FOUND.getValue());
 				return;
 			}
-			File f = new File(path);
-			String fileName = f.getName(); // FilenameUtils.getName(path);
+			String fileName = FilenameUtils.getName(path);
 			sendStream(httpExchange, is, fileName);
 		} catch (Exception e) {
 			try {
@@ -172,7 +171,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 			return;
 		}
 		try (InputStream is = new FileInputStream(file)) {
-			String fileName = file.getName(); // FilenameUtils.getName();
+			String fileName = FilenameUtils.getName(file.getName());
 			sendStream(httpExchange, is, fileName);
 		} catch (Exception e) {
 			try {
@@ -184,8 +183,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	}
 
 	protected void sendStream(HttpExchange httpExchange, InputStream is, String fileName) throws IOException {
-		int idx = fileName.lastIndexOf(".");
-		String extension = (idx >= 0 ? fileName.substring(idx) : null); // FilenameUtils.getExtension(fileName);
+		String extension = FilenameUtils.getExtension(fileName);
 		addCommonHeaders(httpExchange, MimeTypes.getMimeType(extension));
 
 		if (fileName != null) {

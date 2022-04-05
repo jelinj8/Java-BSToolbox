@@ -39,7 +39,8 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	public static final String HEADER_ORIGIN = "Access-Control-Allow-Origin";
 	public static final String HEADER_ORIGIN_ANY = "*";
 	public static final String HEADER_CONTENT_DISPOSITION = "Content-Disposition";
-	public static final String HEADER_CONTENT_DISPOSITION_FILENAME = "attachment; filename=";
+	public static final String HEADER_CONTENT_DISPOSITION_ATTACHMENT = "attachment; filename=";
+	public static final String HEADER_CONTENT_DISPOSITION_INLINE = "inline; filename=";
 	public static final String HEADER_SET_COOKIE = "Set-Cookie";
 	public static final String HEADER_COOKIE = "Cookie";
 
@@ -114,8 +115,10 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 		}
 	}
 
-	protected void sendOKDocument(HttpExchange httpExchange, File document, String contentType) throws IOException {
+	protected void sendOKDocument(HttpExchange httpExchange, File document) throws IOException {
 		addCommonHeaders(httpExchange, MimeTypes.getMimeType(FilenameUtils.getExtension(document.getName())));
+		addHeader(httpExchange, HEADER_CONTENT_DISPOSITION,
+				HEADER_CONTENT_DISPOSITION_INLINE + "\"" + document.getName() + "\"");
 		httpExchange.sendResponseHeaders(HTTPErrorCodes.OK.getValue(), document.length());
 		try (FileInputStream is = new FileInputStream(document)) {
 			OutputStream os = httpExchange.getResponseBody();
@@ -123,7 +126,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 			os.close();
 		}
 	}
-	
+
 	protected void sendOKResource(HttpExchange httpExchange, Class<?> loader, String path) throws IOException {
 		try (InputStream is = loader.getResourceAsStream(path)) {
 			if (is == null) {
@@ -131,6 +134,8 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 				return;
 			}
 			String fileName = FilenameUtils.getName(path);
+			addHeader(httpExchange, HEADER_CONTENT_DISPOSITION,
+					HEADER_CONTENT_DISPOSITION_INLINE + "\"" + fileName + "\"");
 			addCommonHeaders(httpExchange, MimeTypes.getMimeType(FilenameUtils.getExtension(fileName)));
 			httpExchange.sendResponseHeaders(HTTPErrorCodes.OK.getValue(), 0);
 
@@ -139,7 +144,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 			os.close();
 		}
 	}
-	
+
 	protected void sendERR(HttpExchange httpExchange, String message, Integer code) throws IOException {
 		sendERR(httpExchange, message, CONTENT_TYPE_TXT, code);
 	}
@@ -166,7 +171,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 		if (fileName != null) {
 			addHeader(httpExchange, HEADER_CONTENT_DISPOSITION,
-					HEADER_CONTENT_DISPOSITION_FILENAME + "\"" + fileName + "\"");
+					HEADER_CONTENT_DISPOSITION_ATTACHMENT + "\"" + fileName + "\"");
 		}
 
 		httpExchange.sendResponseHeaders(HTTPErrorCodes.OK.getValue(), data.length);
@@ -184,7 +189,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 			String fileName = FilenameUtils.getName(path);
 			addCommonHeaders(httpExchange, MimeTypes.getMimeType(FilenameUtils.getExtension(fileName)));
 			addHeader(httpExchange, HEADER_CONTENT_DISPOSITION,
-					HEADER_CONTENT_DISPOSITION_FILENAME + "\"" + fileName + "\"");
+					HEADER_CONTENT_DISPOSITION_ATTACHMENT + "\"" + fileName + "\"");
 			httpExchange.sendResponseHeaders(HTTPErrorCodes.OK.getValue(), 0);
 
 			OutputStream os = httpExchange.getResponseBody();
@@ -200,7 +205,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 		}
 		addCommonHeaders(httpExchange, MimeTypes.getMimeType(FilenameUtils.getExtension(file.getName())));
 		addHeader(httpExchange, HEADER_CONTENT_DISPOSITION,
-				HEADER_CONTENT_DISPOSITION_FILENAME + "\"" + file.getName() + "\"");
+				HEADER_CONTENT_DISPOSITION_ATTACHMENT + "\"" + file.getName() + "\"");
 		httpExchange.sendResponseHeaders(HTTPErrorCodes.OK.getValue(), file.length());
 
 		try (InputStream is = new FileInputStream(file)) {

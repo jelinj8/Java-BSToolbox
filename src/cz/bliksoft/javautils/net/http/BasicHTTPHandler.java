@@ -281,22 +281,4 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 		List<Optional<String>> vals = parameters.get(paramName);
 		return vals;
 	}
-
-	//	public String testRequest(String path, Map<String, List<Optional<String>>> parameters) {
-	//		log.info("test");
-	//		StringBuilder testResult = new StringBuilder();
-	//		testResult.append("OK\n" + path + "\nParameters:\n-----\n");
-	//		for (Entry<String, List<Optional<String>>> p : parameters.entrySet()) {
-	//			String val = p.getKey() + "=";
-	//			for (Optional<String> v : p.getValue()) {
-	//				if (!v.isPresent())
-	//					val += "<EMPTY>,";
-	//				else
-	//					val += "'" + v.get() + "',";
-	//			}
-	//			testResult.append(val);
-	//			testResult.append("\n");
-	//		}
-	//		return testResult.toString();
-	//	}
 }

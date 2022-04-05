@@ -36,6 +36,8 @@
 			"${object?iso_local}"
 			<#elseif object?is_time>
 			"${object?string["HH:mm:ss"]}"
+			<#elseif object?is_method>
+			"METHOD"
 			<#else>
 			"${object?trim?replace('\\','\\\\"')?replace('"','\\"')?replace('\t','\\t')?replace('\b','\\b')?replace('\f','\\f')?replace('\n','\\n')?replace('\r','\\r')}"
 			</#if>
@@ -71,6 +73,8 @@ ${pad}	"${object?string["yyyy-MM-dd"]}"
 ${pad}	"${object?string[dateTimeFormatString]}"
 			<#elseif object?is_time>
 ${pad}	"${object?string["HH:mm:ss"]}"
+			<#elseif object?is_method>
+${pad}	"METHOD"
 			<#else>
 ${pad}	"${object?trim?replace('\\','\\\\"')?replace('"','\\"')}"
 			</#if>

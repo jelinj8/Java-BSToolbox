@@ -10,8 +10,13 @@ public class BuiltinTemplateLoader {
 
 	}
 
+	private static TemplateLoader builtin = new ClassTemplateLoader(BuiltinTemplateLoader.class, "./");
+
+	public static TemplateLoader getBuiltinTemplateLoader() {
+		return builtin;
+	}
+
 	public static TemplateLoader getTemplateLoader(TemplateLoader templateLoader) {
-		return new MultiTemplateLoader(
-				new TemplateLoader[] { templateLoader, new ClassTemplateLoader(BuiltinTemplateLoader.class, "./") });
+		return new MultiTemplateLoader(new TemplateLoader[] { templateLoader, builtin });
 	}
 }

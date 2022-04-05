@@ -2,8 +2,8 @@
 	<html>
 	<head>
 	<style>
-	<#include "styles.css">
-	<#include "flexbox.css">
+	<#include "../../styles.css">
+	<#include "../../flexbox.css">
 	</style>
 	<#if tray_port??>
 	<#include "javascript.htm">
@@ -29,7 +29,7 @@
 	<html>
 	<head>
 	<style>
-	<#include "styles.css">
+	<#include "../../styles.css">
 	</style>
 	<#if tray_port??>
 	<#include "javascript.htm">

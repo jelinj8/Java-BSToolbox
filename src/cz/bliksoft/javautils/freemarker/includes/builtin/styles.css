@@ -126,3 +126,7 @@ tr:hover {
 .orange_background, tr.orange_background, tr.orange_background {
 	background-color: rgb(255, 182, 109);
 }
+
+.tableFixHead          { overflow: auto; height: 100%; }
+.tableFixHead thead th { position: sticky; top: 0; z-index: 1; }
+.tableFixHead tbody th { position: sticky; left: 0; }

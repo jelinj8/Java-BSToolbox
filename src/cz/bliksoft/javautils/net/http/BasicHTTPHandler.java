@@ -63,7 +63,8 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	 * </pre>
 	 * 
 	 * @param httpExchange
-	 * @param path         URI, starts with '/'
+	 * @param path
+	 *            URI, starts with '/'
 	 * @param params
 	 * @throws IOException
 	 */
@@ -113,21 +114,32 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 		}
 	}
 
-	protected void sendData(HttpExchange httpExchange, byte[] data, String contentType, String fileName)
-			throws IOException {
-		addCommonHeaders(httpExchange, contentType);
-
-		if (fileName != null) {
-			addHeader(httpExchange, HEADER_CONTENT_DISPOSITION,
-					HEADER_CONTENT_DISPOSITION_FILENAME + "\"" + fileName + "\"");
+	protected void sendOKDocument(HttpExchange httpExchange, File document, String contentType) throws IOException {
+		addCommonHeaders(httpExchange, MimeTypes.getMimeType(FilenameUtils.getExtension(document.getName())));
+		httpExchange.sendResponseHeaders(HTTPErrorCodes.OK.getValue(), document.length());
+		try (FileInputStream is = new FileInputStream(document)) {
+			OutputStream os = httpExchange.getResponseBody();
+			IOUtils.copy(is, os);
+			os.close();
 		}
-
-		httpExchange.sendResponseHeaders(HTTPErrorCodes.OK.getValue(), data.length);
-		OutputStream os = httpExchange.getResponseBody();
-		os.write(data);
-		os.close();
 	}
+	
+	protected void sendOKResource(HttpExchange httpExchange, Class<?> loader, String path) throws IOException {
+		try (InputStream is = loader.getResourceAsStream(path)) {
+			if (is == null) {
+				sendERR(httpExchange, "File not found.", HTTPErrorCodes.CLIENT_NOT_FOUND.getValue());
+				return;
+			}
+			String fileName = FilenameUtils.getName(path);
+			addCommonHeaders(httpExchange, MimeTypes.getMimeType(FilenameUtils.getExtension(fileName)));
+			httpExchange.sendResponseHeaders(HTTPErrorCodes.OK.getValue(), 0);
 
+			OutputStream os = httpExchange.getResponseBody();
+			IOUtils.copy(is, os);
+			os.close();
+		}
+	}
+	
 	protected void sendERR(HttpExchange httpExchange, String message, Integer code) throws IOException {
 		sendERR(httpExchange, message, CONTENT_TYPE_TXT, code);
 	}
@@ -148,20 +160,36 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 		}
 	}
 
-	protected void sendClasspathResource(HttpExchange httpExchange, Class<?> loader, String path) {
+	protected void sendData(HttpExchange httpExchange, byte[] data, String contentType, String fileName)
+			throws IOException {
+		addCommonHeaders(httpExchange, contentType);
+
+		if (fileName != null) {
+			addHeader(httpExchange, HEADER_CONTENT_DISPOSITION,
+					HEADER_CONTENT_DISPOSITION_FILENAME + "\"" + fileName + "\"");
+		}
+
+		httpExchange.sendResponseHeaders(HTTPErrorCodes.OK.getValue(), data.length);
+		OutputStream os = httpExchange.getResponseBody();
+		os.write(data);
+		os.close();
+	}
+
+	protected void sendClasspathResource(HttpExchange httpExchange, Class<?> loader, String path) throws IOException {
 		try (InputStream is = loader.getResourceAsStream(path)) {
 			if (is == null) {
 				sendERR(httpExchange, "File not found.", HTTPErrorCodes.CLIENT_NOT_FOUND.getValue());
 				return;
 			}
 			String fileName = FilenameUtils.getName(path);
-			sendStream(httpExchange, is, fileName);
-		} catch (Exception e) {
-			try {
-				sendERR(httpExchange, e.getMessage(), HTTPErrorCodes.SERVER_INTERNAL_SERVER_ERROR.getValue());
-			} catch (IOException e1) {
-				log.severe("FAIL of FAIL");
-			}
+			addCommonHeaders(httpExchange, MimeTypes.getMimeType(FilenameUtils.getExtension(fileName)));
+			addHeader(httpExchange, HEADER_CONTENT_DISPOSITION,
+					HEADER_CONTENT_DISPOSITION_FILENAME + "\"" + fileName + "\"");
+			httpExchange.sendResponseHeaders(HTTPErrorCodes.OK.getValue(), 0);
+
+			OutputStream os = httpExchange.getResponseBody();
+			IOUtils.copy(is, os);
+			os.close();
 		}
 	}
 
@@ -170,31 +198,16 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 			sendERR(httpExchange, "File not found.", HTTPErrorCodes.CLIENT_NOT_FOUND.getValue());
 			return;
 		}
+		addCommonHeaders(httpExchange, MimeTypes.getMimeType(FilenameUtils.getExtension(file.getName())));
+		addHeader(httpExchange, HEADER_CONTENT_DISPOSITION,
+				HEADER_CONTENT_DISPOSITION_FILENAME + "\"" + file.getName() + "\"");
+		httpExchange.sendResponseHeaders(HTTPErrorCodes.OK.getValue(), file.length());
+
 		try (InputStream is = new FileInputStream(file)) {
-			String fileName = FilenameUtils.getName(file.getName());
-			sendStream(httpExchange, is, fileName);
-		} catch (Exception e) {
-			try {
-				sendERR(httpExchange, e.getMessage(), HTTPErrorCodes.SERVER_INTERNAL_SERVER_ERROR.getValue());
-			} catch (IOException e1) {
-				log.severe("FAIL of FAIL");
-			}
+			OutputStream os = httpExchange.getResponseBody();
+			IOUtils.copy(is, os);
+			os.close();
 		}
-	}
-
-	protected void sendStream(HttpExchange httpExchange, InputStream is, String fileName) throws IOException {
-		String extension = FilenameUtils.getExtension(fileName);
-		addCommonHeaders(httpExchange, MimeTypes.getMimeType(extension));
-
-		if (fileName != null) {
-			addHeader(httpExchange, HEADER_CONTENT_DISPOSITION,
-					HEADER_CONTENT_DISPOSITION_FILENAME + "\"" + fileName + "\"");
-		}
-
-		httpExchange.sendResponseHeaders(HTTPErrorCodes.OK.getValue(), 0);
-		OutputStream os = httpExchange.getResponseBody();
-		IOUtils.copy(is, os);
-		os.close();
 	}
 
 	private void addCommonHeaders(HttpExchange httpExchange, String contentType) {
@@ -264,21 +277,21 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 		return vals;
 	}
 
-//	public String testRequest(String path, Map<String, List<Optional<String>>> parameters) {
-//		log.info("test");
-//		StringBuilder testResult = new StringBuilder();
-//		testResult.append("OK\n" + path + "\nParameters:\n-----\n");
-//		for (Entry<String, List<Optional<String>>> p : parameters.entrySet()) {
-//			String val = p.getKey() + "=";
-//			for (Optional<String> v : p.getValue()) {
-//				if (!v.isPresent())
-//					val += "<EMPTY>,";
-//				else
-//					val += "'" + v.get() + "',";
-//			}
-//			testResult.append(val);
-//			testResult.append("\n");
-//		}
-//		return testResult.toString();
-//	}
+	//	public String testRequest(String path, Map<String, List<Optional<String>>> parameters) {
+	//		log.info("test");
+	//		StringBuilder testResult = new StringBuilder();
+	//		testResult.append("OK\n" + path + "\nParameters:\n-----\n");
+	//		for (Entry<String, List<Optional<String>>> p : parameters.entrySet()) {
+	//			String val = p.getKey() + "=";
+	//			for (Optional<String> v : p.getValue()) {
+	//				if (!v.isPresent())
+	//					val += "<EMPTY>,";
+	//				else
+	//					val += "'" + v.get() + "',";
+	//			}
+	//			testResult.append(val);
+	//			testResult.append("\n");
+	//		}
+	//		return testResult.toString();
+	//	}
 }

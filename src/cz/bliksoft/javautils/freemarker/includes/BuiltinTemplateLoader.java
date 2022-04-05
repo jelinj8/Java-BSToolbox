@@ -10,7 +10,7 @@ public class BuiltinTemplateLoader {
 
 	}
 
-	private static TemplateLoader builtin = new ClassTemplateLoader(BuiltinTemplateLoader.class, "./");
+	private static TemplateLoader builtin = new ClassTemplateLoader(BuiltinTemplateLoader.class, ".");
 
 	public static TemplateLoader getBuiltinTemplateLoader() {
 		return builtin;

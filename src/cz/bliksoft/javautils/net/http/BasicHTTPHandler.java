@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-import org.apache.commons.io.FilenameUtils;
+//import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
 import com.sun.net.httpserver.HttpExchange;
@@ -104,12 +104,12 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 		if (message != null) {
 			byte[] data = message.getBytes(StandardCharsets.UTF_8);
-			httpExchange.sendResponseHeaders(200, data.length);
+			httpExchange.sendResponseHeaders(HTTPErrorCodes.OK.getValue(), data.length);
 			OutputStream os = httpExchange.getResponseBody();
 			os.write(data);
 			os.close();
 		} else {
-			httpExchange.sendResponseHeaders(200, 0);
+			httpExchange.sendResponseHeaders(HTTPErrorCodes.OK.getValue(), 0);
 		}
 	}
 
@@ -122,7 +122,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 					HEADER_CONTENT_DISPOSITION_FILENAME + "\"" + fileName + "\"");
 		}
 
-		httpExchange.sendResponseHeaders(200, data.length);
+		httpExchange.sendResponseHeaders(HTTPErrorCodes.OK.getValue(), data.length);
 		OutputStream os = httpExchange.getResponseBody();
 		os.write(data);
 		os.close();
@@ -138,26 +138,28 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 		if (message != null) {
 			byte[] data = message.getBytes(StandardCharsets.UTF_8);
-			httpExchange.sendResponseHeaders((code == null ? 500 : code), data.length);
+			httpExchange.sendResponseHeaders(
+					(code == null ? HTTPErrorCodes.SERVER_INTERNAL_SERVER_ERROR.getValue() : code), data.length);
 			OutputStream os = httpExchange.getResponseBody();
 			os.write(data);
 			os.close();
 		} else {
-			httpExchange.sendResponseHeaders(500, 0);
+			httpExchange.sendResponseHeaders(HTTPErrorCodes.SERVER_INTERNAL_SERVER_ERROR.getValue(), 0);
 		}
 	}
 
 	protected void sendClasspathResource(HttpExchange httpExchange, Class<?> loader, String path) {
 		try (InputStream is = loader.getResourceAsStream(path)) {
 			if (is == null) {
-				sendERR(httpExchange, "File not found.", 404);
+				sendERR(httpExchange, "File not found.", HTTPErrorCodes.CLIENT_NOT_FOUND.getValue());
 				return;
 			}
-			String fileName = FilenameUtils.getName(path);
+			File f = new File(path);
+			String fileName = f.getName(); // FilenameUtils.getName(path);
 			sendStream(httpExchange, is, fileName);
 		} catch (Exception e) {
 			try {
-				sendERR(httpExchange, e.getMessage(), 500);
+				sendERR(httpExchange, e.getMessage(), HTTPErrorCodes.SERVER_INTERNAL_SERVER_ERROR.getValue());
 			} catch (IOException e1) {
 				log.severe("FAIL of FAIL");
 			}
@@ -166,15 +168,15 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	protected void sendFile(HttpExchange httpExchange, File file) throws IOException {
 		if (!file.isFile()) {
-			sendERR(httpExchange, "File not found.", 404);
+			sendERR(httpExchange, "File not found.", HTTPErrorCodes.CLIENT_NOT_FOUND.getValue());
 			return;
 		}
 		try (InputStream is = new FileInputStream(file)) {
-			String fileName = FilenameUtils.getName(file.getName());
+			String fileName = file.getName(); // FilenameUtils.getName();
 			sendStream(httpExchange, is, fileName);
 		} catch (Exception e) {
 			try {
-				sendERR(httpExchange, e.getMessage(), 500);
+				sendERR(httpExchange, e.getMessage(), HTTPErrorCodes.SERVER_INTERNAL_SERVER_ERROR.getValue());
 			} catch (IOException e1) {
 				log.severe("FAIL of FAIL");
 			}
@@ -182,7 +184,8 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	}
 
 	protected void sendStream(HttpExchange httpExchange, InputStream is, String fileName) throws IOException {
-		String extension = FilenameUtils.getExtension(fileName);
+		int idx = fileName.lastIndexOf(".");
+		String extension = (idx >= 0 ? fileName.substring(idx) : null); // FilenameUtils.getExtension(fileName);
 		addCommonHeaders(httpExchange, MimeTypes.getMimeType(extension));
 
 		if (fileName != null) {
@@ -190,7 +193,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 					HEADER_CONTENT_DISPOSITION_FILENAME + "\"" + fileName + "\"");
 		}
 
-		httpExchange.sendResponseHeaders(200, 0);
+		httpExchange.sendResponseHeaders(HTTPErrorCodes.OK.getValue(), 0);
 		OutputStream os = httpExchange.getResponseBody();
 		IOUtils.copy(is, os);
 		os.close();

@@ -581,10 +581,10 @@ public class MimeTypes {
 		}
 
 		if (!extension.startsWith(".")) {
-			extension = "." + extension.toLowerCase(Locale.getDefault());
+			extension = "." + extension;
 		}
 
-		String mime = mimeTypes.get(extension);
+		String mime = mimeTypes.get(extension.toLowerCase(Locale.getDefault()));
 
 		return mime != null ? mime : "application/octet-stream";
 	}

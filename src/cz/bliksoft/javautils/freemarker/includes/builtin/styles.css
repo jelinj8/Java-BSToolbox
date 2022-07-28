@@ -33,20 +33,11 @@
 	padding-right: 3px;
 }
 
-.lime {
-	background-color: lime;
+.default-cursor {
+  cursor: default;
 }
-
-.red {
-	background-color: red;
-}
-
-.blue {
-	background-color: blue;
-}
-
-.orange {
-	background-color: orange;
+.pointer-cursor {
+  cursor: pointer;
 }
 
 .underlined {
@@ -55,6 +46,10 @@
 
 .monospaced {
 	font-family: monospace, monospace;
+}
+
+.pre-wrap {
+	white-space: pre-wrap;
 }
 
 .right {
@@ -83,6 +78,14 @@ th {
 	text-decoration: none;
 }
 
+.bold {
+	font-weight: bold;
+}
+
+.striketrough {
+	text-decoration: line-through;
+}
+
 tr {
 	
 }
@@ -99,32 +102,45 @@ tr:nth-child(even) {
 	background-color: rgb(240, 255, 223);
 }
 
+.lime_background, tr.lime_background {
+	background-color: lime;
+}
+
+.red_background, tr.red_background {
+	background-color: red;
+}
+
+.blue_background, tr.blue_background {
+	background-color: blue;
+}
+
+.orange_background, tr.orange_background {
+	background-color: orange;
+}
+
+.red_background, tr.red_background {
+	background-color: #ff8a8a;
+}
+
+.gray_background, tr.gray_background {
+	background-color: rgb(247, 247, 247);
+}
+
+.green_background, tr.green_background {
+	background-color: rgb(0, 255, 0);
+}
+
+.orange_background, tr.orange_background {
+	background-color: rgb(255, 182, 109);
+}
+
 tr:hover {
 	background-color: #ffff80;
 }
 
-.striketrough {
-	text-decoration: line-through;
-}
-
-.bold {
-	font-weight: bold;
-}
-
-.red_background, tr.red_background, tr.red_background {
-	background-color: #ff8a8a;
-}
-
-.gray_background, tr.gray_background, tr.gray_background {
-	background-color: rgb(247, 247, 247);
-}
-
-.green_background, tr.green_background, tr.green_background {
-	background-color: rgb(0, 255, 0);
-}
-
-.orange_background, tr.orange_background, tr.orange_background {
-	background-color: rgb(255, 182, 109);
+.highlighted {
+	background-color: fuchsia;
+	color: yellow;
 }
 
 .tableFixHead          { overflow: auto; height: 100%; }

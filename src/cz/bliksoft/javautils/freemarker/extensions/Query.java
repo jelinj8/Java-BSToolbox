@@ -2,11 +2,15 @@ package cz.bliksoft.javautils.freemarker.extensions;
 
 import java.io.Reader;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.SQLXML;
+import java.sql.Timestamp;
 import java.sql.Types;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,8 +18,13 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.xml.stream.XMLStreamReader;
+
+import org.w3c.dom.Document;
+
 import cz.bliksoft.javautils.database.IDBConnectionProvider;
 import cz.bliksoft.javautils.freemarker.extensions.query.IQueryProvider;
+import cz.bliksoft.javautils.xml.XmlUtils;
 import freemarker.core.Environment;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
@@ -97,8 +106,16 @@ public class Query implements TemplateMethodModelEx {
 				String query = queryProvider.getSql(queryID);
 				List<Object> queryParameters = new ArrayList<>();
 				String phase = "setting arguments";
+				StringBuilder paramsToPrint = new StringBuilder();
+				String argType = null;
+
 				try (PreparedStatement pstmnt = con.prepareStatement(query)) {
 					int pID = 1;
+					if (queryProvider.getArgumentTypes(queryID).size() > 0) {
+						paramsToPrint.append("arguments:");
+					} else {
+						paramsToPrint.append("NO arguments.");
+					}
 					for (Integer parType : queryProvider.getArgumentTypes(queryID)) {
 						phase = "setting argument " + pID;
 						Object val = null;
@@ -106,31 +123,43 @@ public class Query implements TemplateMethodModelEx {
 						switch (parType) {
 						case Types.VARCHAR:
 							val = args.get(pID).toString();
+							argType = "VARCHAR";
 							break;
 						case Types.DATE:
+							val = Date.valueOf(args.get(pID).toString());
+							argType = "TIMESTAMP";
+							break;
 						case Types.TIMESTAMP:
-							val = null;
+							val = Timestamp.valueOf(args.get(pID).toString());
+							argType = "TIMESTAMP";
 							break;
 						case Types.NUMERIC:
 							val = Long.valueOf(args.get(pID).toString());
+							argType = "NUMERIC";
 							break;
 						case Types.TINYINT:
 							val = Integer.valueOf(args.get(pID).toString());
+							argType = "TINYINT";
 							break;
 						case Types.INTEGER:
 							val = Integer.valueOf(args.get(pID).toString());
+							argType = "INTEGER";
 							break;
 						case Types.DOUBLE:
 							val = Double.valueOf(args.get(pID).toString());
+							argType = "DOUBLE";
 							break;
 						default:
 							val = null;
 						}
 
-						if (val == null)
+						if (val == null) {
 							pstmnt.setNull(pID, parType);
-						else
+							paramsToPrint.append("\n\t[" + pID + "] " + argType + " = NULL");
+						} else {
 							pstmnt.setObject(pID, val, parType);
+							paramsToPrint.append("\n\t[" + pID + "] " + argType + " = '" + val + "'");
+						}
 						queryParameters.add(val);
 
 						pID++;
@@ -197,12 +226,37 @@ public class Query implements TemplateMethodModelEx {
 											throw new TemplateModelException("LONG field read exception.", e);
 										}
 										break;
+									case 2007: // Oracle XMLType
+										colType = "UNKNOWN";
+										val = "Oracle XMLType, not supported";
+										//not working
+										//		try {
+										//			val = XmlUtils.convertStringToDocument(rs.getString(cID));
+										//			colType = "XML";
+										//		} catch (Exception e) {
+										//			throw new TemplateModelException("XML field read exception.", e);
+										//		}
+										//		break;
+
+										//	case 2007: // Oracle XMLType, does not work
+										//		val = String.valueOf(rs.getObject(cID));
+										//		colType = "XML";
+										break;
+									case Types.SQLXML:
+										try {
+											SQLXML x = rs.getSQLXML(cID);
+											val = x; //.toString();// XmlUtils.convertStringToDocument(rdr);
+											colType = "XML";
+										} catch (Exception e) {
+											throw new TemplateModelException("XML field read exception.", e);
+										}
+										break;
 									default:
 										colType = "UNKNOWN";
 										val = "UNKNOWN COL TYPE " + md.getColumnType(cID) + ":"
 												+ md.getColumnTypeName(cID);
-										log.log(Level.SEVERE, "Unsupported column type: {0}",
-												md.getColumnTypeName(cID));
+										log.log(Level.SEVERE, MessageFormat.format("Unsupported column type: {0} ({1})",
+												md.getColumnTypeName(cID), md.getColumnType(cID)));
 									}
 									String name = md.getColumnName(cID);
 									row.put(name, val);
@@ -232,8 +286,8 @@ public class Query implements TemplateMethodModelEx {
 						throw new TemplateModelException("No result");
 					}
 				} catch (SQLException e) {
-					throw new TemplateModelException(
-							"SQL Exception.\n" + e.getSQLState() + ": " + e.getMessage() + "\n" + query + "\n", e);
+					throw new TemplateModelException("SQL Exception.\n" + e.getSQLState() + ": " + e.getMessage() + "\nvvv QUERY vvv\n"
+							+ query + "\n----\n" + paramsToPrint + "\n^^^ QUERY ^^^\n", e);
 				} catch (Exception e) {
 					throw new TemplateModelException(
 							"Generic exception while processing query " + queryID + " while " + phase, e);

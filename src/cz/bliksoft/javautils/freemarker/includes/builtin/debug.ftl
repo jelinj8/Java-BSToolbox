@@ -2,16 +2,26 @@
 
 <#macro objectToJson object>
     <@compress single_line=true>
-        <#if object?is_hash || object?is_hash_ex>
+        <#if object?is_hash_ex>
             <#assign first="true">
         {
-            <#list object?keys as key>
+            <#list object as key, value>
                 <#if first="false">,</#if>
-                <#assign foo = key />
-                <#assign value><@objectToJson object=object[key]!"" /></#assign>
-            "${key}": ${value?trim}
+                <#assign res><@objectToJson value!"" /></#assign>
+            "${key}": ${res?trim}
                 <#assign first="false">
             </#list>
+        }
+        <#elseif object?is_hash>
+            <#assign first="true">
+        {
+			"SIMPLE HASH (not supported)"
+            <#-- <#list object as key, value>
+                <#if first="false">,</#if>
+                <#assign res><@objectToJson value!"" /></#assign>
+            "${key}": ${res?trim}
+                <#assign first="false">
+            </#list> -->
         }
         <#elseif object?is_enumerable>
             <#assign first="true">
@@ -38,6 +48,8 @@
 			"${object?string["HH:mm:ss"]}"
 			<#elseif object?is_method>
 			"METHOD"
+			<#elseif object?is_macro>
+			"MACRO"
 			<#else>
 			"${object?trim?replace('\\','\\\\"')?replace('"','\\"')?replace('\t','\\t')?replace('\b','\\b')?replace('\f','\\f')?replace('\n','\\n')?replace('\r','\\r')}"
 			</#if>
@@ -46,12 +58,20 @@
 </#macro>
 
 <#macro objectToFormattedJson object pad=''>
-        <#if object?is_hash || object?is_hash_ex>
+        <#if object?is_hash_ex>
 ${pad}{
-            <#list object?keys as key>
-                <#assign value><@objectToFormattedJson object=object[key]!"" pad=('\t'+pad)/></#assign>
+            <#list object as key, val>
+                <#assign value><@objectToFormattedJson object=val!"" pad=('\t'+pad)/></#assign>
 ${pad}	"${key}": ${value?trim}<#if !key?is_last>,</#if>
             </#list>
+${pad}}
+        <#elseif object?is_hash>
+${pad}{
+${pad}	"SIMPLE HASH (not supported)"
+            <#-- <#list object as entry>
+                <#assign value><@objectToFormattedJson object=entry.value!"" pad=('\t'+pad)/></#assign>
+${pad}	"${entry.key}": ${value?trim}
+            </#list> -->
 ${pad}}
         <#elseif object?is_enumerable>
 ${pad}[
@@ -75,6 +95,8 @@ ${pad}	"${object?string[dateTimeFormatString]}"
 ${pad}	"${object?string["HH:mm:ss"]}"
 			<#elseif object?is_method>
 ${pad}	"METHOD"
+			<#elseif object?is_macro>
+${pad}	"MACRO"
 			<#else>
 ${pad}	"${object?trim?replace('\\','\\\\"')?replace('"','\\"')}"
 			</#if>

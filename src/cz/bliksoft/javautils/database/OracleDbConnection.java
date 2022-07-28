@@ -27,6 +27,7 @@ public class OracleDbConnection {
 	private static OracleDbConnection singletonInstance = null;
 	private File propertiesFile;
 	private static File globalPropertiesFile;
+	private static Class<?> driver = null;
 
 	public static OracleDbConnection getInstance() throws Exception {
 		if (singletonInstance == null) {
@@ -49,15 +50,16 @@ public class OracleDbConnection {
 
 	private void init() throws ClassNotFoundException, GeneralSecurityException, IOException {
 		processOptions();
-		log.info("Loading OJDBC driver.");
-
-		try {
-			String driverName = "oracle.jdbc.driver.OracleDriver";// $NON-NLS-1$ //$NON-NLS-1$
-			Class.forName(driverName);
-			log.info("OJDBC driver loaded.");
-		} catch (ClassNotFoundException e) {
-			log.log(Level.SEVERE, "Loading of OJDBC driver failed.", e);
-			throw new ClassNotFoundException("Class oracle.jdbc.driver.OracleDriver not found.", e);
+		if (driver == null) {
+			log.info("Loading OJDBC driver.");
+			try {
+				String driverName = "oracle.jdbc.driver.OracleDriver";// $NON-NLS-1$ //$NON-NLS-1$
+				driver = Class.forName(driverName);
+				log.info("OJDBC driver loaded.");
+			} catch (ClassNotFoundException e) {
+				log.log(Level.SEVERE, "Loading of OJDBC driver failed.", e);
+				throw new ClassNotFoundException("Class oracle.jdbc.driver.OracleDriver not found.", e);
+			}
 		}
 	}
 

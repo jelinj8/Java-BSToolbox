@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -135,6 +136,16 @@ public class XmlUtils {
 		DocumentBuilder builder;
 		builder = factory.newDocumentBuilder();
 		Document doc = builder.parse(new InputSource(new StringReader(xmlStr)));
+		return doc;
+	}
+
+	public static Document convertStringToDocument(Reader xmlRdr)
+			throws SAXException, IOException, ParserConfigurationException {
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		factory.setNamespaceAware(true);
+		DocumentBuilder builder;
+		builder = factory.newDocumentBuilder();
+		Document doc = builder.parse(new InputSource(xmlRdr));
 		return doc;
 	}
 

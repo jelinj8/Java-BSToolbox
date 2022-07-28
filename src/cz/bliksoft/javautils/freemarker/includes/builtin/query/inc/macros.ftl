@@ -5,9 +5,6 @@
 	<#include "../../styles.css">
 	<#include "../../flexbox.css">
 	</style>
-	<#if tray_port??>
-	<#include "javascript.htm">
-	</#if>
 	</head>
 	<body>
 	
@@ -31,9 +28,6 @@
 	<style>
 	<#include "../../styles.css">
 	</style>
-	<#if tray_port??>
-	<#include "javascript.htm">
-	</#if>
 	</head>
 	<body>
 	

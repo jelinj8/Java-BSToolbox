@@ -153,15 +153,10 @@ public class XmlUtils {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		factory.setNamespaceAware(true);
 		DocumentBuilder builder;
-		// try {
 		builder = factory.newDocumentBuilder();
 		Document doc = builder.parse(new InputSource(new StringReader(xmlStr)));
 		Node n = doc.getDocumentElement();
 		return n;
-		// } catch (Exception e) {
-		// e.printStackTrace();
-		// }
-		// return null;
 	}
 
 	public static String getStringFromDocument(Document doc) {

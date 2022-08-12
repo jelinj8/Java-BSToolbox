@@ -12,6 +12,10 @@
                 <#assign first="false">
             </#list>
         }
+        <#elseif object?is_node>
+        {
+        	"NODE"
+        }
         <#elseif object?is_hash>
             <#assign first="true">
         {
@@ -65,13 +69,42 @@ ${pad}{
 ${pad}	"${key}": ${value?trim}<#if !key?is_last>,</#if>
             </#list>
 ${pad}}
+        <#elseif object?is_node>
+			<#switch object?node_type>
+				<#case "text">
+${pad}	"${object?trim?replace('\\','\\\\"')?replace('"','\\"')}"
+				<#break>
+				<#case "attribute">
+${pad}	@${object?node_name}:"${object!""?trim?replace('\\','\\\\"')?replace('"','\\"')}"
+				<#break>
+				<#case "comment">
+${pad}	<!-- ${object} -->
+				<#break>
+				<#case "element">
+					<#if object?children?size==1>
+                <#assign value><@objectToFormattedJson object=object?children[0]  pad=('\t'+pad)/></#assign>
+${pad}${object?node_name}:${value?trim}
+					<#else>
+${pad}${object?node_name}:[            
+            <#list object?children as item>
+                <#assign value><@objectToFormattedJson object=item  pad=('\t'+pad)/></#assign>
+${pad}	${value?trim}<#if !item?is_last>,</#if>
+            </#list>
+${pad}]
+					</#if>
+				<#break>
+				<#default>
+${pad}	NODE_type:"${object?node_type}"
+			</#switch>
         <#elseif object?is_hash>
 ${pad}{
-${pad}	"SIMPLE HASH (not supported)"
-            <#-- <#list object as entry>
-                <#assign value><@objectToFormattedJson object=entry.value!"" pad=('\t'+pad)/></#assign>
-${pad}	"${entry.key}": ${value?trim}
-            </#list> -->
+<#-- ${pad}	"SIMPLE HASH (not supported), class: ${identifyObjectType(object)}" -->
+${pad}	[
+            <#list object as item>
+                <#assign value><@objectToFormattedJson object=item  pad=('\t'+pad)/></#assign>
+${pad}	${value?trim}<#if !item?is_last>,</#if>
+            </#list>
+${pad}	]
 ${pad}}
         <#elseif object?is_enumerable>
 ${pad}[

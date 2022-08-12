@@ -21,6 +21,7 @@ import cz.bliksoft.javautils.freemarker.extensions.global.Code128Encode;
 import cz.bliksoft.javautils.freemarker.extensions.global.Code128Width;
 import cz.bliksoft.javautils.freemarker.extensions.global.GUIPrompt;
 import cz.bliksoft.javautils.freemarker.extensions.global.HtmlPreformat;
+import cz.bliksoft.javautils.freemarker.extensions.global.IdentifyObjectType;
 import cz.bliksoft.javautils.freemarker.extensions.global.ImageResource;
 import cz.bliksoft.javautils.freemarker.extensions.global.ParseXml;
 import cz.bliksoft.javautils.freemarker.extensions.global.PrettyPrintXml;
@@ -234,6 +235,7 @@ public class FreemarkerGenerator {
 	private static Map<String, Object> getDefaultGlobalExtensions() {
 		Map<String, Object> res = new HashMap<>();
 		res.put("formatAsHTML", new HtmlPreformat()); //$NON-NLS-1$
+		res.put("identifyObjectType", new IdentifyObjectType()); //$NON-NLS-1$
 		res.put("imgRes", new ImageResource()); //$NON-NLS-1$
 		res.put("code128", new Code128Encode()); //$NON-NLS-1$
 		res.put("code128width", new Code128Width()); //$NON-NLS-1$

@@ -189,6 +189,11 @@ public class CryptUtils {
 			throws GeneralSecurityException {
 
 		String pwdPropValue = props.getProperty(propName);
+		String newPwdPropValue = props.getProperty(propName + "_new");
+
+		if (newPwdPropValue != null)
+			pwdPropValue = newPwdPropValue;
+
 		lastPwdModified = false;
 		if (pwdPropValue == null) {
 			return null;
@@ -203,6 +208,10 @@ public class CryptUtils {
 				else
 					props.setProperty(propName + "_enc", encrypt(pwdPropValue, password, salt)); //$NON-NLS-1$
 				props.setProperty(propName, salt);
+
+				if (newPwdPropValue != null)
+					props.remove(propName + "_new");
+				
 				lastPwdModified = true;
 			} catch (Exception e) {
 				log.log(Level.SEVERE, "Failed to encrypt saved password.", e); //$NON-NLS-1$

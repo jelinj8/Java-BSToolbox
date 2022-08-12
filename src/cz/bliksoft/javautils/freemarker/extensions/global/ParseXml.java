@@ -2,8 +2,6 @@ package cz.bliksoft.javautils.freemarker.extensions.global;
 
 import java.util.List;
 
-import org.w3c.dom.Document;
-
 import cz.bliksoft.javautils.xml.XmlUtils;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
@@ -12,10 +10,8 @@ public class ParseXml implements TemplateMethodModelEx {
 
 	@Override
 	public Object exec(@SuppressWarnings("rawtypes") List arg0) throws TemplateModelException {
-		Document doc;
 		try {
-			doc = XmlUtils.convertStringToDocument(arg0.get(0).toString());
-			return freemarker.ext.dom.NodeModel.wrap(doc.getDocumentElement());
+			return freemarker.ext.dom.NodeModel.wrap(XmlUtils.convertStringToNode(arg0.get(0).toString()));
 		} catch (Exception e) {
 			throw new TemplateModelException("Failed to parse XML", e);
 		}

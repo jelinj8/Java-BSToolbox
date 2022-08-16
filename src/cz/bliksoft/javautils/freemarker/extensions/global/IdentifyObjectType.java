@@ -2,7 +2,6 @@ package cz.bliksoft.javautils.freemarker.extensions.global;
 
 import java.util.List;
 
-import cz.bliksoft.javautils.StringUtils;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
 

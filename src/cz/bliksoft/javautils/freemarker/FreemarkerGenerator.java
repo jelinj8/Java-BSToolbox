@@ -28,6 +28,7 @@ import cz.bliksoft.javautils.freemarker.extensions.global.PrettyPrintXml;
 import cz.bliksoft.javautils.freemarker.extensions.global.Regroup;
 import cz.bliksoft.javautils.freemarker.extensions.global.Reindex;
 import cz.bliksoft.javautils.freemarker.extensions.local.AnchorNumberer;
+import cz.bliksoft.javautils.freemarker.extensions.local.VariableCache;
 import cz.bliksoft.javautils.freemarker.extensions.local.VariableRegistrator;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.cache.FileTemplateLoader;
@@ -263,6 +264,7 @@ public class FreemarkerGenerator {
 		Map<String, Object> res = new HashMap<>();
 		res.put("registerVariable", new VariableRegistrator(this));
 		res.put("anchorNumberer", new AnchorNumberer());
+		res.put("variableCache", new VariableCache());
 
 		return res;
 	}

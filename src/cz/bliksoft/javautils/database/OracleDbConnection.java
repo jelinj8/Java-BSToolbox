@@ -16,12 +16,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-//import org.apache.commons.cli.Options;
-
 import cz.bliksoft.javautils.CryptUtils;
 import cz.bliksoft.javautils.PropertiesUtils;
 
-public class OracleDbConnection {
+public class OracleDbConnection implements IDBConnectionFactory {
 	static Logger log = Logger.getLogger(OracleDbConnection.class.getName());
 
 	private static OracleDbConnection singletonInstance = null;
@@ -163,4 +161,5 @@ public class OracleDbConnection {
 		}
 		return sb.toString();
 	}
+
 }

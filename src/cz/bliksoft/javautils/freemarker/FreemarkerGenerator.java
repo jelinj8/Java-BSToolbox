@@ -27,6 +27,7 @@ import cz.bliksoft.javautils.freemarker.extensions.global.ParseXml;
 import cz.bliksoft.javautils.freemarker.extensions.global.PrettyPrintXml;
 import cz.bliksoft.javautils.freemarker.extensions.global.Regroup;
 import cz.bliksoft.javautils.freemarker.extensions.global.Reindex;
+import cz.bliksoft.javautils.freemarker.extensions.local.AnchorNumberer;
 import cz.bliksoft.javautils.freemarker.extensions.local.VariableRegistrator;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.cache.FileTemplateLoader;
@@ -215,7 +216,8 @@ public class FreemarkerGenerator {
 		generate(out, temp, root);
 	}
 
-	private void generate(OutputStream outfile, Template tpl, Map<String, Object> root) throws IOException, TemplateException {
+	private void generate(OutputStream outfile, Template tpl, Map<String, Object> root)
+			throws IOException, TemplateException {
 		try (OutputStreamWriter out = new OutputStreamWriter(outfile, StandardCharsets.UTF_8)) {
 			if (storeEnvironment) {
 				lastEnvironment = tpl.createProcessingEnvironment(root, out);
@@ -252,14 +254,15 @@ public class FreemarkerGenerator {
 		res.put("TXTTOHTML_WHITESPACE", //$NON-NLS-1$
 				new TextReplacer("&", "&amp;", " ", "&nbsp;", "\t", "&nbsp;&nbsp;&nbsp;", "<", "&lt;", ">", "&gt;",
 						"\"", "&quot;", "'", "&#39;", "\n", "<br>\n"));
-//		res.put("TXTTOHTML_SAFE", //$NON-NLS-1$
-//				new TextReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;", "\"", "&quot;", "'", "&#39;"));
+		//		res.put("TXTTOHTML_SAFE", //$NON-NLS-1$
+		//				new TextReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;", "\"", "&quot;", "'", "&#39;"));
 		return res;
 	}
 
 	private Map<String, Object> getDefaultLocalExtensions() {
 		Map<String, Object> res = new HashMap<>();
 		res.put("registerVariable", new VariableRegistrator(this));
+		res.put("anchorNumberer", new AnchorNumberer());
 
 		return res;
 	}

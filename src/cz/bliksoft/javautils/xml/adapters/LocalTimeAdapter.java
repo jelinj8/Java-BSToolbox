@@ -1,9 +1,6 @@
 package cz.bliksoft.javautils.xml.adapters;
 
 import java.sql.Timestamp;
-//import java.text.DateFormat;
-//import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 

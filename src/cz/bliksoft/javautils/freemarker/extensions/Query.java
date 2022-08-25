@@ -18,13 +18,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.xml.stream.XMLStreamReader;
-
-import org.w3c.dom.Document;
-
 import cz.bliksoft.javautils.database.IDBConnectionProvider;
 import cz.bliksoft.javautils.freemarker.extensions.query.IQueryProvider;
-import cz.bliksoft.javautils.xml.XmlUtils;
 import freemarker.core.Environment;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;

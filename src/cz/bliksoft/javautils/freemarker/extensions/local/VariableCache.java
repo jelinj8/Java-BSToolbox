@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cz.bliksoft.javautils.freemarker.FreemarkerGenerator;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
 
@@ -21,6 +20,7 @@ public class VariableCache implements TemplateMethodModelEx {
 
 	Map<String, Object> valueCache = null;
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
 		if (valueCache == null)
@@ -45,7 +45,7 @@ public class VariableCache implements TemplateMethodModelEx {
 				valueCache.put(arg1, currentValue);
 			}
 			if (currentValue instanceof List) {
-				((List) currentValue).add(args.get(2));
+				((List<Object>) currentValue).add(args.get(2));
 			}
 			return "";
 		case "put":
@@ -55,7 +55,7 @@ public class VariableCache implements TemplateMethodModelEx {
 				valueCache.put(arg1, currentValue);
 			}
 			if (currentValue instanceof Map) {
-				((Map) currentValue).put(args.get(2), args.get(3));
+				((Map<Object, Object>) currentValue).put(args.get(2), args.get(3));
 			}
 			return "";
 		case "remove":

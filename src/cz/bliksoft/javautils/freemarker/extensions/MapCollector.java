@@ -1,6 +1,5 @@
 package cz.bliksoft.javautils.freemarker.extensions;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,7 +34,7 @@ public class MapCollector implements TemplateMethodModelEx {
 		return values;
 	}
 
-	public String getValue() {
-		return values.get(0);
+	public String getValue(String key) {
+		return values.get(key);
 	}
 }

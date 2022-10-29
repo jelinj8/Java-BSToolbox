@@ -10,12 +10,12 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import javax.xml.XMLConstants;
@@ -42,11 +42,11 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathException;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import javax.xml.xpath.XPathFunction;
-import javax.xml.xpath.XPathFunctionException;
 import javax.xml.xpath.XPathFunctionResolver;
 import javax.xml.xpath.XPathVariableResolver;
 
@@ -54,11 +54,18 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import cz.bliksoft.javautils.StringUtils;
 import cz.bliksoft.javautils.streams.xml.ElementWriter;
+import cz.bliksoft.javautils.xml.xpath.ChooseXPathFunction;
+import cz.bliksoft.javautils.xml.xpath.Default;
+import cz.bliksoft.javautils.xml.xpath.FormatXPathFunction;
+import cz.bliksoft.javautils.xml.xpath.IfElseIf;
+import cz.bliksoft.javautils.xml.xpath.MapXPathFunction;
+import cz.bliksoft.javautils.xml.xpath.XPathVarCache;
 
 /**
  * https://www.codenotfound.com/2013/07/jaxb-marshal-element-missing-xmlrootelement-annotation.html
@@ -387,7 +394,6 @@ public class XmlUtils {
 		public XPathFunction resolveFunction(QName fname, int arity) {
 			if (fname == null)
 				throw new NullPointerException("The XPath function name cannot be null.");
-
 			String selector = fname.getLocalPart();
 			XPathFunction res = null;
 
@@ -395,13 +401,22 @@ public class XmlUtils {
 				res = functions.get(fname.getPrefix()).get(selector + ":" + arity);
 				if (res != null)
 					return res;
-				return functions.get(fname.getPrefix()).get(selector);
+				res = functions.get(fname.getPrefix()).get(selector);
+				if (res != null)
+					return res;
+				log.severe(MessageFormat.format("Failed to get function {0}:{1} with arity {2}", fname.getPrefix(),
+						selector, arity));
 			} else {
 				res = functions.get(ctx.getPrefix(fname.getNamespaceURI())).get(selector + ":" + arity);
 				if (res != null)
 					return res;
-				return functions.get(ctx.getPrefix(fname.getNamespaceURI())).get(selector);
+				res = functions.get(ctx.getPrefix(fname.getNamespaceURI())).get(selector);
+				if (res != null)
+					return res;
+				log.severe(MessageFormat.format("Failed to get function {0}:{1} with arity {2}",
+						ctx.getPrefix(fname.getNamespaceURI()), selector, arity));
 			}
+			return null;
 		}
 
 		public void registerXPathExtensions() {
@@ -417,49 +432,48 @@ public class XmlUtils {
 			this.ctx = ctx;
 			ctx.put(nsPrefix, "http://bliksoft.cz");
 			functionResolver.addFunction(nsPrefix, "choose:3", new ChooseXPathFunction());
-			functionResolver.addFunction(nsPrefix, "map:*", new MapXPathFunction());
+			functionResolver.addFunction(nsPrefix, "var:2", new XPathVarCache());
+			functionResolver.addFunction(nsPrefix, "default:2", new Default());
+			functionResolver.addFunction(nsPrefix, "map", new MapXPathFunction());
+			functionResolver.addFunction(nsPrefix, "format", new FormatXPathFunction());
+			functionResolver.addFunction(nsPrefix, "ifElseIf", new IfElseIf());
 		}
 	}
 
-	public static class ChooseXPathFunction implements XPathFunction {
-		@SuppressWarnings("rawtypes")
-		@Override
-		public Object evaluate(List args) throws XPathFunctionException {
-			boolean val = (boolean) args.get(0);
-			if (val)
-				return args.get(1);
-			else
-				return args.get(2);
+	public static String getResultText(Object xRes) throws XPathException {
+		if (xRes == null)
+			return null;
+		if (xRes instanceof String)
+			return (String) xRes;
+
+		Object xRes2 = xRes;
+		while (xRes2 instanceof NodeList) {
+			if (xRes2 instanceof Text)
+				return ((Text) xRes2).getNodeValue();
+
+			xRes2 = ((NodeList) xRes2).item(0);
+			if (xRes2 == null)
+				throw new XPathException("Can't get string from an empty node list");
 		}
+
+		return ((Node) xRes2).getNodeValue();
 	}
 
-	public static class MapXPathFunction implements XPathFunction {
-		@SuppressWarnings("rawtypes")
-		@Override
-		public Object evaluate(List args) throws XPathFunctionException {
-			if (args.size() < 2)
-				throw new XPathFunctionException(
-						"XPath map: minimal signature: map(inpud, default) or map(input, val1, res1, val2, res2...) or map(input, val1, res1, val2, res2..., default) ");
+	public static Node getFirstResultNode(Object xRes) throws XPathException {
+		if (xRes == null)
+			return null;
+		Object xRes2 = xRes;
+		while (xRes2 instanceof NodeList) {
+			if (xRes2 instanceof Node)
+				return ((Node) xRes2);
 
-			Iterator i = args.iterator();
+			xRes2 = ((NodeList) xRes2).item(0);
 
-			Object src = i.next();
-			Object val = null;
-			Object res = null;
-			while (i.hasNext()) {
-				val = i.next();
-				if (!i.hasNext())
-					return val;
-
-				res = i.next();
-
-				if (src.equals(val))
-					return res;
-			}
-
-			throw new XPathFunctionException(
-					"XPath map: No value matched and no default value (with even args count the last one is used as default)");
+			if (xRes2 == null)
+				throw new XPathException("Can't get string from an empty node list");
 		}
+
+		return (Node) xRes2;
 	}
 
 	/**

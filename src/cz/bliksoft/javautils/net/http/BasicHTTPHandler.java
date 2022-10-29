@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,6 +46,32 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	public static final String HEADER_COOKIE = "Cookie";
 
 	/**
+	 * (new Date()).toUTCString() http timestamp like "Wed, 21 Oct 2015 07:28:00
+	 * GMT"
+	 */
+	public static final String ATTRIB_EXPIRES = "Expires=";
+
+	/**
+	 * validity in seconds
+	 */
+	public static final String ATTRIB_MAX_AGE = "Max-Age=";
+
+	/**
+	 * e.g. example.com
+	 */
+	public static final String ATTRIB_DOMAIN = "Domain=";
+
+	/**
+	 * e.g. /ui/
+	 */
+	public static final String ATTRIB_PATH = "Path=";
+	public static final String ATTRIB_SECURE = "Secure";
+	public static final String ATTRIB_HTTP_ONLY = "HttpOnly";
+	public static final String ATTRIB_SAME_SITE_LAX = "SameSite=Lax";
+	public static final String ATTRIB_SAME_SITE_STRICT = "SameSite=Strict";
+	public static final String ATTRIB_SAME_SITE_NONE_SECURE = "SameSite=None; Secure";
+
+	/**
 	 * <pre>
 	 * switch (method) {
 	 * case "GET":
@@ -64,8 +91,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	 * </pre>
 	 * 
 	 * @param httpExchange
-	 * @param path
-	 *            URI, starts with '/'
+	 * @param path         URI, starts with '/'
 	 * @param params
 	 * @throws IOException
 	 */
@@ -73,12 +99,15 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	@Override
 	public void handle(HttpExchange httpExchange) throws IOException {
-		String method = httpExchange.getRequestMethod().toUpperCase();
-		URI uri = httpExchange.getRequestURI();
-		String path = uri.getPath();
-		String query = uri.getQuery();
-
-		handle(httpExchange, path, query, method);
+		try {
+			String method = httpExchange.getRequestMethod().toUpperCase();
+			URI uri = httpExchange.getRequestURI();
+			String path = uri.getPath();
+			String query = uri.getQuery();
+			handle(httpExchange, path, query, method);
+		} catch (Exception e) {
+			sendERR(httpExchange, e.getMessage(), HTTPErrorCodes.SERVER_INTERNAL_SERVER_ERROR.getValue());
+		}
 	}
 
 	protected String getRequestBody(HttpExchange httpExchange) throws IOException {
@@ -228,8 +257,17 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 		httpExchange.getResponseHeaders().put(header, hVal);
 	}
 
+	public void addCookie(HttpExchange httpExchange, String name, String value, int validity) {
+		addHeader(httpExchange, HEADER_SET_COOKIE,
+				MessageFormat.format("{0}={1}; SameSite=Lax; Max-Age={2,number,#}", name, value, validity));
+	}
+
 	public void addCookie(HttpExchange httpExchange, String name, String value) {
-		addHeader(httpExchange, HEADER_SET_COOKIE, name + "=" + value + "; SameSite=Lax");
+		addHeader(httpExchange, HEADER_SET_COOKIE, MessageFormat.format("{0}={1}; SameSite=Lax", name, value));
+	}
+
+	public void addCookie(HttpExchange httpExchange, String name, String value, String attribs) {
+		addHeader(httpExchange, HEADER_SET_COOKIE, MessageFormat.format("{0}={1}; {2}", name, value, attribs));
 	}
 
 	public void addCookie(HttpExchange httpExchange, Cookie cookie) {

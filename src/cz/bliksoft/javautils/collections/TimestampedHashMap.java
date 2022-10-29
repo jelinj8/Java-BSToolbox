@@ -20,6 +20,10 @@ public class TimestampedHashMap<K, V> implements Map<K, V> {
 	public TimestampedHashMap() {
 	}
 
+	/**
+	 * validity in milliseconds. Negative means get-once and remove, zero is unlimited.
+	 * @param validity
+	 */
 	public TimestampedHashMap(long validity) {
 		this.validity = validity;
 	}
@@ -84,8 +88,29 @@ public class TimestampedHashMap<K, V> implements Map<K, V> {
 			if (validity < 0)
 				values.remove(key);
 
-			if (val != null)
+			if (val != null) {
 				return val.getValue();
+			}
+			return null;
+		}
+	}
+
+	/**
+	 * like get, but updating object timestamp
+	 * @param key
+	 * @return
+	 */
+	public V touch(Object key) {
+		synchronized (values) {
+			TimestampedObject<V> val = values.get(key);
+			if (validity < 0) {
+				values.remove(key);
+			}
+			
+			if (val != null) {
+				val.touch();
+				return val.getValue();
+			}
 			return null;
 		}
 	}

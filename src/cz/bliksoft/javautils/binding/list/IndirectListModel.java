@@ -45,6 +45,8 @@ import javax.swing.event.EventListenerList;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
+import org.eclipse.persistence.indirection.ValueHolder;
+
 import cz.bliksoft.javautils.binding.PresentationModel;
 import cz.bliksoft.javautils.binding.adapters.BeanAdapter;
 import cz.bliksoft.javautils.binding.beans.BasicBean;

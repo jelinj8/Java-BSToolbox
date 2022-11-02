@@ -53,9 +53,9 @@ import cz.bliksoft.javautils.binding.interfaces.IValueModel;
 import cz.bliksoft.javautils.binding.models.AbstractValueModel;
 import cz.bliksoft.javautils.binding.models.AbstractWrappedComponentValueModel;
 import cz.bliksoft.javautils.binding.models.BufferedValueModel;
-import cz.bliksoft.javautils.binding.models.IComponentValueModel;
 import cz.bliksoft.javautils.binding.models.DefaultComponentValueModel;
 import cz.bliksoft.javautils.binding.models.DefaultValueModel;
+import cz.bliksoft.javautils.binding.models.IComponentValueModel;
 import cz.bliksoft.javautils.binding.models.Trigger;
 
 /**

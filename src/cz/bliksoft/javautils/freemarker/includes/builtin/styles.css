@@ -181,3 +181,7 @@ tr:hover {
 .tableFixHead          { overflow: auto; height: 100%; }
 .tableFixHead thead th { position: sticky; top: 0; z-index: 1; }
 .tableFixHead tbody th { position: sticky; left: 0; }
+
+.hidden {
+	display: none;
+}

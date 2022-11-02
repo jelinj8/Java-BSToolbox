@@ -38,6 +38,8 @@ public class DefaultResourceHTTPHandler extends BasicHTTPHandler implements Clos
 		}
 
 		String fullPath = (pages != null ? path.replace(pages, "") : path);
+		if(fullPath.startsWith("/"))
+			fullPath=fullPath.substring(1);
 		sendClasspathResource(exchange, loader, fullPath);
 	}
 }

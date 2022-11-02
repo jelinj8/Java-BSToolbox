@@ -86,7 +86,7 @@
 					<execution>
 						<id>validate-the-git-infos</id>
 						<goals>
-							<goal>validateRevision</goal>
+							<!--<goal>validateRevision</goal>-->
 						</goals>
 						<!-- *NOTE*: The default phase of validateRevision is verify, but in 
 							case you want to change it, you can do so by adding the phase here -->
@@ -126,6 +126,40 @@
 		</plugins>
 	</build>
 
+	<profiles>
+		<profile>
+			<id>java9</id>
+			<activation>
+				<jdk>[9,)</jdk>
+			</activation>
+			<dependencies>
+				<!-- https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api -->
+				<dependency>
+					<groupId>javax.xml.bind</groupId>
+					<artifactId>jaxb-api</artifactId>
+					<optional>true</optional>
+					<version>2.3.1</version>
+					<scope>provided</scope>
+				</dependency>
+				<!-- https://mvnrepository.com/artifact/org.glassfish.jaxb/jaxb-runtime -->
+				<dependency>
+					<groupId>org.glassfish.jaxb</groupId>
+					<artifactId>jaxb-runtime</artifactId>
+					<version>4.0.1</version>
+					<optional>true</optional>
+					<scope>provided</scope>
+				</dependency>
+				<!-- https://mvnrepository.com/artifact/com.sun.xml.ws/jaxws-ri -->
+				<dependency>
+					<groupId>com.sun.xml.ws</groupId>
+					<artifactId>jaxws-ri</artifactId>
+					<version>2.3.5</version>
+					<type>pom</type>
+					<scope>provided</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
 
 	<dependencies>
 		<!-- https://mvnrepository.com/artifact/org.freemarker/freemarker -->
@@ -144,31 +178,6 @@
 			<version>2.0.0</version>
 			<scope>provided</scope>
 			<optional>true</optional>
-		</dependency>
-
-		<!-- for Java 1.9+ -->
-		<!-- https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api -->
-		<dependency>
-			<groupId>javax.xml.bind</groupId>
-			<artifactId>jaxb-api</artifactId>
-			<scope>provided</scope>
-			<optional>true</optional>
-			<version>2.3.1</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.glassfish.jaxb/jaxb-runtime -->
-		<dependency>
-			<groupId>org.glassfish.jaxb</groupId>
-			<artifactId>jaxb-runtime</artifactId>
-			<version>4.0.1</version>
-			<optional>true</optional>
-			<scope>runtime</scope>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/com.sun.xml.ws/jaxws-ri -->
-		<dependency>
-			<groupId>com.sun.xml.ws</groupId>
-			<artifactId>jaxws-ri</artifactId>
-			<version>2.3.5</version>
-			<type>pom</type>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->

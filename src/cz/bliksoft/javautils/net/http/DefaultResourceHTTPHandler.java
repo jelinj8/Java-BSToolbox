@@ -1,13 +1,10 @@
 package cz.bliksoft.javautils.net.http;
 
 import java.io.Closeable;
-import java.io.File;
 import java.io.IOException;
 import java.util.logging.Logger;
 
 import com.sun.net.httpserver.HttpExchange;
-
-import cz.bliksoft.javautils.StringUtils;
 
 @SuppressWarnings("restriction")
 public class DefaultResourceHTTPHandler extends BasicHTTPHandler implements Closeable {

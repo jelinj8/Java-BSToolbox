@@ -11,7 +11,7 @@
 //import javax.net.ssl.SSLSocketFactory;
 //import javax.net.ssl.TrustManager;
 //import javax.net.ssl.X509TrustManager;
-//import javax.xml.ws.BindingProvider;
+//import jakarta.xml.ws.BindingProvider;
 ////import org.apache.cxf.configuration.jsse.TLSClientParameters;
 ////import org.apache.cxf.endpoint.Client;
 ////import org.apache.cxf.frontend.ClientProxy;

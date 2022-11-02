@@ -1,6 +1,6 @@
 package cz.bliksoft.javautils.xml.adapters;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 
 public class ObjectStringAdapter extends XmlAdapter<String, Object> {
 

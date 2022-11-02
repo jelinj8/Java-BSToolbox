@@ -7,8 +7,6 @@ import java.util.List;
 import javax.xml.xpath.XPathFunction;
 import javax.xml.xpath.XPathFunctionException;
 
-import cz.bliksoft.javautils.xml.XmlUtils;
-
 public class IfElseIf implements XPathFunction {
 
 	@Override

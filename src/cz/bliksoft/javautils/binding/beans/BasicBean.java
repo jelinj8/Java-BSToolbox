@@ -9,8 +9,8 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
 
 import cz.bliksoft.javautils.binding.interfaces.IBeanStateProvider;
 import cz.bliksoft.javautils.binding.interfaces.IDefaultObservable;

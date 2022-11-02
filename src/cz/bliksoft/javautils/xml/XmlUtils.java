@@ -19,11 +19,6 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.xml.XMLConstants;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
@@ -66,6 +61,11 @@ import cz.bliksoft.javautils.xml.xpath.FormatXPathFunction;
 import cz.bliksoft.javautils.xml.xpath.IfElseIf;
 import cz.bliksoft.javautils.xml.xpath.MapXPathFunction;
 import cz.bliksoft.javautils.xml.xpath.XPathVarCache;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
+import jakarta.xml.bind.Unmarshaller;
 
 /**
  * https://www.codenotfound.com/2013/07/jaxb-marshal-element-missing-xmlrootelement-annotation.html

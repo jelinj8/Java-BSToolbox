@@ -6,7 +6,7 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 
 public class LocalDateAdapter extends XmlAdapter<String, LocalDate> {
 	// public static DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");

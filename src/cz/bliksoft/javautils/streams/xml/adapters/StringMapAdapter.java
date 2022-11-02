@@ -3,7 +3,7 @@ package cz.bliksoft.javautils.streams.xml.adapters;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 
 public class StringMapAdapter extends XmlAdapter<StringMapElements[], Map<String, String>> {
 	public StringMapAdapter() {

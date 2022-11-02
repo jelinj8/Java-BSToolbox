@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
-import javax.xml.bind.DatatypeConverter;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPEnvelope;
@@ -19,6 +18,8 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
+
+import jakarta.xml.bind.DatatypeConverter;
 
 public class SecurityHandler implements SOAPHandler<SOAPMessageContext> {
 

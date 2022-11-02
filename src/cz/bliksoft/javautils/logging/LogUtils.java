@@ -20,7 +20,7 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import javax.swing.SwingUtilities;
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 
 import cz.bliksoft.javautils.streams.NoCloseOutputStream;
 import cz.bliksoft.javautils.xml.XmlUtils;

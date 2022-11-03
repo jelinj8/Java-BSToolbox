@@ -2,6 +2,7 @@ package cz.bliksoft.javautils.net.http;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.logging.Logger;
 
 import com.sun.net.httpserver.HttpExchange;
@@ -35,8 +36,13 @@ public class DefaultResourceHTTPHandler extends BasicHTTPHandler implements Clos
 		}
 
 		String fullPath = (pages != null ? path.replace(pages, "") : path);
-		if(fullPath.startsWith("/"))
-			fullPath=fullPath.substring(1);
-		sendClasspathResource(exchange, loader, fullPath);
+		if (fullPath.startsWith("/"))
+			fullPath = fullPath.substring(1);
+		try {
+			sendClasspathResource(exchange, loader, fullPath);
+		} catch (IOException e) {
+			log.severe(MessageFormat.format("Failed to serve resource {0}: {1}", fullPath, e.getMessage()));
+			throw e;
+		}
 	}
 }

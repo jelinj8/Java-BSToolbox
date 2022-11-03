@@ -45,7 +45,7 @@ import javax.swing.event.EventListenerList;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
-import org.eclipse.persistence.indirection.ValueHolder;
+//import org.eclipse.persistence.indirection.ValueHolder;
 
 import cz.bliksoft.javautils.binding.PresentationModel;
 import cz.bliksoft.javautils.binding.adapters.BeanAdapter;
@@ -56,13 +56,14 @@ import cz.bliksoft.javautils.binding.models.AbstractValueModel;
 import cz.bliksoft.javautils.binding.models.DefaultValueModel;
 
 /**
- * A ListModel implementation that holds a List or ListModel in a ValueModel. If
- * you hold a List, this class can only report that the List has been replaced;
- * this is done by firing a PropertyChangeEvent for the <em>list</em> property.
- * Also, a {@code ListDataEvent} is fired that reports a complete change. In
- * contrast, if you use a ListModel it will report the same PropertyChangeEvent.
- * But fine grained changes in the ListModel will be fired by this class to
- * notify observes about changes in the content, added and removed elements.
+ * A ListModel implementation that holds a List or ListModel in a IValueModel.
+ * If you hold a List, this class can only report that the List has been
+ * replaced; this is done by firing a PropertyChangeEvent for the <em>list</em>
+ * property. Also, a {@code ListDataEvent} is fired that reports a complete
+ * change. In contrast, if you use a ListModel it will report the same
+ * PropertyChangeEvent. But fine grained changes in the ListModel will be fired
+ * by this class to notify observes about changes in the content, added and
+ * removed elements.
  * <p>
  *
  * If the list content doesn't change at all, or if it always changes
@@ -96,11 +97,11 @@ import cz.bliksoft.javautils.binding.models.DefaultValueModel;
  *
  * This binding library provides some help for firing PropertyChangeEvents if
  * the old ListModel and new ListModel are equal but not the same. Class
- * {@link cz.bliksoft.javautils.binding.utils.jgoodies.binding.beans.ExtendedPropertyChangeSupport} allows to
- * permanently or individually check the identity (using {@code ==}) instead of
- * checking the equity (using {@code #equals}). Class
+ * {@link cz.bliksoft.javautils.binding.utils.jgoodies.binding.beans.ExtendedPropertyChangeSupport}
+ * allows to permanently or individually check the identity (using {@code ==})
+ * instead of checking the equity (using {@code #equals}). Class
  * {@link com.jgoodies.binding.beans.Model} uses this extended property change
- * support. And class {@link ValueHolder} uses it too and can be configured to
+ * support. And class {@link IValueHolder} uses it too and can be configured to
  * always test the identity.
  * <p>
  *
@@ -115,7 +116,7 @@ import cz.bliksoft.javautils.binding.models.DefaultValueModel;
  * <p>
  *
  * <strong>Constraints:</strong> The list holder holds instances of {@link List}
- * or {@link ListModel}. If the ListModel changes, the underlying ValueModel
+ * or {@link ListModel}. If the ListModel changes, the underlying IValueModel
  * must fire a PropertyChangeEvent.
  *
  * @author Karsten Lentzsch
@@ -124,7 +125,7 @@ import cz.bliksoft.javautils.binding.models.DefaultValueModel;
  * @see List
  * @see ListModel
  * @see SelectionInList
- * @see ValueModel
+ * @see IValueModel
  * @see com.jgoodies.binding.adapter.ComboBoxAdapter
  * @see com.jgoodies.binding.adapter.AbstractTableAdapter
  * @see cz.bliksoft.javautils.binding.utils.jgoodies.binding.beans.ExtendedPropertyChangeSupport
@@ -169,7 +170,7 @@ public class IndirectListModel<E> extends BasicBean implements ListModel<E> {
 
 	/**
 	 * Holds a copy of the listHolder's value. Used as the old list when the
-	 * listHolder's value changes. Required because a ValueModel may use
+	 * listHolder's value changes. Required because a IValueModel may use
 	 * {@code null} as old value, but the IndirectListModel must know about the old
 	 * and the new list.
 	 */
@@ -285,7 +286,7 @@ public class IndirectListModel<E> extends BasicBean implements ListModel<E> {
 
 		this.listHolder = listHolder;
 		this.listHolder.addValueChangeListener(listChangeHandler);
-		// If the ValueModel holds a ListModel observe list data changes too.
+		// If the IValueModel holds a ListModel observe list data changes too.
 		list = listHolder.getValue();
 		listSize = getSize(list);
 		if (list instanceof ListModel) {

@@ -145,11 +145,17 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	}
 
 	protected void sendOKDocument(HttpExchange httpExchange, File document) throws IOException {
-		addCommonHeaders(httpExchange, MimeTypes.getMimeType(FilenameUtils.getExtension(document.getName())));
-		addHeader(httpExchange, HEADER_CONTENT_DISPOSITION,
-				HEADER_CONTENT_DISPOSITION_INLINE + "\"" + document.getName() + "\"");
-		httpExchange.sendResponseHeaders(HTTPErrorCodes.OK.getValue(), document.length());
+		if (!document.exists()) {
+			log.severe(MessageFormat.format("File ''{1}'' not found", document.toString()));
+			sendERR(httpExchange, "File not found.", HTTPErrorCodes.CLIENT_NOT_FOUND.getValue());
+			return;
+		}
+		
 		try (FileInputStream is = new FileInputStream(document)) {
+			addCommonHeaders(httpExchange, MimeTypes.getMimeType(FilenameUtils.getExtension(document.getName())));
+			addHeader(httpExchange, HEADER_CONTENT_DISPOSITION,
+					HEADER_CONTENT_DISPOSITION_INLINE + "\"" + document.getName() + "\"");
+			httpExchange.sendResponseHeaders(HTTPErrorCodes.OK.getValue(), document.length());
 			OutputStream os = httpExchange.getResponseBody();
 			IOUtils.copy(is, os);
 			os.close();
@@ -159,9 +165,11 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	protected void sendOKResource(HttpExchange httpExchange, Class<?> loader, String path) throws IOException {
 		try (InputStream is = loader.getResourceAsStream(path)) {
 			if (is == null) {
-				sendERR(httpExchange, "File not found.", HTTPErrorCodes.CLIENT_NOT_FOUND.getValue());
+				log.severe(MessageFormat.format("Resource {0}:''{1}'' not found", loader.getName(), path));
+				sendERR(httpExchange, "Resource not found.", HTTPErrorCodes.CLIENT_NOT_FOUND.getValue());
 				return;
 			}
+			
 			String fileName = FilenameUtils.getName(path);
 			addHeader(httpExchange, HEADER_CONTENT_DISPOSITION,
 					HEADER_CONTENT_DISPOSITION_INLINE + "\"" + fileName + "\"");
@@ -212,9 +220,11 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	protected void sendClasspathResource(HttpExchange httpExchange, Class<?> loader, String path) throws IOException {
 		try (InputStream is = loader.getResourceAsStream(path)) {
 			if (is == null) {
-				sendERR(httpExchange, "File not found.", HTTPErrorCodes.CLIENT_NOT_FOUND.getValue());
+				log.severe(MessageFormat.format("Resource {0}:''{1}'' not found", loader.getName(), path));
+				sendERR(httpExchange, "Resource not found.", HTTPErrorCodes.CLIENT_NOT_FOUND.getValue());
 				return;
 			}
+			
 			String fileName = FilenameUtils.getName(path);
 			addCommonHeaders(httpExchange, MimeTypes.getMimeType(FilenameUtils.getExtension(fileName)));
 			addHeader(httpExchange, HEADER_CONTENT_DISPOSITION,
@@ -229,6 +239,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	protected void sendFile(HttpExchange httpExchange, File file) throws IOException {
 		if (!file.isFile()) {
+			log.severe(MessageFormat.format("File ''{0}'' not found", file.toString()));
 			sendERR(httpExchange, "File not found.", HTTPErrorCodes.CLIENT_NOT_FOUND.getValue());
 			return;
 		}

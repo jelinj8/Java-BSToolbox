@@ -3,6 +3,7 @@ package cz.bliksoft.javautils.net.http;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.logging.Logger;
 
 import com.sun.net.httpserver.HttpExchange;
@@ -39,10 +40,7 @@ public class DefaultFileHTTPHandler extends BasicHTTPHandler implements Closeabl
 			path = indexFileName;
 		File pageFile = new File(pages, path);
 		log.fine("Serve " + pageFile);
-		if (pageFile.exists()) {
-			sendOKDocument(exchange, pageFile);
-		} else {
-			sendERR(exchange, "Not found", HTTPErrorCodes.CLIENT_NOT_FOUND.getValue());
-		}
+		sendOKDocument(exchange, pageFile);
+		
 	}
 }

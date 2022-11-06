@@ -94,9 +94,9 @@ ${pad}	NODE_type:"${object?node_type}"
 			</#switch>
         <#elseif object?is_string>
 ${pad}	"${object?trim?replace('\\','\\\\"')?replace('"','\\"')}"
+<#--         <#elseif object?is_hash_ex> -->
         <#elseif object?is_hash>
 ${pad}{
-<#-- ${pad}	"SIMPLE HASH (not supported), class: ${identifyObjectType(object)}" -->
 ${pad}	[
             <#list object as item>
                 <#assign value><@objectToFormattedJson object=item!'NULL'  pad=('\t'+pad)/></#assign>

@@ -85,7 +85,12 @@ public class ObjectWrapperRegister extends DefaultObjectWrapper {
 
 	public static void useToString() {
 		lastResortConverter = (o) -> {
-			return o.toString();
+			try {
+				return o.toString();
+			} catch (Exception e) {
+				log.severe(MessageFormat.format("Failed wrapping {0} by casting to String", o.getClass()));
+				return null;
+			}
 		};
 	}
 
@@ -104,7 +109,8 @@ public class ObjectWrapperRegister extends DefaultObjectWrapper {
 		if (lastResortConverter != null) {
 			if (!(obj instanceof Temporal) || java8TimeAPIWrapper == null) {
 				log.severe(MessageFormat.format("Using lastResortConverter for {0}", c.getName()));
-				wrap(lastResortConverter.apply(obj));
+				Object preconverted = lastResortConverter.apply(obj); 
+				return wrap(preconverted);
 			}
 		}
 

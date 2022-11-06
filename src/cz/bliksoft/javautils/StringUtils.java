@@ -193,6 +193,10 @@ public class StringUtils {
 		return false;
 	}
 
+	public static String numberAsString(Object value) {
+		return MessageFormat.format("{0,number,#}", value);
+	}
+
 	public static boolean isAlpha(String txt) {
 		if (txt == null)
 			return false;

@@ -105,8 +105,12 @@ th {
 	white-space: nowrap;
 }
 
-.fill {
+.fill_horizontal, fill_both {
 	width: 100%;
+}
+
+.fill_vertical, fill_both {
+	height: 100%;
 }
 
 .no_underline {
@@ -161,6 +165,10 @@ tr:nth-child(even) {
 	background-color: rgb(247, 247, 247);
 }
 
+.white_background, tr.white_background {
+	background-color: white;
+}
+
 .green_background, tr.green_background {
 	background-color: rgb(0, 255, 0);
 }
@@ -178,7 +186,7 @@ tr:hover {
 	color: yellow;
 }
 
-.tableFixHead          { overflow: auto; height: 100%; }
+.tableFixHead          { overflow: auto }
 .tableFixHead thead th { position: sticky; top: 0; z-index: 1; }
 .tableFixHead tbody th { position: sticky; left: 0; }
 

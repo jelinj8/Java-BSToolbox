@@ -102,7 +102,7 @@ public class XmlUtils {
 		getMarshaller(obj).marshal(obj, writer);
 	}
 
-	public static Document marshall(Object obj) throws JAXBException {
+	public static Document getDocument(Object obj) throws JAXBException {
 		Marshaller m = getMarshaller(obj);
 		DOMResult result = new DOMResult();
 		m.marshal(obj, result);
@@ -132,12 +132,30 @@ public class XmlUtils {
 		return sw.toString();
 	}
 
+	@SuppressWarnings("unchecked")
+	public static Document getDocumentUnanotated(Object obj) throws JAXBException {
+		Marshaller m = getMarshaller(obj);
+		QName qName = new QName(null, StringUtils.hasTextDefault(obj.getClass().getSimpleName(), "Object"));
+		Class<Object> cls = (Class<Object>) obj.getClass();
+		JAXBElement<Object> root = new JAXBElement<Object>(qName, cls, obj);
+
+		DOMResult result = new DOMResult();
+		m.marshal(root, result);
+		return (Document) result.getNode();
+	}
+
 	public static Object unmarshal(String xml, Class<?> cls) throws XMLStreamException, JAXBException {
 		JAXBContext jaxbContext = JAXBContext.newInstance(cls);
 		Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 		XMLInputFactory factory = XMLInputFactory.newInstance();
 		XMLEventReader someSource = factory.createXMLEventReader(new StringReader(xml));
 		return jaxbUnmarshaller.unmarshal(someSource, cls).getValue();
+	}
+
+	public static Object unmarshal(Node xml, Class<?> cls) throws XMLStreamException, JAXBException {
+		JAXBContext jaxbContext = JAXBContext.newInstance(cls);
+		Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+		return jaxbUnmarshaller.unmarshal(xml);
 	}
 
 	public static Object unmarshal(File xml, Class<?> cls)

@@ -51,6 +51,18 @@
 <#macro expander><script type="text/javascript"><#include 'expander.js' parse=false></script></#macro>
 <#macro highlighter><script type="text/javascript"><#include 'highlighter.js' parse=false></script></#macro>
 
+<#macro syntaxhighlighter theme='default_cust.min'>
+<style><#include 'syntaxhighlighter/css/'+theme+'.css' parse=false></style>
+<script type="text/javascript"><#include 'syntaxhighlighter/highlight.min.js' parse=false></script>
+<script>hljs.highlightAll();</script>
+</#macro>
+
+<#macro syntaxhighlight syntax='default'>
+<pre class="pre-wrap"><code<#if syntax!='default'> class="${syntax}"</#if>>
+<#nested>
+</code></pre>
+</#macro>
+
 <#macro css_styles><style><#include 'styles.css' parse=false></style></#macro>
 <#macro css_fullframe><style>
 html,

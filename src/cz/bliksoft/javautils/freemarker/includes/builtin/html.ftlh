@@ -53,7 +53,7 @@
 <#macro expander><script type="text/javascript"><#include 'expander.js' parse=false></script></#macro>
 <#macro highlighter><script type="text/javascript"><#include 'highlighter.js' parse=false></script></#macro>
 
-<#macro syntaxhighlighter theme='default_cust.min'>
+<#macro syntaxhighlighter theme='default.min'>
 <style><#include 'syntaxhighlighter/css/'+theme+'.css' parse=false></style>
 <script type="text/javascript"><#include 'syntaxhighlighter/highlight.min.js' parse=false></script>
 <script>hljs.highlightAll();</script>

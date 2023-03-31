@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
-import java.lang.reflect.Constructor;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -30,13 +29,13 @@ import cz.bliksoft.javautils.freemarker.extensions.global.Reindex;
 import cz.bliksoft.javautils.freemarker.extensions.local.AnchorNumberer;
 import cz.bliksoft.javautils.freemarker.extensions.local.VariableCache;
 import cz.bliksoft.javautils.freemarker.extensions.local.VariableRegistrator;
+import cz.bliksoft.javautils.freemarker.wrappers.ObjectWrapperRegister;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.cache.FileTemplateLoader;
 import freemarker.cache.MultiTemplateLoader;
 import freemarker.cache.TemplateLoader;
 import freemarker.core.Environment;
 import freemarker.template.Configuration;
-import freemarker.template.ObjectWrapper;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
@@ -63,8 +62,6 @@ public class FreemarkerGenerator {
 		FreemarkerGenerator.defaultTemplateLoader = new ClassTemplateLoader(templateClassNeighbour, "");
 	}
 
-	private static boolean skipJ8TimeAPI = false;
-	private static Object java8TimeAPIWrapper = null;
 	private boolean storeEnvironment = false;
 	private Environment lastEnvironment = null;
 
@@ -84,25 +81,7 @@ public class FreemarkerGenerator {
 		cfg = new Configuration(Configuration.VERSION_2_3_30);
 		cfg.setEncoding(Locale.getDefault(), "UTF8");
 		setNumberFormat(NumberFormats.COMPUTER);
-		if (!skipJ8TimeAPI) {
-			if (java8TimeAPIWrapper == null) {
-				try {
-					Class<?> j8api = Class.forName("no.api.freemarker.java8.Java8ObjectWrapper");
-					if (j8api != null) {
-						Constructor<?> ctor = j8api.getConstructor(String.class);
-						java8TimeAPIWrapper = ctor.newInstance(Configuration.VERSION_2_3_30);
-						log.info("no.api.freemarker.java8.Java8ObjectWrapper loaded, registering ObjectWrapper");
-					}
-				} catch (ClassNotFoundException e) {
-					log.info("no.api.freemarker.java8.Java8ObjectWrapper not present");
-					skipJ8TimeAPI = true;
-				} catch (Exception e) {
-					;
-				}
-			}
-			if (java8TimeAPIWrapper != null)
-				cfg.setObjectWrapper((ObjectWrapper) java8TimeAPIWrapper);
-		}
+		cfg.setObjectWrapper(ObjectWrapperRegister.getInstance(Configuration.VERSION_2_3_30));
 	}
 
 	/**

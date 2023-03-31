@@ -10,13 +10,16 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
+import javax.xml.XMLConstants;
+import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -29,21 +32,40 @@ import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathException;
 import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import javax.xml.xpath.XPathFunction;
+import javax.xml.xpath.XPathFunctionResolver;
+import javax.xml.xpath.XPathVariableResolver;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import cz.bliksoft.javautils.StringUtils;
 import cz.bliksoft.javautils.streams.xml.ElementWriter;
+import cz.bliksoft.javautils.xml.xpath.ChooseXPathFunction;
+import cz.bliksoft.javautils.xml.xpath.Default;
+import cz.bliksoft.javautils.xml.xpath.FormatXPathFunction;
+import cz.bliksoft.javautils.xml.xpath.IfElseIf;
+import cz.bliksoft.javautils.xml.xpath.MapXPathFunction;
+import cz.bliksoft.javautils.xml.xpath.XPathVarCache;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
+import jakarta.xml.bind.Unmarshaller;
 
 /**
  * https://www.codenotfound.com/2013/07/jaxb-marshal-element-missing-xmlrootelement-annotation.html
@@ -80,6 +102,13 @@ public class XmlUtils {
 		getMarshaller(obj).marshal(obj, writer);
 	}
 
+	public static Document getDocument(Object obj) throws JAXBException {
+		Marshaller m = getMarshaller(obj);
+		DOMResult result = new DOMResult();
+		m.marshal(obj, result);
+		return (Document) result.getNode();
+	}
+
 	public static String marshal(Object obj) throws JAXBException {
 		StringWriter sw = new StringWriter();
 		getMarshaller(obj).marshal(obj, sw);
@@ -103,12 +132,30 @@ public class XmlUtils {
 		return sw.toString();
 	}
 
+	@SuppressWarnings("unchecked")
+	public static Document getDocumentUnanotated(Object obj) throws JAXBException {
+		Marshaller m = getMarshaller(obj);
+		QName qName = new QName(null, StringUtils.hasTextDefault(obj.getClass().getSimpleName(), "Object"));
+		Class<Object> cls = (Class<Object>) obj.getClass();
+		JAXBElement<Object> root = new JAXBElement<Object>(qName, cls, obj);
+
+		DOMResult result = new DOMResult();
+		m.marshal(root, result);
+		return (Document) result.getNode();
+	}
+
 	public static Object unmarshal(String xml, Class<?> cls) throws XMLStreamException, JAXBException {
 		JAXBContext jaxbContext = JAXBContext.newInstance(cls);
 		Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 		XMLInputFactory factory = XMLInputFactory.newInstance();
 		XMLEventReader someSource = factory.createXMLEventReader(new StringReader(xml));
 		return jaxbUnmarshaller.unmarshal(someSource, cls).getValue();
+	}
+
+	public static Object unmarshal(Node xml, Class<?> cls) throws XMLStreamException, JAXBException {
+		JAXBContext jaxbContext = JAXBContext.newInstance(cls);
+		Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+		return jaxbUnmarshaller.unmarshal(xml);
 	}
 
 	public static Object unmarshal(File xml, Class<?> cls)
@@ -233,6 +280,247 @@ public class XmlUtils {
 		DOMSource src = new DOMSource(doc.getDocumentElement());
 		transformer.transform(src, result);
 		return sw.toString();
+	}
+
+	public static boolean checkIfNodeExists(Document document, String xpathExpression) throws XPathExpressionException {
+		// Create XPathExpression object
+		XPathExpression expr = compileXPath(xpathExpression);
+		return checkIfNodeExists(document, expr);
+	}
+
+	public static boolean checkIfNodeExists(Document document, XPathExpression expr) throws XPathExpressionException {
+		// Evaluate expression result on XML document
+		NodeList nodes = (NodeList) expr.evaluate(document, XPathConstants.NODESET);
+
+		if (nodes != null && nodes.getLength() > 0) {
+			return true;
+		}
+		return false;
+	}
+
+	public static XPathExpression compileXPath(String expression) throws XPathExpressionException {
+		// Create XPathFactory object
+		XPathFactory xpathFactory = XPathFactory.newInstance();
+
+		// Create XPath object
+		XPath xpath = xpathFactory.newXPath();
+
+		if (variableResolver != null)
+			xpath.setXPathVariableResolver(variableResolver);
+
+		if (namespaceContext != null)
+			xpath.setNamespaceContext(namespaceContext);
+
+		if (defaultFunctionResolver != null)
+			xpath.setXPathFunctionResolver(defaultFunctionResolver);
+
+		return xpath.compile(expression);
+	}
+
+	private static MapVariableResolver variableResolver = null;
+
+	public static MapVariableResolver getVariableResolver() {
+		if (variableResolver == null)
+			variableResolver = new MapVariableResolver();
+		return variableResolver;
+	}
+
+	public static class MapVariableResolver extends HashMap<String, Object> implements XPathVariableResolver {
+		private static final long serialVersionUID = -5882477376800172743L;
+
+		@Override
+		public Object resolveVariable(QName varName) {
+			// if using namespaces, there's more to do here
+			String key = varName.getLocalPart();
+			return get(key);
+		}
+	}
+
+	private static BasicNamespaceContext namespaceContext = null;
+
+	public static BasicNamespaceContext getDefaultNamespaceContext() {
+		if (namespaceContext == null)
+			namespaceContext = new BasicNamespaceContext();
+		return namespaceContext;
+	}
+
+	public static class BasicNamespaceContext extends HashMap<String, String> implements NamespaceContext {
+		private static final long serialVersionUID = 1L;
+
+		public String getNamespaceURI(String prefix) {
+			String res = get(prefix);
+			if (res != null)
+				return res;
+			else
+				return XMLConstants.NULL_NS_URI;
+		}
+
+		public String getPrefix(String namespace) {
+			for (Entry<String, String> ns : entrySet()) {
+				if (namespace.equals(ns.getValue()))
+					return ns.getKey();
+			}
+			return null;
+		}
+
+		public Iterator<String> getPrefixes(String namespace) {
+			List<String> prefixes = new ArrayList<>();
+			for (Entry<String, String> e : entrySet())
+				if (namespace.equals(e.getValue()))
+					prefixes.add(e.getKey());
+			return prefixes.iterator();
+		}
+	}
+
+	private static BasicFunctionResolver defaultFunctionResolver = null;
+
+	public static BasicFunctionResolver getDefaultFunctionResolver() {
+		if (defaultFunctionResolver == null)
+			defaultFunctionResolver = new BasicFunctionResolver();
+		return defaultFunctionResolver;
+	}
+
+	/**
+	 * XPath custom functionsregister
+	 * 
+	 * @author jjelinek
+	 *
+	 */
+	public static class BasicFunctionResolver implements XPathFunctionResolver {
+		BasicNamespaceContext ctx = null;
+
+		Map<String, Map<String, XPathFunction>> functions = new HashMap<>();
+
+		/**
+		 * register a function
+		 * 
+		 * @param prefix       namespace prefix
+		 * @param fName        function name, for specific arity add e.g. "fname:3"
+		 *                     (attempt for specific first, non-specific if not found)
+		 * @param functionImpl implementing object
+		 */
+		public void addFunction(String prefix, String fName, XPathFunction functionImpl) {
+			Map<String, XPathFunction> pFunctions = functions.get(prefix);
+			if (pFunctions == null) {
+				pFunctions = new HashMap<>();
+				functions.put(prefix, pFunctions);
+			}
+
+			pFunctions.put(fName, functionImpl);
+		}
+
+		public XPathFunction resolveFunction(QName fname, int arity) {
+			if (fname == null)
+				throw new NullPointerException("The XPath function name cannot be null.");
+			String selector = fname.getLocalPart();
+			XPathFunction res = null;
+
+			if (StringUtils.hasLength(fname.getPrefix())) {
+				res = functions.get(fname.getPrefix()).get(selector + ":" + arity);
+				if (res != null)
+					return res;
+				res = functions.get(fname.getPrefix()).get(selector);
+				if (res != null)
+					return res;
+				log.severe(MessageFormat.format("Failed to get function {0}:{1} with arity {2}", fname.getPrefix(),
+						selector, arity));
+			} else {
+				res = functions.get(ctx.getPrefix(fname.getNamespaceURI())).get(selector + ":" + arity);
+				if (res != null)
+					return res;
+				res = functions.get(ctx.getPrefix(fname.getNamespaceURI())).get(selector);
+				if (res != null)
+					return res;
+				log.severe(MessageFormat.format("Failed to get function {0}:{1} with arity {2}",
+						ctx.getPrefix(fname.getNamespaceURI()), selector, arity));
+			}
+			return null;
+		}
+
+		public void registerXPathExtensions() {
+			registerXPathExtensions(getDefaultNamespaceContext(), "bsExt");
+		}
+
+		public void registerXPathExtensions(BasicNamespaceContext ctx, String nsPrefix) {
+			registerXPathExtensions(ctx, nsPrefix, getDefaultFunctionResolver());
+		}
+
+		public void registerXPathExtensions(BasicNamespaceContext ctx, String nsPrefix,
+				BasicFunctionResolver functionResolver) {
+			this.ctx = ctx;
+			ctx.put(nsPrefix, "http://bliksoft.cz");
+			functionResolver.addFunction(nsPrefix, "choose:3", new ChooseXPathFunction());
+			functionResolver.addFunction(nsPrefix, "var:2", new XPathVarCache());
+			functionResolver.addFunction(nsPrefix, "default:2", new Default());
+			functionResolver.addFunction(nsPrefix, "map", new MapXPathFunction());
+			functionResolver.addFunction(nsPrefix, "format", new FormatXPathFunction());
+			functionResolver.addFunction(nsPrefix, "ifElseIf", new IfElseIf());
+		}
+	}
+
+	public static String getResultText(Object xRes) throws XPathException {
+		if (xRes == null)
+			return null;
+		if (xRes instanceof String)
+			return (String) xRes;
+
+		Object xRes2 = xRes;
+		while (xRes2 instanceof NodeList) {
+			if (xRes2 instanceof Text)
+				return ((Text) xRes2).getNodeValue();
+
+			xRes2 = ((NodeList) xRes2).item(0);
+			if (xRes2 == null)
+				throw new XPathException("Can't get string from an empty node list");
+		}
+
+		return ((Node) xRes2).getNodeValue();
+	}
+
+	public static Node getFirstResultNode(Object xRes) throws XPathException {
+		if (xRes == null)
+			return null;
+		Object xRes2 = xRes;
+		while (xRes2 instanceof NodeList) {
+			if (xRes2 instanceof Node)
+				return ((Node) xRes2);
+
+			xRes2 = ((NodeList) xRes2).item(0);
+
+			if (xRes2 == null)
+				throw new XPathException("Can't get string from an empty node list");
+		}
+
+		return (Node) xRes2;
+	}
+
+	/**
+	 * register XPath functions with default "bsExt" namespace prefix, using default
+	 * global namespace context implementation
+	 */
+	public static void registerXPathExtensions() {
+		registerXPathExtensions("bsExt");
+	}
+
+	/**
+	 * register XPath extensions with custom namespace prefix, using default global
+	 * namespace context implementation
+	 * 
+	 * @param nsPrefix
+	 */
+	public static void registerXPathExtensions(String nsPrefix) {
+		getDefaultFunctionResolver().registerXPathExtensions(getDefaultNamespaceContext(), nsPrefix);
+	}
+
+	/**
+	 * register XPath extensions with custom namespace prefix and provided namespace
+	 * context implementation
+	 * 
+	 * @param ctx
+	 * @param nsPrefix
+	 */
+	public static void registerXPathExtensions(BasicNamespaceContext ctx, String nsPrefix) {
+		getDefaultFunctionResolver().registerXPathExtensions(ctx, nsPrefix);
 	}
 
 }

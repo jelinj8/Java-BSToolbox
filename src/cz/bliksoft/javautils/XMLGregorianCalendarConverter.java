@@ -8,11 +8,12 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
+
+import jakarta.xml.bind.JAXBElement;
 
 /**
  * Utility class for converting between XMLGregorianCalendar and java.util.Date

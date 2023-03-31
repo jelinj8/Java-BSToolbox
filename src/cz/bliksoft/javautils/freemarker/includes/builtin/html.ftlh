@@ -11,6 +11,8 @@
 </head>
 </#macro>
 
+<#macro title><title><#nested></title></#macro>
+
 <#macro body>
 <body>
 <#nested>
@@ -45,7 +47,7 @@
 <meta charset="UTF-8">
 </#macro>
 
-<#macro jquery><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script></#macro>
+<#macro jquery><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script></#macro>
 <#macro formlink><script type="text/javascript"><#include 'formlink.js' parse=false></script></#macro>
 <#macro ajaxsubmit><script type="text/javascript"><#include 'ajaxsubmit.js' parse=false></script></#macro>
 <#macro expander><script type="text/javascript"><#include 'expander.js' parse=false></script></#macro>

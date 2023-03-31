@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cz.bliksoft.java</groupId>
 	<artifactId>common-java-utils</artifactId>
-	<version>0.3</version>
+	<version>0.4</version>
 	<name>BSToolbox</name>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -24,16 +24,17 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.0</version>
+				<version>3.10.1</version>
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
+					<!-- <release>8</release> -->
 				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>3.2.0</version>
+				<version>3.3.0</version>
 				<executions>
 					<execution>
 						<phase>generate-sources</phase>
@@ -51,7 +52,7 @@
 			<plugin>
             	<groupId>org.apache.maven.plugins</groupId>
             	<artifactId>maven-resources-plugin</artifactId>
-            	<version>2.4</version>
+            	<version>3.3.0</version>
         	</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -85,7 +86,7 @@
 					<execution>
 						<id>validate-the-git-infos</id>
 						<goals>
-							<goal>validateRevision</goal>
+							<!--<goal>validateRevision</goal>-->
 						</goals>
 						<!-- *NOTE*: The default phase of validateRevision is verify, but in 
 							case you want to change it, you can do so by adding the phase here -->
@@ -125,6 +126,24 @@
 		</plugins>
 	</build>
 
+	<profiles>
+		<profile>
+			<id>java9</id>
+			<activation>
+				<jdk>[9,)</jdk>
+			</activation>
+			<dependencies>
+				<!-- https://mvnrepository.com/artifact/com.sun.xml.ws/jaxws-ri -->
+				<dependency>
+					<groupId>com.sun.xml.ws</groupId>
+					<artifactId>jaxws-ri</artifactId>
+					<version>2.3.5</version>
+					<type>pom</type>
+					<scope>provided</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
 
 	<dependencies>
 		<!-- https://mvnrepository.com/artifact/org.freemarker/freemarker -->
@@ -136,6 +155,21 @@
 			<optional>true</optional>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api -->
+		<dependency>
+			<groupId>jakarta.xml.bind</groupId>
+			<artifactId>jakarta.xml.bind-api</artifactId>
+			<version>3.0.1</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.glassfish.jaxb/jaxb-runtime to use in runtime -->
+		<!--<dependency>
+			<groupId>org.glassfish.jaxb</groupId>
+			<artifactId>jaxb-runtime</artifactId>
+			<version>2.3.7</version>
+		</dependency>-->
+
+
 		<!-- https://mvnrepository.com/artifact/no.api.freemarker/freemarker-java8 -->
 		<dependency>
 			<groupId>no.api.freemarker</groupId>
@@ -144,14 +178,6 @@
 			<scope>provided</scope>
 			<optional>true</optional>
 		</dependency>
-
-		<!-- for Java 1.9+ -->
-		<!-- https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api <dependency> 
-			<groupId>javax.xml.bind</groupId> <artifactId>jaxb-api</artifactId> <scope>provided</scope> 
-			<optional>true</optional> <version>2.3.1</version> </dependency> <dependency> 
-			<groupId>org.glassfish.jaxb</groupId> <artifactId>jaxb-runtime</artifactId> 
-			<version>2.3.1</version> <optional>true</optional> <scope>runtime</scope> 
-			</dependency> -->
 
 		<!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
 		<dependency>
@@ -182,7 +208,7 @@
 		<dependency>
 			<groupId>com.google.zxing</groupId>
 			<artifactId>core</artifactId>
-			<version>3.4.0</version>
+			<version>3.5.0</version>
 			<scope>provided</scope>
 			<optional>true</optional>
 		</dependency>

@@ -1,4 +1,6 @@
 <#assign dateTimeFormatString="yyyy-MM-dd HH:mm:ss" />
+<#assign timeFormatString="HH:mm:ss" />
+<#assign dateFormatString="yyyy-MM-dd" />
 
 <#macro objectToJson object>
     <@compress single_line=true>
@@ -20,12 +22,6 @@
             <#assign first="true">
         {
 			"SIMPLE HASH (not supported)"
-            <#-- <#list object as key, value>
-                <#if first="false">,</#if>
-                <#assign res><@objectToJson value!"" /></#assign>
-            "${key}": ${res?trim}
-                <#assign first="false">
-            </#list> -->
         }
         <#elseif object?is_enumerable>
             <#assign first="true">
@@ -45,11 +41,11 @@
 			<#elseif object?is_number>
 			${object?c}
 			<#elseif object?is_date_only>
-			"${object?string["yyyy-MM-dd"]}"
+			"${object?string[dateFormatString]}"
 			<#elseif object?is_datetime>
-			"${object?iso_local}"
+			"${object?string[dateTimeFormatString]}"
 			<#elseif object?is_time>
-			"${object?string["HH:mm:ss"]}"
+			"${object?string[timeFormatString]}"
 			<#elseif object?is_method>
 			"METHOD"
 			<#elseif object?is_macro>
@@ -82,12 +78,12 @@ ${pad}	<!-- ${object} -->
 				<#break>
 				<#case "element">
 					<#if object?children?size==1>
-                <#assign value><@objectToFormattedJson object=object?children[0]  pad=('\t'+pad)/></#assign>
+                <#assign value><@objectToFormattedJson object=object?children[0]!'NULL'  pad=('\t'+pad)/></#assign>
 ${pad}${object?node_name}:${value?trim}
 					<#else>
 ${pad}${object?node_name}:[            
             <#list object?children as item>
-                <#assign value><@objectToFormattedJson object=item  pad=('\t'+pad)/></#assign>
+                <#assign value><@objectToFormattedJson object=item!'NULL'  pad=('\t'+pad)/></#assign>
 ${pad}	${value?trim}<#if !item?is_last>,</#if>
             </#list>
 ${pad}]
@@ -96,12 +92,14 @@ ${pad}]
 				<#default>
 ${pad}	NODE_type:"${object?node_type}"
 			</#switch>
+        <#elseif object?is_string>
+${pad}	"${object?trim?replace('\\','\\\\"')?replace('"','\\"')}"
+<#--         <#elseif object?is_hash_ex> -->
         <#elseif object?is_hash>
 ${pad}{
-<#-- ${pad}	"SIMPLE HASH (not supported), class: ${identifyObjectType(object)}" -->
 ${pad}	[
             <#list object as item>
-                <#assign value><@objectToFormattedJson object=item  pad=('\t'+pad)/></#assign>
+                <#assign value><@objectToFormattedJson object=item!'NULL'  pad=('\t'+pad)/></#assign>
 ${pad}	${value?trim}<#if !item?is_last>,</#if>
             </#list>
 ${pad}	]
@@ -109,7 +107,7 @@ ${pad}}
         <#elseif object?is_enumerable>
 ${pad}[
             <#list object as item>
-                <#assign value><@objectToFormattedJson object=item  pad=('\t'+pad)/></#assign>
+                <#assign value><@objectToFormattedJson object=item!'NULL'  pad=('\t'+pad)/></#assign>
 ${pad}	${value?trim}<#if !item?is_last>,</#if>
             </#list>
 ${pad}]
@@ -121,17 +119,17 @@ ${pad}	${object?c}
 			<#elseif object?is_number>
 ${pad}	${object?c}
 			<#elseif object?is_date_only>
-${pad}	"${object?string["yyyy-MM-dd"]}"
+${pad}	"${object?string[dateFormatString]}"
 			<#elseif object?is_datetime>
 ${pad}	"${object?string[dateTimeFormatString]}"
 			<#elseif object?is_time>
-${pad}	"${object?string["HH:mm:ss"]}"
+${pad}	"${object?string[timeFormatString]}"
 			<#elseif object?is_method>
 ${pad}	"METHOD"
 			<#elseif object?is_macro>
 ${pad}	"MACRO"
 			<#else>
-${pad}	"${object?trim?replace('\\','\\\\"')?replace('"','\\"')}"
+${pad}	?"${object?trim?replace('\\','\\\\"')?replace('"','\\"')}"?
 			</#if>
         </#if>
 </#macro>

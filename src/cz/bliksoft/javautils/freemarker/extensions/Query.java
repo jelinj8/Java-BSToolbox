@@ -100,6 +100,7 @@ public class Query implements TemplateMethodModelEx {
 
 				String query = queryProvider.getSql(queryID);
 				List<Object> queryParameters = new ArrayList<>();
+				List<String> queryParameterTypes = new ArrayList<>();
 				String phase = "setting arguments";
 				StringBuilder paramsToPrint = new StringBuilder();
 				String argType = null;
@@ -156,6 +157,7 @@ public class Query implements TemplateMethodModelEx {
 							paramsToPrint.append("\n\t[" + pID + "] " + argType + " = '" + val + "'");
 						}
 						queryParameters.add(val);
+						queryParameterTypes.add(argType);
 
 						pID++;
 					}
@@ -270,9 +272,11 @@ public class Query implements TemplateMethodModelEx {
 							qParams.put("columnTypes", colTypes);
 							qParams.put("SQL", query);
 							qParams.put("parameters", queryParameters);
+							qParams.put("parameterTypes", queryParameterTypes);
 							qParams.put("resultCount", result.size());
+							// qParams.put("result", result);
 
-							Environment.getCurrentEnvironment().setVariable("LastQuery",
+							Environment.getCurrentEnvironment().setVariable("lastQuery",
 									Environment.getCurrentEnvironment().getObjectWrapper().wrap(qParams));
 
 							return result;
@@ -281,8 +285,8 @@ public class Query implements TemplateMethodModelEx {
 						throw new TemplateModelException("No result");
 					}
 				} catch (SQLException e) {
-					throw new TemplateModelException("SQL Exception.\n" + e.getSQLState() + ": " + e.getMessage() + "\nvvv QUERY vvv\n"
-							+ query + "\n----\n" + paramsToPrint + "\n^^^ QUERY ^^^\n", e);
+					throw new TemplateModelException("SQL Exception.\n" + e.getSQLState() + ": " + e.getMessage()
+							+ "\nvvv QUERY vvv\n" + query + "\n----\n" + paramsToPrint + "\n^^^ QUERY ^^^\n", e);
 				} catch (Exception e) {
 					throw new TemplateModelException(
 							"Generic exception while processing query " + queryID + " while " + phase, e);

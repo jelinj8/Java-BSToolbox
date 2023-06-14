@@ -126,6 +126,9 @@
 		</plugins>
 	</build>
 
+
+	<!-- for Java 1.9+ to publish webservices add dependency to project: https://mvnrepository.com/artifact/com.sun.xml.ws/jaxws-ri -->
+	<!-- 
 	<profiles>
 		<profile>
 			<id>java9</id>
@@ -133,7 +136,6 @@
 				<jdk>[9,)</jdk>
 			</activation>
 			<dependencies>
-				<!-- https://mvnrepository.com/artifact/com.sun.xml.ws/jaxws-ri -->
 				<dependency>
 					<groupId>com.sun.xml.ws</groupId>
 					<artifactId>jaxws-ri</artifactId>
@@ -144,6 +146,7 @@
 			</dependencies>
 		</profile>
 	</profiles>
+	-->
 
 	<dependencies>
 		<!-- https://mvnrepository.com/artifact/org.freemarker/freemarker -->
@@ -213,5 +216,20 @@
 			<optional>true</optional>
 		</dependency>
 
+		<dependency>
+			<groupId>org.apache.httpcomponents.client5</groupId>
+			<artifactId>httpclient5</artifactId>
+			<version>5.2.1</version>
+			<scope>provided</scope>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20220924</version>
+			<scope>provided</scope>
+			<optional>true</optional>
+		</dependency>
 	</dependencies>
 </project>

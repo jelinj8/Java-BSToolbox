@@ -3,6 +3,7 @@ package cz.bliksoft.javautils.xml;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -35,6 +36,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathException;
@@ -69,11 +71,15 @@ import jakarta.xml.bind.Unmarshaller;
 
 /**
  * https://www.codenotfound.com/2013/07/jaxb-marshal-element-missing-xmlrootelement-annotation.html
- * zabalení do root objektu: QName qName = new
- * QName("com.codenotfound.jaxb.model", "car"); JAXBElement<Car> root = new
- * JAXBElement<>(qName, Car.class, car); Rozbalení: JAXBElement<Car> root =
- * jaxbUnmarshaller.unmarshal(new StreamSource( file), Car.class); Car car =
- * root.getValue();
+ * <ul>
+ * <li>zabalení do root objektu:
+ * {@code qName = new QName("com.codenotfound.jaxb.model", "car");
+ * JAXBElement<Car> root = new JAXBElement<>(qName, Car.class, car);}
+ * 
+ * <li>Rozbalení:
+ * {@code JAXBElement<Car> root = jaxbUnmarshaller.unmarshal(new StreamSource(file), Car.class);
+ * Car car = root.getValue();}
+ * </ul>
  * 
  * @author jjelinek
  *
@@ -81,50 +87,89 @@ import jakarta.xml.bind.Unmarshaller;
 public class XmlUtils {
 	private static Logger log = Logger.getLogger(XmlUtils.class.getName());
 
-	private static Marshaller getMarshaller(Object obj) throws JAXBException {
+	private static Marshaller getMarshaller(Class<?>... classes) throws JAXBException {
 		JAXBContext context;
 
-		context = JAXBContext.newInstance(obj.getClass());
+		context = JAXBContext.newInstance(classes);
 		Marshaller m = context.createMarshaller();
 		m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 		return m;
 	}
 
 	public static void marshal(Object obj, Writer writer) throws JAXBException {
-		getMarshaller(obj).marshal(obj, writer);
+		marshal(obj, writer, obj.getClass());
+	}
+
+	public static void marshal(Object obj, Writer writer, Class<?>... classes) throws JAXBException {
+		getMarshaller(classes).marshal(obj, writer);
+	}
+
+	public static void marshal(Object obj, File target) throws JAXBException, IOException {
+		marshal(obj, target, obj.getClass());
+	}
+
+	public static void marshal(Object obj, File target, Class<?>... classes) throws JAXBException, IOException {
+		try (FileWriter fw = new FileWriter(target)) {
+			getMarshaller(classes).marshal(obj, fw);
+		}
 	}
 
 	public static void marshal(Object obj, XMLStreamWriter writer) throws JAXBException {
-		getMarshaller(obj).marshal(obj, writer);
+		marshal(obj, writer, obj.getClass());
+	}
+
+	public static void marshal(Object obj, XMLStreamWriter writer, Class<?>... classes) throws JAXBException {
+		getMarshaller(classes).marshal(obj, writer);
 	}
 
 	public static void marshal(Object obj, OutputStream writer) throws JAXBException {
-		getMarshaller(obj).marshal(obj, writer);
+		marshal(obj, writer, obj.getClass());
+	}
+
+	public static void marshal(Object obj, OutputStream writer, Class<?>... classes) throws JAXBException {
+		getMarshaller(classes).marshal(obj, writer);
 	}
 
 	public static Document getDocument(Object obj) throws JAXBException {
-		Marshaller m = getMarshaller(obj);
+		return getDocument(obj, obj.getClass());
+	}
+
+	public static Document getDocument(Object obj, Class<?>... classes) throws JAXBException {
+		Marshaller m = getMarshaller(classes);
 		DOMResult result = new DOMResult();
 		m.marshal(obj, result);
 		return (Document) result.getNode();
 	}
 
 	public static String marshal(Object obj) throws JAXBException {
+		return marshal(obj, obj.getClass());
+	}
+
+	public static String marshal(Object obj, Class<?>... classes) throws JAXBException {
 		StringWriter sw = new StringWriter();
-		getMarshaller(obj).marshal(obj, sw);
+		getMarshaller(classes).marshal(obj, sw);
 		return sw.toString();
 	}
 
 	public static String marshalSimpleElement(Object obj) throws JAXBException, XMLStreamException {
+		return marshalSimpleElement(obj, obj.getClass());
+	}
+
+	public static String marshalSimpleElement(Object obj, Class<?>... classes)
+			throws JAXBException, XMLStreamException {
 		StringWriter sw = new StringWriter();
-		getMarshaller(obj).marshal(obj, ElementWriter.filter(sw));
+		getMarshaller(classes).marshal(obj, ElementWriter.filter(sw));
 		return sw.toString();
 	}
 
-	@SuppressWarnings("unchecked")
 	public static String marshalUnanotated(Object obj) throws JAXBException {
+		return marshalUnanotated(obj, obj.getClass());
+	}
+
+	@SuppressWarnings("unchecked")
+	public static String marshalUnanotated(Object obj, Class<?>... classes) throws JAXBException {
 		StringWriter sw = new StringWriter();
-		Marshaller m = getMarshaller(obj);
+		Marshaller m = getMarshaller(classes);
 		QName qName = new QName(null, StringUtils.hasTextDefault(obj.getClass().getSimpleName(), "Object"));
 		Class<Object> cls = (Class<Object>) obj.getClass();
 		JAXBElement<Object> root = new JAXBElement<Object>(qName, cls, obj);
@@ -132,9 +177,13 @@ public class XmlUtils {
 		return sw.toString();
 	}
 
-	@SuppressWarnings("unchecked")
 	public static Document getDocumentUnanotated(Object obj) throws JAXBException {
-		Marshaller m = getMarshaller(obj);
+		return getDocumentUnanotated(obj, obj.getClass());
+	}
+
+	@SuppressWarnings("unchecked")
+	public static Document getDocumentUnanotated(Object obj, Class<?>... classes) throws JAXBException {
+		Marshaller m = getMarshaller(classes);
 		QName qName = new QName(null, StringUtils.hasTextDefault(obj.getClass().getSimpleName(), "Object"));
 		Class<Object> cls = (Class<Object>) obj.getClass();
 		JAXBElement<Object> root = new JAXBElement<Object>(qName, cls, obj);
@@ -145,7 +194,12 @@ public class XmlUtils {
 	}
 
 	public static Object unmarshal(String xml, Class<?> cls) throws XMLStreamException, JAXBException {
-		JAXBContext jaxbContext = JAXBContext.newInstance(cls);
+		return unmarshal(xml, cls, cls);
+	}
+
+	public static Object unmarshal(String xml, Class<?> cls, Class<?>... classes)
+			throws XMLStreamException, JAXBException {
+		JAXBContext jaxbContext = JAXBContext.newInstance(classes);
 		Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 		XMLInputFactory factory = XMLInputFactory.newInstance();
 		XMLEventReader someSource = factory.createXMLEventReader(new StringReader(xml));
@@ -153,14 +207,25 @@ public class XmlUtils {
 	}
 
 	public static Object unmarshal(Node xml, Class<?> cls) throws XMLStreamException, JAXBException {
-		JAXBContext jaxbContext = JAXBContext.newInstance(cls);
+		return unmarshal(xml, cls, cls);
+	}
+
+	public static Object unmarshal(Node xml, Class<?> cls, Class<?>... classes)
+			throws XMLStreamException, JAXBException {
+		DOMSource xmlSource = new DOMSource(xml);
+		JAXBContext jaxbContext = JAXBContext.newInstance(classes);
 		Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-		return jaxbUnmarshaller.unmarshal(xml);
+		return jaxbUnmarshaller.unmarshal(xmlSource, cls).getValue();
 	}
 
 	public static Object unmarshal(File xml, Class<?> cls)
 			throws XMLStreamException, JAXBException, FileNotFoundException {
-		JAXBContext jaxbContext = JAXBContext.newInstance(cls);
+		return unmarshal(xml, cls, cls);
+	}
+
+	public static Object unmarshal(File xml, Class<?> cls, Class<?>... classes)
+			throws XMLStreamException, JAXBException, FileNotFoundException {
+		JAXBContext jaxbContext = JAXBContext.newInstance(classes);
 		Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 		XMLInputFactory factory = XMLInputFactory.newInstance();
 		XMLEventReader someSource = factory.createXMLEventReader(new FileReader(xml));
@@ -169,7 +234,12 @@ public class XmlUtils {
 
 	public static Object unmarshal(InputStream xml, Class<?> cls)
 			throws XMLStreamException, JAXBException, FileNotFoundException {
-		JAXBContext jaxbContext = JAXBContext.newInstance(cls);
+		return unmarshal(xml, cls, cls);
+	}
+
+	public static Object unmarshal(InputStream xml, Class<?> cls, Class<?>... classes)
+			throws XMLStreamException, JAXBException, FileNotFoundException {
+		JAXBContext jaxbContext = JAXBContext.newInstance(classes);
 		Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 		XMLInputFactory factory = XMLInputFactory.newInstance();
 		XMLEventReader someSource = factory.createXMLEventReader(xml);
@@ -206,7 +276,7 @@ public class XmlUtils {
 		return n;
 	}
 
-	public static String getStringFromDocument(Document doc) {
+	public static String getStringFromNode(Node doc) {
 		try {
 			DOMSource domSource = new DOMSource(doc);
 			StringWriter writer = new StringWriter();
@@ -223,20 +293,31 @@ public class XmlUtils {
 		}
 	}
 
-	public static String getStringFromNode(Node doc) {
+	public static Document createDocument(File xmlFile) throws ParserConfigurationException, SAXException, IOException {
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		// optional, but recommended
+		// process XML securely, avoid attacks like XML External Entities (XXE)
+		dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+
+		// parse XML file
+		DocumentBuilder db = dbf.newDocumentBuilder();
+		Document doc = db.parse(xmlFile);
+		return doc;
+	}
+
+	public static void writeNode(Node doc, File output) throws IOException {
 		try {
 			DOMSource domSource = new DOMSource(doc);
-			StringWriter writer = new StringWriter();
-			StreamResult result = new StreamResult(writer);
-			TransformerFactory tf = TransformerFactory.newInstance();
-			Transformer transformer = tf.newTransformer();
-			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-			transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-			transformer.transform(domSource, result);
-			return writer.toString();
+			try (FileWriter writer = new FileWriter(output)) {
+				StreamResult result = new StreamResult(writer);
+				TransformerFactory tf = TransformerFactory.newInstance();
+				Transformer transformer = tf.newTransformer();
+				transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+				transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+				transformer.transform(domSource, result);
+			}
 		} catch (TransformerException ex) {
 			ex.printStackTrace();
-			return null;
 		}
 	}
 
@@ -260,8 +341,8 @@ public class XmlUtils {
 		return prettyPrintXml(doc);
 	}
 
-	public static String prettyPrintXml(Document doc) throws Exception {
-		doc.getDocumentElement().normalize();
+	public static String prettyPrintXml(Node doc) throws Exception {
+		doc.normalize();
 		XPathExpression xpath;
 		NodeList blankTextNodes = null;
 		xpath = XPathFactory.newInstance().newXPath().compile("//text()[normalize-space(.) = '']");
@@ -277,18 +358,18 @@ public class XmlUtils {
 		transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
 		StringWriter sw = new StringWriter();
 		StreamResult result = new StreamResult(sw);
-		DOMSource src = new DOMSource(doc.getDocumentElement());
+		DOMSource src = new DOMSource((doc instanceof Document ? ((Document) doc).getDocumentElement() : doc));
 		transformer.transform(src, result);
 		return sw.toString();
 	}
 
-	public static boolean checkIfNodeExists(Document document, String xpathExpression) throws XPathExpressionException {
+	public static boolean checkIfNodeExists(Node document, String xpathExpression) throws XPathExpressionException {
 		// Create XPathExpression object
 		XPathExpression expr = compileXPath(xpathExpression);
 		return checkIfNodeExists(document, expr);
 	}
 
-	public static boolean checkIfNodeExists(Document document, XPathExpression expr) throws XPathExpressionException {
+	public static boolean checkIfNodeExists(Node document, XPathExpression expr) throws XPathExpressionException {
 		// Evaluate expression result on XML document
 		NodeList nodes = (NodeList) expr.evaluate(document, XPathConstants.NODESET);
 
@@ -521,6 +602,28 @@ public class XmlUtils {
 	 */
 	public static void registerXPathExtensions(BasicNamespaceContext ctx, String nsPrefix) {
 		getDefaultFunctionResolver().registerXPathExtensions(ctx, nsPrefix);
+	}
+
+	public static void removeWhitespaces(Node doc) throws XPathExpressionException {
+		doc.normalize();
+		XPathFactory xpathFactory = XPathFactory.newInstance();
+		// XPath to find empty text nodes.
+		XPathExpression xpathExp = xpathFactory.newXPath().compile("//text()[normalize-space(.) = '']");
+		NodeList emptyTextNodes = (NodeList) xpathExp.evaluate(doc, XPathConstants.NODESET);
+
+		// Remove each empty text node from document.
+		for (int i = 0; i < emptyTextNodes.getLength(); i++) {
+			Node emptyTextNode = emptyTextNodes.item(i);
+			emptyTextNode.getParentNode().removeChild(emptyTextNode);
+		}
+	}
+
+	public static void transformDocument(Node doc, StreamSource template, StreamResult target)
+			throws TransformerException {
+		TransformerFactory transformerFactory = TransformerFactory.newInstance();
+		// add XSLT in Transformer
+		Transformer transformer = transformerFactory.newTransformer(template);
+		transformer.transform(new DOMSource(doc), target);
 	}
 
 }

@@ -113,8 +113,10 @@ public abstract class BasicBean implements IBeanStateProvider, IDefaultObservabl
 					&& (beanStateMonitoredProperties == null
 							|| beanStateMonitoredProperties.contains(evt.getPropertyName()))
 					&& modifyBean() && log.isLoggable(Level.FINE)) {
-				log.fine(MessageFormat.format("Bean '{'{0}'}' \"{2}\" modified by change of property ''{1}''",
-						BasicBean.this.getClass().getSimpleName(), evt.getPropertyName(), BasicBean.this));
+				log.fine(MessageFormat.format(
+						"Bean '{'{0}'}' \"{2}\" modified by change of property ''{1}'' from ''{3}'' to ''{4}''",
+						BasicBean.this.getClass().getSimpleName(), evt.getPropertyName(), BasicBean.this,
+						evt.getOldValue(), evt.getNewValue()));
 			}
 		}
 	}

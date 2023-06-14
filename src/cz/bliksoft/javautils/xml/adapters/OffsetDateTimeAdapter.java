@@ -4,9 +4,10 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 
 public class OffsetDateTimeAdapter extends XmlAdapter<String, OffsetDateTime> {
 	public static DateTimeFormatter localDateTimeFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
@@ -35,7 +36,8 @@ public class OffsetDateTimeAdapter extends XmlAdapter<String, OffsetDateTime> {
 	public static OffsetDateTime toOffsetDateTime(LocalDateTime localDateTime) {
 		if (localDateTime == null)
 			return null;
-		OffsetDateTime odt = OffsetDateTime.from(localDateTime);
+		ZonedDateTime zdt = localDateTime.atZone(ZoneId.systemDefault());
+		OffsetDateTime odt = zdt.toOffsetDateTime();
 		return odt;
 	}
 

@@ -26,6 +26,7 @@ public class OracleDbConnection implements IDBConnectionFactory {
 	private File propertiesFile;
 	private static File globalPropertiesFile;
 	private static Class<?> driver = null;
+	private Boolean autoCommit = null;
 
 	public static OracleDbConnection getInstance() throws Exception {
 		if (singletonInstance == null) {
@@ -76,7 +77,10 @@ public class OracleDbConnection implements IDBConnectionFactory {
 		String serverString = getOraServerString();
 		if (log.isLoggable(Level.INFO))
 			log.info(MessageFormat.format("Connecting to {0} as {1} ({2})", serverString, oraUserName, reason));
-		return DriverManager.getConnection(serverString, oraUserName, oraPassword);
+		Connection c = DriverManager.getConnection(serverString, oraUserName, oraPassword);
+		if (autoCommit != null)
+			c.setAutoCommit(autoCommit);
+		return c;
 	}
 
 	private String getOraServerString() {
@@ -160,6 +164,10 @@ public class OracleDbConnection implements IDBConnectionFactory {
 			}
 		}
 		return sb.toString();
+	}
+	
+	public void setAutoCommit(Boolean ac) {
+		autoCommit = ac;
 	}
 
 }

@@ -128,7 +128,6 @@
 
 
 	<!-- for Java 1.9+ to publish webservices add dependency to project: https://mvnrepository.com/artifact/com.sun.xml.ws/jaxws-ri -->
-	<!-- 
 	<profiles>
 		<profile>
 			<id>java9</id>
@@ -146,7 +145,6 @@
 			</dependencies>
 		</profile>
 	</profiles>
-	-->
 
 	<dependencies>
 		<!-- https://mvnrepository.com/artifact/org.freemarker/freemarker -->

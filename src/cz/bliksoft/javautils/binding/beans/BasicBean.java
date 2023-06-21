@@ -13,10 +13,7 @@ import cz.bliksoft.javautils.binding.interfaces.IBeanStateProvider;
 import cz.bliksoft.javautils.binding.interfaces.IDefaultObservable;
 import cz.bliksoft.javautils.binding.interfaces.IVetoObservable;
 import cz.bliksoft.javautils.logging.LogUtils;
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
 
-@XmlAccessorType(XmlAccessType.NONE)
 public abstract class BasicBean implements IBeanStateProvider, IDefaultObservable, IVetoObservable {
 
 	private static Logger log = Logger.getLogger(BasicBean.class.getName());

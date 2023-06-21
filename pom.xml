@@ -168,9 +168,9 @@
 			</activation>
 			<dependencies>
 				<dependency>
-					<groupId>com.sun.xml.ws</groupId>
-					<artifactId>jaxws-ri</artifactId>
-					<version>2.3.5</version>
+					<groupId>org.glassfish.jaxb</groupId>
+					<artifactId>jaxb-runtime</artifactId>
+					<version>3.0.2</version>
 					<type>pom</type>
 					<optional>true</optional>
 					<scope>provided</scope>
@@ -204,7 +204,7 @@
 			<artifactId>jaxb-runtime</artifactId>
 			<scope>provided</scope>
 			<optional>true</optional>
-			<version>2.3.7</version>
+			<version>3.0.2</version>
 		</dependency>-->
 
 		<!-- https://mvnrepository.com/artifact/no.api.freemarker/freemarker-java8 -->

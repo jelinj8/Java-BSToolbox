@@ -1,9 +1,8 @@
 package cz.bliksoft.javautils.ws;
 
-import javax.xml.ws.BindingProvider;
-import javax.xml.ws.Service;
-
 import cz.bliksoft.javautils.ws.handlers.SOAPLogHandler;
+import jakarta.xml.ws.BindingProvider;
+import jakarta.xml.ws.Service;
 
 public abstract class BaseService<T> {
 	protected SecurityHandler securityHandler = null;

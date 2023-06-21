@@ -11,15 +11,15 @@ import java.util.Set;
 import java.util.TimeZone;
 
 import javax.xml.namespace.QName;
-import javax.xml.soap.SOAPElement;
-import javax.xml.soap.SOAPEnvelope;
-import javax.xml.soap.SOAPHeader;
-import javax.xml.ws.BindingProvider;
-import javax.xml.ws.handler.MessageContext;
-import javax.xml.ws.handler.soap.SOAPHandler;
-import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import jakarta.xml.bind.DatatypeConverter;
+import jakarta.xml.soap.SOAPElement;
+import jakarta.xml.soap.SOAPEnvelope;
+import jakarta.xml.soap.SOAPHeader;
+import jakarta.xml.ws.BindingProvider;
+import jakarta.xml.ws.handler.MessageContext;
+import jakarta.xml.ws.handler.soap.SOAPHandler;
+import jakarta.xml.ws.handler.soap.SOAPMessageContext;
 
 public class SecurityHandler implements SOAPHandler<SOAPMessageContext> {
 

@@ -10,9 +10,6 @@ import javax.xml.namespace.QName;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.ws.handler.MessageContext;
-import javax.xml.ws.handler.soap.SOAPHandler;
-import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -20,6 +17,9 @@ import org.w3c.dom.Node;
 import cz.bliksoft.javautils.logging.LogUtils;
 import cz.bliksoft.javautils.threads.MessageInterceptWorker;
 import cz.bliksoft.javautils.xml.XmlUtils;
+import jakarta.xml.ws.handler.MessageContext;
+import jakarta.xml.ws.handler.soap.SOAPHandler;
+import jakarta.xml.ws.handler.soap.SOAPMessageContext;
 
 public class SignHandler implements SOAPHandler<SOAPMessageContext> {
 	private Logger log = Logger.getLogger(SignHandler.class.getName());

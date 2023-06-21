@@ -207,14 +207,37 @@
 			<optional>true</optional>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.glassfish.jaxb/jaxb-runtime to use in runtime -->
-		<!--<dependency>
+		<!-- https://mvnrepository.com/artifact/org.glassfish.jaxb/jaxb-runtime -->
+		<dependency>
 			<groupId>org.glassfish.jaxb</groupId>
 			<artifactId>jaxb-runtime</artifactId>
 			<scope>provided</scope>
 			<optional>true</optional>
 			<version>3.0.2</version>
-		</dependency>-->
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.glassfish.metro/webservices-rt
+		server i klient
+		 -->
+		<dependency>
+			<groupId>org.glassfish.metro</groupId>
+			<artifactId>webservices-rt</artifactId>
+			<version>3.0.3</version>
+			<scope>provided</scope>
+			<optional>true</optional>
+		</dependency>
+
+
+		<!-- https://mvnrepository.com/artifact/jakarta.servlet/jakarta.servlet-api
+		pro server
+		 -->
+		<dependency>
+			<groupId>jakarta.servlet</groupId>
+			<artifactId>jakarta.servlet-api</artifactId>
+			<version>5.0.0</version>
+			<scope>provided</scope>
+			<optional>true</optional>
+		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/no.api.freemarker/freemarker-java8 -->
 		<dependency>

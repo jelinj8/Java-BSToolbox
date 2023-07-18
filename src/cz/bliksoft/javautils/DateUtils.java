@@ -4,7 +4,10 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 public class DateUtils {
@@ -75,5 +78,31 @@ public class DateUtils {
 		final long sec = TimeUnit.MILLISECONDS.toSeconds(ts);
 		ts %= 1000;
 		return (days > 0 ? days + "d " : "") + String.format("%02d:%02d:%02d.%03d", hr, min, sec, ts); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	}
+
+	public static Date date(int year, int month, int day) {
+		return date(year, month, day, null);
+	}
+
+	public static Date date(int year, int month, int day, TimeZone tz) {
+		Calendar working = GregorianCalendar.getInstance();
+		working.clear();
+		if (tz != null)
+			working.setTimeZone(tz);
+		working.set(year, month - 1, day, 0, 0, 0);
+		return working.getTime();
+	}
+
+	public static Date date(int year, int month, int day, int hh, int mm, int ss) {
+		return date(year, month, day, hh, mm, ss, null);
+	}
+
+	public static Date date(int year, int month, int day, int hh, int mm, int ss, TimeZone tz) {
+		Calendar working = GregorianCalendar.getInstance();
+		working.clear();
+		if (tz != null)
+			working.setTimeZone(tz);
+		working.set(year, month - 1, day, hh, mm, ss);
+		return working.getTime();
 	}
 }

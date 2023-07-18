@@ -4,30 +4,42 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 
 public class CsvUtils {
 
-	public static <V> Map<String, Map<String, V>> loadCsv(BufferedReader source, String separator, boolean hasHeader,
-			BiFunction<Integer, String, V> converter) throws IOException {
+	public static <V> Map<String, Map<String, V>> loadCsvMap(BufferedReader source, String separator, boolean hasHeader,
+			List<String> columnNames, String keyName, BiFunction<Integer, String, V> converter) throws IOException {
 		String line = source.readLine();
 		if (line == null)
 			return null;
+
+		List<String> colNames = null;
+
 		String[] cols = line.split(separator, -1);
 
-		ArrayList<String> colNames = new ArrayList<>(cols.length);
-		;
-		if (hasHeader) {
+		if (!hasHeader && columnNames == null) {
+			colNames = new ArrayList<>(cols.length);
 			for (String c : cols) {
 				colNames.add(c);
 			}
+		}
+
+		if (columnNames == null) {
+			colNames = new ArrayList<>(cols.length);
+			for (int i = 0; i < cols.length; i++)
+				colNames.add(StringUtils.numberAsString(i));
+		} else {
+			colNames = columnNames;
+		}
+
+		if (hasHeader) {
 			line = source.readLine();
 			if (line != null)
 				cols = line.split(separator, -1);
-		} else {
-			for (int i = 0; i < cols.length; i++)
-				colNames.add(StringUtils.numberAsString(i));
 		}
 
 		Map<String, Map<String, V>> result = new LinkedHashMap<>();
@@ -35,7 +47,64 @@ public class CsvUtils {
 		while (line != null) {
 			if (cols.length > 0) {
 				Map<String, V> row = new LinkedHashMap<>();
-				result.put(StringUtils.numberAsString(rownum++), row);
+
+				int i = 0;
+				for (String colname : colNames) {
+					if (StringUtils.hasLength(cols[i]))
+						row.put(colname, converter.apply(i, cols[i]));
+					i++;
+					if (i >= cols.length)
+						break;
+				}
+
+				if (keyName != null)
+					result.put(row.get(keyName).toString(), row);
+				else
+					result.put(StringUtils.numberAsString(rownum++), row);
+			}
+			line = source.readLine();
+			if (line != null)
+				cols = line.split(separator, -1);
+		}
+
+		return result;
+	}
+
+	public static <V> List<Map<String, V>> loadCsvList(BufferedReader source, String separator, boolean hasHeader,
+			List<String> columnNames, BiFunction<Integer, String, V> converter) throws IOException {
+		String line = source.readLine();
+		if (line == null)
+			return null;
+		List<String> colNames = null;
+
+		String[] cols = line.split(separator, -1);
+
+		if (!hasHeader && columnNames == null) {
+			colNames = new ArrayList<>(cols.length);
+			for (String c : cols) {
+				colNames.add(c);
+			}
+		}
+
+		if (columnNames == null) {
+			colNames = new ArrayList<>(cols.length);
+			for (int i = 0; i < cols.length; i++)
+				colNames.add(StringUtils.numberAsString(i));
+		} else {
+			colNames = columnNames;
+		}
+
+		if (hasHeader) {
+			line = source.readLine();
+			if (line != null)
+				cols = line.split(separator, -1);
+		}
+
+		LinkedList<Map<String, V>> result = new LinkedList<>();
+		while (line != null) {
+			if (cols.length > 0) {
+				Map<String, V> row = new LinkedHashMap<>();
+				result.add(row);
 
 				int i = 0;
 				for (String colname : colNames) {
@@ -54,9 +123,30 @@ public class CsvUtils {
 		return result;
 	}
 
-	public static Map<String, Map<String, String>> loadCsv(BufferedReader source, String separator, boolean hasHeader)
+	public static Map<String, Map<String, String>> loadCsvMap(BufferedReader source, String separator,
+			boolean hasHeader, String keyName) throws IOException {
+		return loadCsvMap(source, separator, hasHeader, null, keyName, (i, s) -> {
+			return s;
+		});
+	}
+
+	public static Map<String, Map<String, String>> loadCsvMap(BufferedReader source, String separator,
+			boolean hasHeader, List<String> colNames, String keyName) throws IOException {
+		return loadCsvMap(source, separator, hasHeader, colNames, keyName, (i, s) -> {
+			return s;
+		});
+	}
+
+	public static List<Map<String, String>> loadCsvList(BufferedReader source, String separator, boolean hasHeader)
 			throws IOException {
-		return loadCsv(source, separator, hasHeader, (i, s) -> {
+		return loadCsvList(source, separator, hasHeader, null, (i, s) -> {
+			return s;
+		});
+	}
+
+	public static List<Map<String, String>> loadCsvList(BufferedReader source, String separator, boolean hasHeader,
+			List<String> colNames) throws IOException {
+		return loadCsvList(source, separator, hasHeader, colNames, (i, s) -> {
 			return s;
 		});
 	}

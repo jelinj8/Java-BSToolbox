@@ -76,5 +76,6 @@ body {
 }
 </style></#macro>
 
-<#macro imgsrcdata base64data format='png'>src="data:image/${format};base64,${base64data}"</#macro>
-<#macro qr data id='' alt='' class='' modulus=1><img <@imgsrcdata Base64QR(data, modulus) /><#if id?has_content> id="${id}"</#if><#if class?has_content> class="${class}"</#if><#if alt?has_content> alt="${alt}"</#if></#macro>
+<#macro imgdatafile file format='png'>data:image/${format};base64,${Base64File(file)}</#macro>
+<#macro imgdata base64data format='png'>data:image/${format};base64,${base64data}</#macro>
+<#macro qr data id='' alt='' class='' modulus=1><img src="<@imgsrcdata Base64QR(data, modulus) />"<#if id?has_content> id="${id}"</#if><#if class?has_content> class="${class}"</#if><#if alt?has_content> alt="${alt}"</#if></#macro>

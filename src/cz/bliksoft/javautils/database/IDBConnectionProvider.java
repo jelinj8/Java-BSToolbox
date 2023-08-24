@@ -4,7 +4,7 @@ import java.io.Closeable;
 import java.sql.Connection;
 
 public interface IDBConnectionProvider extends Closeable {
-	public Connection getConnection(Object lockObject) throws Exception;
+	public Connection getConnection(Object lockObject, String reason) throws Exception;
 
 	public void releaseConnection(Object lockObject);
 

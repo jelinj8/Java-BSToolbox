@@ -54,9 +54,11 @@ import cz.bliksoft.javautils.binding.exceptions.PropertyNotBindableException;
 import cz.bliksoft.javautils.binding.exceptions.PropertyNotFoundException;
 import cz.bliksoft.javautils.binding.exceptions.PropertyUnboundException;
 import cz.bliksoft.javautils.binding.interfaces.IBeanChannel;
+import cz.bliksoft.javautils.binding.interfaces.IObservable;
 import cz.bliksoft.javautils.binding.interfaces.IValueModel;
 import cz.bliksoft.javautils.binding.models.DefaultValueModel;
 import cz.bliksoft.javautils.binding.utils.IndirectPropertyChangeSupport;
+import cz.bliksoft.javautils.collections.WeakIdentityHashMap;
 
 /**
  * Converts multiple Java Bean properties into ValueModels. The bean properties
@@ -288,6 +290,18 @@ import cz.bliksoft.javautils.binding.utils.IndirectPropertyChangeSupport;
 public class BeanAdapter<B> extends BasicBean implements IBeanChannel<B> {
 
 	private final Logger log = Logger.getLogger(this.getClass().getName());
+
+	@SuppressWarnings("rawtypes")
+	private static WeakIdentityHashMap<Object, BeanAdapter> beanAdapters = new WeakIdentityHashMap<>();
+
+	@SuppressWarnings("unchecked")
+	public static <T> BeanAdapter<T> getDefaultBeanAdapter(Object key) {
+		return beanAdapters.computeIfAbsent(key, k -> new BeanAdapter<T>((T) null, true));
+	}
+
+	public static <T> void setDefaultBeanAdapter(Object key, BeanAdapter adapter) {
+		beanAdapters.put(key, adapter);
+	}
 
 	// Property Names *********************************************************
 

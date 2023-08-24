@@ -6,15 +6,15 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
-import javax.xml.soap.SOAPMessage;
-import javax.xml.ws.Binding;
-import javax.xml.ws.BindingProvider;
-import javax.xml.ws.handler.MessageContext;
-import javax.xml.ws.handler.soap.SOAPHandler;
-import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import cz.bliksoft.javautils.logging.LogUtils;
 import cz.bliksoft.javautils.ws.Binder;
+import jakarta.xml.soap.SOAPMessage;
+import jakarta.xml.ws.Binding;
+import jakarta.xml.ws.BindingProvider;
+import jakarta.xml.ws.handler.MessageContext;
+import jakarta.xml.ws.handler.soap.SOAPHandler;
+import jakarta.xml.ws.handler.soap.SOAPMessageContext;
 
 public class SOAPLogHandler implements SOAPHandler<SOAPMessageContext> {
 	private static Logger log = Logger.getLogger(SOAPLogHandler.class.getName());

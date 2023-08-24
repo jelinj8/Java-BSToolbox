@@ -67,32 +67,41 @@ ${pad}	"${key}": ${value?trim}<#if !key?is_last>,</#if>
 ${pad}}
         <#elseif object?is_node>
 			<#switch object?node_type>
-				<#case "text">
-${pad}	"${object?trim?replace('\\','\\\\"')?replace('"','\\"')}"
+				<#case "document">
+${pad}	${object?node_name}:{
+            <#list object?children as item>
+                <#assign value><@objectToFormattedJson object=item!'NULL'  pad=('\t'+pad)/></#assign>
+${pad}	${value}<#if !item?is_last>,</#if>
+            </#list>
+${pad}	}
 				<#break>
+				<#case "text"><#if object?trim?length gt -1>${pad}"${object?trim?replace('\\','\\\\"')?replace('"','\\"')}"</#if><#break>
 				<#case "attribute">
-${pad}	@${object?node_name}:"${object!""?trim?replace('\\','\\\\"')?replace('"','\\"')}"
+${pad}@${object?node_name}:"${object!""?trim?replace('\\','\\\\"')?replace('"','\\"')}"
 				<#break>
 				<#case "comment">
 ${pad}	<!-- ${object} -->
 				<#break>
 				<#case "element">
-					<#if object?children?size==1>
-                <#assign value><@objectToFormattedJson object=object?children[0]!'NULL'  pad=('\t'+pad)/></#assign>
-${pad}${object?node_name}:${value?trim}
-					<#else>
-${pad}${object?node_name}:[            
-            <#list object?children as item>
-                <#assign value><@objectToFormattedJson object=item!'NULL'  pad=('\t'+pad)/></#assign>
-${pad}	${value?trim}<#if !item?is_last>,</#if>
-            </#list>
-${pad}]
-					</#if>
+${pad}${object?node_name}<#if object.@@?size+object?children?size gt 0>:[
+						<#if object.@@?size gt 0>
+							<#list object.@@ as item>
+							<#assign value><@objectToFormattedJson object=item!'NULL'  pad=('\t'+pad)/></#assign>
+${value?chop_linebreak}<#if !item?is_last || object?children?size gt 0>,</#if>
+							</#list>
+						</#if>
+						<#if object?children?size gt 0>
+							<#list object?children as item><#assign value><@objectToFormattedJson object=item!'NULL'  pad=('\t'+pad)/></#assign>
+<#if value?trim?length gt 0>${value?chop_linebreak}<#if !item?is_last>,</#if>
+</#if>
+							</#list>
+						</#if>
+${pad}]</#if>
 				<#break>
 				<#default>
 ${pad}	NODE_type:"${object?node_type}"
 			</#switch>
-        <#elseif object?is_string>
+		<#elseif object?is_string>
 ${pad}	"${object?trim?replace('\\','\\\\"')?replace('"','\\"')}"
 <#--         <#elseif object?is_hash_ex> -->
         <#elseif object?is_hash>

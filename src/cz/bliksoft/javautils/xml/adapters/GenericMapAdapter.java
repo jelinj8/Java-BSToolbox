@@ -5,9 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlValue;
 import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
@@ -24,10 +22,10 @@ public abstract class GenericMapAdapter<K, V> extends XmlAdapter<GenericMapAdapt
 		protected final List<MapTypeEntry<K, V>> entry = new ArrayList<MapTypeEntry<K, V>>();
 
 		public static class MapTypeEntry<K, V> {
-			@XmlAttribute
+			@XmlElement
 			protected K key;
 			
-			@XmlValue
+			@XmlElement
 			protected V value;
 
 			private MapTypeEntry() {

@@ -9,10 +9,6 @@ import java.time.format.DateTimeFormatter;
 import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 
 public class ZonedDateTimeAdapter extends XmlAdapter<String, ZonedDateTime> {
-	// public static DateTimeFormatter dtf =
-	// DateTimeFormatter.ISO_OFFSET_DATE_TIME;//
-	// ofPattern("yyyy-MM-dd'T'hh:mm:ssz");
-//	public static DateFormat dateTimeFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 	public static DateTimeFormatter localDateTimeFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
 	@Override
@@ -23,7 +19,7 @@ public class ZonedDateTimeAdapter extends XmlAdapter<String, ZonedDateTime> {
 	@Override
 	public String marshal(ZonedDateTime v) throws Exception {
 		if (v != null) {
-			return DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(v); // v.toString();
+			return DateTimeFormatter.ISO_ZONED_DATE_TIME.format(v);
 		} else {
 			return null;
 		}
@@ -40,7 +36,6 @@ public class ZonedDateTimeAdapter extends XmlAdapter<String, ZonedDateTime> {
 		if (localDateTime == null)
 			return null;
 		ZonedDateTime zdt = localDateTime.atZone(ZoneId.systemDefault());
-		// ZonedDateTime.ofInstant(ts.toInstant(), ZoneId.systemDefault());
 		return zdt;
 	}
 

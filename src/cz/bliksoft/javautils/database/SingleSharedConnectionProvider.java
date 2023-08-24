@@ -12,6 +12,7 @@ public class SingleSharedConnectionProvider implements IDBConnectionProvider {
 	private Connection connection = null;
 	private IDBConnectionFactory connectionProvider = null;
 	private Object lock;
+	private String currentReason;
 
 	private Semaphore semaphore = new Semaphore(1);
 
@@ -54,13 +55,13 @@ public class SingleSharedConnectionProvider implements IDBConnectionProvider {
 	}
 
 	@Override
-	public Connection getConnection(Object lockObject) throws Exception {
+	public Connection getConnection(Object lockObject, String reason) throws Exception {
 		if (connection == null && connectionProvider != null) {
 			if (providerName == null)
 				log.info("Creating DB connection");
 			else
 				log.info("Creating DB connection '" + providerName + "'");
-			connection = connectionProvider.getConnection(null);
+			connection = connectionProvider.getConnection(reason);
 		}
 		if (connection == null)
 			throw new Exception(
@@ -69,6 +70,7 @@ public class SingleSharedConnectionProvider implements IDBConnectionProvider {
 			throw new Exception("Shared connection is closed");
 		if (semaphore.tryAcquire()) {
 			lock = lockObject;
+			currentReason = reason;
 			return connection;
 		} else {
 			throw new Exception("Shared connection is already claimed!");
@@ -78,11 +80,12 @@ public class SingleSharedConnectionProvider implements IDBConnectionProvider {
 	@Override
 	public void releaseConnection(Object lockObject) {
 		if (lockObject != lock)
-			throw new RuntimeException("Not matching lock object");
+			throw new RuntimeException("Not matching lock object, locking reason: " + currentReason);
 		if (semaphore.availablePermits() > 0) {
 			return;
 		}
 		lock = null;
+		currentReason = null;
 		semaphore.release();
 	}
 

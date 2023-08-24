@@ -57,23 +57,15 @@ public class CryptUtils {
 		IvParameterSpec ivParameterSpec = parameters.getParameterSpec(IvParameterSpec.class);
 		byte[] cryptoText = pbeCipher.doFinal(property.getBytes(StandardCharsets.UTF_8));
 		byte[] iv = ivParameterSpec.getIV();
-		return base64Encode(iv) + ":" + base64Encode(cryptoText); //$NON-NLS-1$
-	}
-
-	public static String base64Encode(byte[] bytes) {
-		return Base64.getEncoder().encodeToString(bytes);
+		return Base64Utils.base64Encode(iv) + ":" + Base64Utils.base64Encode(cryptoText); //$NON-NLS-1$
 	}
 
 	public static String decrypt(String string, SecretKeySpec key) throws GeneralSecurityException {
 		String iv = string.split(":")[0]; //$NON-NLS-1$
 		String property = string.split(":")[1]; //$NON-NLS-1$
 		Cipher pbeCipher = Cipher.getInstance(cypherSpec);
-		pbeCipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(base64Decode(iv)));
-		return new String(pbeCipher.doFinal(base64Decode(property)), StandardCharsets.UTF_8);
-	}
-
-	public static byte[] base64Decode(String property) {
-		return Base64.getDecoder().decode(property);
+		pbeCipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(Base64Utils.base64Decode(iv)));
+		return new String(pbeCipher.doFinal(Base64Utils.base64Decode(property)), StandardCharsets.UTF_8);
 	}
 
 	public static SecretKeySpec createKey(String pwd, String salt)
@@ -211,7 +203,7 @@ public class CryptUtils {
 
 				if (newPwdPropValue != null)
 					props.remove(propName + "_new");
-				
+
 				lastPwdModified = true;
 			} catch (Exception e) {
 				log.log(Level.SEVERE, "Failed to encrypt saved password.", e); //$NON-NLS-1$

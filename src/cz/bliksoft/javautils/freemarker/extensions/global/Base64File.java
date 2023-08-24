@@ -6,7 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
-import cz.bliksoft.javautils.CryptUtils;
+import cz.bliksoft.javautils.Base64Utils;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
 
@@ -19,16 +19,11 @@ public class Base64File implements TemplateMethodModelEx {
 
 		if (!fToEncode.exists())
 			throw new TemplateModelException("File to encode " + fToEncode.getAbsolutePath() + " was not found!");
-		byte[] bytes = new byte[(int) fToEncode.length()];
-		try (FileInputStream fis = new FileInputStream(fToEncode)) {
-			fis.read(bytes);
-		} catch (FileNotFoundException e) {
-			throw new TemplateModelException("File to encode " + fToEncode.getAbsolutePath() + " was not found!", e);
+		try {
+			return Base64Utils.fileToBase64(fToEncode);
 		} catch (IOException e) {
-			throw new TemplateModelException("Failed to read " + fToEncode.getAbsolutePath(), e);
+			throw new TemplateModelException("Failed to encode file " + fToEncode.getName(), e);
 		}
-
-		return CryptUtils.base64Encode(bytes);
 	}
 
 }

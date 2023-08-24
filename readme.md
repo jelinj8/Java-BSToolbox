@@ -38,17 +38,22 @@ If you want to use QR generator, you'll need to provide ZXing library, e.g.:
 </dependency>
 ```
 
-**JAXB and Java 9+**
+**JAXB**
 
-Current version is compatible with Java 1.8.
-For compatibility with later versions of Java it is necessary to add this dependency for this library:
 
 ```
-<!-- https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api -->
 <dependency>
-	<groupId>javax.xml.bind</groupId>
-	<artifactId>jaxb-api</artifactId>
-	<version>2.3.1</version>
+	<groupId>jakarta.annotation</groupId>
+	<artifactId>jakarta.annotation-api</artifactId>
+	<version>2.1.1</version>
+</dependency>
+```
+
+```
+<dependency>
+	<groupId>jakarta.xml.bind</groupId>
+	<artifactId>jakarta.xml.bind-api</artifactId>
+	<version>3.0.1</version>
 </dependency>
 ```
 
@@ -73,3 +78,29 @@ or for EclipseLink MOXy implementation add a file *jaxb.properties* with ```java
 	<scope>runtime</scope>
 </dependency>
 ```
+
+**To use webservices add to client/server**
+
+```
+<dependency>
+	<groupId>org.glassfish.metro</groupId>
+	<artifactId>webservices-rt</artifactId>
+	<version>3.0.3</version>
+</dependency>
+<dependency>
+	<groupId>jakarta.xml.ws</groupId>
+	<artifactId>jakarta.xml.ws-api</artifactId>
+	<version>3.0.1</version>
+</dependency>
+```
+
+WS server will need also
+
+```
+<dependency>
+	<groupId>jakarta.servlet</groupId>
+	<artifactId>jakarta.servlet-api</artifactId>
+	<version>5.0.0</version>
+</dependency>
+```
+

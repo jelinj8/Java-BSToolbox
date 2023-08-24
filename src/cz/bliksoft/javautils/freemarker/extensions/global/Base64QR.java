@@ -7,7 +7,7 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
-import cz.bliksoft.javautils.CryptUtils;
+import cz.bliksoft.javautils.Base64Utils;
 import cz.bliksoft.javautils.barcodes.QRGenerator;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
@@ -32,7 +32,7 @@ public class Base64QR implements TemplateMethodModelEx {
 				throw new TemplateModelException("Failed to encode QR code to png", e);
 			}
 
-			return CryptUtils.base64Encode(baos.toByteArray());
+			return Base64Utils.base64Encode(baos.toByteArray());
 		} catch (IOException e1) {
 			throw new TemplateModelException("Failed to cleanup ByteArrayOutputStream", e1);
 		}

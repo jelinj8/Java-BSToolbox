@@ -13,6 +13,7 @@ public abstract class ImageLoader {
 	public abstract List<String> getSupportedExtensions();
 
 	public abstract Image getImage(String name, String... args) throws Exception;
+	public abstract Image getImage(byte[] data, String... args) throws Exception;
 
 	private static Map<String, ImageLoader> imageLoaders = new HashMap<>();
 	private static ImageLoader defaultLoader = null;

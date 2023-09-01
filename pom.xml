@@ -9,6 +9,12 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
+	<distributionManagement>
+		<repository>
+			<id>bliksoft-private</id>
+			<url>https://mvn.bliksoft.cz/private</url>
+		</repository>
+	</distributionManagement>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<resources>

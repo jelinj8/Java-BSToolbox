@@ -14,6 +14,10 @@
 			<id>bliksoft-private</id>
 			<url>https://mvn.bliksoft.cz/private</url>
 		</repository>
+		<snapshotRepository>
+			<id>bliksoft-private-snapshots</id>
+			<url>https://mvn.bliksoft.cz/private-snapshots</url>
+		</snapshotRepository>
 	</distributionManagement>
 	<build>
 		<sourceDirectory>src</sourceDirectory>

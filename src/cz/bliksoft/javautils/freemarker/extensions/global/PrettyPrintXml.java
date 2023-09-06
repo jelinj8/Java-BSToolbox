@@ -16,7 +16,7 @@ public class PrettyPrintXml implements TemplateMethodModelEx {
 		try {
 			return XmlUtils.prettyPrintXml(input);
 		} catch (Exception e) {
-			log.log(Level.INFO, "Failed to format XML", e);
+			log.log(Level.INFO, "Failed to format XML: " + e.getMessage());
 			return input;
 		}
 	}

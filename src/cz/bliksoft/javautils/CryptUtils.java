@@ -166,7 +166,7 @@ public class CryptUtils {
 	 * @throws GeneralSecurityException
 	 */
 	public static String getPwdFromProperties(Properties props, String propName) throws GeneralSecurityException {
-		return getPwdFromProperties(props, propName, null);
+		return getPwdFromProperties(props, propName, null, null);
 	}
 
 	/**
@@ -174,13 +174,33 @@ public class CryptUtils {
 	 * 
 	 * @param props
 	 * @param propName
+	 * @param defaultPwd - hodnota, pokud v properties dané heslo není
 	 * @return
 	 * @throws GeneralSecurityException
 	 */
-	public static String getPwdFromProperties(Properties props, String propName, String password)
+	public static String getPwdFromProperties(Properties props, String propName, String defaultPwd) throws GeneralSecurityException {
+		return getPwdFromProperties(props, propName, null, defaultPwd);
+	}
+
+	/**
+	 * vezme heslo, pokud není šifrované zašifruje a nastaví lastPwdModified na true
+	 * 
+	 * @param props
+	 * @param propName
+	 * @param password šifrovací heslo
+	 * @param default hodnota hesla, pokud v properties není
+	 * @return
+	 * @throws GeneralSecurityException
+	 */
+	public static String getPwdFromProperties(Properties props, String propName, String password, String defaultPwd)
 			throws GeneralSecurityException {
 
 		String pwdPropValue = props.getProperty(propName);
+		if (pwdPropValue == null && defaultPwd != null) {
+			log.info("Using specified default password for " + propName);
+			return defaultPwd;
+		}
+
 		String newPwdPropValue = props.getProperty(propName + "_new");
 
 		if (newPwdPropValue != null)

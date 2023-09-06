@@ -6,8 +6,8 @@ import java.security.GeneralSecurityException;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-public class SslUtils {
-	private static Logger log = Logger.getLogger(SslUtils.class.getName());
+public class SSLUtils {
+	private static Logger log = Logger.getLogger(SSLUtils.class.getName());
 
 	public static void setupKeystores(File propFile) throws IOException, GeneralSecurityException {
 		if (propFile.exists()) {

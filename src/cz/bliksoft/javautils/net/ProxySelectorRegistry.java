@@ -1,18 +1,24 @@
 package cz.bliksoft.javautils.net;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.ProxySelector;
 import java.net.SocketAddress;
 import java.net.URI;
+import java.net.Proxy.Type;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+
+import cz.bliksoft.javautils.PropertiesUtils;
 
 public class ProxySelectorRegistry extends ProxySelector {
 	static Logger log = Logger.getLogger(ProxySelectorRegistry.class.getName());
@@ -53,8 +59,16 @@ public class ProxySelectorRegistry extends ProxySelector {
 		getInstance().registeredProxies.put(pattern, proxy);
 	}
 
+	public static void registerUrl(String url, Proxy proxy) {
+		getInstance().registeredProxies.put(Pattern.quote(url), proxy);
+	}
+
 	public static void unregister(String pattern) {
 		getInstance().registeredProxies.remove(pattern);
+	}
+
+	public static void unregisterUrl(String url) {
+		getInstance().registeredProxies.remove(Pattern.quote(url));
 	}
 
 	public static void setDefault(Proxy defaultProxy) {
@@ -78,6 +92,8 @@ public class ProxySelectorRegistry extends ProxySelector {
 			return list;
 		}
 
+		log.info("Proxy not selected for " + uri);
+
 		if (originalProxySelector != null)
 			return originalProxySelector.select(uri);
 		else {
@@ -92,4 +108,26 @@ public class ProxySelectorRegistry extends ProxySelector {
 		log.log(Level.SEVERE, "Connection to " + uri + " failed.", ioe);
 	}
 
+	public static void addProxyConfiguration(File propertiesF) throws IOException {
+		addProxyConfiguration(PropertiesUtils.loadFromFile(propertiesF));
+	}
+
+	public static void addProxyConfiguration(Properties properties) {
+		String proxyUrl = properties.getProperty("proxyUrl");
+		String proxyMatch = properties.getProperty("proxyMatch");
+		String proxyTarget = properties.getProperty("proxyTarget");
+
+		if (proxyUrl != null && (proxyTarget != null || proxyMatch != null)) {
+			int proxyPort = Integer.valueOf(properties.getProperty("proxyPort"));
+
+			ProxySelectorRegistry.register();
+
+			if (proxyMatch != null)
+				ProxySelectorRegistry.register(proxyMatch,
+						new Proxy(Type.SOCKS, new InetSocketAddress(proxyUrl, proxyPort)));
+			else
+				ProxySelectorRegistry.registerUrl(proxyTarget,
+						new Proxy(Type.SOCKS, new InetSocketAddress(proxyUrl, proxyPort)));
+		}
+	}
 }

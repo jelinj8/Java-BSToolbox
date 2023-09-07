@@ -2,6 +2,9 @@ package cz.bliksoft.javautils.database;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.Proxy.Type;
 import java.security.GeneralSecurityException;
 import java.sql.Array;
 import java.sql.CallableStatement;
@@ -18,6 +21,8 @@ import java.util.stream.Stream;
 
 import cz.bliksoft.javautils.CryptUtils;
 import cz.bliksoft.javautils.PropertiesUtils;
+import cz.bliksoft.javautils.StringUtils;
+import cz.bliksoft.javautils.net.ProxySelectorRegistry;
 
 public class OracleDbConnection implements IDBConnectionFactory {
 	static Logger log = Logger.getLogger(OracleDbConnection.class.getName());
@@ -86,7 +91,7 @@ public class OracleDbConnection implements IDBConnectionFactory {
 	private String getOraServerString() {
 		String dbUrl = "jdbc:oracle:thin:@"; //$NON-NLS-1$
 
-		if ((oraAddr == null) || (oraAddr.length() == 0)) {
+		if (StringUtils.isEmpty(oraAddr)) {
 			dbUrl += oraSID;
 		} else {
 			if ((oraServerPort == null) || (oraServerPort == 0)) {
@@ -121,6 +126,8 @@ public class OracleDbConnection implements IDBConnectionFactory {
 		oraAddr = properties.getProperty("oraAddr");
 		oraServerPort = Integer.parseInt(properties.getProperty("oraServerPort", "1521"));
 		oraUserName = properties.getProperty("oraUserName");
+		
+		ProxySelectorRegistry.addProxyConfiguration(properties);
 
 		if (CryptUtils.passwordRewritten()) {
 			try {
@@ -165,7 +172,7 @@ public class OracleDbConnection implements IDBConnectionFactory {
 		}
 		return sb.toString();
 	}
-	
+
 	public void setAutoCommit(Boolean ac) {
 		autoCommit = ac;
 	}

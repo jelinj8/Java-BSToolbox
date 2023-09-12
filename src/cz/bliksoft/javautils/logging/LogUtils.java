@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
@@ -36,14 +37,44 @@ public class LogUtils {
 	private static File logDirFile = null;
 	private static String logName;
 
+	private static File log4jConfigFile = null;
+
 	public static void setLogName(String name) {
 		logName = name;
 	}
 
 	public static void initLog4J(File configPath) {
-		System.setProperty("log4j2.configurationFile",
-				(configPath != null ? configPath.getPath() : (new File("log4j2.xml").getPath())));
-		System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
+		log4jConfigFile = configPath;
+		if (log4jConfigFile == null)
+			log4jConfigFile = new File("log4j2.xml");
+
+		if (log4jConfigFile.exists()) {
+			System.setProperty("log4j2.configurationFile", (log4jConfigFile.getPath()));
+
+			try {
+				Class<?> log4jConfiguratorClass = Class.forName("org.apache.logging.log4j.LogManager");
+				if (log4jConfiguratorClass != null) {
+					System.setProperty("java.util.logging.manager", log4jConfiguratorClass.getName());
+
+					if (!"org.apache.logging.log4j.jul.LogManager"
+							.equals(LogManager.getLogManager().getClass().getName())) {
+						throw new RuntimeException(
+								"Java LogManager instantiated as " + LogManager.getLogManager().getClass().getName()
+										+ ", org.apache.logging.log4j.jul.LogManager not in place!");
+					}
+
+					Method method = log4jConfiguratorClass.getMethod("getLogger");
+					org.apache.logging.log4j.Logger logger = (org.apache.logging.log4j.Logger) method.invoke(null);
+
+					logger.info("Log4J succesfully initialized.");
+
+				}
+			} catch (ClassNotFoundException e) {
+			} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
+					| InvocationTargetException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	// private static LogUtils _instance;
@@ -77,10 +108,13 @@ public class LogUtils {
 				File log4jConfig = new File(log4jConfigName);
 				if (log4jConfig.exists()) {
 					initLog4J(log4jConfig);
+				} else {
+					initLog4J(null);
 				}
 			}
 		} else {
 			logProps = new File("logging.properties");
+			initLog4J(null);
 		}
 
 		if (logProps.exists()) {
@@ -94,6 +128,10 @@ public class LogUtils {
 		}
 
 		log = Logger.getLogger(LogUtils.class.getName());
+
+		if (log4jConfigFile != null && !log4jConfigFile.exists()) {
+			log.severe("Missing configured Log4J config file: " + log4jConfigFile.getPath());
+		}
 
 		if (configuration != null) {
 			if ("true".equalsIgnoreCase(configuration.getProperty("logSSL", "false")))
@@ -260,10 +298,8 @@ public class LogUtils {
 	 * returns stack trace string representation
 	 * 
 	 * @param stack
-	 * @param skip
-	 *            count of elements from top to skip
-	 * @param maxCount
-	 *            max printed elements count
+	 * @param skip     count of elements from top to skip
+	 * @param maxCount max printed elements count
 	 * @return
 	 */
 	public static String traceToString(StackTraceElement[] stack, int skip, int maxCount) {
@@ -288,10 +324,8 @@ public class LogUtils {
 	 * returns stack trace string representation
 	 * 
 	 * @param stack
-	 * @param skip
-	 *            class to skip on top of stack (find first other flass)
-	 * @param maxCount
-	 *            max printed elements count
+	 * @param skip     class to skip on top of stack (find first other flass)
+	 * @param maxCount max printed elements count
 	 * @return
 	 */
 	public static String traceToString(StackTraceElement[] stack, String skip, int maxCount) {
@@ -338,10 +372,8 @@ public class LogUtils {
 	 * get current stack trace, skip the getting call + additional <code>skip</code>
 	 * levels.
 	 * 
-	 * @param maxCount
-	 *            maximal total length of result (0 for unlimited)
-	 * @param skip
-	 *            additional levels to skip (0 for none)
+	 * @param maxCount maximal total length of result (0 for unlimited)
+	 * @param skip     additional levels to skip (0 for none)
 	 * @return
 	 */
 	public static StackTraceElement[] getStackTrace(int maxCount, int skip) {

@@ -54,19 +54,20 @@ public class LogUtils {
 			try {
 				Class<?> log4jConfiguratorClass = Class.forName("org.apache.logging.log4j.LogManager");
 				if (log4jConfiguratorClass != null) {
-					System.setProperty("java.util.logging.manager", log4jConfiguratorClass.getName());
-
-					if (!"org.apache.logging.log4j.jul.LogManager"
-							.equals(LogManager.getLogManager().getClass().getName())) {
-						throw new RuntimeException(
-								"Java LogManager instantiated as " + LogManager.getLogManager().getClass().getName()
-										+ ", org.apache.logging.log4j.jul.LogManager not in place!");
-					}
+					System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
 
 					Method method = log4jConfiguratorClass.getMethod("getLogger");
 					org.apache.logging.log4j.Logger logger = (org.apache.logging.log4j.Logger) method.invoke(null);
 
-					logger.info("Log4J succesfully initialized.");
+					if (!"org.apache.logging.log4j.jul.LogManager"
+							.equals(LogManager.getLogManager().getClass().getName())) {
+
+						logger.warn(
+								"Java LogManager instantiated as " + LogManager.getLogManager().getClass().getName()
+										+ ", org.apache.logging.log4j.jul.LogManager not in place!");
+					} else {
+						logger.info("Log4J initialized.");
+					}
 
 				}
 			} catch (ClassNotFoundException e) {

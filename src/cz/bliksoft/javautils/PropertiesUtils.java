@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import cz.bliksoft.javautils.exceptions.InitializationException;
 import cz.bliksoft.javautils.streams.replacer.ITokenResolver;
 import cz.bliksoft.javautils.streams.replacer.MapTokenResolver;
 import cz.bliksoft.javautils.streams.replacer.TokenReplacingReader;
@@ -56,4 +57,35 @@ public class PropertiesUtils {
 		}
 		return res;
 	}
+
+	private static File environmentConfigDir = null;
+	private static File globalConfigDir = null;
+
+	public static final String PROP_ENVIRONMENT_CONFIG_DIR = "environmentConfigDir";
+	public static final String PROP_GLOBAL_CONFIG_DIR = "configDir";
+
+	public static void init(Properties props) {
+		environmentConfigDir = new File(props.getProperty(PROP_ENVIRONMENT_CONFIG_DIR, "env_config"));
+		globalConfigDir = new File(props.getProperty(PROP_GLOBAL_CONFIG_DIR, "config"));
+	}
+
+	private static void checkInit() {
+		if (globalConfigDir == null)
+			throw new InitializationException(
+					"PropertiesUtils.init was not called to initialize PropertiesUtils functions.");
+	}
+	
+	public static File getConfigDir() {
+		checkInit();
+		return globalConfigDir;
+	}
+
+	public static File getEnvironmentConfigDir() {
+		checkInit();
+		if(environmentConfigDir.exists())
+			return environmentConfigDir;
+		else
+			return globalConfigDir;
+	}
+
 }

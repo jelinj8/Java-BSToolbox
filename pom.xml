@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cz.bliksoft.java</groupId>
 	<artifactId>common-java-utils</artifactId>
@@ -9,6 +11,53 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
+
+	<profiles>
+		<profile>
+			<id>TMO-repository</id>
+			<activation>
+				<property>
+					<name>useTMORepo</name>
+					<value>true</value>
+				</property>
+			</activation>
+			<properties>
+			</properties>
+			<distributionManagement>
+				<repository>
+					<id>csom-releases</id>
+					<url>http://nexus.services.itc.st.sk:8081/repository/csom-releases</url>
+				</repository>
+				<snapshotRepository>
+					<id>csom-snapshots</id>
+					<url>http://nexus.services.itc.st.sk:8081/repository/csom-snapshots</url>
+				</snapshotRepository>
+			</distributionManagement>
+		</profile>
+
+		<profile>
+			<id>BS-repository</id>
+			<activation>
+				<property>
+					<name>!useTMORepo</name>
+				</property>
+			</activation>
+			<properties>
+			</properties>
+			<distributionManagement>
+				<repository>
+					<id>bliksoft-private</id>
+					<url>https://mvn.bliksoft.cz/private</url>
+				</repository>
+				<snapshotRepository>
+					<id>bliksoft-private-snapshots</id>
+					<url>https://mvn.bliksoft.cz/private-snapshots</url>
+				</snapshotRepository>
+			</distributionManagement>
+		</profile>
+	</profiles>
+
+	<!--
 	<distributionManagement>
 		<repository>
 			<id>bliksoft-private</id>
@@ -19,6 +68,8 @@
 			<url>https://mvn.bliksoft.cz/private-snapshots</url>
 		</snapshotRepository>
 	</distributionManagement>
+	-->
+	
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<resources>
@@ -128,17 +179,20 @@
 						<goals>
 							<!--<goal>validateRevision</goal>-->
 						</goals>
-						<!-- *NOTE*: The default phase of validateRevision is verify, but in 
+						<!-- *NOTE*: The default phase of validateRevision is
+						verify, but in 
 							case you want to change it, you can do so by adding the phase here -->
 						<phase>package</phase>
 					</execution>
 				</executions>
 				<configuration>
 					<useNativeGit>true</useNativeGit>
-					<!-- <dotGitDirectory>${project.basedir}/.git</dotGitDirectory> -->
+					<!--
+					<dotGitDirectory>${project.basedir}/.git</dotGitDirectory> -->
 					<generateGitPropertiesFile>true</generateGitPropertiesFile>
 					<offline>false</offline>
-					<generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+					<generateGitPropertiesFilename>
+						${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
 					<commitIdGenerationMode>full</commitIdGenerationMode>
 					<validationProperties>
 						<validationProperty>
@@ -178,7 +232,8 @@
 			<optional>true</optional>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api -->
+		<!--
+		https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api -->
 		<dependency>
 			<groupId>jakarta.xml.bind</groupId>
 			<artifactId>jakarta.xml.bind-api</artifactId>
@@ -187,7 +242,8 @@
 			<optional>true</optional>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/jakarta.xml.ws/jakarta.xml.ws-api -->
+		<!--
+		https://mvnrepository.com/artifact/jakarta.xml.ws/jakarta.xml.ws-api -->
 		<dependency>
 			<groupId>jakarta.xml.ws</groupId>
 			<artifactId>jakarta.xml.ws-api</artifactId>
@@ -205,7 +261,8 @@
 			<version>3.0.2</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.glassfish.metro/webservices-rt
+		<!--
+		https://mvnrepository.com/artifact/org.glassfish.metro/webservices-rt
 		server i klient
 		 -->
 		<dependency>
@@ -217,7 +274,8 @@
 		</dependency>
 
 
-		<!-- https://mvnrepository.com/artifact/jakarta.servlet/jakarta.servlet-api
+		<!--
+		https://mvnrepository.com/artifact/jakarta.servlet/jakarta.servlet-api
 		pro server
 		 -->
 		<dependency>
@@ -228,7 +286,8 @@
 			<optional>true</optional>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/no.api.freemarker/freemarker-java8 -->
+		<!--
+		https://mvnrepository.com/artifact/no.api.freemarker/freemarker-java8 -->
 		<dependency>
 			<groupId>no.api.freemarker</groupId>
 			<artifactId>freemarker-java8</artifactId>
@@ -276,8 +335,9 @@
 			<scope>provided</scope>
 			<optional>true</optional>
 		</dependency>
-		
-		<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
+
+		<!--
+		https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
@@ -285,7 +345,8 @@
 			<scope>provided</scope>
 			<optional>true</optional>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api -->
+		<!--
+		https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api -->
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-api</artifactId>
@@ -293,7 +354,8 @@
 			<scope>provided</scope>
 			<optional>true</optional>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-jul -->
+		<!--
+		https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-jul -->
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-jul</artifactId>

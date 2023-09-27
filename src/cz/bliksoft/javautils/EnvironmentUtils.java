@@ -71,6 +71,9 @@ public class EnvironmentUtils {
 
 	private static void importVal(String key, String value) {
 		if (StringUtils.hasLength(value)) {
+			if("#OPTIONAL#".equals(value))
+				return;
+			
 			if (environmentProperties.putIfAbsent(key, ("#EMPTY#".equals(value) ? "" : value)) != null) {
 				throw new InitializationException("Requested environment value " + key + " duplicity.");
 			}

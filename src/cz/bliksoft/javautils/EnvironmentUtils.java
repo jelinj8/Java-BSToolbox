@@ -23,7 +23,7 @@ public class EnvironmentUtils {
 
 		globalConfigDir = new File(StringUtils.hasTextDefault(System.getenv(PROP_GLOBAL_CONFIG_DIR), "config"));
 
-		environmentConfig = new File(
+		environmentConfig = new File(environmentConfigDir,
 				StringUtils.hasTextDefault(System.getenv(PROP_ENVIRONMENT_PROPERTIES_FILE), "env.properties"));
 
 		commonInit();
@@ -36,17 +36,21 @@ public class EnvironmentUtils {
 		globalConfigDir = new File(StringUtils.hasTextDefault(System.getenv(PROP_GLOBAL_CONFIG_DIR),
 				props.getProperty(PROP_GLOBAL_CONFIG_DIR, "config")));
 
-		environmentConfig = new File(StringUtils.hasTextDefault(System.getenv(PROP_ENVIRONMENT_PROPERTIES_FILE),
-				props.getProperty(PROP_ENVIRONMENT_PROPERTIES_FILE, "env.properties")));
+		environmentConfig = new File(environmentConfigDir,
+				StringUtils.hasTextDefault(System.getenv(PROP_ENVIRONMENT_PROPERTIES_FILE),
+						props.getProperty(PROP_ENVIRONMENT_PROPERTIES_FILE, "env.properties")));
 
 		commonInit();
 	}
 
 	private static void commonInit() throws IOException {
-		environmentProperties = new HashMap<>();
-		environmentProperties.put(PROP_GLOBAL_CONFIG_DIR, globalConfigDir.getName());
-		environmentProperties.put(PROP_ENVIRONMENT_CONFIG_DIR, environmentConfigDir.getName());
-		environmentProperties.put(PROP_ENVIRONMENT_PROPERTIES_FILE, environmentConfig.getName());
+		environmentProperties.put(PROP_GLOBAL_CONFIG_DIR, globalConfigDir.getPath());
+		environmentProperties.put(PROP_ENVIRONMENT_CONFIG_DIR, environmentConfigDir.getPath());
+		environmentProperties.put(PROP_ENVIRONMENT_PROPERTIES_FILE, environmentConfig.getPath());
+
+		if (!environmentConfig.exists())
+			throw new InitializationException(
+					"Environment configuration file " + environmentConfig.getAbsolutePath() + " does not exist!");
 
 		Properties envP = PropertiesUtils.loadFromFile(environmentConfig, environmentProperties);
 		envP.forEach((key, value) -> {
@@ -56,11 +60,15 @@ public class EnvironmentUtils {
 			case PROP_ENVIRONMENT_PROPERTIES_FILE:
 				break;
 			default:
-				String envValue = System.getenv((String) key);
+				String k = (String) key;
+				if (k.startsWith("."))
+					k = k.substring(1);
+
+				String envValue = System.getenv(k);
 				String val = StringUtils.hasTextDefault(envValue, (String) value);
 
 				if (StringUtils.hasLength(val)) {
-					if (environmentProperties.putIfAbsent((String) key, val) != null) {
+					if (environmentProperties.putIfAbsent((String) key, ("#EMPTY#".equals(val) ? null : val)) != null) {
 						throw new InitializationException("Requested environment value " + key + " duplicity.");
 					}
 				} else {
@@ -68,6 +76,11 @@ public class EnvironmentUtils {
 							"Requested environment value " + key + " is not set and no default was specified.");
 				}
 			}
+		});
+
+		environmentProperties.forEach((k, v) -> {
+			if (!k.startsWith("."))
+				publicEnvironmentProperties.put(k, v);
 		});
 	}
 
@@ -90,13 +103,26 @@ public class EnvironmentUtils {
 			return globalConfigDir;
 	}
 
-	private static Map<String, String> environmentProperties = null;
+	private static Map<String, String> environmentProperties = new HashMap<>();
+	private static Map<String, String> publicEnvironmentProperties = new HashMap<>();
 
-	public static Map<String, String> getEnvironmentProperties() {
-		if (environmentProperties == null)
-			throw new InitializationException(
-					"EnvironmentUtils.init was not called to initialize PropertiesUtils functions.");
+	/**
+	 * returns all properties, including those marked with dot on beginning (hidden
+	 * properties)
+	 * 
+	 * @return
+	 */
+	public static Map<String, String> getAllEnvironmentProperties() {
 		return environmentProperties;
+	}
+
+	/**
+	 * returns properties except those starting with a dot (hidden properties)
+	 * 
+	 * @return
+	 */
+	public static Map<String, String> getEnvironmentProperties() {
+		return publicEnvironmentProperties;
 	}
 
 }

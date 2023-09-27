@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import cz.bliksoft.javautils.CryptUtils;
+import cz.bliksoft.javautils.EnvironmentUtils;
 import cz.bliksoft.javautils.PropertiesUtils;
 import cz.bliksoft.javautils.StringUtils;
 import cz.bliksoft.javautils.net.ProxySelectorRegistry;
@@ -117,23 +118,31 @@ public class OracleDbConnection implements IDBConnectionFactory {
 	private String oraSID;
 	private String serviceName;
 
-	private void processOptions() throws GeneralSecurityException, IOException {
-		Properties properties = PropertiesUtils.loadFromFile(propertiesFile);
+	public static final String PROP_CLEAR_PWD = "oraPasswordClear";
+	public static final String PROP_PWD = "oraPassword";
+	public static final String PROP_PWD_ENC = "oraPassword_enc";
 
-		oraPassword = CryptUtils.getPwdFromProperties(properties, "oraPassword");
+	private void processOptions() throws GeneralSecurityException, IOException {
+		Properties properties = PropertiesUtils.loadFromFile(propertiesFile,
+				EnvironmentUtils.getAllEnvironmentProperties());
+
+		oraPassword = properties.getProperty(PROP_CLEAR_PWD);
+		if (oraPassword == null)
+			oraPassword = CryptUtils.getPwdFromProperties(properties, PROP_PWD);
+
 		oraSID = properties.getProperty("oraDatabase");
 		serviceName = properties.getProperty("oraService");
 		oraAddr = properties.getProperty("oraAddr");
 		oraServerPort = Integer.parseInt(properties.getProperty("oraServerPort", "1521"));
 		oraUserName = properties.getProperty("oraUserName");
-		
+
 		ProxySelectorRegistry.addProxyConfiguration(properties);
 
 		if (CryptUtils.passwordRewritten()) {
 			try {
 				PropertiesUtils.saveProperties(properties, propertiesFile, "saved after encoding PWD", true);
 			} catch (Exception e) {
-				log.severe("Faiiled to save encrypted properties: " + e.getMessage());
+				log.severe("Failed to save encrypted properties: " + e.getMessage());
 			}
 		}
 	}

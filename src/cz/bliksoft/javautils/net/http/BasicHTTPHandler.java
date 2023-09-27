@@ -98,7 +98,8 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	 * </pre>
 	 * 
 	 * @param httpExchange
-	 * @param path         URI, starts with '/'
+	 * @param path
+	 *            URI, starts with '/'
 	 * @param params
 	 * @throws IOException
 	 */
@@ -352,7 +353,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	protected void sendOKDocument(HttpExchange httpExchange, File document) throws IOException {
 		if (!document.exists()) {
-			log.severe(MessageFormat.format("File ''{1}'' not found", document.toString()));
+			log.severe(MessageFormat.format("File ''{0}'' not found", document.toString()));
 			sendERR(httpExchange, "File not found.", HTTPErrorCodes.CLIENT_NOT_FOUND.getValue());
 			return;
 		}
@@ -388,8 +389,17 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 		}
 	}
 
+	protected void sendERR(HttpExchange httpExchange, String message, HTTPErrorCodes code) throws IOException {
+		sendERR(httpExchange, message, CONTENT_TYPE_TXT, code.getValue());
+	}
+
 	protected void sendERR(HttpExchange httpExchange, String message, Integer code) throws IOException {
 		sendERR(httpExchange, message, CONTENT_TYPE_TXT, code);
+	}
+
+	protected void sendERR(HttpExchange httpExchange, String message, String contentType, HTTPErrorCodes code)
+			throws IOException {
+		sendERR(httpExchange, message, contentType, code.getValue());
 	}
 
 	protected void sendERR(HttpExchange httpExchange, String message, String contentType, Integer code)

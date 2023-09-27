@@ -11,7 +11,7 @@ public class SSLUtils {
 
 	public static void setupKeystores(File propFile) throws IOException, GeneralSecurityException {
 		if (propFile.exists()) {
-			Properties prop = PropertiesUtils.loadFromFile(propFile);
+			Properties prop = PropertiesUtils.loadFromFile(propFile, EnvironmentUtils.getAllEnvironmentProperties());
 
 			boolean saveProps = false;
 
@@ -35,7 +35,7 @@ public class SSLUtils {
 				System.setProperty("javax.net.ssl.keyStorePassword", CliPasswd);
 				System.setProperty("javax.net.ssl.keyStoreType", CliType);
 			}
-			
+
 			String CLIProvider = prop.getProperty("CLIProvider");
 			if (CLIProvider != null)
 				System.setProperty("javax.net.ssl.keyStoreProvider", CLIProvider);
@@ -47,6 +47,8 @@ public class SSLUtils {
 					log.severe("Failed to save CRT properties file " + e.getMessage());
 				}
 			}
+		} else {
+			log.severe("Keystore properties file " + propFile + " not found!");
 		}
 	}
 

@@ -38,6 +38,8 @@ public class Query implements TemplateMethodModelEx {
 	private IDBConnectionProvider connectionProvider = null;
 	private IQueryProvider queryProvider = null;
 
+	private long timestamp;
+
 	public Query(IDBConnectionProvider connectionProvider, IQueryProvider queryProvider) {
 		this.connectionProvider = connectionProvider;
 		this.queryProvider = queryProvider;
@@ -160,8 +162,13 @@ public class Query implements TemplateMethodModelEx {
 						}
 
 						phase = "executing query";
+						timestamp = System.currentTimeMillis();
+
+						log.log(Level.INFO, "Executing query {0}", queryID);
 						if (pstmnt.execute()) {
-							log.log(Level.INFO, "Fetching result for query {0}", queryID);
+							log.log(Level.INFO, MessageFormat.format("Fetching result for query {0} after {1,number,#}ms",
+									queryID, System.currentTimeMillis() - timestamp));
+							timestamp = System.currentTimeMillis();
 							List<HashMap<String, Object>> result = new ArrayList<>();
 							List<String> colNames = new ArrayList<>();
 							List<String> colTypes = new ArrayList<>();
@@ -263,7 +270,8 @@ public class Query implements TemplateMethodModelEx {
 									result.add(row);
 									firstRow = false;
 								}
-								log.log(Level.INFO, "Result count: {0}", result.size());
+								log.log(Level.INFO, MessageFormat.format("Result count: {0}, fetched in {1,number,#}ms", result.size(),
+										System.currentTimeMillis() - timestamp));
 								phase = " setting LastQuery vars";
 								Map<String, Object> qParams = new HashMap<>();
 								qParams.put("columns", colNames);

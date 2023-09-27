@@ -49,7 +49,7 @@ public class PropertiesUtils {
 
 	public static Properties loadFromFile(File f, Map<String, String> tokens) throws IOException {
 		Properties res = null;
-		ITokenResolver resolver = new MapTokenResolver(tokens);
+		ITokenResolver resolver = new MapTokenResolver(tokens, MapTokenResolver::escapePropertiesValue);
 		try (Reader fis = new TokenReplacingReader(f, resolver)) {
 			res = new Properties();
 			res.load(fis);

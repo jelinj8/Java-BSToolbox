@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import cz.bliksoft.javautils.PropertiesUtils;
+import cz.bliksoft.javautils.StringUtils;
 
 public class ProxySelectorRegistry extends ProxySelector {
 	static Logger log = Logger.getLogger(ProxySelectorRegistry.class.getName());
@@ -117,12 +118,12 @@ public class ProxySelectorRegistry extends ProxySelector {
 		String proxyMatch = properties.getProperty("proxyMatch");
 		String proxyTarget = properties.getProperty("proxyTarget");
 
-		if (proxyUrl != null && (proxyTarget != null || proxyMatch != null)) {
+		if (StringUtils.hasLength(proxyUrl) && (proxyTarget != null || proxyMatch != null)) {
 			int proxyPort = Integer.valueOf(properties.getProperty("proxyPort"));
 
 			ProxySelectorRegistry.register();
 
-			if (proxyMatch != null)
+			if (StringUtils.hasLength(proxyMatch))
 				ProxySelectorRegistry.register(proxyMatch,
 						new Proxy(Type.SOCKS, new InetSocketAddress(proxyUrl, proxyPort)));
 			else

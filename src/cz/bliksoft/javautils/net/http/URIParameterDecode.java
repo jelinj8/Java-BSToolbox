@@ -40,10 +40,7 @@ public class URIParameterDecode {
 			return Collections.emptyMap();
 		}
 
-		return Arrays.stream(query.split("&")).map(p -> splitQueryParameter(p)).collect(groupingBy(e -> e.get0(), // group
-																													// by
-																													// parameter
-																													// name
+		return Arrays.stream(query.split("&")).map(p -> splitQueryParameter(p)).collect(groupingBy(e -> e.get0(), // group by parameter name
 				mapping(e -> e.get1(), toList())));// keep parameter values and assemble into list
 	}
 

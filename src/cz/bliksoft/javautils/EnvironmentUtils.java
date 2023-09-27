@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.codec.Charsets;
+import org.apache.commons.io.FileUtils;
+
 import cz.bliksoft.javautils.exceptions.InitializationException;
 
 public class EnvironmentUtils {
@@ -18,8 +21,13 @@ public class EnvironmentUtils {
 	public static final String PROP_ENVIRONMENT_PROPERTIES_FILE = "environmentConfig";
 
 	public static void init() throws IOException {
+		String envDirName = "env_config";
+		File defaultEnvFile = new File("default.env");
+		if (defaultEnvFile.exists())
+			envDirName = FileUtils.readFileToString(defaultEnvFile, Charsets.UTF_8);
+
 		environmentConfigDir = new File(
-				StringUtils.hasTextDefault(System.getenv(PROP_ENVIRONMENT_CONFIG_DIR), "env_config"));
+				StringUtils.hasTextDefault(System.getenv(PROP_ENVIRONMENT_CONFIG_DIR), envDirName));
 
 		globalConfigDir = new File(StringUtils.hasTextDefault(System.getenv(PROP_GLOBAL_CONFIG_DIR), "config"));
 
@@ -41,6 +49,35 @@ public class EnvironmentUtils {
 						props.getProperty(PROP_ENVIRONMENT_PROPERTIES_FILE, "env.properties")));
 
 		commonInit();
+	}
+
+	/**
+	 * preload values directly, to be overriden by those loaded in proper init
+	 * 
+	 * @param props
+	 * @throws IOException
+	 */
+	public static void preinit(Properties props) throws IOException {
+		props.forEach((key, value) -> {
+			String k = (String) key;
+			if (k.startsWith("."))
+				k = k.substring(1);
+
+			String envValue = System.getenv(k);
+			String val = StringUtils.hasTextDefault(envValue, (String) value);
+			importVal((String) key, val);
+		});
+	}
+
+	private static void importVal(String key, String value) {
+		if (StringUtils.hasLength(value)) {
+			if (environmentProperties.putIfAbsent(key, ("#EMPTY#".equals(value) ? "" : value)) != null) {
+				throw new InitializationException("Requested environment value " + key + " duplicity.");
+			}
+		} else {
+			throw new InitializationException(
+					"Requested environment value " + key + " is not set and no default was specified.");
+		}
 	}
 
 	private static void commonInit() throws IOException {
@@ -66,15 +103,7 @@ public class EnvironmentUtils {
 
 				String envValue = System.getenv(k);
 				String val = StringUtils.hasTextDefault(envValue, (String) value);
-
-				if (StringUtils.hasLength(val)) {
-					if (environmentProperties.putIfAbsent((String) key, ("#EMPTY#".equals(val) ? null : val)) != null) {
-						throw new InitializationException("Requested environment value " + key + " duplicity.");
-					}
-				} else {
-					throw new InitializationException(
-							"Requested environment value " + key + " is not set and no default was specified.");
-				}
+				importVal((String) key, val);
 			}
 		});
 
@@ -113,6 +142,7 @@ public class EnvironmentUtils {
 	 * @return
 	 */
 	public static Map<String, String> getAllEnvironmentProperties() {
+		checkInit();
 		return environmentProperties;
 	}
 
@@ -122,6 +152,7 @@ public class EnvironmentUtils {
 	 * @return
 	 */
 	public static Map<String, String> getEnvironmentProperties() {
+		checkInit();
 		return publicEnvironmentProperties;
 	}
 

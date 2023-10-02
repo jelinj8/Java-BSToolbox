@@ -1,8 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>cz.bliksoft.java</groupId>
+
 	<artifactId>common-java-utils</artifactId>
 	<version>0.5-SNAPSHOT</version>
 	<name>BSToolbox</name>
@@ -11,7 +9,13 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
-
+	
+	<parent>
+		<groupId>cz.bliksoft.java</groupId>
+		<artifactId>dependency-management-8</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+	
 	<profiles>
 		<profile>
 			<id>TMO-repository</id>
@@ -21,8 +25,7 @@
 					<value>true</value>
 				</property>
 			</activation>
-			<properties>
-			</properties>
+			<properties></properties>
 			<distributionManagement>
 				<repository>
 					<id>csom-releases</id>
@@ -42,8 +45,7 @@
 					<name>!useTMORepo</name>
 				</property>
 			</activation>
-			<properties>
-			</properties>
+			<properties></properties>
 			<distributionManagement>
 				<repository>
 					<id>bliksoft-private</id>
@@ -69,7 +71,7 @@
 		</snapshotRepository>
 	</distributionManagement>
 	-->
-	
+
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<resources>
@@ -227,7 +229,6 @@
 		<dependency>
 			<groupId>org.freemarker</groupId>
 			<artifactId>freemarker</artifactId>
-			<version>2.3.30</version>
 			<scope>provided</scope>
 			<optional>true</optional>
 		</dependency>
@@ -237,7 +238,6 @@
 		<dependency>
 			<groupId>jakarta.xml.bind</groupId>
 			<artifactId>jakarta.xml.bind-api</artifactId>
-			<version>3.0.1</version>
 			<scope>provided</scope>
 			<optional>true</optional>
 		</dependency>
@@ -247,7 +247,6 @@
 		<dependency>
 			<groupId>jakarta.xml.ws</groupId>
 			<artifactId>jakarta.xml.ws-api</artifactId>
-			<version>3.0.1</version>
 			<scope>provided</scope>
 			<optional>true</optional>
 		</dependency>
@@ -258,7 +257,6 @@
 			<artifactId>jaxb-runtime</artifactId>
 			<scope>provided</scope>
 			<optional>true</optional>
-			<version>3.0.2</version>
 		</dependency>
 
 		<!--
@@ -268,7 +266,6 @@
 		<dependency>
 			<groupId>org.glassfish.metro</groupId>
 			<artifactId>webservices-rt</artifactId>
-			<version>3.0.3</version>
 			<scope>provided</scope>
 			<optional>true</optional>
 		</dependency>
@@ -281,7 +278,6 @@
 		<dependency>
 			<groupId>jakarta.servlet</groupId>
 			<artifactId>jakarta.servlet-api</artifactId>
-			<version>5.0.0</version>
 			<scope>provided</scope>
 			<optional>true</optional>
 		</dependency>
@@ -291,7 +287,6 @@
 		<dependency>
 			<groupId>no.api.freemarker</groupId>
 			<artifactId>freemarker-java8</artifactId>
-			<version>2.0.0</version>
 			<scope>provided</scope>
 			<optional>true</optional>
 		</dependency>
@@ -300,7 +295,6 @@
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
-			<version>2.13.0</version>
 		</dependency>
 
 		<dependency>
@@ -308,14 +302,12 @@
 			<artifactId>javax.mail</artifactId>
 			<scope>provided</scope>
 			<optional>true</optional>
-			<version>1.6.2</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/com.google.zxing/core -->
 		<dependency>
 			<groupId>com.google.zxing</groupId>
 			<artifactId>core</artifactId>
-			<version>3.5.0</version>
 			<scope>provided</scope>
 			<optional>true</optional>
 		</dependency>
@@ -323,7 +315,6 @@
 		<dependency>
 			<groupId>org.apache.httpcomponents.client5</groupId>
 			<artifactId>httpclient5</artifactId>
-			<version>5.2.1</version>
 			<scope>provided</scope>
 			<optional>true</optional>
 		</dependency>
@@ -331,7 +322,6 @@
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
-			<version>20220924</version>
 			<scope>provided</scope>
 			<optional>true</optional>
 		</dependency>
@@ -341,7 +331,6 @@
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
-			<version>2.13.3</version>
 			<scope>provided</scope>
 			<optional>true</optional>
 		</dependency>
@@ -350,7 +339,6 @@
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-api</artifactId>
-			<version>2.13.3</version>
 			<scope>provided</scope>
 			<optional>true</optional>
 		</dependency>
@@ -359,7 +347,6 @@
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-jul</artifactId>
-			<version>2.13.3</version>
 			<scope>provided</scope>
 			<optional>true</optional>
 		</dependency>

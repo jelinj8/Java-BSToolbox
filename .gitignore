@@ -5,3 +5,4 @@
 .classpath
 .project
 /TMO_deploy.bat
+/.flattened-pom.xml

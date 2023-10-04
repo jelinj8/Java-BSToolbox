@@ -92,7 +92,7 @@ public class EnvironmentUtils {
 //			throw new InitializationException(
 //					"Environment configuration file " + environmentConfig.getAbsolutePath() + " does not exist!");
 
-		if (!environmentConfig.exists()) {
+		if (environmentConfig.exists()) {
 			Properties envP = PropertiesUtils.loadFromFile(environmentConfig, environmentProperties);
 			envP.forEach((key, value) -> {
 				switch ((String) key) {

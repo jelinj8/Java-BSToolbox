@@ -35,6 +35,12 @@ public class XPathVarCache implements XPathFunction {
 		}
 	}
 
+	public static void setVar(String nsName, String name, String value) {
+		synchronized (lockObject) {
+			vals.get(nsName).put(name, value);
+		}
+	}
+
 	@Override
 	public Object evaluate(List args) throws XPathFunctionException {
 		try {

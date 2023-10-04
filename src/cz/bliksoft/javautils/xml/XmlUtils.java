@@ -96,6 +96,29 @@ public class XmlUtils {
 		return m;
 	}
 
+	private static Marshaller getMarshaller(Object obj) throws JAXBException {
+		JAXBContext context;
+		if (obj != null)
+			context = JAXBContext.newInstance(obj.getClass());
+		else
+			context = JAXBContext.newInstance();
+		
+		Marshaller m = context.createMarshaller();
+		m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+		return m;
+	}
+
+	public static Document getDocument(Object obj) throws JAXBException {
+		return getDocument(obj, obj.getClass());
+	}
+
+	public static Document getDocument(Object obj, Class<?>... classes) throws JAXBException {
+		Marshaller m = getMarshaller(classes);
+		DOMResult result = new DOMResult();
+		m.marshal(obj, result);
+		return (Document) result.getNode();
+	}
+
 	public static void marshal(Object obj, Writer writer) throws JAXBException {
 		marshal(obj, writer, obj.getClass());
 	}
@@ -130,12 +153,8 @@ public class XmlUtils {
 		getMarshaller(classes).marshal(obj, writer);
 	}
 
-	public static Document getDocument(Object obj) throws JAXBException {
-		return getDocument(obj, obj.getClass());
-	}
-
-	public static Document getDocument(Object obj, Class<?>... classes) throws JAXBException {
-		Marshaller m = getMarshaller(classes);
+	public static Document marshall(Object obj) throws JAXBException {
+		Marshaller m = getMarshaller(obj);
 		DOMResult result = new DOMResult();
 		m.marshal(obj, result);
 		return (Document) result.getNode();

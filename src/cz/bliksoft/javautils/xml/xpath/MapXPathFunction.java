@@ -15,7 +15,7 @@ public class MapXPathFunction implements XPathFunction {
 	public Object evaluate(List args) throws XPathFunctionException {
 		if (args.size() < 2)
 			throw new XPathFunctionException(
-					"XPath map: minimal signature: map(inpud, default) or map(input, val1, res1, val2, res2...) or map(input, val1, res1, val2, res2..., default) ");
+					"XPath map: minimal signature: map(input, default) or map(input, val1, res1, val2, res2...) or map(input, val1, res1, val2, res2..., default) ");
 
 		String src = null;
 		try {

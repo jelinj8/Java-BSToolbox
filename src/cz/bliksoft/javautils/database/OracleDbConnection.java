@@ -124,7 +124,7 @@ public class OracleDbConnection implements IDBConnectionFactory {
 
 	private void processOptions() throws GeneralSecurityException, IOException {
 		Properties properties = PropertiesUtils.loadFromFile(propertiesFile,
-				EnvironmentUtils.getAllEnvironmentProperties());
+				EnvironmentUtils.tryGetAllEnvironmentProperties());
 
 		oraPassword = properties.getProperty(PROP_CLEAR_PWD);
 		if (oraPassword == null)

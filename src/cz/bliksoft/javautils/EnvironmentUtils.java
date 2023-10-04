@@ -71,9 +71,9 @@ public class EnvironmentUtils {
 
 	private static void importVal(String key, String value) {
 		if (StringUtils.hasLength(value)) {
-			if("#OPTIONAL#".equals(value))
+			if ("#OPTIONAL#".equals(value))
 				return;
-			
+
 			if (environmentProperties.putIfAbsent(key, ("#EMPTY#".equals(value) ? "" : value)) != null) {
 				throw new InitializationException("Requested environment value " + key + " duplicity.");
 			}
@@ -149,6 +149,13 @@ public class EnvironmentUtils {
 		return environmentProperties;
 	}
 
+	public static Map<String, String> tryGetAllEnvironmentProperties() {
+		if(isInitialized())
+			return getAllEnvironmentProperties();
+		else
+			return new HashMap<>();
+	}
+
 	/**
 	 * returns properties except those starting with a dot (hidden properties)
 	 * 
@@ -157,6 +164,17 @@ public class EnvironmentUtils {
 	public static Map<String, String> getEnvironmentProperties() {
 		checkInit();
 		return publicEnvironmentProperties;
+	}
+
+	public static Map<String, String> tryGetEnvironmentProperties() {
+		if(isInitialized())
+			return getEnvironmentProperties();
+		else
+			return new HashMap<>();
+	}
+
+	public static boolean isInitialized() {
+		return environmentConfigDir != null;
 	}
 
 }

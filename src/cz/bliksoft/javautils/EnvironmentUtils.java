@@ -88,28 +88,30 @@ public class EnvironmentUtils {
 		environmentProperties.put(PROP_ENVIRONMENT_CONFIG_DIR, environmentConfigDir.getPath());
 		environmentProperties.put(PROP_ENVIRONMENT_PROPERTIES_FILE, environmentConfig.getPath());
 
-		if (!environmentConfig.exists())
-			throw new InitializationException(
-					"Environment configuration file " + environmentConfig.getAbsolutePath() + " does not exist!");
+//		if (!environmentConfig.exists())
+//			throw new InitializationException(
+//					"Environment configuration file " + environmentConfig.getAbsolutePath() + " does not exist!");
 
-		Properties envP = PropertiesUtils.loadFromFile(environmentConfig, environmentProperties);
-		envP.forEach((key, value) -> {
-			switch ((String) key) {
-			case PROP_ENVIRONMENT_CONFIG_DIR:
-			case PROP_GLOBAL_CONFIG_DIR:
-			case PROP_ENVIRONMENT_PROPERTIES_FILE:
-				break;
-			default:
-				String k = (String) key;
-				if (k.startsWith("."))
-					k = k.substring(1);
+		if (!environmentConfig.exists()) {
+			Properties envP = PropertiesUtils.loadFromFile(environmentConfig, environmentProperties);
+			envP.forEach((key, value) -> {
+				switch ((String) key) {
+				case PROP_ENVIRONMENT_CONFIG_DIR:
+				case PROP_GLOBAL_CONFIG_DIR:
+				case PROP_ENVIRONMENT_PROPERTIES_FILE:
+					break;
+				default:
+					String k = (String) key;
+					if (k.startsWith("."))
+						k = k.substring(1);
 
-				String envValue = System.getenv(k);
-				String val = StringUtils.hasTextDefault(envValue, (String) value);
-				importVal((String) key, val);
-			}
-		});
-
+					String envValue = System.getenv(k);
+					String val = StringUtils.hasTextDefault(envValue, (String) value);
+					importVal((String) key, val);
+				}
+			});
+		}
+		
 		environmentProperties.forEach((k, v) -> {
 			if (!k.startsWith("."))
 				publicEnvironmentProperties.put(k, v);
@@ -150,7 +152,7 @@ public class EnvironmentUtils {
 	}
 
 	public static Map<String, String> tryGetAllEnvironmentProperties() {
-		if(isInitialized())
+		if (isInitialized())
 			return getAllEnvironmentProperties();
 		else
 			return new HashMap<>();
@@ -167,7 +169,7 @@ public class EnvironmentUtils {
 	}
 
 	public static Map<String, String> tryGetEnvironmentProperties() {
-		if(isInitialized())
+		if (isInitialized())
 			return getEnvironmentProperties();
 		else
 			return new HashMap<>();

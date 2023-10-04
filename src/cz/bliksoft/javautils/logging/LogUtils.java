@@ -99,8 +99,8 @@ public class LogUtils {
 				} else {
 					logDir = null;
 				}
+				System.setProperty("logDir", logDir);
 			}
-			System.setProperty("logDir", logDir);
 			if (logName != null)
 				System.setProperty("logName", logName);
 			logProps = new File(configuration.getProperty("loggingProperties", "logging.properties"));
@@ -153,8 +153,10 @@ public class LogUtils {
 	// public static void
 
 	public static String getFileName(String name, String extension) {
-		if (logDir == null)
+		if (logDir == null) {
+			log.severe("Log dir not set!");
 			return null;
+		}
 
 		if (extension == null)
 			extension = ".log";

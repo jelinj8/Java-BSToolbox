@@ -154,7 +154,7 @@
 						<!-- *NOTE*: The default phase of validateRevision is
 						verify, but in 
 							case you want to change it, you can do so by adding the phase here -->
-						<phase>package</phase>
+						<phase>deploy</phase>
 					</execution>
 				</executions>
 				<configuration>

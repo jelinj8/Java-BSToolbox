@@ -1,0 +1,25 @@
+<jaxb:bindings xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc" xmlns:s="http://www.w3.org/2001/XMLSchema" version="2.0">
+	<jaxb:globalBindings generateElementProperty="false">
+		<xjc:javaType adapter="cz.nissystems.utils.xml.adapters.LocalDateAdapter" name="java.time.LocalDate" xmlType="s:date"/>
+  		<xjc:javaType adapter="cz.nissystems.utils.xml.adapters.OffsetDateTimeAdapter" name="java.time.OffsetDateTime" xmlType="s:dateTime"/>
+	</jaxb:globalBindings>
+</jaxb:bindings>
+
+<!--
+<wsimport
+   	    wsdl="${WSDL_DIR_BASE}/service.wsdl"
+   	    destdir="${DEST_DIR}"
+   	    sourcedestdir="${DEST_SOURCE}"
+   		wsdlLocation="${WSDL_LOCATION_BASE}/service.wsdl"
+   	    keep="true"
+   	    verbose="true"
+   		xnocompile="true"
+   		encoding="UTF8"
+   	    >
+   		<arg value="-B-XautoNameResolution" />
+   		<arg value="-extension" />
+   		<binding dir="${BINDING_DIR_BASE}">
+   			<include name="javabindings.xml"/>
+   		</binding>
+   	</wsimport>
+-->

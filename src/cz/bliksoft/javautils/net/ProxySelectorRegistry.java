@@ -118,7 +118,8 @@ public class ProxySelectorRegistry extends ProxySelector {
 		String proxyMatch = properties.getProperty("proxyMatch");
 		String proxyTarget = properties.getProperty("proxyTarget");
 
-		if (StringUtils.hasLength(proxyUrl) && (proxyTarget != null || proxyMatch != null)) {
+		if (StringUtils.hasLength(proxyUrl)
+				&& (StringUtils.hasLength(proxyTarget) || StringUtils.hasLength(proxyMatch))) {
 			int proxyPort = Integer.valueOf(properties.getProperty("proxyPort"));
 
 			ProxySelectorRegistry.register();
@@ -126,9 +127,17 @@ public class ProxySelectorRegistry extends ProxySelector {
 			if (StringUtils.hasLength(proxyMatch))
 				ProxySelectorRegistry.register(proxyMatch,
 						new Proxy(Type.SOCKS, new InetSocketAddress(proxyUrl, proxyPort)));
-			else
-				ProxySelectorRegistry.registerUrl(proxyTarget,
-						new Proxy(Type.SOCKS, new InetSocketAddress(proxyUrl, proxyPort)));
+			else {
+				if (proxyTarget.contains(",")) {
+					for (String target : proxyTarget.split(",")) {
+						ProxySelectorRegistry.registerUrl(target,
+								new Proxy(Type.SOCKS, new InetSocketAddress(proxyUrl, proxyPort)));
+					}
+				} else {
+					ProxySelectorRegistry.registerUrl(proxyTarget,
+							new Proxy(Type.SOCKS, new InetSocketAddress(proxyUrl, proxyPort)));
+				}
+			}
 		}
 	}
 }

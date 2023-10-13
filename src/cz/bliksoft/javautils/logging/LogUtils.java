@@ -62,9 +62,8 @@ public class LogUtils {
 					if (!"org.apache.logging.log4j.jul.LogManager"
 							.equals(LogManager.getLogManager().getClass().getName())) {
 
-						logger.warn(
-								"Java LogManager instantiated as " + LogManager.getLogManager().getClass().getName()
-										+ ", org.apache.logging.log4j.jul.LogManager not in place!");
+						logger.warn("Java LogManager instantiated as " + LogManager.getLogManager().getClass().getName()
+								+ ", org.apache.logging.log4j.jul.LogManager not in place!");
 					} else {
 						logger.info("Log4J initialized.");
 					}
@@ -99,7 +98,8 @@ public class LogUtils {
 				} else {
 					logDir = null;
 				}
-				System.setProperty("logDir", logDir);
+				if (logDir != null)
+					System.setProperty("logDir", logDir);
 			}
 			if (logName != null)
 				System.setProperty("logName", logName);

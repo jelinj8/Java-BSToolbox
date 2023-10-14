@@ -90,7 +90,7 @@ public class BSHttpServer {
 	 * @param port
 	 * @throws Exception
 	 */
-	public BSHttpServer(int port) throws Exception {
+	public BSHttpServer(int port) {
 		this.httpPort = port;
 		httpHandlers = new HashMap<>();
 	}
@@ -152,36 +152,33 @@ public class BSHttpServer {
 		return true;
 	}
 
-	public void start() {
+	public void start() throws IOException {
 		if (running)
 			return;
 		log.info("Starting server on port " + httpPort);
 		running = true;
-		try {
-			if (httpsConfigurator != null) {
-				server = HttpsServer.create(new InetSocketAddress(httpPort), 0);
-				((HttpsServer) server).setHttpsConfigurator(httpsConfigurator);
-			} else {
-				server = HttpServer.create(new InetSocketAddress(httpPort), 0);
-			}
-			for (Entry<String, HttpHandler> handlers : httpHandlers.entrySet()) {
-				server.createContext(handlers.getKey(), handlers.getValue());
-			}
 
-			if (isMultithreaded)
-				server.setExecutor(new ThreadPoolExecutor(CORE_POOL_SIZE, MAX_POOL_SIZE, KEEP_ALIVE_TIME,
-						TimeUnit.SECONDS, new ArrayBlockingQueue<>(MAX_BLOCKING_QUEUE)));
-			else
-				server.setExecutor(null);
+		if (httpsConfigurator != null) {
+			server = HttpsServer.create(new InetSocketAddress(httpPort), 0);
+			((HttpsServer) server).setHttpsConfigurator(httpsConfigurator);
+		} else {
+			server = HttpServer.create(new InetSocketAddress(httpPort), 0);
+		}
+		for (Entry<String, HttpHandler> handlers : httpHandlers.entrySet()) {
+			server.createContext(handlers.getKey(), handlers.getValue());
+		}
 
-			server.start();
+		if (isMultithreaded)
+			server.setExecutor(new ThreadPoolExecutor(CORE_POOL_SIZE, MAX_POOL_SIZE, KEEP_ALIVE_TIME, TimeUnit.SECONDS,
+					new ArrayBlockingQueue<>(MAX_BLOCKING_QUEUE)));
+		else
+			server.setExecutor(null);
 
-			for (HttpHandler h : httpHandlers.values()) {
-				if (h instanceof BasicHTTPHandler)
-					((BasicHTTPHandler) h).start();
-			}
-		} catch (IOException e) {
-			log.severe("Failed to start HTTP server");
+		server.start();
+
+		for (HttpHandler h : httpHandlers.values()) {
+			if (h instanceof BasicHTTPHandler)
+				((BasicHTTPHandler) h).start();
 		}
 	}
 

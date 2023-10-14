@@ -5,6 +5,9 @@ import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import com.sun.net.httpserver.HttpHandler;
@@ -22,6 +25,62 @@ public class BSHttpServer {
 	private Map<String, HttpHandler> httpHandlers;
 
 	private int httpPort;
+
+	// When a new request is submitted and fewer than CORE_POOL_SIZE threads are
+	// running, a new thread is created to handle the request,
+	// even if other worker threads are idle. If there are more than CORE_POOL_SIZE
+	// but less than MAX_POOL_SIZE threads running,
+	// a new thread will be created only if the queue is full.
+	private int CORE_POOL_SIZE = 4;
+	private int MAX_POOL_SIZE = 8;
+
+	// After pool has MAX_POOL_SIZE threads, idle threads will be terminated if they
+	// have been idle for more than the KEEP_ALIVE_TIME in seconds.
+	private int KEEP_ALIVE_TIME = 30;
+
+	// After thread pool at CORE_POOL_SIZE up to MAX_BLOCKING_QUEUE more requests
+	// will be queued up before execution
+	private int MAX_BLOCKING_QUEUE = 100;
+
+	public int getPoolSize() {
+		return CORE_POOL_SIZE;
+	}
+
+	public void setPoolSize(int cORE_POOL_SIZE) {
+		CORE_POOL_SIZE = cORE_POOL_SIZE;
+	}
+
+	public int getMaxPoolSize() {
+		return MAX_POOL_SIZE;
+	}
+
+	public void setMaxPoolSize(int mAX_POOL_SIZE) {
+		MAX_POOL_SIZE = mAX_POOL_SIZE;
+	}
+
+	public int getKeepAliveTime() {
+		return KEEP_ALIVE_TIME;
+	}
+
+	public void setKeepAliveTime(int kEEP_ALIVE_TIME) {
+		KEEP_ALIVE_TIME = kEEP_ALIVE_TIME;
+	}
+
+	public int getMaxBlockingQueue() {
+		return MAX_BLOCKING_QUEUE;
+	}
+
+	public void setMAX_BLOCKING_QUEUE(int mAX_BLOCKING_QUEUE) {
+		MAX_BLOCKING_QUEUE = mAX_BLOCKING_QUEUE;
+	}
+
+	private boolean isMultithreaded = false;
+
+	public void setMultithreaded(boolean multithreaded) {
+		if (running)
+			throw new RuntimeException("Can't change multithreading on running server!");
+		isMultithreaded = multithreaded;
+	}
 
 	private HttpsConfigurator httpsConfigurator = null;
 
@@ -109,7 +168,12 @@ public class BSHttpServer {
 				server.createContext(handlers.getKey(), handlers.getValue());
 			}
 
-			server.setExecutor(null);
+			if (isMultithreaded)
+				server.setExecutor(new ThreadPoolExecutor(CORE_POOL_SIZE, MAX_POOL_SIZE, KEEP_ALIVE_TIME,
+						TimeUnit.SECONDS, new ArrayBlockingQueue<>(MAX_BLOCKING_QUEUE)));
+			else
+				server.setExecutor(null);
+
 			server.start();
 
 			for (HttpHandler h : httpHandlers.values()) {

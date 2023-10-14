@@ -102,7 +102,7 @@ public class BSHttpServer {
 	 * @param httpsConfigurator
 	 * @throws Exception
 	 */
-	public BSHttpServer(int port, HttpsConfigurator httpsConfigurator) throws Exception {
+	public BSHttpServer(int port, HttpsConfigurator httpsConfigurator) {
 		this.httpPort = port;
 		this.httpsConfigurator = httpsConfigurator;
 	}

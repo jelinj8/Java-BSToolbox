@@ -14,6 +14,8 @@ public class DefaultResourceHTTPHandler extends BasicHTTPHandler implements Clos
 	private String pages;
 	private Class<?> loader;
 
+	private boolean download = false;
+
 	public DefaultResourceHTTPHandler(Class<?> loaderClass, String subpath) throws IOException {
 		pages = subpath;
 		loader = loaderClass;
@@ -22,6 +24,10 @@ public class DefaultResourceHTTPHandler extends BasicHTTPHandler implements Clos
 	public DefaultResourceHTTPHandler(Class<?> loaderClass) throws IOException {
 		pages = null;
 		loader = loaderClass;
+	}
+
+	public void setDownloadFile(boolean download) {
+		this.download = download;
 	}
 
 	@Override
@@ -39,7 +45,10 @@ public class DefaultResourceHTTPHandler extends BasicHTTPHandler implements Clos
 		if (fullPath.startsWith("/"))
 			fullPath = fullPath.substring(1);
 		try {
-			sendClasspathResource(exchange, loader, fullPath);
+			if (download)
+				sendClasspathResource(exchange, loader, fullPath);
+			else
+				sendOKResource(exchange, loader, fullPath);
 		} catch (IOException e) {
 			log.severe(MessageFormat.format("Failed to serve resource {0}: {1}", fullPath, e.getMessage()));
 			throw e;

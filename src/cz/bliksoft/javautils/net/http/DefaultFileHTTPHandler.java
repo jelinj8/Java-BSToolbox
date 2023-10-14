@@ -17,12 +17,18 @@ public class DefaultFileHTTPHandler extends BasicHTTPHandler implements Closeabl
 	private File pages;
 	private String indexFileName = "index.html";
 
+	private boolean download = false;
+
 	public DefaultFileHTTPHandler(File root) throws IOException {
 		pages = root;
 	}
 
 	public void setIndexFileName(String name) {
 		indexFileName = name;
+	}
+
+	public void setDownloadFile(boolean download) {
+		this.download = download;
 	}
 
 	@Override
@@ -40,7 +46,10 @@ public class DefaultFileHTTPHandler extends BasicHTTPHandler implements Closeabl
 			path = indexFileName;
 		File pageFile = new File(pages, path);
 		log.fine("Serve " + pageFile);
-		sendOKDocument(exchange, pageFile);
-		
+		if (download)
+			sendFile(exchange, pageFile);
+		else
+			sendOKDocument(exchange, pageFile);
+
 	}
 }

@@ -46,32 +46,32 @@ public class BSHttpServer {
 		return CORE_POOL_SIZE;
 	}
 
-	public void setPoolSize(int cORE_POOL_SIZE) {
-		CORE_POOL_SIZE = cORE_POOL_SIZE;
+	public void setPoolSize(int corePoolSize) {
+		CORE_POOL_SIZE = corePoolSize;
 	}
 
 	public int getMaxPoolSize() {
 		return MAX_POOL_SIZE;
 	}
 
-	public void setMaxPoolSize(int mAX_POOL_SIZE) {
-		MAX_POOL_SIZE = mAX_POOL_SIZE;
+	public void setMaxPoolSize(int maxPoolSize) {
+		MAX_POOL_SIZE = maxPoolSize;
 	}
 
 	public int getKeepAliveTime() {
 		return KEEP_ALIVE_TIME;
 	}
 
-	public void setKeepAliveTime(int kEEP_ALIVE_TIME) {
-		KEEP_ALIVE_TIME = kEEP_ALIVE_TIME;
+	public void setKeepAliveTime(int keepAliveTime) {
+		KEEP_ALIVE_TIME = keepAliveTime;
 	}
 
 	public int getMaxBlockingQueue() {
 		return MAX_BLOCKING_QUEUE;
 	}
 
-	public void setMAX_BLOCKING_QUEUE(int mAX_BLOCKING_QUEUE) {
-		MAX_BLOCKING_QUEUE = mAX_BLOCKING_QUEUE;
+	public void setMaxBlockingQueue(int maxBlockingQueue) {
+		MAX_BLOCKING_QUEUE = maxBlockingQueue;
 	}
 
 	private boolean isMultithreaded = false;

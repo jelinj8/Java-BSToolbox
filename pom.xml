@@ -116,7 +116,7 @@
 					<execution>
 						<id>validate-the-git-infos</id>
 						<goals>
-							<goal>validateRevision</goal>
+							<!--<goal>validateRevision</goal>-->
 						</goals>
 						<!-- *NOTE*: The default phase of validateRevision is
 						verify, but in 

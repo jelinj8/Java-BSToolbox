@@ -21,7 +21,7 @@ public class BSHttpServer {
 
 	private boolean running = false;
 
-	private HttpServer server;
+	protected HttpServer server;
 	private Map<String, HttpHandler> httpHandlers;
 
 	private int httpPort;
@@ -185,7 +185,7 @@ public class BSHttpServer {
 				((BasicHTTPHandler) h).start();
 		}
 	}
-
+	
 	/**
 	 * can block stopping of web server
 	 * @return

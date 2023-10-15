@@ -149,6 +149,8 @@ public class BSHttpServer {
 				((BasicHTTPHandler) h).close();
 		}
 
+		server = null;
+		
 		return true;
 	}
 
@@ -174,6 +176,8 @@ public class BSHttpServer {
 		else
 			server.setExecutor(null);
 
+		beforeStart();
+
 		server.start();
 
 		for (HttpHandler h : httpHandlers.values()) {
@@ -182,8 +186,17 @@ public class BSHttpServer {
 		}
 	}
 
+	/**
+	 * can block stopping of web server
+	 * @return
+	 */
 	public boolean beforeStop() {
 		return true;
 	}
 
+	/**
+	 * can be used e.g. to bind webservices
+	 */
+	public void beforeStart() {
+	}
 }

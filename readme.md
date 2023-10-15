@@ -1,28 +1,33 @@
+** common dependency base versions ** 
+
+to inherit all default versions import
+
+```
+<dependencyManagement>
+	<dependencies>
+		<dependency>
+			<groupId>cz.bliksoft.java</groupId>
+			<artifactId>dependency-management-8</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+			<type>pom</type>
+			<scope>import</scope>
+		</dependency>
+	</dependencies>
+</dependencyManagement>
+```
+
 **Freemarker**
+
 To use freemarker parts of this library, add
 
 ```
-<!-- https://mvnrepository.com/artifact/org.freemarker/freemarker -->
 <dependency>
-	<groupId>org.freemarker</groupId>
-	<artifactId>freemarker</artifactId>
-	<version>2.3.30</version>
-	<scope>compile</scope>
-	<optional>true</optional>
+	<groupId>cz.bliksoft.java</groupId>
+	<artifactId>dependency-management-8-freemarker</artifactId>
+	<type>pom</type>
 </dependency>
 ```
 to your classpath.
-
-Optionally for Java 8 Date+Time API extensions add
-
-```
-<!-- https://mvnrepository.com/artifact/no.api.freemarker/freemarker-java8 -->
-<dependency>
-	<groupId>no.api.freemarker</groupId>
-	<artifactId>freemarker-java8</artifactId>
-	<version>2.0.0</version>
-</dependency>
-```
 
 **ZXing for QR code generation**
 
@@ -38,71 +43,75 @@ If you want to use QR generator, you'll need to provide ZXing library, e.g.:
 </dependency>
 ```
 
+** OOXML **
+
+Escel + word OpenDocuments
+
+```
+<dependency>
+	<groupId>cz.bliksoft.java</groupId>
+	<artifactId>dependency-management-8-ooxml</artifactId>
+	<type>pom</type>
+</dependency>
+```
+
+** Log4J2 **
+
+Optional, but reasonable to include
+
+```
+<dependency>
+	<groupId>cz.bliksoft.java</groupId>
+	<artifactId>dependency-management-8-log4j</artifactId>
+	<type>pom</type>
+</dependency>
+```
+
 **JAXB**
 
+Generally use classes from jakarta namespace.
 
 ```
 <dependency>
-	<groupId>jakarta.annotation</groupId>
-	<artifactId>jakarta.annotation-api</artifactId>
-	<version>2.1.1</version>
-</dependency>
-
-<dependency>
-	<groupId>jakarta.xml.bind</groupId>
-	<artifactId>jakarta.xml.bind-api</artifactId>
-	<version>3.0.1</version>
+	<groupId>cz.bliksoft.java</groupId>
+	<artifactId>dependency-management-8-jaxb</artifactId>
+	<type>pom</type>
 </dependency>
 ```
 
-When you actually use JAXB, you will need also some implementation in runtime classpath:
+** WS interface **
 
 ```
 <dependency>
-	<groupId>org.glassfish.jaxb</groupId>
-	<artifactId>jaxb-runtime</artifactId> 
-	<version>2.3.1</version>
-	<scope>runtime</scope>
+	<groupId>cz.bliksoft.java</groupId>
+	<artifactId>dependency-management-8-servicedef</artifactId>
+	<type>pom</type>
 </dependency>
 ```
 
-or for EclipseLink MOXy implementation add a file *jaxb.properties* with ```javax.xml.bind.context.factory=org.eclipse.persistence.jaxb.JAXBContextFactory``` and dependency
+Jaxb is already included in WS client / server.
+
+** WS client **
 
 ```
 <dependency>
-	<groupId>org.eclipse.persistence</groupId>
-	<artifactId>org.eclipse.persistence.moxy</artifactId>
-	<version>2.7.3</version>
-	<scope>runtime</scope>
+	<groupId>cz.bliksoft.java</groupId>
+	<artifactId>dependency-management-8-client</artifactId>
+	<type>pom</type>
 </dependency>
 ```
 
-**To use webservices add to client/server**
+** WS server **
 
 ```
 <dependency>
-	<groupId>org.glassfish.metro</groupId>
-	<artifactId>webservices-rt</artifactId>
-	<version>3.0.3</version>
-</dependency>
-<dependency>
-	<groupId>jakarta.xml.ws</groupId>
-	<artifactId>jakarta.xml.ws-api</artifactId>
-	<version>3.0.1</version>
+	<groupId>cz.bliksoft.java</groupId>
+	<artifactId>dependency-management-8-service</artifactId>
+	<type>pom</type>
 </dependency>
 ```
 
-WS server will need also
-
-```
-<dependency>
-	<groupId>jakarta.servlet</groupId>
-	<artifactId>jakarta.servlet-api</artifactId>
-	<version>5.0.0</version>
-</dependency>
-```
-
-For POJO mappings use bindings.xml:
+For POJO mappings use at least a simple bindings.xml:
 
 ```
 <jaxb:bindings version="3.0"

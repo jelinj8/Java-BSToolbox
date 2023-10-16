@@ -23,6 +23,14 @@ import cz.bliksoft.javautils.PropertiesUtils;
 import cz.bliksoft.javautils.StringUtils;
 
 public class ProxySelectorRegistry extends ProxySelector {
+	private static final String PROP_PROXY_PORT = "proxyPort";
+
+	private static final String PROP_PROXY_TARGET = "proxyTarget";
+
+	private static final String PROP_PROXY_MATCH = "proxyMatch";
+
+	private static final String PROP_PROXY_URL = "proxyUrl";
+
 	static Logger log = Logger.getLogger(ProxySelectorRegistry.class.getName());
 
 	private static ProxySelectorRegistry _instance = null;
@@ -94,7 +102,8 @@ public class ProxySelectorRegistry extends ProxySelector {
 			return list;
 		}
 
-		log.info("Proxy not selected for " + uri);
+		if (registeredProxies.size() > 0)
+			log.info(MessageFormat.format("Proxy not found for {0} and no default was specified", uri));
 
 		if (originalProxySelector != null)
 			return originalProxySelector.select(uri);
@@ -115,14 +124,24 @@ public class ProxySelectorRegistry extends ProxySelector {
 	}
 
 	public static void addProxyConfiguration(Properties properties) {
-		String proxyUrl = properties.getProperty("proxyUrl");
-		String proxyMatch = properties.getProperty("proxyMatch");
-		String proxyTarget = properties.getProperty("proxyTarget");
+		addProxyConfiguration(properties, null);
+	}
+
+	public static void addProxyConfiguration(Properties properties, String configPrefix) {
+		boolean hasPrefix = StringUtils.hasText(configPrefix);
+
+		String proxyUrl = properties
+				.getProperty(hasPrefix ? StringUtils.camelPrefix(PROP_PROXY_URL, configPrefix) : PROP_PROXY_URL);
+		String proxyMatch = properties
+				.getProperty(hasPrefix ? StringUtils.camelPrefix(PROP_PROXY_MATCH, configPrefix) : PROP_PROXY_MATCH);
+		String proxyTarget = properties
+				.getProperty(hasPrefix ? StringUtils.camelPrefix(PROP_PROXY_TARGET, configPrefix) : PROP_PROXY_TARGET);
 		int proxyPort = -1;
 
 		if (StringUtils.hasLength(proxyUrl)) {
 			try {
-				proxyPort = Integer.valueOf(properties.getProperty("proxyPort"));
+				proxyPort = Integer.valueOf(properties.getProperty(
+						hasPrefix ? StringUtils.camelPrefix(PROP_PROXY_PORT, configPrefix) : PROP_PROXY_PORT));
 			} catch (NumberFormatException e) {
 				log.severe("Missing or malformed 'proxyPort' in properties");
 				throw e;

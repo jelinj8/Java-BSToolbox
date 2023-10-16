@@ -359,4 +359,14 @@ public class StringUtils {
 			return input;
 		return input.substring(0, length - 2) + "\u2026"; //$NON-NLS-1$
 	}
+
+	public static String camelPrefix(String string, String prefix) {
+		if (isEmpty(prefix))
+			return string;
+
+		if (isEmpty(string))
+			return string;
+
+		return prefix + string.substring(0, 1).toUpperCase() + string.substring(1);
+	}
 }

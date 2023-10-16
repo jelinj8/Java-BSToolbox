@@ -98,8 +98,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	 * </pre>
 	 * 
 	 * @param httpExchange
-	 * @param path
-	 *            URI, starts with '/'
+	 * @param path         URI, starts with '/'
 	 * @param params
 	 * @throws IOException
 	 */
@@ -119,7 +118,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	}
 
 	protected String getRequestBody(HttpExchange httpExchange) throws IOException {
-		return IOUtils.toString(httpExchange.getRequestBody());
+		return IOUtils.toString(httpExchange.getRequestBody(), StandardCharsets.UTF_8);
 	}
 
 	protected boolean isMultipart(HttpExchange httpExchange) {

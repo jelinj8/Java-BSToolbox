@@ -41,6 +41,7 @@ public class XPathVarCache implements XPathFunction {
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public Object evaluate(List args) throws XPathFunctionException {
 		try {

@@ -1,6 +1,11 @@
 package cz.bliksoft.javautils.exceptions;
 
 public class InitializationException extends RuntimeException {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5953081008317039051L;
+
 	public InitializationException(String message) {
 		super(message);
 	}

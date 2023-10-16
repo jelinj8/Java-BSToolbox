@@ -3,7 +3,6 @@ package cz.bliksoft.javautils.net.http;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.logging.Logger;
 
 import com.sun.net.httpserver.HttpExchange;

@@ -3,13 +3,11 @@ package cz.bliksoft.javautils.net.http;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,10 +15,7 @@ import com.sun.net.httpserver.HttpExchange;
 
 import cz.bliksoft.javautils.EnvironmentUtils;
 import cz.bliksoft.javautils.StringUtils;
-import cz.bliksoft.javautils.database.IDBConnectionProvider;
 import cz.bliksoft.javautils.freemarker.FreemarkerGenerator;
-import cz.bliksoft.javautils.freemarker.extensions.Query;
-import cz.bliksoft.javautils.freemarker.extensions.query.TemplatedQueryProvider;
 import cz.bliksoft.javautils.freemarker.includes.BuiltinTemplateLoader;
 import freemarker.cache.FileTemplateLoader;
 import freemarker.cache.MultiTemplateLoader;

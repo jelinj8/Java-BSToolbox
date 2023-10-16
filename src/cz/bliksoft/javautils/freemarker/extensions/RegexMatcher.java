@@ -29,6 +29,7 @@ public class RegexMatcher implements TemplateMethodModelEx {
 		namedGroups.put(name, index);
 	}
 	
+	@SuppressWarnings("rawtypes")
 	@Override
 	public Object exec(List arguments) throws TemplateModelException {
 		List<Map<String, Object>> result = new ArrayList<>();

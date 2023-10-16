@@ -10,11 +10,12 @@ import cz.bliksoft.javautils.xml.XmlUtils;
 
 public class Default implements XPathFunction {
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public Object evaluate(List args) throws XPathFunctionException {
 		try {
 			String s = XmlUtils.getResultText(args.get(0));
-			return args.get(0);
+			return s; // args.get(0);
 		} catch (XPathException e) {
 			return args.get(1);
 		}

@@ -20,9 +20,9 @@ public class VariableCache implements TemplateMethodModelEx {
 
 	Map<String, Object> valueCache = null;
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+	public Object exec(List args) throws TemplateModelException {
 		if (valueCache == null)
 			valueCache = new HashMap<>();
 

@@ -9,6 +9,7 @@ import javax.xml.xpath.XPathFunctionException;
 
 public class IfElseIf implements XPathFunction {
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public Object evaluate(List args) throws XPathFunctionException {
 		if (args.size() < 3)

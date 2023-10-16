@@ -87,7 +87,7 @@ public class ProxySelectorRegistry extends ProxySelector {
 
 	@Override
 	public List<Proxy> select(URI uri) {
-		log.fine("Looking for proxy for URI " + uri.toString());
+		log.fine("Searching proxy for URI " + uri.toString());
 		for (Entry<String, Proxy> p : registeredProxies.entrySet()) {
 			if (Pattern.matches(p.getKey(), uri.toString())) {
 				List<Proxy> list = new ArrayList<Proxy>();
@@ -103,7 +103,7 @@ public class ProxySelectorRegistry extends ProxySelector {
 		}
 
 		if (registeredProxies.size() > 0)
-			log.info(MessageFormat.format("Proxy not found for {0} and no default was specified", uri));
+			log.info(MessageFormat.format("Proxy not found for {0} and no default was specified, using direct connection.", uri));
 
 		if (originalProxySelector != null)
 			return originalProxySelector.select(uri);

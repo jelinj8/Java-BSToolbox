@@ -7,6 +7,7 @@ import java.net.Proxy;
 import java.net.ProxySelector;
 import java.net.SocketAddress;
 import java.net.URI;
+import java.text.MessageFormat;
 import java.net.Proxy.Type;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -132,10 +133,14 @@ public class ProxySelectorRegistry extends ProxySelector {
 					for (String target : proxyTarget.split(",")) {
 						ProxySelectorRegistry.registerUrl(target,
 								new Proxy(Type.SOCKS, new InetSocketAddress(proxyUrl, proxyPort)));
+						log.info(MessageFormat.format("Adding proxy {0}:{1,number,#} for {2}", proxyUrl, proxyPort,
+								target));
 					}
 				} else {
 					ProxySelectorRegistry.registerUrl(proxyTarget,
 							new Proxy(Type.SOCKS, new InetSocketAddress(proxyUrl, proxyPort)));
+					log.info(MessageFormat.format("Adding proxy {0}:{1,number,#} for targets matching {2}", proxyUrl, proxyPort,
+							proxyTarget));
 				}
 			}
 		}

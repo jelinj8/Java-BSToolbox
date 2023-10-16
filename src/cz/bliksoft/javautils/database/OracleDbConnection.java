@@ -62,6 +62,7 @@ public class OracleDbConnection implements IDBConnectionFactory {
 				log.log(Level.SEVERE, "Loading of OJDBC driver failed.", e);
 				throw new ClassNotFoundException("Class oracle.jdbc.driver.OracleDriver not found.", e);
 			}
+			System.setProperty("oracle.jdbc.javaNetNio", "false");
 		}
 	}
 

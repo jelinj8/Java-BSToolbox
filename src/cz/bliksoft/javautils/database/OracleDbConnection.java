@@ -2,9 +2,6 @@ package cz.bliksoft.javautils.database;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.net.Proxy.Type;
 import java.security.GeneralSecurityException;
 import java.sql.Array;
 import java.sql.CallableStatement;

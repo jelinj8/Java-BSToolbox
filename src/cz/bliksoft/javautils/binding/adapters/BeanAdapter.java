@@ -54,7 +54,6 @@ import cz.bliksoft.javautils.binding.exceptions.PropertyNotBindableException;
 import cz.bliksoft.javautils.binding.exceptions.PropertyNotFoundException;
 import cz.bliksoft.javautils.binding.exceptions.PropertyUnboundException;
 import cz.bliksoft.javautils.binding.interfaces.IBeanChannel;
-import cz.bliksoft.javautils.binding.interfaces.IObservable;
 import cz.bliksoft.javautils.binding.interfaces.IValueModel;
 import cz.bliksoft.javautils.binding.models.DefaultValueModel;
 import cz.bliksoft.javautils.binding.utils.IndirectPropertyChangeSupport;
@@ -299,6 +298,7 @@ public class BeanAdapter<B> extends BasicBean implements IBeanChannel<B> {
 		return beanAdapters.computeIfAbsent(key, k -> new BeanAdapter<T>((T) null, true));
 	}
 
+	@SuppressWarnings("rawtypes")
 	public static <T> void setDefaultBeanAdapter(Object key, BeanAdapter adapter) {
 		beanAdapters.put(key, adapter);
 	}

@@ -118,30 +118,55 @@ public class ProxySelectorRegistry extends ProxySelector {
 		String proxyUrl = properties.getProperty("proxyUrl");
 		String proxyMatch = properties.getProperty("proxyMatch");
 		String proxyTarget = properties.getProperty("proxyTarget");
+		int proxyPort = -1;
 
-		if (StringUtils.hasLength(proxyUrl)
-				&& (StringUtils.hasLength(proxyTarget) || StringUtils.hasLength(proxyMatch))) {
-			int proxyPort = Integer.valueOf(properties.getProperty("proxyPort"));
+		if (StringUtils.hasLength(proxyUrl)) {
+			try {
+				proxyPort = Integer.valueOf(properties.getProperty("proxyPort"));
+			} catch (NumberFormatException e) {
+				log.severe("Missing or malformed 'proxyPort' in properties");
+				throw e;
+			}
 
 			ProxySelectorRegistry.register();
 
-			if (StringUtils.hasLength(proxyMatch))
-				ProxySelectorRegistry.register(proxyMatch,
-						new Proxy(Type.SOCKS, new InetSocketAddress(proxyUrl, proxyPort)));
-			else {
-				if (proxyTarget.contains(",")) {
-					for (String target : proxyTarget.split(",")) {
-						ProxySelectorRegistry.registerUrl(target,
+			if (StringUtils.hasLength(proxyTarget) || StringUtils.hasLength(proxyMatch)) {
+				if (StringUtils.hasLength(proxyMatch)) {
+					if (proxyTarget.contains(",")) {
+						for (String target : proxyTarget.split(",")) {
+							log.info(MessageFormat.format("Adding proxy {0}:{1,number,#} for target matching regex {2}",
+									proxyUrl, proxyPort, target));
+							ProxySelectorRegistry.register(target,
+									new Proxy(Type.SOCKS, new InetSocketAddress(proxyUrl, proxyPort)));
+						}
+					} else {
+						log.info(MessageFormat.format("Adding proxy {0}:{1,number,#} for target matching regex {2}",
+								proxyUrl, proxyPort, proxyTarget));
+						ProxySelectorRegistry.register(proxyTarget,
 								new Proxy(Type.SOCKS, new InetSocketAddress(proxyUrl, proxyPort)));
-						log.info(MessageFormat.format("Adding proxy {0}:{1,number,#} for {2}", proxyUrl, proxyPort,
-								target));
 					}
-				} else {
-					ProxySelectorRegistry.registerUrl(proxyTarget,
-							new Proxy(Type.SOCKS, new InetSocketAddress(proxyUrl, proxyPort)));
-					log.info(MessageFormat.format("Adding proxy {0}:{1,number,#} for targets matching {2}", proxyUrl, proxyPort,
-							proxyTarget));
 				}
+
+				if (StringUtils.hasLength(proxyTarget)) {
+					if (proxyTarget.contains(",")) {
+						for (String target : proxyTarget.split(",")) {
+							log.info(MessageFormat.format("Adding proxy {0}:{1,number,#} for target {2}", proxyUrl,
+									proxyPort, target));
+							ProxySelectorRegistry.registerUrl(target,
+									new Proxy(Type.SOCKS, new InetSocketAddress(proxyUrl, proxyPort)));
+						}
+					} else {
+						log.info(MessageFormat.format("Adding proxy {0}:{1,number,#} for target {2}", proxyUrl,
+								proxyPort, proxyTarget));
+						ProxySelectorRegistry.registerUrl(proxyTarget,
+								new Proxy(Type.SOCKS, new InetSocketAddress(proxyUrl, proxyPort)));
+					}
+				}
+			} else {
+				log.info(MessageFormat.format(
+						"No 'proxyMatch' or 'proxyTarget' specified, setting default proxy {0}:{1,number,#}", proxyUrl,
+						proxyPort));
+				ProxySelectorRegistry.setDefault(new Proxy(Type.SOCKS, new InetSocketAddress(proxyUrl, proxyPort)));
 			}
 		}
 	}

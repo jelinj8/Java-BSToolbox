@@ -131,7 +131,7 @@ public class LogUtils {
 		log = Logger.getLogger(LogUtils.class.getName());
 
 		if (log4jConfigFile != null && !log4jConfigFile.exists()) {
-			log.severe("Missing configured Log4J config file: " + log4jConfigFile.getPath());
+			log.severe("Missing configured Log4J config file: " + log4jConfigFile.getAbsolutePath());
 		}
 
 		if (configuration != null) {

@@ -15,16 +15,16 @@ public class SystemUtils {
 
 	static List<Runnable> interruptConsumers = new ArrayList<>();
 
-	static void addTerminatingListener(Runnable listener) {
+	public static void addTerminatingListener(Runnable listener) {
 		interruptConsumers.add(listener);
 	}
 
-	static void removeTerminatingListener(Runnable listener) {
+	public static void removeTerminatingListener(Runnable listener) {
 		interruptConsumers.remove(listener);
 	}
 
 	public static void interrupt() {
-		log.info("Setting the end waiting flag.");
+		log.info("Initiated termination");
 		keepWorking.set(false);
 	}
 

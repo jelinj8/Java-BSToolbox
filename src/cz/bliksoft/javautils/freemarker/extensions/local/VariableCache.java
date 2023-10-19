@@ -1,9 +1,12 @@
 package cz.bliksoft.javautils.freemarker.extensions.local;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
@@ -17,6 +20,7 @@ import freemarker.template.TemplateModelException;
  * variable -clear (all)
  */
 public class VariableCache implements TemplateMethodModelEx {
+	Logger log = Logger.getLogger(VariableCache.class.getName());
 
 	Map<String, Object> valueCache = null;
 
@@ -36,10 +40,14 @@ public class VariableCache implements TemplateMethodModelEx {
 
 		switch (command) {
 		case "set":
+			if (log.isLoggable(Level.FINER))
+				log.fine(MessageFormat.format("{0}[{1}] = {2}", command, arg1, args.get(2)));
 			valueCache.put(arg1, args.get(2));
 			return args.get(2);
 		case "add":
 			currentValue = valueCache.get(arg1);
+			if (log.isLoggable(Level.FINER))
+				log.fine(MessageFormat.format("{0}[{1}] from {2} to {3}", command, arg1, currentValue, args.get(2)));
 			if (currentValue == null) {
 				currentValue = new ArrayList<Object>();
 				valueCache.put(arg1, currentValue);
@@ -57,6 +65,9 @@ public class VariableCache implements TemplateMethodModelEx {
 			if (currentValue instanceof Map) {
 				((Map<Object, Object>) currentValue).put(args.get(2), args.get(3));
 			}
+			if (log.isLoggable(Level.FINER))
+				log.fine(MessageFormat.format("{0}[{1}] from {2} to {3}", command, arg1, currentValue, args.get(2)));
+
 			return args.get(2);
 		case "remove":
 			currentValue = valueCache.get(arg1);
@@ -69,6 +80,8 @@ public class VariableCache implements TemplateMethodModelEx {
 					valueCache.remove(arg1);
 				}
 			}
+			if (log.isLoggable(Level.FINER))
+				log.fine(MessageFormat.format("{0}[{1}] = {2}", command, arg1, currentValue));
 			return currentValue;
 		case "get":
 			return valueCache.get(arg1);
@@ -83,8 +96,12 @@ public class VariableCache implements TemplateMethodModelEx {
 					valueCache.remove(arg1);
 				}
 			}
+			if (log.isLoggable(Level.FINER))
+				log.fine(MessageFormat.format("{0}", command));
 			return "";
 		case "all":
+			if (log.isLoggable(Level.FINER))
+				log.fine(MessageFormat.format("{0}", command));
 			return valueCache;
 		default:
 			throw new TemplateModelException("Unknown variable cache command '" + command + "'");

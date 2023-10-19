@@ -51,7 +51,8 @@ public class Query implements TemplateMethodModelEx {
 
 		if (!args.isEmpty()) {
 			String queryID = args.get(0).toString();
-			log.log(Level.INFO, "Preparing Query {0}", queryID);
+			if (log.isLoggable(Level.FINE))
+				log.log(Level.FINE, "Preparing Query {0}", queryID);
 			try {
 				con = connectionProvider.getConnection(this, "Freemarker Query " + queryID);
 			} catch (Exception e) {
@@ -167,10 +168,13 @@ public class Query implements TemplateMethodModelEx {
 					phase = "executing query";
 					timestamp = System.currentTimeMillis();
 
-					log.log(Level.INFO, "Executing query {0}", queryID);
+					if (log.isLoggable(Level.FINE))
+						log.log(Level.FINE, "Executing query {0}", queryID);
 					if (pstmnt.execute()) {
-						log.log(Level.INFO, MessageFormat.format("Fetching result for query {0} after {1,number,#}ms",
-								queryID, System.currentTimeMillis() - timestamp));
+						if (log.isLoggable(Level.FINE))
+							log.log(Level.FINE,
+									MessageFormat.format("Fetching result for query {0} after {1,number,#}ms", queryID,
+											System.currentTimeMillis() - timestamp));
 						timestamp = System.currentTimeMillis();
 						List<HashMap<String, Object>> result = new ArrayList<>();
 						List<String> colNames = new ArrayList<>();
@@ -272,8 +276,9 @@ public class Query implements TemplateMethodModelEx {
 								result.add(row);
 								firstRow = false;
 							}
-							log.log(Level.INFO, MessageFormat.format("Result count: {0}, fetched in {1,number,#}ms",
-									result.size(), System.currentTimeMillis() - timestamp));
+							if (log.isLoggable(Level.INFO))
+								log.log(Level.INFO, MessageFormat.format("Result count: {0}, fetched in {1,number,#}ms",
+										result.size(), System.currentTimeMillis() - timestamp));
 							phase = " setting LastQuery vars";
 							Map<String, Object> qParams = new HashMap<>();
 							qParams.put("columns", colNames);

@@ -2,10 +2,7 @@ package cz.bliksoft.javautils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.logging.Logger;
 
 public class SystemUtils {
@@ -30,7 +27,7 @@ public class SystemUtils {
 
 	public static void keepRunningUntilInterrupted() {
 
-		log.info("Registering shutdown hook");
+		log.fine("Registering shutdown hook");
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			keepWorking.set(false);
 		}));

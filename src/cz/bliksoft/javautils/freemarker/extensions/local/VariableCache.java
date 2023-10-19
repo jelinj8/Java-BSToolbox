@@ -84,7 +84,10 @@ public class VariableCache implements TemplateMethodModelEx {
 				log.fine(MessageFormat.format("{0}[{1}] = {2}", command, arg1, currentValue));
 			return currentValue;
 		case "get":
-			return valueCache.get(arg1);
+			currentValue = valueCache.get(arg1);
+			if (log.isLoggable(Level.FINER))
+				log.fine(MessageFormat.format("{0}[{1}] = {2}", command, arg1, currentValue));
+			return currentValue;
 		case "clear":
 			currentValue = valueCache.get(arg1);
 			if (currentValue != null) {

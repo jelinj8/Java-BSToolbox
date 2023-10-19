@@ -64,10 +64,8 @@ public class LogUtils {
 
 						logger.warn("Java LogManager instantiated as " + LogManager.getLogManager().getClass().getName()
 								+ ", org.apache.logging.log4j.jul.LogManager not in place!");
-					} else {
-						logger.info("Log4J initialized.");
 					}
-
+					logger.info("Log4J initialized with " + log4jConfigFile.getAbsoluteFile());
 				}
 			} catch (ClassNotFoundException e) {
 			} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException

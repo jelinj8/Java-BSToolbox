@@ -37,7 +37,7 @@ public class VariableCache implements TemplateMethodModelEx {
 		switch (command) {
 		case "set":
 			valueCache.put(arg1, args.get(2));
-			return "";
+			return args.get(2);
 		case "add":
 			currentValue = valueCache.get(arg1);
 			if (currentValue == null) {
@@ -47,7 +47,7 @@ public class VariableCache implements TemplateMethodModelEx {
 			if (currentValue instanceof List) {
 				((List<Object>) currentValue).add(args.get(2));
 			}
-			return "";
+			return args.get(2);
 		case "put":
 			currentValue = valueCache.get(arg1);
 			if (currentValue == null) {
@@ -57,7 +57,7 @@ public class VariableCache implements TemplateMethodModelEx {
 			if (currentValue instanceof Map) {
 				((Map<Object, Object>) currentValue).put(args.get(2), args.get(3));
 			}
-			return "";
+			return args.get(2);
 		case "remove":
 			currentValue = valueCache.get(arg1);
 			if (currentValue != null) {
@@ -69,7 +69,7 @@ public class VariableCache implements TemplateMethodModelEx {
 					valueCache.remove(arg1);
 				}
 			}
-			return "";
+			return currentValue;
 		case "get":
 			return valueCache.get(arg1);
 		case "clear":

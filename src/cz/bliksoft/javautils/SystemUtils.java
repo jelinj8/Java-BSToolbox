@@ -24,23 +24,23 @@ public class SystemUtils {
 	}
 
 	public static void interrupt() {
-		log.info("Initiated termination");
+		log.info("Initiating termination");
 		keepWorking.set(false);
 	}
 
 	public static void keepRunningUntilInterrupted() {
 
-		log.info("Registering shutdown hook.");
+		log.info("Registering shutdown hook");
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			keepWorking.set(false);
 		}));
 
-		log.info("Waiting for shutdown signal.");
+		log.info("Waiting for shutdown signal");
 		try {
 			while (keepWorking.get()) {
 				Thread.sleep(1000);
 			}
-			log.info("Interruption initiated.");
+			log.info("Interruption initiated");
 			for (Runnable l : interruptConsumers) {
 				l.run();
 			}

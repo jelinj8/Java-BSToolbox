@@ -7,6 +7,7 @@ import java.security.cert.X509Certificate;
 import java.util.Map;
 
 import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
@@ -14,6 +15,7 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import jakarta.xml.ws.Binding;
 import jakarta.xml.ws.BindingProvider;
 import jakarta.xml.ws.Dispatch;
 
@@ -22,12 +24,16 @@ public class NaiveSSLHelper {
 	public static void makeWebServiceClientNotSANValidating(Object webServicePort) {
 		if (webServicePort instanceof BindingProvider) {
 			BindingProvider bp = (BindingProvider) webServicePort;
+			Binding b = bp.getBinding();
+			b.setHandlerChain(null);
+
 			Map<String, Object> requestContext = bp.getRequestContext();
 			requestContext.put(JAXWS_HOSTNAME_VERIFIER, new NaiveHostnameVerifier());
 		} else if (webServicePort instanceof Dispatch) {
 			((Dispatch) webServicePort).getRequestContext().put(JAXWS_HOSTNAME_VERIFIER, new NaiveHostnameVerifier());
 		} else {
-			throw new IllegalArgumentException("webServicePort " + webServicePort.getClass().getName() + " of unsupported type");
+			throw new IllegalArgumentException(
+					"webServicePort " + webServicePort.getClass().getName() + " of unsupported type");
 		}
 	}
 
@@ -37,14 +43,29 @@ public class NaiveSSLHelper {
 			BindingProvider bp = (BindingProvider) webServicePort;
 			Map<String, Object> requestContext = bp.getRequestContext();
 			requestContext.put(JAXWS_SSL_SOCKET_FACTORY, getTrustingSSLSocketFactory());
-			requestContext.put(JAXWS_HOSTNAME_VERIFIER, new NaiveHostnameVerifier());
 		} else if (webServicePort instanceof Dispatch) {
 			((Dispatch) webServicePort).getRequestContext().put(JAXWS_SSL_SOCKET_FACTORY,
 					getTrustingSSLSocketFactory());
-			((Dispatch) webServicePort).getRequestContext().put(JAXWS_HOSTNAME_VERIFIER, new NaiveHostnameVerifier());
 		} else {
-			throw new IllegalArgumentException("webServicePort " + webServicePort.getClass().getName() + " of unsupported type");
+			throw new IllegalArgumentException(
+					"webServicePort " + webServicePort.getClass().getName() + " of unsupported type");
 		}
+	}
+
+	public static void disableHostVerification() {
+		// Create all-trusting host name verifier
+		HostnameVerifier allHostsValid = new HostnameVerifier() {
+			public boolean verify(String hostname, SSLSession session) {
+				return true;
+			}
+		};
+
+		// Install the all-trusting host verifier
+		HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+	}
+
+	public static void trustAllSSLCertificates() throws Exception {
+		HttpsURLConnection.setDefaultSSLSocketFactory(SSLSocketFactoryHolder.INSTANCE);
 	}
 
 	public static SSLSocketFactory getTrustingSSLSocketFactory() {
@@ -88,8 +109,10 @@ public class NaiveSSLHelper {
 		public X509Certificate[] getAcceptedIssuers() {
 			return new X509Certificate[0];
 		}
-	}
+	};
 
-	private static final java.lang.String JAXWS_HOSTNAME_VERIFIER = "com.sun.xml.internal.ws.transport.https.client.hostname.verifier";
-	private static final java.lang.String JAXWS_SSL_SOCKET_FACTORY = "com.sun.xml.internal.ws.transport.https.client.SSLSocketFactory";
+//	private static final java.lang.String JAXWS_HOSTNAME_VERIFIER = "com.sun.xml.internal.ws.transport.https.client.hostname.verifier";
+	private static final java.lang.String JAXWS_HOSTNAME_VERIFIER = "com.sun.xml.ws.transport.https.client.hostname.verifier";
+//	private static final java.lang.String JAXWS_SSL_SOCKET_FACTORY = "com.sun.xml.internal.ws.transport.https.client.SSLSocketFactory";
+	private static final java.lang.String JAXWS_SSL_SOCKET_FACTORY = "com.sun.xml.ws.transport.https.client.SSLSocketFactory";
 }

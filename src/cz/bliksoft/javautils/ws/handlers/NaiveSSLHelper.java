@@ -14,41 +14,38 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import javax.xml.ws.BindingProvider;
+import javax.xml.ws.Dispatch;
 
 public class NaiveSSLHelper {
+	@SuppressWarnings("rawtypes")
 	public static void makeWebServiceClientNotSANValidating(Object webServicePort) {
 		if (webServicePort instanceof BindingProvider) {
 			BindingProvider bp = (BindingProvider) webServicePort;
 			Map<String, Object> requestContext = bp.getRequestContext();
-			// requestContext.put(JAXWS_SSL_SOCKET_FACTORY, getTrustingSSLSocketFactory());
 			requestContext.put(JAXWS_HOSTNAME_VERIFIER, new NaiveHostnameVerifier());
+		} else if (webServicePort instanceof Dispatch) {
+			((Dispatch) webServicePort).getRequestContext().put(JAXWS_HOSTNAME_VERIFIER, new NaiveHostnameVerifier());
 		} else {
 			throw new IllegalArgumentException("Web service port " + webServicePort.getClass().getName()
 					+ " does not implement " + BindingProvider.class.getName());
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	public static void makeWebServiceClientTrustEveryone(Object webServicePort) {
 		if (webServicePort instanceof BindingProvider) {
 			BindingProvider bp = (BindingProvider) webServicePort;
 			Map<String, Object> requestContext = bp.getRequestContext();
 			requestContext.put(JAXWS_SSL_SOCKET_FACTORY, getTrustingSSLSocketFactory());
 			requestContext.put(JAXWS_HOSTNAME_VERIFIER, new NaiveHostnameVerifier());
+		} else if (webServicePort instanceof Dispatch) {
+			((Dispatch) webServicePort).getRequestContext().put(JAXWS_SSL_SOCKET_FACTORY,
+					getTrustingSSLSocketFactory());
+			((Dispatch) webServicePort).getRequestContext().put(JAXWS_HOSTNAME_VERIFIER, new NaiveHostnameVerifier());
 		} else {
-			throw new IllegalArgumentException("Web service port " + webServicePort.getClass().getName()
-					+ " does not implement " + BindingProvider.class.getName());
+			throw new IllegalArgumentException("webServicePort " + webServicePort.getClass().getName() + " of unsupported type");
 		}
 	}
-
-//	public static void makeCxfWebServiceClientTrustEveryone(HTTPConduit http) {
-//		TrustManager[] trustManagers = new TrustManager[] { new NaiveTrustManager() };
-//		TLSClientParameters tlsParams = new TLSClientParameters();
-//		tlsParams.setSecureSocketProtocol("TLS");
-//		tlsParams.setKeyManagers(new KeyManager[0]);
-//		tlsParams.setTrustManagers(trustManagers);
-//		tlsParams.setDisableCNCheck(true);
-//		http.setTlsClientParameters(tlsParams);
-//	}
 
 	public static SSLSocketFactory getTrustingSSLSocketFactory() {
 		return SSLSocketFactoryHolder.INSTANCE;

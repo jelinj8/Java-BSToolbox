@@ -39,6 +39,8 @@ public class DefaultFreemarkerHTTPHandler extends BasicHTTPHandler implements Cl
 
 	public Map<String, Object> variables = new HashMap<>();
 
+	private String prefixPath = null;
+
 	public DefaultFreemarkerHTTPHandler() {
 	}
 
@@ -58,6 +60,10 @@ public class DefaultFreemarkerHTTPHandler extends BasicHTTPHandler implements Cl
 		this.templateLoader = loader;
 	}
 
+	public void setPrefixPath(String prefix) {
+		prefixPath = prefix;
+	}
+
 	public void setIndexFileName(String name) {
 		indexFileName = name;
 	}
@@ -72,6 +78,9 @@ public class DefaultFreemarkerHTTPHandler extends BasicHTTPHandler implements Cl
 			sendERR(exchange, "Unsupported method", HTTPErrorCodes.CLIENT_UNSUPPORTED_MEDIA_TYPE.getValue());
 			throw new IOException("Unsupported method: " + method);
 		}
+
+		if (prefixPath != null && path != null)
+			path = path.replace(prefixPath, "");
 
 		if (StringUtils.isEmpty(path) || "/".equals(path))
 			path = indexFileName;

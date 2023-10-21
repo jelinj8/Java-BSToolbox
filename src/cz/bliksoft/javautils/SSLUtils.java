@@ -48,7 +48,7 @@ public class SSLUtils {
 				}
 			}
 		} else {
-			log.severe("Keystore properties file " + propFile + " not found!");
+			log.warning("Keystore properties file " + propFile + " not found!");
 		}
 	}
 

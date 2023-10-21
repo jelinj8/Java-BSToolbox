@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,6 +34,10 @@ public class DefaultFreemarkerHTTPHandler extends BasicHTTPHandler implements Cl
 	public List<TemplateLoader> getAdditionalLoadersList() {
 		return additionalTemplateLoaders;
 	}
+
+	public Map<String, Object> extensions = new HashMap<>();
+
+	public Map<String, Object> variables = new HashMap<>();
 
 	public DefaultFreemarkerHTTPHandler() {
 	}
@@ -93,6 +98,15 @@ public class DefaultFreemarkerHTTPHandler extends BasicHTTPHandler implements Cl
 			generator.setVariable("parameters", params);
 
 			generator.setVariable("environment", EnvironmentUtils.getEnvironmentProperties());
+
+			for (Entry<String, Object> ext : extensions.entrySet()) {
+				generator.addExtension(ext.getKey(), ext.getValue());
+			}
+
+			for (Entry<String, Object> var : variables.entrySet()) {
+				generator.setVariable(var.getKey(), var.getValue());
+			}
+
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "Failed to create FreemarkerGenerator.", e);
 			sendERR(exchange, "Failed to create FreeemarkerGenerator",

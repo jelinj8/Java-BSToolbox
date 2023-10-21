@@ -26,8 +26,7 @@ public class NaiveSSLHelper {
 		} else if (webServicePort instanceof Dispatch) {
 			((Dispatch) webServicePort).getRequestContext().put(JAXWS_HOSTNAME_VERIFIER, new NaiveHostnameVerifier());
 		} else {
-			throw new IllegalArgumentException("Web service port " + webServicePort.getClass().getName()
-					+ " does not implement " + BindingProvider.class.getName());
+			throw new IllegalArgumentException("webServicePort " + webServicePort.getClass().getName() + " of unsupported type");
 		}
 	}
 

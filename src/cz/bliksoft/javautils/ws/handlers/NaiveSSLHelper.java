@@ -15,7 +15,6 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import jakarta.xml.ws.Binding;
 import jakarta.xml.ws.BindingProvider;
 import jakarta.xml.ws.Dispatch;
 
@@ -24,9 +23,6 @@ public class NaiveSSLHelper {
 	public static void makeWebServiceClientNotSANValidating(Object webServicePort) {
 		if (webServicePort instanceof BindingProvider) {
 			BindingProvider bp = (BindingProvider) webServicePort;
-			Binding b = bp.getBinding();
-			b.setHandlerChain(null);
-
 			Map<String, Object> requestContext = bp.getRequestContext();
 			requestContext.put(JAXWS_HOSTNAME_VERIFIER, new NaiveHostnameVerifier());
 		} else if (webServicePort instanceof Dispatch) {

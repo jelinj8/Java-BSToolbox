@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,8 +26,11 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
 import com.sun.net.httpserver.Headers;
+import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+
+import cz.bliksoft.javautils.net.http.BasicHTTPHandler.HttpMethod;
 
 /**
  * HttpHandler to register with a path in BSHttpServer. multipart POST from
@@ -33,7 +38,15 @@ import com.sun.net.httpserver.HttpHandler;
  */
 @SuppressWarnings("restriction")
 public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
+
 	private Logger log = Logger.getLogger(BasicHTTPHandler.class.getName());
+
+	public static final String CTX_COOKIES = "cookies";
+	public static final String CTX_POST = "POST";
+	public static final String CTX_GET = "GET";
+	public static final String CTX_BASEPATH = "basepath";
+	public static final String CTX_REQUEST = "request";
+	public static final String CTX_PATH = "path";
 
 	public static final String CONTENT_TYPE_TXT = "text/plain; charset=utf-8";
 	public static final String CONTENT_TYPE_HTML = "text/html; charset=utf-8";
@@ -102,7 +115,8 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	 * @param params
 	 * @throws IOException
 	 */
-	public abstract void handle(HttpExchange httpExchange, String path, String query, HttpMethod method) throws IOException;
+	public abstract void handle(HttpExchange httpExchange, String path, String query, HttpMethod method)
+			throws IOException;
 
 	public enum HttpMethod {
 		GET, POST, PUT, PATCH, DELETE, CREATE, UPDATE, OTHER;
@@ -111,9 +125,9 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 			if (methodName == null)
 				return OTHER;
 			switch (methodName.toUpperCase()) {
-			case "GET":
+			case CTX_GET:
 				return GET;
-			case "POST":
+			case CTX_POST:
 				return POST;
 			case "PUT":
 				return PUT;
@@ -134,13 +148,42 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	@Override
 	public void handle(HttpExchange httpExchange) throws IOException {
 		try {
+			HttpMethod method = HttpMethod.fromString(httpExchange.getRequestMethod());
 			URI uri = httpExchange.getRequestURI();
 			String path = uri.getPath();
 			String query = uri.getQuery();
-			handle(httpExchange, path, query, HttpMethod.fromString(httpExchange.getRequestMethod()));
+
+			handle(httpExchange, path, query, method);
 		} catch (Exception e) {
 			sendERR(httpExchange, e.getMessage(), HTTPErrorCodes.SERVER_INTERNAL_SERVER_ERROR.getValue());
 		}
+	}
+
+	public Map<String, Object> buildContext(HttpExchange httpExchange, String path, String query, HttpMethod method)
+			throws IOException {
+		Map<String, Object> httpContext = new HashMap<>();
+		HttpContext ctx = httpExchange.getHttpContext();
+		String req = path.replace(ctx.getPath(), "");
+
+		httpContext.put(CTX_PATH, path);
+		httpContext.put(CTX_REQUEST, req);
+		httpContext.put(CTX_BASEPATH, ctx.getPath());
+
+		Map<String, List<Optional<String>>> GET = getGetParams(query);
+		if (GET.size() > 0)
+			httpContext.put(CTX_GET, GET);
+
+		if (method == HttpMethod.POST) {
+			Map<String, List<Optional<MultiPart>>> POST = getMultipartPostParams(httpExchange);
+			if (POST.size() > 0) {
+				httpContext.put(CTX_POST, POST);
+			}
+		}
+
+		Map<String, String> cookies = getCookies(httpExchange);
+		httpContext.put(CTX_COOKIES, cookies);
+
+		return httpContext;
 	}
 
 	protected String getRequestBody(HttpExchange httpExchange) throws IOException {

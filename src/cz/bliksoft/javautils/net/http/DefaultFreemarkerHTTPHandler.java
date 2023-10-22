@@ -3,17 +3,20 @@ package cz.bliksoft.javautils.net.http;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.sun.net.httpserver.HttpExchange;
 
+import cz.bliksoft.javautils.DateUtils;
 import cz.bliksoft.javautils.EnvironmentUtils;
 import cz.bliksoft.javautils.StringUtils;
 import cz.bliksoft.javautils.freemarker.FreemarkerGenerator;
@@ -98,16 +101,8 @@ public class DefaultFreemarkerHTTPHandler extends BasicHTTPHandler implements Cl
 
 			generator = new FreemarkerGenerator(new MultiTemplateLoader(loaders.toArray(new TemplateLoader[] {})));
 
-			Map<String, String> propsMap = new HashMap<>();
-			Map<String, List<Optional<String>>> params = URIParameterDecode.splitQuery(query);
-			params.forEach((k, v) -> {
-				if (v.get(0).isPresent())
-					propsMap.put(k, v.get(0).get());
-			});
-			generator.setVariable("GET", params);
+			generator.setVariable("http", buildContext(exchange, path, query, method));
 
-			
-			
 			generator.setVariable("environment", EnvironmentUtils.getEnvironmentProperties());
 
 			for (Entry<String, Object> ext : extensions.entrySet()) {

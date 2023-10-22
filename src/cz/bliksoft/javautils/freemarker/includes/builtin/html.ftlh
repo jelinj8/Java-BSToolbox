@@ -57,6 +57,7 @@
 <#macro ajaxsubmit><script type="text/javascript"><#include 'ajaxsubmit.js' parse=false></script></#macro>
 <#macro expander><script type="text/javascript"><#include 'expander.js' parse=false></script></#macro>
 <#macro highlighter><script type="text/javascript"><#include 'highlighter.js' parse=false></script></#macro>
+<#macro jquery><script type="text/javascript"><#include 'jquery.js' parse=false></script></#macro>
 
 <#macro syntaxhighlighter theme='default.min'>
 <style><#include 'syntaxhighlighter/css/'+theme+'.css' parse=false></style>

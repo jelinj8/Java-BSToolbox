@@ -58,7 +58,8 @@
 </#macro>
 
 <#macro objectToFormattedJson object pad=''>
-	<#if (pad!' ')?length gt 100>
+	<#if (pad!' ')?length gt 30>
+${pad} "TOO DEEP, truncated"	
 	<#else>
         <#if object?is_hash_ex>
 ${pad}{

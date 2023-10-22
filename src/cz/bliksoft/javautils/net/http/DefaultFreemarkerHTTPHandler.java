@@ -69,10 +69,10 @@ public class DefaultFreemarkerHTTPHandler extends BasicHTTPHandler implements Cl
 	}
 
 	@Override
-	public void handle(HttpExchange exchange, String path, String query, String method) throws IOException {
+	public void handle(HttpExchange exchange, String path, String query, HttpMethod method) throws IOException {
 		switch (method) {
-		case "GET":
-		case "POST":
+		case GET:
+		case POST:
 			break;
 		default:
 			sendERR(exchange, "Unsupported method", HTTPErrorCodes.CLIENT_UNSUPPORTED_MEDIA_TYPE.getValue());
@@ -104,8 +104,10 @@ public class DefaultFreemarkerHTTPHandler extends BasicHTTPHandler implements Cl
 				if (v.get(0).isPresent())
 					propsMap.put(k, v.get(0).get());
 			});
-			generator.setVariable("parameters", params);
+			generator.setVariable("GET", params);
 
+			
+			
 			generator.setVariable("environment", EnvironmentUtils.getEnvironmentProperties());
 
 			for (Entry<String, Object> ext : extensions.entrySet()) {

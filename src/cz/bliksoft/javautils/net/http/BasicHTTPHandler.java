@@ -102,16 +102,42 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	 * @param params
 	 * @throws IOException
 	 */
-	public abstract void handle(HttpExchange httpExchange, String path, String query, String method) throws IOException;
+	public abstract void handle(HttpExchange httpExchange, String path, String query, HttpMethod method) throws IOException;
+
+	public enum HttpMethod {
+		GET, POST, PUT, PATCH, DELETE, CREATE, UPDATE, OTHER;
+
+		public static HttpMethod fromString(String methodName) {
+			if (methodName == null)
+				return OTHER;
+			switch (methodName.toUpperCase()) {
+			case "GET":
+				return GET;
+			case "POST":
+				return POST;
+			case "PUT":
+				return PUT;
+			case "PATCH":
+				return PATCH;
+			case "DELETE":
+				return DELETE;
+			case "CREATE":
+				return CREATE;
+			case "UPDATE":
+				return UPDATE;
+			default:
+				return OTHER;
+			}
+		}
+	};
 
 	@Override
 	public void handle(HttpExchange httpExchange) throws IOException {
 		try {
-			String method = httpExchange.getRequestMethod().toUpperCase();
 			URI uri = httpExchange.getRequestURI();
 			String path = uri.getPath();
 			String query = uri.getQuery();
-			handle(httpExchange, path, query, method);
+			handle(httpExchange, path, query, HttpMethod.fromString(httpExchange.getRequestMethod()));
 		} catch (Exception e) {
 			sendERR(httpExchange, e.getMessage(), HTTPErrorCodes.SERVER_INTERNAL_SERVER_ERROR.getValue());
 		}

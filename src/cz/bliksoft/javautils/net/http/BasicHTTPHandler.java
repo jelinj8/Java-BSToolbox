@@ -31,6 +31,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 import cz.bliksoft.javautils.net.http.BasicHTTPHandler.HttpMethod;
+import cz.bliksoft.javautils.net.http.MultiPart.PartType;
 
 /**
  * HttpHandler to register with a path in BSHttpServer. multipart POST from
@@ -44,8 +45,9 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	public static final String CTX_COOKIES = "cookies";
 	public static final String CTX_POST = "POST";
 	public static final String CTX_GET = "GET";
+	public static final String CTX_REQUEST = "REQUEST";
 	public static final String CTX_BASEPATH = "basepath";
-	public static final String CTX_REQUEST = "request";
+	public static final String CTX_REQUESTED_FILE = "request";
 	public static final String CTX_PATH = "path";
 
 	public static final String CONTENT_TYPE_TXT = "text/plain; charset=utf-8";
@@ -111,7 +113,8 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	 * </pre>
 	 * 
 	 * @param httpExchange
-	 * @param path         URI, starts with '/'
+	 * @param path
+	 *            URI, starts with '/'
 	 * @param params
 	 * @throws IOException
 	 */
@@ -166,16 +169,31 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 		String req = path.replace(ctx.getPath(), "");
 
 		httpContext.put(CTX_PATH, path);
-		httpContext.put(CTX_REQUEST, req);
+		httpContext.put(CTX_REQUESTED_FILE, req);
 		httpContext.put(CTX_BASEPATH, ctx.getPath());
 
 		Map<String, List<Optional<String>>> GET = getGetParams(query);
 		httpContext.put(CTX_GET, GET);
 
+		Map<String, Object> request = new HashMap<>();
+		for (Entry<String, List<Optional<String>>> kv : GET.entrySet()) {
+			for (Optional<String> s : kv.getValue()) {
+				request.putIfAbsent(kv.getKey(), s.isPresent() ? s.get() : null);
+			}
+		}
+
 		if (method == HttpMethod.POST) {
 			Map<String, List<Optional<MultiPart>>> POST = getMultipartPostParams(httpExchange);
 			httpContext.put(CTX_POST, POST);
+			for (Entry<String, List<Optional<MultiPart>>> kv : POST.entrySet()) {
+				for (Optional<MultiPart> s : kv.getValue()) {
+					if (s.get().type == PartType.TEXT)
+						request.putIfAbsent(kv.getKey(), s.isPresent() ? s.get().value : null);
+				}
+			}
 		}
+
+		httpContext.put(CTX_REQUEST, request);
 
 		Map<String, String> cookies = getCookies(httpExchange);
 		httpContext.put(CTX_COOKIES, cookies);
@@ -285,6 +303,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 					MultiPart mp = null;
 					if (val.isPresent()) {
 						mp = new MultiPart();
+						mp.name = entry.getKey();
 						mp.value = val.get();
 						mp.type = MultiPart.PartType.TEXT;
 					}

@@ -52,6 +52,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -482,10 +484,13 @@ public class XmlUtils {
 		/**
 		 * register a function
 		 * 
-		 * @param prefix       namespace prefix
-		 * @param fName        function name, for specific arity add e.g. "fname:3"
-		 *                     (attempt for specific first, non-specific if not found)
-		 * @param functionImpl implementing object
+		 * @param prefix
+		 *            namespace prefix
+		 * @param fName
+		 *            function name, for specific arity add e.g. "fname:3" (attempt for
+		 *            specific first, non-specific if not found)
+		 * @param functionImpl
+		 *            implementing object
 		 */
 		public void addFunction(String prefix, String fName, XPathFunction functionImpl) {
 			Map<String, XPathFunction> pFunctions = functions.get(prefix);
@@ -631,6 +636,27 @@ public class XmlUtils {
 		// add XSLT in Transformer
 		Transformer transformer = transformerFactory.newTransformer(template);
 		transformer.transform(new DOMSource(doc), target);
+	}
+
+	public static String innerXml(Node node) {
+		DOMImplementationLS lsImpl = (DOMImplementationLS) node.getOwnerDocument().getImplementation().getFeature("LS", //$NON-NLS-1$
+				"3.0"); //$NON-NLS-1$
+		LSSerializer lsSerializer = lsImpl.createLSSerializer();
+		lsSerializer.getDomConfig().setParameter("xml-declaration", false); //$NON-NLS-1$
+		NodeList childNodes = node.getChildNodes();
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < childNodes.getLength(); i++) {
+			sb.append(lsSerializer.writeToString(childNodes.item(i)));
+		}
+		return sb.toString();
+	}
+
+	public static String outerXml(Node node) {
+		DOMImplementationLS lsImpl = (DOMImplementationLS) node.getOwnerDocument().getImplementation().getFeature("LS", //$NON-NLS-1$
+				"3.0"); //$NON-NLS-1$
+		LSSerializer lsSerializer = lsImpl.createLSSerializer();
+		lsSerializer.getDomConfig().setParameter("xml-declaration", false); //$NON-NLS-1$
+		return lsSerializer.writeToString(node);
 	}
 
 }

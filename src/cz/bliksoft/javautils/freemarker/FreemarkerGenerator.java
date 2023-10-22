@@ -20,6 +20,7 @@ import cz.bliksoft.javautils.freemarker.extensions.global.Base64File;
 import cz.bliksoft.javautils.freemarker.extensions.global.Base64QR;
 import cz.bliksoft.javautils.freemarker.extensions.global.Code128Encode;
 import cz.bliksoft.javautils.freemarker.extensions.global.Code128Width;
+import cz.bliksoft.javautils.freemarker.extensions.global.DescribeVariable;
 import cz.bliksoft.javautils.freemarker.extensions.global.GUIPrompt;
 import cz.bliksoft.javautils.freemarker.extensions.global.HtmlPreformat;
 import cz.bliksoft.javautils.freemarker.extensions.global.IdentifyObjectType;
@@ -28,6 +29,7 @@ import cz.bliksoft.javautils.freemarker.extensions.global.ParseXml;
 import cz.bliksoft.javautils.freemarker.extensions.global.PrettyPrintXml;
 import cz.bliksoft.javautils.freemarker.extensions.global.Regroup;
 import cz.bliksoft.javautils.freemarker.extensions.global.Reindex;
+import cz.bliksoft.javautils.freemarker.extensions.global.LogVariable;
 import cz.bliksoft.javautils.freemarker.extensions.local.AnchorNumberer;
 import cz.bliksoft.javautils.freemarker.extensions.local.VariableCache;
 import cz.bliksoft.javautils.freemarker.extensions.local.VariableRegistrator;
@@ -232,6 +234,8 @@ public class FreemarkerGenerator {
 		res.put("GUIPrompt", new GUIPrompt()); //$NON-NLS-1$
 		res.put("Base64File", new Base64File()); //$NON-NLS-1$
 		res.put("Base64QR", new Base64QR()); //$NON-NLS-1$
+		res.put("LogVariable", new LogVariable()); //$NON-NLS-1$
+		res.put("DescribeVariable", new DescribeVariable()); //$NON-NLS-1$
 
 		res.put("TXTTOHTML", //$NON-NLS-1$
 				new TextReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;", "\"", "&quot;", "'", "&#39;", "\n", "<br>\n"));

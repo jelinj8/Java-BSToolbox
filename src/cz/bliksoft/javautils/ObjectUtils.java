@@ -5,6 +5,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+
+import cz.bliksoft.javautils.net.http.MultiPart;
+import cz.bliksoft.javautils.net.http.MultiPart.PartType;
 
 public class ObjectUtils {
 
@@ -18,8 +26,10 @@ public class ObjectUtils {
 	 * for any object that implements Serializable. If the original is {@code null},
 	 * this method just returns {@code null}.
 	 *
-	 * @param <T>      the type of the object to be cloned
-	 * @param original the object to copied, may be {@code null}
+	 * @param <T>
+	 *            the type of the object to be cloned
+	 * @param original
+	 *            the object to copied, may be {@code null}
 	 * @return the copied object
 	 *
 	 * @since 1.1.1
@@ -54,8 +64,10 @@ public class ObjectUtils {
 	 * Objects.equals("Hi", "Ho") == false
 	 * </pre>
 	 *
-	 * @param o1 the first object to compare
-	 * @param o2 the second object to compare
+	 * @param o1
+	 *            the first object to compare
+	 * @param o2
+	 *            the second object to compare
 	 * @return boolean {@code true} if and only if both objects are {@code null} or
 	 *         equal according to {@link Object#equals(Object) equals} invoked on
 	 *         the first object
@@ -74,4 +86,108 @@ public class ObjectUtils {
 	public static boolean equalsNotNull(Object o1, Object o2) {
 		return o1 != null && o2 != null && (o1 == o2 || o1.equals(o2));
 	}
+
+	private static final String PAD_TEXT = "\t";
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public static String describe(Object o, String pad) {
+		if (pad == null)
+			pad = "";
+
+		final String localPad = pad;
+		final String localPad2 = pad + PAD_TEXT;
+		StringBuilder sb = new StringBuilder();
+		if (o == null) {
+			sb.append("<NULL>\n");
+		}
+		if (o instanceof String) {
+			sb.append(StringUtils.prependLines("\"" + (String) o + "\"", null, localPad));
+		} else if (o instanceof Entry) {
+			Entry e = (Entry) o;
+			sb.append("[");
+			sb.append(describe(e.getKey(), null));
+			sb.append("]=");
+			sb.append(describe(e.getValue(), null));
+		} else if (o instanceof MultiPart) {
+			MultiPart mp = (MultiPart) o;
+			if (StringUtils.hasLength(mp.name)) {
+				sb.append("[");
+				sb.append(mp.name);
+				sb.append("]=");
+				if (mp.type == PartType.TEXT) {
+					sb.append(describe(mp.value, localPad));
+				} else {
+					sb.append("FILE:");
+					sb.append(mp.contentType);
+					sb.append(":");
+					sb.append(mp.filename);
+				}
+			}
+//		} else if (o instanceof Optional) {
+//			Optional op = (Optional) o;
+//			if (op.isPresent()) {
+//				sb.append("[X]");
+//				sb.append(describe(op.get(), localPad2));
+//			} else {
+//				sb.append("[O]");
+//			}
+		} else if (o instanceof Map) {
+			sb.append("{");
+			if (((Map) o).size() > 0) {
+				sb.append("\n");
+				((Map) o).forEach((k, v) -> {
+					sb.append(localPad);
+					sb.append(PAD_TEXT);
+					sb.append("[");
+					sb.append(describe(k, localPad2));
+					sb.append("]");
+					sb.append("=");
+					sb.append(describe(v, localPad2));
+					sb.append("\n");
+				});
+
+				sb.append(localPad);
+			}
+			sb.append("}");
+		} else if (o instanceof List) {
+			sb.append("[");
+			if (((List) o).size() > 0) {
+				sb.append("\n");
+
+				((List) o).forEach((v) -> {
+					sb.append(localPad);
+					sb.append(PAD_TEXT);
+					sb.append(describe(v, localPad2));
+					sb.append("\n");
+				});
+
+				sb.append(localPad);
+			}
+			sb.append("]");
+		} else if (o instanceof Enumeration) {
+			//			sb.append(localPad);
+			sb.append("[");
+			Enumeration e = (Enumeration) o;
+			if (e.hasMoreElements()) {
+				sb.append("\n");
+				Object o2 = e.nextElement();
+				while (o2 != null) {
+					sb.append(localPad);
+					sb.append(PAD_TEXT);
+					sb.append(describe(o2, localPad2));
+					sb.append("\n");
+				}
+				sb.append(localPad);
+			}
+			sb.append("]");
+		} else {
+			sb.append("{");
+			sb.append(o.getClass().getName());
+			sb.append("}: ");
+			sb.append(StringUtils.prependLines(o.toString(), null, localPad));
+		}
+
+		return sb.toString();
+	}
+
 }

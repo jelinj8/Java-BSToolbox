@@ -58,6 +58,8 @@
 </#macro>
 
 <#macro objectToFormattedJson object pad=''>
+	<#if (pad!" ")?length > 1000>
+	<#else>
         <#if object?is_hash_ex>
 ${pad}{
             <#list object as key, val>
@@ -141,4 +143,5 @@ ${pad}	"MACRO"
 ${pad}	?"${object?trim?replace('\\','\\\\"')?replace('"','\\"')}"?
 			</#if>
         </#if>
+    </#if>
 </#macro>

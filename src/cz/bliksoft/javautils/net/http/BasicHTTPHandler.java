@@ -170,14 +170,11 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 		httpContext.put(CTX_BASEPATH, ctx.getPath());
 
 		Map<String, List<Optional<String>>> GET = getGetParams(query);
-		if (GET.size() > 0)
-			httpContext.put(CTX_GET, GET);
+		httpContext.put(CTX_GET, GET);
 
 		if (method == HttpMethod.POST) {
 			Map<String, List<Optional<MultiPart>>> POST = getMultipartPostParams(httpExchange);
-			if (POST.size() > 0) {
-				httpContext.put(CTX_POST, POST);
-			}
+			httpContext.put(CTX_POST, POST);
 		}
 
 		Map<String, String> cookies = getCookies(httpExchange);

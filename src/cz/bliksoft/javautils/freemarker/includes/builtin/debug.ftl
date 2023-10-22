@@ -58,7 +58,7 @@
 </#macro>
 
 <#macro objectToFormattedJson object pad=''>
-	<#if (pad!' ')?length > 100>
+	<#if (pad!' ')?length gt 100>
 	<#else>
         <#if object?is_hash_ex>
 ${pad}{

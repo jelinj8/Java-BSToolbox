@@ -13,26 +13,32 @@
 
 <#macro title><title><#nested></title></#macro>
 
-<#macro body>
-<body>
+<#macro body class=''>
+<body <#if class??>class="${class}"</#if>>
 <#nested>
 </body>
 </#macro>
 
-<#macro box>
-<div class="box">
+<#macro box class=''>
+<div class="<#if class??>${class} </#if>box">
 <#nested>
 </div>
 </#macro>
 
-<#macro box_header>
-<div class="row header">
+<#macro box_header class=''>
+<div class="<#if class??>${class} </#if>row header">
 <#nested>
 </div>
 </#macro>
 
-<#macro box_content>
-<div class="row content">
+<#macro box_content class=''>
+<div class="<#if class??>${class} </#if>row content">
+<#nested>
+</div>
+</#macro>
+
+<#macro box_footer class=''>
+<div class="<#if class??>${class} </#if>row footer">
 <#nested>
 </div>
 </#macro>
@@ -41,12 +47,6 @@
 <#macro form       action method='post' target='' class=''><form action="${action}" method="${method}"<#if target?has_content> target="${target}"</#if><#if class?has_content> class="${class}"</#if>><#nested></form></#macro>
 <#macro hiddenvalue name value><input type="hidden" name="${name}" value="${value}" /></#macro>
 <#macro button text name='submit' value='submit' class='' title=''><button name="${name}" value="${value}" type="submit"<#if class?has_content> class="${class}"</#if><#if title?has_content> title="${title}"</#if>>${text}</button></#macro>
-
-<#macro box_footer>
-<div class="row footer">
-<#nested>
-</div>
-</#macro>
 
 <#macro utf8>
 <meta charset="UTF-8">

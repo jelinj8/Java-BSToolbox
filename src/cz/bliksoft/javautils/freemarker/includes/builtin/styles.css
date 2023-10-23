@@ -4,25 +4,39 @@
 	}
 }
 
+@media screen {
+	.box {
+		display: flex;
+		flex-flow: column;
+	}
+	
+	.box .row.header {
+		flex: 0 1 auto;
+	}
+	
+	.box .row.content {
+		flex: 1 1 auto;
+		overflow: auto;
+	}
+	
+	.box .row.footer {
+		flex: 0 1 auto;
+	}
+}
+
 .box {
-	display: flex;
-	flex-flow: column;
 	height: 100%;
 }
 
 .box .row.header {
-	flex: 0 1 auto;
 	padding: 5px;
 }
 
 .box .row.content {
-	flex: 1 1 auto;
-	overflow: auto;
 	padding: 5px;
 }
 
 .box .row.footer {
-	flex: 0 1 auto;
 	padding: 5px;
 }
 

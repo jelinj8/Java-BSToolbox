@@ -306,7 +306,16 @@ public class FreemarkerGenerator {
 	public Object getVariable(String name) {
 		return variables.get(name);
 	}
+	
+	public void setVariable(String name, Properties values) {
+		Map<String, String> vars = new HashMap<>();
+		values.forEach((p, v) -> {
+			vars.put((String) p, (String) v);
+		});
 
+		variables.put(name, vars);
+	}
+	
 	public void clearVariables() {
 		variables.clear();
 	}

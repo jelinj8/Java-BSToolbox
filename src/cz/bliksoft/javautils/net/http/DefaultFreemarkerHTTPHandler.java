@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -130,5 +131,14 @@ public class DefaultFreemarkerHTTPHandler extends BasicHTTPHandler implements Cl
 		log.fine("Serve " + pageFile);
 		sendOKDocument(exchange, pageFile);
 
+	}
+
+	public void setVariable(String name, Properties values) {
+		Map<String, String> vars = new HashMap<>();
+		values.forEach((p, v) -> {
+			vars.put((String) p, (String) v);
+		});
+
+		variables.put(name, vars);
 	}
 }

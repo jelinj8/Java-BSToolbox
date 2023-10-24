@@ -9,7 +9,6 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 
 import cz.bliksoft.javautils.net.http.MultiPart;
 import cz.bliksoft.javautils.net.http.MultiPart.PartType;
@@ -26,10 +25,8 @@ public class ObjectUtils {
 	 * for any object that implements Serializable. If the original is {@code null},
 	 * this method just returns {@code null}.
 	 *
-	 * @param <T>
-	 *            the type of the object to be cloned
-	 * @param original
-	 *            the object to copied, may be {@code null}
+	 * @param <T>      the type of the object to be cloned
+	 * @param original the object to copied, may be {@code null}
 	 * @return the copied object
 	 *
 	 * @since 1.1.1
@@ -64,10 +61,8 @@ public class ObjectUtils {
 	 * Objects.equals("Hi", "Ho") == false
 	 * </pre>
 	 *
-	 * @param o1
-	 *            the first object to compare
-	 * @param o2
-	 *            the second object to compare
+	 * @param o1 the first object to compare
+	 * @param o2 the second object to compare
 	 * @return boolean {@code true} if and only if both objects are {@code null} or
 	 *         equal according to {@link Object#equals(Object) equals} invoked on
 	 *         the first object
@@ -98,10 +93,13 @@ public class ObjectUtils {
 		final String localPad2 = pad + PAD_TEXT;
 		StringBuilder sb = new StringBuilder();
 		if (o == null) {
-			sb.append("<NULL>\n");
-		}
-		if (o instanceof String) {
-			sb.append(StringUtils.prependLines("\"" + (String) o + "\"", null, localPad));
+			sb.append("<NULL>");
+		} else if (o instanceof Boolean) {
+			sb.append(o.toString());
+		} else if (o instanceof Integer) {
+			sb.append(NumericUtils.numberAsString(o));
+		} else if (o instanceof String) {
+			sb.append(StringUtils.prependLines("\"" + (String) o + "\"", null, localPad2 + "|"));
 		} else if (o instanceof Entry) {
 			Entry e = (Entry) o;
 			sb.append("[");
@@ -165,7 +163,7 @@ public class ObjectUtils {
 			}
 			sb.append("]");
 		} else if (o instanceof Enumeration) {
-			//			sb.append(localPad);
+			// sb.append(localPad);
 			sb.append("[");
 			Enumeration e = (Enumeration) o;
 			if (e.hasMoreElements()) {

@@ -2,6 +2,7 @@ package cz.bliksoft.javautils.net.http;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -108,6 +109,9 @@ public class BSHttpServer {
 	}
 
 	public void addHandler(String path, HttpHandler handler) {
+		if (handler instanceof BasicHTTPHandler && ((BasicHTTPHandler) handler).getSupportedMethods().isEmpty())
+			throw new RuntimeException(MessageFormat.format("Handler {0} has no supported methods!", handler));
+		
 		httpHandlers.put(path, handler);
 		if (running) {
 			server.createContext(path, handler);
@@ -150,7 +154,7 @@ public class BSHttpServer {
 		}
 
 		server = null;
-		
+
 		return true;
 	}
 
@@ -185,9 +189,10 @@ public class BSHttpServer {
 				((BasicHTTPHandler) h).start();
 		}
 	}
-	
+
 	/**
 	 * can block stopping of web server
+	 * 
 	 * @return
 	 */
 	public boolean beforeStop() {

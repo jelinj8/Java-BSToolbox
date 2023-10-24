@@ -3,21 +3,15 @@ package cz.bliksoft.javautils.net.http;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.Properties;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.sun.net.httpserver.HttpExchange;
-
-import cz.bliksoft.javautils.DateUtils;
 import cz.bliksoft.javautils.EnvironmentUtils;
 import cz.bliksoft.javautils.StringUtils;
 import cz.bliksoft.javautils.freemarker.FreemarkerGenerator;
@@ -26,7 +20,6 @@ import freemarker.cache.FileTemplateLoader;
 import freemarker.cache.MultiTemplateLoader;
 import freemarker.cache.TemplateLoader;
 
-@SuppressWarnings("restriction")
 public class DefaultFreemarkerHTTPHandler extends BasicHTTPHandler implements Closeable {
 	private static Logger log = Logger.getLogger(DefaultFreemarkerHTTPHandler.class.getName());
 
@@ -43,12 +36,12 @@ public class DefaultFreemarkerHTTPHandler extends BasicHTTPHandler implements Cl
 
 	public Map<String, Object> variables = new HashMap<>();
 
-	private String prefixPath = null;
-
 	public DefaultFreemarkerHTTPHandler() {
+		addSupportedGETPOST();
 	}
 
 	public DefaultFreemarkerHTTPHandler(File root) {
+		this();
 		rootFolder = root;
 	}
 
@@ -57,6 +50,7 @@ public class DefaultFreemarkerHTTPHandler extends BasicHTTPHandler implements Cl
 	}
 
 	public DefaultFreemarkerHTTPHandler(TemplateLoader loader) {
+		this();
 		this.templateLoader = loader;
 	}
 
@@ -64,27 +58,9 @@ public class DefaultFreemarkerHTTPHandler extends BasicHTTPHandler implements Cl
 		this.templateLoader = loader;
 	}
 
-	public void setPrefixPath(String prefix) {
-		prefixPath = prefix;
-	}
-
-	public void setIndexFileName(String name) {
-		indexFileName = name;
-	}
-
 	@Override
-	public void handle(HttpExchange exchange, String path, String query, HttpMethod method) throws IOException {
-		switch (method) {
-		case GET:
-		case POST:
-			break;
-		default:
-			sendERR(exchange, "Unsupported method", HTTPErrorCodes.CLIENT_UNSUPPORTED_MEDIA_TYPE.getValue());
-			throw new IOException("Unsupported method: " + method);
-		}
-
-		if (prefixPath != null && path != null)
-			path = path.replace(prefixPath, "");
+	public void handle(BSHttpContext context) throws IOException {
+		String path = context.requested;
 
 		if (StringUtils.isEmpty(path) || "/".equals(path))
 			path = indexFileName;
@@ -102,7 +78,7 @@ public class DefaultFreemarkerHTTPHandler extends BasicHTTPHandler implements Cl
 
 			generator = new FreemarkerGenerator(new MultiTemplateLoader(loaders.toArray(new TemplateLoader[] {})));
 
-			generator.setVariable("http", buildContext(exchange, path, query, method));
+			generator.setVariable("http", context);
 
 			generator.setVariable("environment", EnvironmentUtils.getEnvironmentProperties());
 
@@ -116,21 +92,21 @@ public class DefaultFreemarkerHTTPHandler extends BasicHTTPHandler implements Cl
 
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "Failed to create FreemarkerGenerator.", e);
-			sendERR(exchange, "Failed to create FreeemarkerGenerator",
+			sendERR(context.httpExchange, "Failed to create FreeemarkerGenerator",
 					HTTPErrorCodes.SERVER_INTERNAL_SERVER_ERROR.getValue());
 		}
 
 		try {
-			sendOK(exchange, generator.generate(path), CONTENT_TYPE_HTML);
+			sendOK(context.httpExchange, generator.generate(path), CONTENT_TYPE_HTML);
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "Failed to process template.", e);
-			sendERR(exchange, "Failed to process template", HTTPErrorCodes.SERVER_INTERNAL_SERVER_ERROR.getValue());
+			sendERR(context.httpExchange, "Failed to process template",
+					HTTPErrorCodes.SERVER_INTERNAL_SERVER_ERROR.getValue());
 		}
 
 		File pageFile = new File(rootFolder, path);
 		log.fine("Serve " + pageFile);
-		sendOKDocument(exchange, pageFile);
-
+		sendOKDocument(context.httpExchange, pageFile);
 	}
 
 	public void setVariable(String name, Properties values) {

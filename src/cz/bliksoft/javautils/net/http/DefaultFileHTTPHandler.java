@@ -5,11 +5,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-import com.sun.net.httpserver.HttpExchange;
-
 import cz.bliksoft.javautils.StringUtils;
 
-@SuppressWarnings("restriction")
 public class DefaultFileHTTPHandler extends BasicHTTPHandler implements Closeable {
 	private static Logger log = Logger.getLogger(DefaultFileHTTPHandler.class.getName());
 
@@ -31,24 +28,26 @@ public class DefaultFileHTTPHandler extends BasicHTTPHandler implements Closeabl
 	}
 
 	@Override
-	public void handle(HttpExchange exchange, String path, String query, HttpMethod method) throws IOException {
-		switch (method) {
+	public void handle(BSHttpContext context) throws IOException {
+		switch (context.method) {
 		case GET:
 		case POST:
 			break;
 		default:
-			sendERR(exchange, "Unsupported method", HTTPErrorCodes.CLIENT_UNSUPPORTED_MEDIA_TYPE.getValue());
-			throw new IOException("Unsupported method: " + method);
+			sendERR(context.httpExchange, "Unsupported method",
+					HTTPErrorCodes.CLIENT_UNSUPPORTED_MEDIA_TYPE.getValue());
+			throw new IOException("Unsupported method: " + context.method);
 		}
 
+		String path = context.path;
 		if (StringUtils.isEmpty(path) || "/".equals(path))
 			path = indexFileName;
 		File pageFile = new File(pages, path);
 		log.fine("Serve " + pageFile);
 		if (download)
-			sendFile(exchange, pageFile);
+			sendFile(context.httpExchange, pageFile);
 		else
-			sendOKDocument(exchange, pageFile);
+			sendOKDocument(context.httpExchange, pageFile);
 
 	}
 }

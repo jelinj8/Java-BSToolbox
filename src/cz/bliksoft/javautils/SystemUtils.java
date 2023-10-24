@@ -27,10 +27,7 @@ public class SystemUtils {
 
 	public static void keepRunningUntilInterrupted() {
 
-		log.fine("Registering shutdown hook");
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-			keepWorking.set(false);
-		}));
+		installShutdownHook();
 
 		log.info("Waiting for shutdown signal");
 		try {
@@ -47,4 +44,32 @@ public class SystemUtils {
 			log.info("Interrupted.");
 		}
 	}
+
+	private static Boolean installed = false;
+
+	public static void installShutdownHook() {
+		synchronized (installed) {
+			if (installed)
+				return;
+
+			log.fine("Registering shutdown hook");
+			Runtime.getRuntime().addShutdownHook(new Thread() {
+				public void run() {
+					log.warning("Interrupt hook activated");
+					keepWorking.set(false);
+				}
+			});
+
+			installed = true;
+		}
+	}
+
+	public static boolean isInterrupting() {
+		return !keepWorking.get();
+	}
+
+	public static boolean isRunning() {
+		return keepWorking.get();
+	}
+
 }

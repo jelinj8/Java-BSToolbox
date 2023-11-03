@@ -61,6 +61,7 @@ import cz.bliksoft.javautils.StringUtils;
 import cz.bliksoft.javautils.streams.xml.ElementWriter;
 import cz.bliksoft.javautils.xml.xpath.ChooseXPathFunction;
 import cz.bliksoft.javautils.xml.xpath.Default;
+import cz.bliksoft.javautils.xml.xpath.First;
 import cz.bliksoft.javautils.xml.xpath.FormatXPathFunction;
 import cz.bliksoft.javautils.xml.xpath.IfElseIf;
 import cz.bliksoft.javautils.xml.xpath.MapXPathFunction;
@@ -484,13 +485,10 @@ public class XmlUtils {
 		/**
 		 * register a function
 		 * 
-		 * @param prefix
-		 *            namespace prefix
-		 * @param fName
-		 *            function name, for specific arity add e.g. "fname:3" (attempt for
-		 *            specific first, non-specific if not found)
-		 * @param functionImpl
-		 *            implementing object
+		 * @param prefix       namespace prefix
+		 * @param fName        function name, for specific arity add e.g. "fname:3"
+		 *                     (attempt for specific first, non-specific if not found)
+		 * @param functionImpl implementing object
 		 */
 		public void addFunction(String prefix, String fName, XPathFunction functionImpl) {
 			Map<String, XPathFunction> pFunctions = functions.get(prefix);
@@ -548,6 +546,7 @@ public class XmlUtils {
 			functionResolver.addFunction(nsPrefix, "map", new MapXPathFunction());
 			functionResolver.addFunction(nsPrefix, "format", new FormatXPathFunction());
 			functionResolver.addFunction(nsPrefix, "ifElseIf", new IfElseIf());
+			functionResolver.addFunction(nsPrefix, "first", new First());
 		}
 	}
 

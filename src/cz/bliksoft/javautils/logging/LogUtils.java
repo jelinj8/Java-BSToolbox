@@ -163,7 +163,7 @@ public class LogUtils {
 		String timestamp = sdf.format(curdate);
 		String path = MessageFormat.format("{0}{1}_{2}.{3}", logDir + File.separatorChar, timestamp, name, extension);
 
-		log.info("Log file: " + path);
+		log.fine("Log file: " + path);
 		return path;
 	}
 
@@ -204,7 +204,7 @@ public class LogUtils {
 		try (FileWriter fw = new FileWriter(f)) {
 			fw.write(message);
 		} catch (IOException e) {
-			log.log(Level.INFO, "Error logging to file " + f, e);
+			log.log(Level.SEVERE, "Error logging to file " + f, e);
 			e.printStackTrace();
 		}
 	}
@@ -219,7 +219,7 @@ public class LogUtils {
 		try (FileOutputStream fos = new FileOutputStream(f)) {
 			fos.write(message);
 		} catch (IOException e) {
-			log.log(Level.INFO, "Error logging to file " + f, e);
+			log.log(Level.SEVERE, "Error logging to file " + f, e);
 			e.printStackTrace();
 
 		}
@@ -237,7 +237,7 @@ public class LogUtils {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (Exception e) {
-			log.log(Level.INFO, "Error logging XMLObject file (Marshalling failed)", e);
+			log.log(Level.SEVERE, "Error logging XMLObject file (Marshalling failed)", e);
 			e.printStackTrace();
 		}
 	}

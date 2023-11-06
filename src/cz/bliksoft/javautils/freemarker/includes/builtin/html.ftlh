@@ -65,18 +65,65 @@
 <script>hljs.highlightAll();</script>
 </#macro>
 
-<#macro code syntax='default'><pre class="pre-wrap"><code<#if syntax!='default'> class="${syntax}"</#if>><#nested></code></pre></#macro>
+<#macro code syntax='default'>
+<pre class="pre-wrap"><code<#if syntax!='default'> class="${syntax}"</#if>><#nested></code></pre>
+</#macro>
 
-<#macro css_styles><style><#include 'styles.css' parse=false></style></#macro>
+<#macro css_styles>
+<style><#include 'styles.css' parse=false></style>
+</#macro>
 
-<#macro css_fullframe><style>
+<#macro css_fullframe>
+<style>
 html,
 body {
   height: 100%;
   margin: 0;
 }
-</style></#macro>
+</style>
+</#macro>
 
 <#macro imgdatafile file format='png'>data:image/${format};base64,${Base64File(file)}</#macro>
 <#macro imgdata base64data format='png'>data:image/${format};base64,${base64data}</#macro>
 <#macro qr data id='' alt='' class='' modulus=1><img src="<@imgsrcdata Base64QR(data, modulus) />"<#if id?has_content> id="${id}"</#if><#if class?has_content> class="${class}"</#if><#if alt?has_content> alt="${alt}"</#if></#macro>
+
+<#macro additionalHead><#assign additionalHeadContent><#nested></#assign></#macro>
+<#macro documentHeader class=''><#assign definedHeaderClass=class /><#assign definedHeader><#nested></#assign></#macro>
+<#macro documentFooter class=''><#assign definedFooterClass=class /><#assign definedFooter><#nested></#assign></#macro>
+
+<#macro simpleDocument class=''>
+<#import "builtin/debug.ftl" as debug>
+<@document>
+<@head>
+<script><#include 'jquery.js' parse=false></script>
+<@highlighter />
+<@expander />
+<@css_styles />
+<@css_fullframe />
+<#if additionalHeadContent??>
+${additionalHeadContent?no_esc}
+</#if>
+</@head>
+<@body class>
+<#if definedHeader?? || definedFooter??>
+<@html.box>
+<#if definedHeader??>
+<@html.box_header class=definedHeaderClass!>
+${definedHeader?no_esc}
+</@html.box_header>
+</#if>
+<@html.box_content>
+<#nested>
+</@html.box_content>
+<#if definedFooter??>
+<@html.box_footer class=definedFooterClass!>
+${definedFooter?no_esc}
+</@html.box_footer>
+</#if>
+</@html.box>
+<#else>
+<#nested>
+</#if>
+</@body>
+</@document>
+</#macro>

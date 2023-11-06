@@ -3,6 +3,16 @@ package cz.bliksoft.javautils;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,6 +55,43 @@ public class GeneralUtils {
 			}
 		}
 		return os;
+	}
+
+	public static List<InetAddress> getIPs() throws SocketException {
+		List<InetAddress> result = getIPsIncludingLoopback();
+
+		result.removeIf(new Predicate<InetAddress>() {
+			@Override
+			public boolean test(InetAddress t) {
+				return t.isLoopbackAddress();
+			}
+		});
+
+		return result;
+	}
+
+	public static List<InetAddress> getIPsIncludingLoopback() throws SocketException {
+		List<InetAddress> result = new ArrayList<>();
+		Enumeration<NetworkInterface> e;
+		e = NetworkInterface.getNetworkInterfaces();
+		while (e.hasMoreElements()) {
+			NetworkInterface n = (NetworkInterface) e.nextElement();
+			Enumeration<InetAddress> ee = n.getInetAddresses();
+			while (ee.hasMoreElements()) {
+				InetAddress i = (InetAddress) ee.nextElement();
+				if (!i.isLoopbackAddress())
+					result.add(i);
+			}
+		}
+
+		result.removeIf(new Predicate<InetAddress>() {
+			@Override
+			public boolean test(InetAddress t) {
+				return !(t instanceof Inet4Address);
+			}
+		});
+
+		return result;
 	}
 
 }

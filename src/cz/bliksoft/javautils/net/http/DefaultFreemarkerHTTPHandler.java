@@ -94,19 +94,18 @@ public class DefaultFreemarkerHTTPHandler extends BasicHTTPHandler implements Cl
 			log.log(Level.SEVERE, "Failed to create FreemarkerGenerator.", e);
 			sendERR(context.httpExchange, "Failed to create FreeemarkerGenerator",
 					HTTPErrorCodes.SERVER_INTERNAL_SERVER_ERROR.getValue());
+			return;
 		}
 
 		try {
 			sendOK(context.httpExchange, generator.generate(path), CONTENT_TYPE_HTML);
+			return;
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "Failed to process template.", e);
 			sendERR(context.httpExchange, "Failed to process template",
 					HTTPErrorCodes.SERVER_INTERNAL_SERVER_ERROR.getValue());
+			return;
 		}
-
-		File pageFile = new File(rootFolder, path);
-		log.fine("Serve " + pageFile);
-		sendOKDocument(context.httpExchange, pageFile);
 	}
 
 	public void setVariable(String name, Properties values) {

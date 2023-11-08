@@ -185,19 +185,29 @@ public class FreemarkerGenerator {
 		return s.toString();
 	}
 
+	public void generate(File outfile, String templateName) throws IOException, TemplateException {
+		Template tpl = getTemplate(templateName);
+		generate(outfile, tpl);
+	}
+
 	public void generate(File outfile, Template template) throws IOException, TemplateException {
 		try (FileOutputStream fos = new FileOutputStream(outfile)) {
 			generate(fos, template);
 		}
 	}
 
+	public void generate(OutputStream out, String templateName) throws IOException, TemplateException {
+		Template tpl = getTemplate(templateName);
+		generate(out, tpl);
+	}
+	
 	public void generate(OutputStream out, Template template) throws IOException, TemplateException {
 		Map<String, Object> root = new HashMap<>();
 		registerExtensions(root);
 		registerVariables(root);
 		generate(out, template, root);
 	}
-
+	
 	private void generate(OutputStream outfile, Template tpl, Map<String, Object> root)
 			throws IOException, TemplateException {
 		try (OutputStreamWriter out = new OutputStreamWriter(outfile, StandardCharsets.UTF_8)) {

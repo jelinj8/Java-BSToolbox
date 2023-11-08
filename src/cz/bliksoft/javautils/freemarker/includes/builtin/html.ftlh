@@ -59,6 +59,8 @@
 <#macro expander><script type="text/javascript"><#include 'expander.js' parse=false></script></#macro>
 <#macro highlighter><script type="text/javascript"><#include 'highlighter.js' parse=false></script></#macro>
 
+<#macro chartjs><script src="https://cdn.jsdelivr.net/npm/chart.js"></script></#macro>
+
 <#macro syntaxhighlighter theme='default.min'>
 <style><#include 'syntaxhighlighter/css/'+theme+'.css' parse=false></style>
 <script type="text/javascript"><#include 'syntaxhighlighter/highlight.min.js' parse=false></script>

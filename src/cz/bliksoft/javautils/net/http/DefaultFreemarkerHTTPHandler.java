@@ -85,7 +85,11 @@ public class DefaultFreemarkerHTTPHandler extends BasicHTTPHandler implements Cl
 
 			generator.setVariable("http", context);
 
-			generator.setVariable("environment", EnvironmentUtils.getEnvironmentProperties());
+			try {
+				generator.setVariable("environment", EnvironmentUtils.getEnvironmentProperties());
+			} catch (Exception e) {
+				log.fine("EnvironmentUtils not initialized.");
+			}
 
 			for (Entry<String, Object> ext : extensions.entrySet()) {
 				generator.addExtension(ext.getKey(), ext.getValue());
@@ -114,7 +118,7 @@ public class DefaultFreemarkerHTTPHandler extends BasicHTTPHandler implements Cl
 					HTTPErrorCodes.SERVER_INTERNAL_SERVER_ERROR.getValue());
 			return;
 		}
-		
+
 		try (OutputStream os = context.httpExchange.getResponseBody()) {
 			generator.generate(os, template);
 		} catch (TemplateException e) {

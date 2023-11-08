@@ -106,12 +106,10 @@ public class DefaultFreemarkerHTTPHandler extends BasicHTTPHandler implements Cl
 					HTTPErrorCodes.SERVER_INTERNAL_SERVER_ERROR.getValue());
 			return;
 		}
-
+		
 		try {
 			addCommonHeaders(context.httpExchange, CONTENT_TYPE_HTML);
 			context.httpExchange.sendResponseHeaders(HTTPErrorCodes.OK.getValue(), 0);
-//			sendOK(context.httpExchange, generator.generate(path), CONTENT_TYPE_HTML);
-//			return;
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "Failed to process template.", e);
 			sendERR(context.httpExchange, "Failed to process template",

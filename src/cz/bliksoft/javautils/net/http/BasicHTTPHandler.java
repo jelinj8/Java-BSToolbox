@@ -293,11 +293,6 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 		}
 	}
 
-	protected static void sendHeaders(HttpExchange httpExchange, Integer code, Long length) throws IOException {
-		httpExchange.sendResponseHeaders((code == null ? HTTPErrorCodes.OK.getValue() : code),
-				(length == null ? 0l : length));
-	}
-
 	protected static void sendERR(HttpExchange httpExchange, String message, HTTPErrorCodes code) throws IOException {
 		sendERR(httpExchange, message, CONTENT_TYPE_TXT, code.getValue());
 	}

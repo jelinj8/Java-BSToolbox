@@ -3,6 +3,7 @@ package cz.bliksoft.javautils.net.http;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +20,8 @@ import cz.bliksoft.javautils.freemarker.includes.BuiltinTemplateLoader;
 import freemarker.cache.FileTemplateLoader;
 import freemarker.cache.MultiTemplateLoader;
 import freemarker.cache.TemplateLoader;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
 
 public class DefaultFreemarkerHTTPHandler extends BasicHTTPHandler implements Closeable {
 	private static Logger log = Logger.getLogger(DefaultFreemarkerHTTPHandler.class.getName());
@@ -58,6 +61,7 @@ public class DefaultFreemarkerHTTPHandler extends BasicHTTPHandler implements Cl
 		this.templateLoader = loader;
 	}
 
+	@SuppressWarnings("restriction")
 	@Override
 	public void handle(BSHttpContext context) throws IOException {
 		String path = context.requested;
@@ -66,6 +70,7 @@ public class DefaultFreemarkerHTTPHandler extends BasicHTTPHandler implements Cl
 			path = indexFileName;
 
 		FreemarkerGenerator generator = null;
+		Template template = null;
 		try {
 			List<TemplateLoader> loaders = new ArrayList<>();
 			loaders.add(BuiltinTemplateLoader.getBuiltinTemplateLoader());
@@ -90,23 +95,32 @@ public class DefaultFreemarkerHTTPHandler extends BasicHTTPHandler implements Cl
 				generator.setVariable(var.getKey(), var.getValue());
 			}
 
+			template = generator.getTemplate(path);
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "Failed to create FreemarkerGenerator.", e);
 			sendERR(context.httpExchange, "Failed to create FreeemarkerGenerator",
 					HTTPErrorCodes.SERVER_INTERNAL_SERVER_ERROR.getValue());
+			return;
 		}
 
 		try {
-			sendOK(context.httpExchange, generator.generate(path), CONTENT_TYPE_HTML);
+			addCommonHeaders(context.httpExchange, CONTENT_TYPE_HTML);
+			context.httpExchange.sendResponseHeaders(HTTPErrorCodes.OK.getValue(), 0);
+//			sendOK(context.httpExchange, generator.generate(path), CONTENT_TYPE_HTML);
+//			return;
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "Failed to process template.", e);
 			sendERR(context.httpExchange, "Failed to process template",
 					HTTPErrorCodes.SERVER_INTERNAL_SERVER_ERROR.getValue());
+			return;
 		}
-
-		File pageFile = new File(rootFolder, path);
-		log.fine("Serve " + pageFile);
-		sendOKDocument(context.httpExchange, pageFile);
+		
+		try (OutputStream os = context.httpExchange.getResponseBody()) {
+			generator.generate(os, template);
+		} catch (TemplateException e) {
+			log.log(Level.SEVERE, "Failed to process template, sending response already started", e);
+		}
+		return;
 	}
 
 	public void setVariable(String name, Properties values) {

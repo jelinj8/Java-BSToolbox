@@ -195,10 +195,10 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 			String query = uri.getQuery();
 
 			BSHttpContext context = new BSHttpContext(pathPrefix, httpExchange, path, query, method);
-			
-			if(context.requested == null && defaultRequired != null)
+
+			if (context.requested == null && defaultRequired != null)
 				context.requested = defaultRequired;
-			
+
 			if (!supportedMethods.contains(context.method)) {
 				sendERR(httpExchange, "Unsupported method: " + method,
 						HTTPErrorCodes.CLIENT_UNSUPPORTED_MEDIA_TYPE.getValue());
@@ -249,6 +249,10 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 		} else {
 			httpExchange.sendResponseHeaders(HTTPErrorCodes.OK.getValue(), 0);
 		}
+	}
+
+	protected static OutputStream getOutputStream(HttpExchange httpExchange) {
+		return httpExchange.getResponseBody();
 	}
 
 	protected static void sendOKDocument(HttpExchange httpExchange, File document) throws IOException {
@@ -372,7 +376,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 		}
 	}
 
-	private static void addCommonHeaders(HttpExchange httpExchange, String contentType) {
+	protected static void addCommonHeaders(HttpExchange httpExchange, String contentType) {
 		addHeader(httpExchange, HEADER_CONTENT_TYPE, contentType);
 		addHeader(httpExchange, HEADER_ORIGIN, HEADER_ORIGIN_ANY);
 	}

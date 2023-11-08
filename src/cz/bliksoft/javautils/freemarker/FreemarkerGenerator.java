@@ -185,19 +185,17 @@ public class FreemarkerGenerator {
 		return s.toString();
 	}
 
-	public void generate(File outfile, String templateName) throws IOException, TemplateException {
+	public void generate(File outfile, Template template) throws IOException, TemplateException {
 		try (FileOutputStream fos = new FileOutputStream(outfile)) {
-			generate(fos, templateName);
+			generate(fos, template);
 		}
 	}
 
-	public void generate(OutputStream out, String templateName) throws IOException, TemplateException {
-		Template temp = getTemplate(templateName);
-
+	public void generate(OutputStream out, Template template) throws IOException, TemplateException {
 		Map<String, Object> root = new HashMap<>();
 		registerExtensions(root);
 		registerVariables(root);
-		generate(out, temp, root);
+		generate(out, template, root);
 	}
 
 	private void generate(OutputStream outfile, Template tpl, Map<String, Object> root)
@@ -212,10 +210,8 @@ public class FreemarkerGenerator {
 		}
 	}
 
-	private Template getTemplate(String templateName) throws IOException {
-		Template temp = null;
-		temp = cfg.getTemplate(templateName);
-		return temp;
+	public Template getTemplate(String templateName) throws IOException {
+		return cfg.getTemplate(templateName);
 	}
 
 	private static Map<String, Object> getDefaultGlobalExtensions() {
@@ -242,8 +238,9 @@ public class FreemarkerGenerator {
 		res.put("TXTTOHTML_WHITESPACE", //$NON-NLS-1$
 				new TextReplacer("&", "&amp;", " ", "&nbsp;", "\t", "&nbsp;&nbsp;&nbsp;", "<", "&lt;", ">", "&gt;",
 						"\"", "&quot;", "'", "&#39;", "\n", "<br>\n"));
-		//		res.put("TXTTOHTML_SAFE", //$NON-NLS-1$
-		//				new TextReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;", "\"", "&quot;", "'", "&#39;"));
+		// res.put("TXTTOHTML_SAFE", //$NON-NLS-1$
+		// new TextReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;", "\"", "&quot;", "'",
+		// "&#39;"));
 		return res;
 	}
 
@@ -306,7 +303,7 @@ public class FreemarkerGenerator {
 	public Object getVariable(String name) {
 		return variables.get(name);
 	}
-	
+
 	public void setVariable(String name, Properties values) {
 		Map<String, String> vars = new HashMap<>();
 		values.forEach((p, v) -> {
@@ -315,7 +312,7 @@ public class FreemarkerGenerator {
 
 		variables.put(name, vars);
 	}
-	
+
 	public void clearVariables() {
 		variables.clear();
 	}

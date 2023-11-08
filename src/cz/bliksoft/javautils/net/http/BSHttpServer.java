@@ -111,7 +111,7 @@ public class BSHttpServer {
 	public void addHandler(String path, HttpHandler handler) {
 		if (handler instanceof BasicHTTPHandler && ((BasicHTTPHandler) handler).getSupportedMethods().isEmpty())
 			throw new RuntimeException(MessageFormat.format("Handler {0} has no supported methods!", handler));
-		
+
 		httpHandlers.put(path, handler);
 		if (running) {
 			server.createContext(path, handler);
@@ -203,5 +203,9 @@ public class BSHttpServer {
 	 * can be used e.g. to bind webservices
 	 */
 	public void beforeStart() {
+	}
+
+	public HttpServer getServer() {
+		return server;
 	}
 }

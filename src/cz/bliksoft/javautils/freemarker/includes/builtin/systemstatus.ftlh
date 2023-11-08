@@ -41,7 +41,7 @@
 		</tbody>
 	</#list>
 	</table>
-  	<span style="width: 400px; height:400px;"><canvas id="memChart" style="width: 400px; height:400px;"></canvas></span>
+  	<span style="width: 200px; height:200px;"><canvas id="memChart" style="width: 200px; height:200px;"></canvas></span>
   	<span><canvas id="memHistoryChart" style="width: 100%; height:400px;"></canvas></span>
 <script>
 

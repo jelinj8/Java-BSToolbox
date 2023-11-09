@@ -5,7 +5,6 @@ import java.net.InetAddress;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -13,13 +12,15 @@ import java.util.logging.Logger;
 import com.sun.net.httpserver.HttpServer;
 
 import cz.bliksoft.javautils.GeneralUtils;
+import cz.bliksoft.javautils.binding.list.collections.LimitedList;
 import cz.bliksoft.javautils.freemarker.includes.BuiltinTemplateLoader;
 import freemarker.cache.ClassTemplateLoader;
 
 @SuppressWarnings("restriction")
 public class SystemReportHTTPHandler extends DefaultFreemarkerHTTPHandler {
 
-	private List<SystemReport> memoryReports = new LinkedList<>();
+	private LimitedList<SystemReport> memoryReports = new LimitedList<>(maxHistory);
+
 	private static final Logger log = Logger.getLogger(SystemReportHTTPHandler.class.getName());
 
 	public static final long systemReportPause = 1000 * 10;
@@ -74,9 +75,6 @@ public class SystemReportHTTPHandler extends DefaultFreemarkerHTTPHandler {
 				while (true) {
 					synchronized (memoryReports) {
 						memoryReports.add(new SystemReport());
-						while (memoryReports.size() > maxHistory) {
-							memoryReports.remove(0);
-						}
 					}
 
 //					log.info("Status report has " + memoryReports.size() + " record(s).");

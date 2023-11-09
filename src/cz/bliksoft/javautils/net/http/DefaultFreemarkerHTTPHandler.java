@@ -99,20 +99,20 @@ public class DefaultFreemarkerHTTPHandler extends BasicHTTPHandler implements Cl
 				generator.setVariable(var.getKey(), var.getValue());
 			}
 
-			template = generator.getTemplate(path);
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "Failed to create FreemarkerGenerator.", e);
 			sendERR(context.httpExchange, "Failed to create FreeemarkerGenerator",
 					HTTPErrorCodes.SERVER_INTERNAL_SERVER_ERROR.getValue());
 			return;
 		}
-		
+
 		try {
+			template = generator.getTemplate(path);
 			addCommonHeaders(context.httpExchange, CONTENT_TYPE_HTML);
-			context.httpExchange.sendResponseHeaders(HTTPErrorCodes.OK.getValue(), 0);
-		} catch (Exception e) {
-			log.log(Level.SEVERE, "Failed to process template.", e);
-			sendERR(context.httpExchange, "Failed to process template",
+			sendHeaders(context.httpExchange, null, null);
+		} catch (IOException e) {
+			log.log(Level.SEVERE, "Failed to get template.", e);
+			sendERR(context.httpExchange, "Failed to get template",
 					HTTPErrorCodes.SERVER_INTERNAL_SERVER_ERROR.getValue());
 			return;
 		}

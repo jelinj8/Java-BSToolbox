@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-//import java.util.logging.Logger;
+import java.util.logging.Logger;
 
 import com.sun.net.httpserver.HttpServer;
 
@@ -20,7 +20,7 @@ import freemarker.cache.ClassTemplateLoader;
 public class SystemReportHTTPHandler extends DefaultFreemarkerHTTPHandler {
 
 	private List<SystemReport> memoryReports = new LinkedList<>();
-//	private static final Logger log = Logger.getLogger(SystemReportHTTPHandler.class.getName());
+	private static final Logger log = Logger.getLogger(SystemReportHTTPHandler.class.getName());
 
 	public static final long systemReportPause = 1000 * 10;
 	public static final int maxHistory = 240;
@@ -96,6 +96,18 @@ public class SystemReportHTTPHandler extends DefaultFreemarkerHTTPHandler {
 
 	@Override
 	public void handle(BSHttpContext context) throws IOException {
+
+		Object gbc = context.request.get("collectGarbage");
+		boolean collectGarbage = false;
+		if (gbc != null) {
+			collectGarbage = "true".equals(gbc.toString());
+		}
+
+		if (collectGarbage) {
+			log.info("Forced GBC");
+			System.gc();
+		}
+		variables.put("GARBAGE", collectGarbage);
 
 		context.requested = "systemstatus.ftlh";
 

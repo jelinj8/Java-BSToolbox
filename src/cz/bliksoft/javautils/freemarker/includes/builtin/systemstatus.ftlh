@@ -2,6 +2,7 @@
 <@html.additionalHead>
 <@html.title>Status repot</@html.title>
 <@html.chartjs />
+ <meta http-equiv="refresh" content="<#if GARBAGE!false>10<#else>30</#if>">
 </@html.additionalHead>
 <@html.documentHeader><h1>System report (generated at ${.now?datetime})</h1></@html.documentHeader>
 <@html.documentFooter class='noprint'>
@@ -40,6 +41,10 @@
 		</#items>
 		</tbody>
 	</#list>
+		<tbody>
+			<tr><th colspan="2" class="center">GC</th></tr>
+			<tr><td colspan="2" class="right"><@html.inlineform '/systeminfo/'><@html.button 'refresh' 'refresh' 'true' /></@html.inlineform><@html.inlineform '/systeminfo/'><@html.button 'Run GC' 'collectGarbage' 'true' /></@html.inlineform></td></tr>
+		</tbody>
 	</table>
   	<span style="width: 200px; height:200px;"><canvas id="memChart" style="width: 200px; height:200px;"></canvas></span>
   	<span><canvas id="memHistoryChart" style="width: 100%; height:400px;"></canvas></span>

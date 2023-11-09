@@ -79,7 +79,7 @@
          type: 'line',
          data: {
          	labels: [
-         		<#list MEMORY as rep>'${rep.TS.format('hh:mm:ss')}',</#list>
+         		<#list MEMORY as rep>'${rep.TS.format('HH:mm:ss')}',</#list>
          	],
             datasets: [
             {

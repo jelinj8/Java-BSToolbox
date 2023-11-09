@@ -54,12 +54,13 @@
 
 <#macro jquery><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script></#macro>
 <#macro jquery_inline><script type="text/javascript"><#include 'jquery.js' parse=false></script></#macro>
+<#macro chartjs><script src="https://cdn.jsdelivr.net/npm/chart.js"></script></#macro>
+<#macro chartjs_inline><script><#include 'chart.js' parse=false></script></#macro>
+
 <#macro formlink><script type="text/javascript"><#include 'formlink.js' parse=false></script></#macro>
 <#macro ajaxsubmit><script type="text/javascript"><#include 'ajaxsubmit.js' parse=false></script></#macro>
 <#macro expander><script type="text/javascript"><#include 'expander.js' parse=false></script></#macro>
 <#macro highlighter><script type="text/javascript"><#include 'highlighter.js' parse=false></script></#macro>
-
-<#macro chartjs><script src="https://cdn.jsdelivr.net/npm/chart.js"></script></#macro>
 
 <#macro syntaxhighlighter theme='default.min'>
 <style><#include 'syntaxhighlighter/css/'+theme+'.css' parse=false></style>
@@ -97,7 +98,9 @@ body {
 <#import "builtin/debug.ftl" as debug>
 <@document>
 <@head>
-<script><#include 'jquery.js' parse=false></script>
+<@syntaxhighlighter />
+<@jquery_inline />
+<@chartjs_inline />
 <@highlighter />
 <@expander />
 <@css_styles />

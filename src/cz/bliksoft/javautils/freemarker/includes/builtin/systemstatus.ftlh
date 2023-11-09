@@ -4,7 +4,7 @@
 <@html.chartjs_inline />
  <meta http-equiv="refresh" content="<#if GARBAGE!false>10<#else>30</#if>">
 </@html.additionalHead>
-<@html.documentHeader><h1>System report (generated at ${.now?datetime})</h1></@html.documentHeader>
+<@html.documentHeader><h1>System report (generated at ${.now?datetime?string["d.M.yyyy HH:mm:ss"]})</h1></@html.documentHeader>
 <@html.documentFooter class='noprint'>
 <span class="button" id="expander_debug_pm" onclick="toggle_collapse('.expander_debug')">debug &plusmn;</span>
 <div class="expander_debug " style="display: none;">

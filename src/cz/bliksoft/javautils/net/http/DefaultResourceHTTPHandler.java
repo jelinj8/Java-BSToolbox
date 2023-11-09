@@ -40,7 +40,7 @@ public class DefaultResourceHTTPHandler extends BasicHTTPHandler implements Clos
 			else
 				sendOKResource(context.httpExchange, loader, fullPath);
 		} catch (IOException e) {
-			log.severe(MessageFormat.format("Failed to serve resource {0}: {1}", fullPath, e.getMessage()));
+			log.fine(MessageFormat.format("Failed to serve resource {0}: {1}", fullPath, e.getMessage()));
 			throw e;
 		}
 	}

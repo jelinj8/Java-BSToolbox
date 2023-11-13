@@ -42,6 +42,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	public static final String HEADER_CONTENT_TYPE = "Content-Type";
 	public static final String HEADER_CONTENT_TYPE_URLENCODED = "application/x-www-form-urlencoded";
 	public static final String HEADER_CONTENT_TYPE_MULTIPART = "multipart/form-data";
+	public static final String HEADER_FORWARDED_FOR = "X-Forwarded-For";
 	public static final String HEADER_ORIGIN = "Access-Control-Allow-Origin";
 	public static final String HEADER_ORIGIN_ANY = "*";
 	public static final String HEADER_CONTENT_DISPOSITION = "Content-Disposition";
@@ -193,7 +194,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 			URI uri = httpExchange.getRequestURI();
 			String path = uri.getPath();
 			String query = uri.getQuery();
-
+			
 			BSHttpContext context = new BSHttpContext(pathPrefix, httpExchange, path, query, method);
 
 			if (context.requested == null && defaultRequired != null)

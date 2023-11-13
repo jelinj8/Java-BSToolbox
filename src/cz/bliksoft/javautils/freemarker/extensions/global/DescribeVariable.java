@@ -1,20 +1,16 @@
 package cz.bliksoft.javautils.freemarker.extensions.global;
 
 import java.util.List;
-
-import com.sun.istack.logging.Logger;
+import java.util.logging.Logger;
 
 import cz.bliksoft.javautils.ObjectUtils;
 import cz.bliksoft.javautils.StringUtils;
-import cz.bliksoft.javautils.xml.XmlUtils;
 import freemarker.ext.util.WrapperTemplateModel;
-import freemarker.template.SimpleScalar;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
-import jakarta.xml.bind.JAXBException;
 
 public class DescribeVariable implements TemplateMethodModelEx {
-	Logger log = Logger.getLogger(DescribeVariable.class);
+	Logger log = Logger.getLogger(DescribeVariable.class.getName());
 
 	@SuppressWarnings("rawtypes")
 	@Override

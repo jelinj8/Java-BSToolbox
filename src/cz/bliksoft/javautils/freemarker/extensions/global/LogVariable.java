@@ -1,18 +1,15 @@
 package cz.bliksoft.javautils.freemarker.extensions.global;
 
 import java.util.List;
-
-import com.sun.istack.logging.Logger;
+import java.util.logging.Logger;
 
 import cz.bliksoft.javautils.ObjectUtils;
-import cz.bliksoft.javautils.xml.XmlUtils;
 import freemarker.ext.util.WrapperTemplateModel;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
-import jakarta.xml.bind.JAXBException;
 
 public class LogVariable implements TemplateMethodModelEx {
-	Logger log = Logger.getLogger(LogVariable.class);
+	Logger log = Logger.getLogger(LogVariable.class.getName());
 
 	@SuppressWarnings("rawtypes")
 	@Override

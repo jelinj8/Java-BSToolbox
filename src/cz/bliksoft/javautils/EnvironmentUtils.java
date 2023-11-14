@@ -52,7 +52,7 @@ public class EnvironmentUtils {
 	}
 
 	/**
-	 * preload values directly, to be overriden by those loaded in proper init
+	 * preload values directly, to be overridden by those loaded in proper init
 	 * 
 	 * @param props
 	 * @throws IOException

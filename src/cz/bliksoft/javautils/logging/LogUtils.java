@@ -13,6 +13,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
+import java.util.AbstractCollection;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Properties;
@@ -22,6 +23,8 @@ import java.util.logging.Logger;
 
 import javax.swing.SwingUtilities;
 
+import cz.bliksoft.javautils.TimestampedObject;
+import cz.bliksoft.javautils.binding.list.collections.LimitedList;
 import cz.bliksoft.javautils.streams.NoCloseOutputStream;
 import cz.bliksoft.javautils.xml.XmlUtils;
 //import jakarta.xml.bind.JAXBException;
@@ -39,10 +42,17 @@ public class LogUtils {
 
 	private static File log4jConfigFile = null;
 
+	private static LimitedList<TimestampedObject<Object>> messages = new LimitedList<>(100);
+
 	public static void setLogName(String name) {
 		logName = name;
 	}
 
+	/**
+	 * initialize Log4J2 system by a (default) config file
+	 * 
+	 * @param configPath
+	 */
 	public static void initLog4J(File configPath) {
 		log4jConfigFile = configPath;
 		if (log4jConfigFile == null)
@@ -75,7 +85,11 @@ public class LogUtils {
 		}
 	}
 
-	// private static LogUtils _instance;
+	/**
+	 * initialize LogUtils with properties
+	 * 
+	 * @param configuration
+	 */
 	public static void init(Properties configuration) {
 		File logProps;
 		if (configuration != null) {
@@ -148,8 +162,13 @@ public class LogUtils {
 		return logDirFile;
 	}
 
-	// public static void
-
+	/**
+	 * get logging file name
+	 * 
+	 * @param name
+	 * @param extension
+	 * @return
+	 */
 	public static String getFileName(String name, String extension) {
 		if (logDir == null) {
 			log.severe("Log dir not set!");
@@ -167,6 +186,13 @@ public class LogUtils {
 		return path;
 	}
 
+	/**
+	 * get logging file
+	 * 
+	 * @param name
+	 * @param extension
+	 * @return
+	 */
 	public static File getFile(String name, String extension) {
 		String fname = getFileName(name, extension);
 
@@ -176,6 +202,13 @@ public class LogUtils {
 			return new File(fname);
 	}
 
+	/**
+	 * opens an outputStream to be used for logging
+	 * 
+	 * @param name
+	 * @param extension
+	 * @return
+	 */
 	public static OutputStream createOutputStream(String name, String extension) {
 		String fname = getFileName(name, extension);
 
@@ -193,6 +226,13 @@ public class LogUtils {
 		}
 	}
 
+	/**
+	 * writes a text to log file
+	 * 
+	 * @param message
+	 * @param name
+	 * @param extension
+	 */
 	public static void logFile(String message, String name, String extension) {
 
 		if (logDir == null)
@@ -209,6 +249,13 @@ public class LogUtils {
 		}
 	}
 
+	/**
+	 * logs binary data to a file
+	 * 
+	 * @param message
+	 * @param name
+	 * @param extension
+	 */
 	public static void logFile(byte[] message, String name, String extension) {
 
 		if (logDir == null)
@@ -225,8 +272,14 @@ public class LogUtils {
 		}
 	}
 
+	/**
+	 * logs a XML annotated object as a XML file
+	 * 
+	 * @param annotatedObject
+	 * @param name
+	 * @param extension
+	 */
 	public static void logFile(Object annotatedObject, String name, String extension) {
-
 		if (logDir == null)
 			return;
 
@@ -243,21 +296,21 @@ public class LogUtils {
 	}
 
 	/**
-	 * zapne logování SSL zabezpečení
+	 * turns on logging of SSL security
 	 */
 	public static void setSSLLogging() {
 		System.setProperty("javax.net.debug", "ssl");
 	}
 
 	/**
-	 * zapne logování PKCS
+	 * turns on PKCS logging
 	 */
 	public static void setPKCSLogging() {
 		System.setProperty("java.security.debug", "sunpkcs11");
 	}
 
 	/**
-	 * zapne výpisy SOAP požadavků (i hodně dlouhých)
+	 * turns on logging of SOAPMessages (even the very lenghty ones!)
 	 */
 	public static void setSOAPLogging() {
 		System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
@@ -346,6 +399,13 @@ public class LogUtils {
 		return sb.toString();
 	}
 
+	/**
+	 * generic coonversion of object to string (more descriptive than Java
+	 * .toString)
+	 * 
+	 * @param o
+	 * @return
+	 */
 	public static String objectToString(Object o) {
 		if (o instanceof Method) {
 			Method method = (Method) o;
@@ -383,9 +443,44 @@ public class LogUtils {
 		return Arrays.copyOfRange(result, 2 + skip, Math.min(result.length - 2, max));
 	}
 
+	/**
+	 * helper tool to log warning if not on EDThread
+	 * 
+	 * @param message
+	 */
 	public static void warnIfNotEDT(String message) {
 		if (!SwingUtilities.isEventDispatchThread()) {
 			log.severe(message + "\n" + LogUtils.traceToString(LogUtils.getStackTrace(0, 1)));
 		}
+	}
+
+	/**
+	 * set count of messages to remember, if smaller than previous, excess messages
+	 * will be thrown away. Default 100 messages.
+	 * 
+	 * @param limit
+	 */
+	public static void setMessageHistoryLength(int limit) {
+		LimitedList<TimestampedObject<Object>> oldMsgs = messages;
+		messages = new LimitedList<>(limit);
+		oldMsgs.forEach(m -> messages.add(m));
+	}
+
+	/**
+	 * log message to limited string history
+	 * 
+	 * @param message
+	 */
+	public static void addMessage(Object message) {
+		messages.add(new TimestampedObject<>(message));
+	}
+
+	/**
+	 * get limited string message history
+	 * 
+	 * @return
+	 */
+	public static AbstractCollection<TimestampedObject<Object>> getMessages() {
+		return messages;
 	}
 }

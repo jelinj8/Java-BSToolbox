@@ -3,6 +3,9 @@ package cz.bliksoft.javautils.freemarker.wrappers;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.text.MessageFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +15,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
+import cz.bliksoft.javautils.TimestampedObject;
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.ObjectWrapper;
@@ -81,6 +85,20 @@ public class ObjectWrapperRegister extends DefaultObjectWrapper {
 		addConverter(File.class, (o) -> {
 			return ((File) o).getPath();
 		});
+
+		addConverter(TimestampedObject.class, (t) -> {
+			@SuppressWarnings("unchecked")
+			TimestampedObject<Object> tso = (TimestampedObject<Object>) t;
+			HashMap<String, Object> res = new HashMap<>();
+			res.put("millis", tso.getTimestamp());
+
+			LocalDateTime localDate = Instant.ofEpochMilli(tso.getTimestamp()).atZone(ZoneId.systemDefault())
+					.toLocalDateTime();
+			res.put("timestamp", localDate);
+
+			res.put("value", tso.getValue());
+			return res;
+		});
 	}
 
 	public static void useToString() {
@@ -109,7 +127,7 @@ public class ObjectWrapperRegister extends DefaultObjectWrapper {
 		if (lastResortConverter != null) {
 			if (!(obj instanceof Temporal) || java8TimeAPIWrapper == null) {
 				log.severe(MessageFormat.format("Using lastResortConverter for {0}", c.getName()));
-				Object preconverted = lastResortConverter.apply(obj); 
+				Object preconverted = lastResortConverter.apply(obj);
 				return wrap(preconverted);
 			}
 		}

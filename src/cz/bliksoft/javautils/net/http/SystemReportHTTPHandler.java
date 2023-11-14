@@ -15,6 +15,7 @@ import cz.bliksoft.javautils.EnvironmentUtils;
 import cz.bliksoft.javautils.GeneralUtils;
 import cz.bliksoft.javautils.binding.list.collections.LimitedList;
 import cz.bliksoft.javautils.freemarker.includes.BuiltinTemplateLoader;
+import cz.bliksoft.javautils.logging.LogUtils;
 import freemarker.cache.ClassTemplateLoader;
 
 @SuppressWarnings("restriction")
@@ -158,6 +159,7 @@ public class SystemReportHTTPHandler extends DefaultFreemarkerHTTPHandler {
 		variables.put("IPs", ips);
 
 		variables.put("env", EnvironmentUtils.tryGetEnvironmentProperties());
+		variables.put("messages", LogUtils.getMessages());
 
 		super.handle(context);
 	}

@@ -50,6 +50,18 @@
 	</table>
   	<span style="width: 200px; height:200px;"><canvas id="memChart" style="width: 200px; height:200px;"></canvas></span>
   	<span><canvas id="memHistoryChart" style="width: 100%; height:400px;"></canvas></span>
+<#if messages?size gt 0>
+<#list messages>
+<h2>Messages</h2>
+<table><tbody><th>timestamp</th><th>message</th></tbody>
+<tbody>
+<#items as msg>
+<tr><td>${msg.timestamp}</td><td class="pre-wrap monospaced">${msg.value!'-'}</td></tr>
+</#items>
+</tbody></table>
+<#else>
+</#list>
+</#if>
 <script>
 
 	var chrt = $('#memChart');

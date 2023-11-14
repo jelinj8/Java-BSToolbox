@@ -38,5 +38,4 @@ public class LimitedList<T> extends AbstractCollection<T> {
 	public boolean remove(Object o) {
 		return deque.remove(o);
 	}
-
 }

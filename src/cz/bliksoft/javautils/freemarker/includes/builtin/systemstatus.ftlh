@@ -2,7 +2,8 @@
 <@html.additionalHead>
 <@html.title>Status repot</@html.title>
 <@html.chartjs_inline />
- <meta http-equiv="refresh" content="<#if GARBAGE!false>10<#else>30</#if>">
+<#if GARBAGE!false> <meta http-equiv="refresh" content="15"></#if>
+
 </@html.additionalHead>
 <@html.documentHeader><h1>System report (generated at ${.now?datetime?string["d.M.yyyy HH:mm:ss"]})</h1></@html.documentHeader>
 <@html.documentFooter class='noprint'>

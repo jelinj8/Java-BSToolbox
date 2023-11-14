@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 
 import com.sun.net.httpserver.HttpServer;
 
+import cz.bliksoft.javautils.EnvironmentUtils;
 import cz.bliksoft.javautils.GeneralUtils;
 import cz.bliksoft.javautils.binding.list.collections.LimitedList;
 import cz.bliksoft.javautils.freemarker.includes.BuiltinTemplateLoader;
@@ -155,6 +156,8 @@ public class SystemReportHTTPHandler extends DefaultFreemarkerHTTPHandler {
 			ips.add(ip.getHostAddress());
 		}
 		variables.put("IPs", ips);
+
+		variables.put("env", EnvironmentUtils.tryGetEnvironmentProperties());
 
 		super.handle(context);
 	}

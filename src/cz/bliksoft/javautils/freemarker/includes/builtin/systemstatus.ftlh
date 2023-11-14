@@ -13,6 +13,7 @@
 </@html.documentFooter>
 
 <@html.simpleDocument>
+<#if env.name??>Environment: ${env.name} </#if><#if env.appName??>App: ${env.appName} </#if>
 	<table style="display:inline-block;">
 		<tbody>
 			<tr><th colspan="2" class="center">Memory</th></tr>

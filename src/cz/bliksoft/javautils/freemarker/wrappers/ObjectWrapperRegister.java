@@ -90,17 +90,20 @@ public class ObjectWrapperRegister extends DefaultObjectWrapper {
 			@SuppressWarnings("unchecked")
 			TimestampedObject<Object> tso = (TimestampedObject<Object>) t;
 			HashMap<String, Object> res = new HashMap<>();
+
 			res.put("millis", tso.getTimestamp());
 
 			LocalDateTime localDate = Instant.ofEpochMilli(tso.getTimestamp()).atZone(ZoneId.systemDefault())
 					.toLocalDateTime();
-			if (java8TimeAPIWrapper != null) {
-				try {
-					res.put("timestamp", instance.handleUnknownType(localDate));
-				} catch (TemplateModelException e) {
-					log.severe("Failed to wrap LocalDateTime" + e.getMessage());
-				}
-			}
+			res.put("timestamp", localDate);
+			
+//			if (java8TimeAPIWrapper != null) {
+//				try {
+//					res.put("timestamp", instance.handleUnknownType(localDate));
+//				} catch (TemplateModelException e) {
+//					log.severe("Failed to wrap LocalDateTime" + e.getMessage());
+//				}
+//			}
 
 			res.put("value", tso.getValue());
 			return res;

@@ -58,8 +58,10 @@ public class ObjectWrapperRegister extends DefaultObjectWrapper {
 	}
 
 	public static ObjectWrapperRegister getInstance(Version incompatibleImprovements) {
-		if (instance == null)
+		if (instance == null) {
+			registerDefaults();
 			instance = new ObjectWrapperRegister(incompatibleImprovements);
+		}
 		return instance;
 	}
 
@@ -73,7 +75,7 @@ public class ObjectWrapperRegister extends DefaultObjectWrapper {
 		converters.put(cls, converter);
 	}
 
-	public static void registerDefaults() {
+	private static void registerDefaults() {
 		log.info("Registering default converters");
 		addConverter(Optional.class, (t) -> {
 			if (((Optional<?>) t).isPresent())
@@ -96,14 +98,6 @@ public class ObjectWrapperRegister extends DefaultObjectWrapper {
 			LocalDateTime localDate = Instant.ofEpochMilli(tso.getTimestamp()).atZone(ZoneId.systemDefault())
 					.toLocalDateTime();
 			res.put("timestamp", localDate);
-			
-//			if (java8TimeAPIWrapper != null) {
-//				try {
-//					res.put("timestamp", instance.handleUnknownType(localDate));
-//				} catch (TemplateModelException e) {
-//					log.severe("Failed to wrap LocalDateTime" + e.getMessage());
-//				}
-//			}
 
 			res.put("value", tso.getValue());
 			return res;

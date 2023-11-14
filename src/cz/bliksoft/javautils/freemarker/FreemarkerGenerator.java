@@ -85,6 +85,7 @@ public class FreemarkerGenerator {
 		cfg = new Configuration(Configuration.VERSION_2_3_30);
 		cfg.setEncoding(Locale.getDefault(), "UTF8");
 		setNumberFormat(NumberFormats.COMPUTER);
+
 		cfg.setObjectWrapper(ObjectWrapperRegister.getInstance(Configuration.VERSION_2_3_30));
 	}
 

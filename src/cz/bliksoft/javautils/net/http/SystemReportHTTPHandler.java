@@ -79,8 +79,6 @@ public class SystemReportHTTPHandler extends DefaultFreemarkerHTTPHandler {
 						memoryReports.add(new SystemReport());
 					}
 
-//					log.info("Status report has " + memoryReports.size() + " record(s).");
-
 					try {
 						Thread.sleep(systemReportPause);
 					} catch (InterruptedException e) {

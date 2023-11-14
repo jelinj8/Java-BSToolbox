@@ -53,7 +53,6 @@
   	<span><canvas id="memHistoryChart" style="width: 100%; height:400px;"></canvas></span>
 <#if messages?size gt 0>
 <#list messages>
-<h2>Messages</h2>
 <table><tbody><th>timestamp</th><th>message</th></tbody>
 <tbody>
 <#items as msg>

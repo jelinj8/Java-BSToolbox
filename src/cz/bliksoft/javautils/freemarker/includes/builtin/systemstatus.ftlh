@@ -10,6 +10,7 @@
 <span class="button" id="expander_debug_pm" onclick="toggle_collapse('.expander_debug')">debug &plusmn;</span>
 <div class="expander_debug " style="display: none;">
 	<h1>HTTP input:</h1><div class="monospaced pre-wrap">${DescribeVariable(http.REQUEST, 'v', '|', '^')}</div>
+	<h1>test:</h1><div class="monospaced pre-wrap">${DescribeVariable(messages, 'v', '|', '^')}</div>
 </div>
 </@html.documentFooter>
 
@@ -56,7 +57,7 @@
 <table><tbody><th>timestamp</th><th>message</th></tbody>
 <tbody>
 <#items as msg>
-<tr><td>${(msg.timestamp).format('yyyy-MM-dd_HH:mm:ss.fff')}</td><td class="pre-wrap monospaced">${msg.value!'-'}</td></tr>
+<tr><td>${(msg.timestamp).format("yyyy-MM-dd HH:mm:ss.SSS")}</td><td class="pre-wrap monospaced">${msg.value!'-'}</td></tr>
 </#items>
 </tbody></table>
 <#else>

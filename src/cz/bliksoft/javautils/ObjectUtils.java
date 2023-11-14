@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -177,6 +178,19 @@ public class ObjectUtils {
 				}
 				sb.append(localPad);
 			}
+			sb.append("]");
+		} else if (o instanceof Collection) {
+			sb.append("[");
+			Collection e = (Collection) o;
+			if (!e.isEmpty())
+				sb.append("\n");
+			for (Object object : e) {
+				sb.append(localPad);
+				sb.append(PAD_TEXT);
+				sb.append(describe(object, localPad2));
+				sb.append("\n");
+			}
+			sb.append(localPad);
 			sb.append("]");
 		} else {
 			sb.append("{");

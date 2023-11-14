@@ -56,7 +56,7 @@
 <table><tbody><th>timestamp</th><th>message</th></tbody>
 <tbody>
 <#items as msg>
-<tr><td>${msg.timestamp}</td><td class="pre-wrap monospaced">${msg.value!'-'}</td></tr>
+<tr><td>${msg.timestamp.format('YYYY-MM-DD HH:mm:ss.fff')}</td><td class="pre-wrap monospaced">${msg.value!'-'}</td></tr>
 </#items>
 </tbody></table>
 <#else>

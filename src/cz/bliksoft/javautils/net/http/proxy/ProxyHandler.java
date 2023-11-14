@@ -31,6 +31,7 @@ public class ProxyHandler extends BasicHTTPHandler {
 	public ProxyHandler(long respondTimeout, long receiveTimeout) {
 		this.respondTimeout = respondTimeout;
 		this.receiveTimeout = receiveTimeout;
+		addSupportedMethods(HttpMethod.GET, HttpMethod.POST, HttpMethod.DELETE, HttpMethod.PUT);
 	}
 
 	private Function<URI, URI> rewriteUrl = null;

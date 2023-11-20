@@ -221,8 +221,6 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 			handle(context);
 		} catch (Exception e) {
 			sendERR(httpExchange, e.getMessage(), HTTPErrorCodes.SERVER_INTERNAL_SERVER_ERROR.getValue());
-		} finally {
-
 		}
 	}
 

@@ -33,7 +33,7 @@ public class BSHttpServer {
 	// but less than MAX_POOL_SIZE threads running,
 	// a new thread will be created only if the queue is full.
 	private int CORE_POOL_SIZE = 4;
-	private int MAX_POOL_SIZE = 8;
+	private int MAX_POOL_SIZE = 10;
 
 	// After pool has MAX_POOL_SIZE threads, idle threads will be terminated if they
 	// have been idle for more than the KEEP_ALIVE_TIME in seconds.

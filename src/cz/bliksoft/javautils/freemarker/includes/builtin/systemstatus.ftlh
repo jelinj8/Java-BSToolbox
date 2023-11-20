@@ -5,17 +5,15 @@
 <#if GARBAGE!false> <meta http-equiv="refresh" content="15"></#if>
 
 </@html.additionalHead>
-<@html.documentHeader><h1>System report (generated at ${.now?datetime?string["d.M.yyyy HH:mm:ss"]})</h1></@html.documentHeader>
-<@html.documentFooter class='noprint'>
+<@html.documentHeader><h1>System report (generated at ${.now?datetime?string["d.M.yyyy HH:mm:ss"]})<#if env.envName?? || env.appName??> <#if env.envName??>Env: ${env.envName} </#if><#if env.appName??>App: ${env.appName}</#if></#if></h1></@html.documentHeader>
+<#-- <@html.documentFooter class='noprint'>
 <span class="button" id="expander_debug_pm" onclick="toggle_collapse('.expander_debug')">debug &plusmn;</span>
 <div class="expander_debug " style="display: none;">
 	<h1>HTTP input:</h1><div class="monospaced pre-wrap">${DescribeVariable(http.REQUEST, 'v', '|', '^')}</div>
-	<h1>test:</h1><div class="monospaced pre-wrap">${DescribeVariable(messages, 'v', '|', '^')}</div>
 </div>
-</@html.documentFooter>
+</@html.documentFooter> -->
 
 <@html.simpleDocument>
-<#if env.envName?? || env.appName??><#if env.envName??>Environment: ${env.envName} </#if><#if env.appName??>App: ${env.appName}</#if><br /></#if>
 	<table style="display:inline-block;">
 		<tbody>
 			<tr><th colspan="2" class="center">Memory</th></tr>

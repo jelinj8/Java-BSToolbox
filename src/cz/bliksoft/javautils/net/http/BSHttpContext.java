@@ -49,6 +49,12 @@ public class BSHttpContext extends HashMap<String, Object> {
 	public Map<String, List<Optional<MultiPart>>> POST = null;
 	public Map<String, String> cookies;
 
+	private long sessionId;
+	
+	public long getSessionId() {
+		return sessionId;
+	}
+	
 	protected static int sessionValidity = 20;
 	protected static TimestampedHashMap<String, Map<String, Object>> sessionCache = new TimestampedHashMap<>(
 			sessionValidity * 60000);
@@ -199,8 +205,10 @@ public class BSHttpContext extends HashMap<String, Object> {
 		return cookies;
 	}
 
-	public BSHttpContext(String pathPrefix, HttpExchange httpExchange, String path, String query, HttpMethod method)
+	public BSHttpContext(String pathPrefix, HttpExchange httpExchange, String path, String query, HttpMethod method, long sessionId)
 			throws IOException {
+		this.sessionId = sessionId;
+		
 		this.method = method;
 		this.httpExchange = httpExchange;
 

@@ -31,6 +31,8 @@ import com.sun.net.httpserver.HttpHandler;
 @SuppressWarnings("restriction")
 public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
+	private static Long globalSessionId = 0l;
+
 	private static Logger log = Logger.getLogger(BasicHTTPHandler.class.getName());
 
 	public static final String CONTENT_TYPE_TXT = "text/plain; charset=utf-8";
@@ -187,6 +189,12 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 		return defaultRequired;
 	}
 
+	public long getSessionId() {
+		synchronized (globalSessionId) {
+			return globalSessionId++;
+		}
+	}
+
 	@Override
 	public void handle(HttpExchange httpExchange) throws IOException {
 		try {
@@ -194,8 +202,8 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 			URI uri = httpExchange.getRequestURI();
 			String path = uri.getPath();
 			String query = uri.getQuery();
-			
-			BSHttpContext context = new BSHttpContext(pathPrefix, httpExchange, path, query, method);
+
+			BSHttpContext context = new BSHttpContext(pathPrefix, httpExchange, path, query, method, getSessionId());
 
 			if (context.requested == null && defaultRequired != null)
 				context.requested = defaultRequired;
@@ -213,6 +221,8 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 			handle(context);
 		} catch (Exception e) {
 			sendERR(httpExchange, e.getMessage(), HTTPErrorCodes.SERVER_INTERNAL_SERVER_ERROR.getValue());
+		} finally {
+
 		}
 	}
 

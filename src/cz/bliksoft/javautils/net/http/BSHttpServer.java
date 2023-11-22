@@ -182,7 +182,9 @@ public class BSHttpServer {
 			tpe.setThreadFactory(new ThreadFactory() {
 				@Override
 				public Thread newThread(Runnable r) {
-					return new Thread(r, "WebServerExecutorThread");
+					Thread t = new Thread(r);
+					t.setName("WebServerExecutorThread-" + t.getId());
+					return t;
 				}
 			});
 			server.setExecutor(tpe);

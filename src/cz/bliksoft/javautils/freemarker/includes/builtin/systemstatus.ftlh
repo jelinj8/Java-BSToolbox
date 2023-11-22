@@ -53,8 +53,8 @@
 		</tbody>
 		<tbody>
 			<#list threads>
-			<#items as id, t>
-			<tr><td>${id?c}:${t.name}</td><td>${t.status!'?'}</td><td class="right">${t.millis?c!'?'}</td></tr>
+			<#items as t>
+			<tr><td>${t.id?c}:${t.name}</td><td>${t.status!'?'}</td><td class="right">${t.millis?c!'?'}</td></tr>
 			</#items>
 			</#list>
 			<tr><td class="right">total threads</td><td class="left">${threads?size}</td><td class="right">${(cpuNanos/1000)?floor?c}</td></tr>
@@ -161,11 +161,11 @@
          	],
             datasets: [
 			<#list threads>
-			<#items as id, t>
+			<#items as t>
             {
-               label: "${id?c}:${t.name} (${t.millis?c!'?'})",
+               label: "${t.id?c}:${t.name} (${t.millis?c!'?'})",
                data: [
-               	<#list CPU as rep>'${(rep[id?c+':'+t.name]?c)!0}',</#list>
+               	<#list CPU as rep>'${(rep[t.id?c+':'+t.name]?c)!0}',</#list>
                ],
             },
 			</#items>

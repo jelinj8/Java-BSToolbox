@@ -7,6 +7,7 @@ import java.lang.management.ThreadMXBean;
 import java.net.InetAddress;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +63,7 @@ public class SystemReportHTTPHandler extends DefaultFreemarkerHTTPHandler {
 
 			SystemReportHTTPHandler.totalThreadCpuNanos = newThreadCpuNanos;
 			SystemReportHTTPHandler.lastThreadCpuMillis = threadCpuMillis;
-			SystemReportHTTPHandler.threadInfo = newThreadInfo;
+			SystemReportHTTPHandler.threadInfo = new ArrayList<>(newThreadInfo.values());
 		}
 
 		private long totalMemory;
@@ -105,7 +106,7 @@ public class SystemReportHTTPHandler extends DefaultFreemarkerHTTPHandler {
 		}
 	};
 
-	private static Map<Long, ThreadInfo> threadInfo = new HashMap<>();
+	private static List<ThreadInfo> threadInfo = new ArrayList<>();
 	private static Map<Long, Long> totalThreadCpuNanos = new HashMap<>();
 	private static Map<Long, Long> lastThreadCpuMillis = new HashMap<>();
 
@@ -190,8 +191,9 @@ public class SystemReportHTTPHandler extends DefaultFreemarkerHTTPHandler {
 			memoryReports.add(rMap);
 
 			Map<String, Object> cMap = new HashMap<>();
-			getThreadInfo().forEach((tID, info) -> {
-				cMap.put(tID + ":" + info.getThreadName(), r.getThreadCpuMillis().getOrDefault(tID, 0l) / 1000l);
+			getThreadInfo().forEach(info -> {
+				long id = info.getThreadId();
+				cMap.put(id + ":" + info.getThreadName(), r.getThreadCpuMillis().getOrDefault(id, 0l) / 1000l);
 			});
 
 			cpuReports.add(cMap);
@@ -219,14 +221,30 @@ public class SystemReportHTTPHandler extends DefaultFreemarkerHTTPHandler {
 
 		Map<Long, Long> nanos = getLastThreadCpuMillis();
 
-		if (getThreadInfo() != null) {
-			Map<Long, Map<String, Object>> threads = new HashMap<>(getThreadInfo().size());
-			getThreadInfo().forEach((tID, ti) -> {
+		List<ThreadInfo> ti = getThreadInfo();
+
+		if (ti != null) {
+			ti.sort(new Comparator<ThreadInfo>() {
+				@Override
+				public int compare(ThreadInfo o1, ThreadInfo o2) {
+					if (o1.getThreadId() < o2.getThreadId())
+						return -1;
+					else if (o1.getThreadId() > o2.getThreadId())
+						return 1;
+					else
+						return 0;
+				}
+			});
+			
+			List<Map<String, Object>> threads = new ArrayList<>(getThreadInfo().size());
+			ti.forEach(info -> {
+				long id = info.getThreadId();
 				Map<String, Object> t = new HashMap<>();
-				t.put("name", ti.getThreadName());
-				t.put("status", ti.getThreadState().toString());
-				t.put("millis", nanos.get(tID));
-				threads.put(tID, t);
+				t.put("name", info.getThreadName());
+				t.put("status", info.getThreadState().toString());
+				t.put("millis", nanos.get(id));
+				t.put("id", id);
+				threads.add(t);
 			});
 			variables.put("threads", threads);
 		} else {
@@ -245,7 +263,7 @@ public class SystemReportHTTPHandler extends DefaultFreemarkerHTTPHandler {
 		return SystemReportHTTPHandler.totalThreadCpuNanos;
 	}
 
-	public Map<Long, ThreadInfo> getThreadInfo() {
+	public List<ThreadInfo> getThreadInfo() {
 		return SystemReportHTTPHandler.threadInfo;
 	}
 

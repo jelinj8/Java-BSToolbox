@@ -47,8 +47,22 @@
 			<tr><td colspan="2" class="right"><@html.inlineform '/systeminfo/'><@html.button 'refresh' 'refresh' 'true' /></@html.inlineform><@html.inlineform '/systeminfo/'><@html.button 'Run GC' 'collectGarbage' 'true' /></@html.inlineform></td></tr>
 		</tbody>
 	</table>
-  	<span style="width: 200px; height:200px;"><canvas id="memChart" style="width: 200px; height:200px;"></canvas></span>
-  	<span><canvas id="memHistoryChart" style="width: 100%; height:400px;"></canvas></span>
+	<table style="display:inline-block;">
+		<tbody>
+			<tr><th colspan="2" class="center">CPU</th><th class="right" width="100px">ms</th></tr>
+		</tbody>
+		<tbody>
+			<#list threads>
+			<#items as id, t>
+			<tr><td>${id?c}:${t.name}</td><td>${t.status!'?'}</td><td class="right">${t.millis?c!'?'}</td></tr>
+			</#items>
+			</#list>
+			<tr><td class="right">total threads</td><td class="left">${threads?size}</td><td class="right">${(cpuNanos/1000)?floor?c}</td></tr>
+		</tbody>
+	</table>
+  	<span style="width: 200px; height:200px;"><canvas id="memChart" style="width: 200px; height:200px; display:inline-block;"></canvas></span>
+  	<span><canvas id="memHistoryChart" style="width: 100%; height:300px;"></canvas></span>
+  	<span><canvas id="cpuHistoryChart" style="width: 100%; height:200px;"></canvas></span>
 <#if messages?size gt 0>
 <#list messages>
 <table><tbody><th>timestamp</th><th>message</th></tbody>
@@ -91,7 +105,7 @@
          type: 'line',
          data: {
          	labels: [
-         		<#list MEMORY as rep>'${rep.TS.format('HH:mm:ss')}',</#list>
+         		<#list TS as ts>'${ts.format('HH:mm:ss')}',</#list>
          	],
             datasets: [
             {
@@ -138,6 +152,46 @@
          },
       });
 
+	var chrt3 = $('#cpuHistoryChart');
+      var chartId = new Chart(chrt3, {
+         type: 'line',
+         data: {
+         	labels: [
+         		<#list TS as ts>'${ts.format('HH:mm:ss')}',</#list>
+         	],
+            datasets: [
+			<#list threads>
+			<#items as id, t>
+            {
+               label: "${id?c}:${t.name} (${t.millis?c!'?'})",
+               data: [
+               	<#list CPU as rep>'${(rep[id?c+':'+t.name]?c)!0}',</#list>
+               ],
+            },
+			</#items>
+			</#list>
+            ]
+         },
+         options: {
+            responsive: false,
+            plugins: {
+		      legend: {
+		        position: 'top',
+		      },
+		    },
+		    title: {
+		      display: true,
+		      text: 'Memory consumption in time'
+		    },
+		    hover: {
+              animationDuration: 0 // duration of animations when hovering an item
+        	},
+		    animation: {
+			  duration: 0
+			},
+			responsiveAnimationDuration: 0,
+         },
+      });
 </script>
 
 </@html.simpleDocument>

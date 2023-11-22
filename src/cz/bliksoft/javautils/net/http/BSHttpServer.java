@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
@@ -174,10 +175,18 @@ public class BSHttpServer {
 			server.createContext(handlers.getKey(), handlers.getValue());
 		}
 
-		if (isMultithreaded)
-			server.setExecutor(new ThreadPoolExecutor(CORE_POOL_SIZE, MAX_POOL_SIZE, KEEP_ALIVE_TIME, TimeUnit.SECONDS,
-					new ArrayBlockingQueue<>(MAX_BLOCKING_QUEUE)));
-		else
+		if (isMultithreaded) {
+			ArrayBlockingQueue<Runnable> abq = new ArrayBlockingQueue<>(MAX_BLOCKING_QUEUE);
+			ThreadPoolExecutor tpe = new ThreadPoolExecutor(CORE_POOL_SIZE, MAX_POOL_SIZE, KEEP_ALIVE_TIME,
+					TimeUnit.SECONDS, abq);
+			tpe.setThreadFactory(new ThreadFactory() {
+				@Override
+				public Thread newThread(Runnable r) {
+					return new Thread(r, "WebServerExecutorThread");
+				}
+			});
+			server.setExecutor(tpe);
+		} else
 			server.setExecutor(null);
 
 		beforeStart();

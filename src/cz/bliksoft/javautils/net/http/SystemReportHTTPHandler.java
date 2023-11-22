@@ -127,7 +127,7 @@ public class SystemReportHTTPHandler extends DefaultFreemarkerHTTPHandler {
 					}
 				}
 			}
-		});
+		}, "BSSystemMonitor");
 		t.setDaemon(true);
 		t.start();
 	}

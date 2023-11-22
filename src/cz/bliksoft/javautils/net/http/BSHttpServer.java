@@ -183,7 +183,7 @@ public class BSHttpServer {
 				@Override
 				public Thread newThread(Runnable r) {
 					Thread t = new Thread(r);
-					t.setName("WebServerExecutorThread-" + t.getId());
+					t.setName("WebServerExecutorThread");
 					return t;
 				}
 			});

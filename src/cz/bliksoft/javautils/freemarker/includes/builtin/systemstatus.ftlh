@@ -62,7 +62,7 @@
 	</table>
   	<span style="width: 200px; height:200px;"><canvas id="memChart" style="width: 200px; height:200px; display:inline-block;"></canvas></span>
   	<span><canvas id="memHistoryChart" style="width: 100%; height:300px;"></canvas></span>
-  	<span><canvas id="cpuHistoryChart" style="width: 100%; height:200px;"></canvas></span>
+  	<span><canvas id="cpuHistoryChart" style="width: 100%; height:300px;"></canvas></span>
 <#if messages?size gt 0>
 <#list messages>
 <table><tbody><th>timestamp</th><th>message</th></tbody>
@@ -77,28 +77,37 @@
 <script>
 
 	var chrt = $('#memChart');
-      var chartId = new Chart(chrt, {
-         type: 'pie',
-         data: {
-            labels: ["free", "used", "remaining max"],
-            datasets: [{
-               label: "Current memory usage",
-               data: [${(MEMORY_FREE)?round?c}, ${(MEMORY_USED)?round?c}, ${(MEMORY_MAX-MEMORY_TOTAL)?round?c}],
-               backgroundColor: ['lightgreen', 'yellow', 'aqua'],
-               hoverOffset: 5
-            }],
-         },
-         options: {
-            responsive: false,
-		    hover: {
-              animationDuration: 0 // duration of animations when hovering an item
-        	},
-		    animation: {
-			  duration: 0
+	var chartId = new Chart(chrt, {
+		type: 'pie',
+		data: {
+			labels: ["free", "used", "remaining max"],
+			datasets: [{
+				label: "Current memory usage",
+				data: [${(MEMORY_FREE)?round?c}, ${(MEMORY_USED)?round?c}, ${(MEMORY_MAX-MEMORY_TOTAL)?round?c}],
+				backgroundColor: ['lightgreen', 'yellow', 'aqua'],
+				hoverOffset: 5
+			}],
+		},
+		options: {
+			responsive: false,
+			hover: {
+				animationDuration: 0 // duration of animations when hovering an item
+			},
+			animation: {
+				duration: 0
 			},
 			responsiveAnimationDuration: 0,
-         },
-      });
+			plugins: {
+				legend: {
+					position: 'top',
+				},
+				title: {
+					display: true,
+					text: 'Memory usage'
+				},
+			},
+		},
+	});
 
 	var chrt2 = $('#memHistoryChart');
       var chartId = new Chart(chrt2, {
@@ -109,89 +118,94 @@
          	],
             datasets: [
             {
-               label: "free",
-               data: [
-               	<#list MEMORY as rep>'${(rep.FREE/1024/1024)?round?c}',</#list>
-               ],
-               borderColor: 'lightgreen',
-            },
-            {
-               label: "used",
-               data: [
-               	<#list MEMORY as rep>'${(rep.USED/1024/1024)?round?c}',</#list>
-               ],
+               label: "MiB used",
+               data: [<#list MEMORY as rep>'${(rep.USED/1024/1024)?round?c}',</#list>],
+               backgroundColor: 'lightyellow',
                borderColor: 'yellow',
+               fill: true,
             },
             {
-               label: "total",
+               label: "MiB free",
+               data: [<#list MEMORY as rep>'${(rep.FREE/1024/1024)?round?c}',</#list>],
+               backgroundColor: 'lightgreen',
+               borderColor: 'green',
+               fill: true,
+            },
+            <#-- {
+               label: "MiB total",
                data: [
                	<#list MEMORY as rep>'${(rep.TOTAL/1024/1024)?round?c}',</#list>
                ],
                borderColor: 'aqua',
-            }
+            }, -->
             ]
          },
-         options: {
-            responsive: false,
-            plugins: {
-		      legend: {
-		        position: 'top',
-		      },
-		    },
-		    title: {
-		      display: true,
-		      text: 'Memory consumption in time'
-		    },
-		    hover: {
-              animationDuration: 0 // duration of animations when hovering an item
-        	},
-		    animation: {
-			  duration: 0
+		options: {
+			responsive: false,
+			scales: {
+				y: {
+						stacked: true,
+					}
+				,
+			},
+			plugins: {
+				legend: {
+					position: 'top',
+				},
+				title: {
+					display: true,
+					text: 'Memory consumption in time'
+				},
+			},
+			hover: {
+				animationDuration: 0 // duration of animations when hovering an item
+			},
+			animation: {
+				duration: 0
 			},
 			responsiveAnimationDuration: 0,
-         },
-      });
+		},
+	});
 
 	var chrt3 = $('#cpuHistoryChart');
-      var chartId = new Chart(chrt3, {
-         type: 'line',
-         data: {
-         	labels: [
-         		<#list TS as ts>'${ts.format('HH:mm:ss')}',</#list>
-         	],
-            datasets: [
+	var chartId = new Chart(chrt3, {
+		type: 'line',
+		data: {
+			labels: [
+				<#list TS as ts>'${ts.format('HH:mm:ss')}',</#list>
+			],
+			datasets: [
 			<#list threads>
 			<#items as t>
-            {
-               label: "${t.id?c}:${t.name} (${t.millis?c!'?'})",
-               data: [
-               	<#list CPU as rep>'${(rep[t.id?c+':'+t.name]?c)!0}',</#list>
-               ],
-            },
+			{
+				label: "${t.id?c}:${t.name} (${t.millis?c!'?'})",
+				data: [<#list CPU as rep>'${(rep[t.id?c+':'+t.name]?c)!'null'}',</#list>],
+				spanGaps: false,
+			},
 			</#items>
 			</#list>
-            ]
-         },
-         options: {
-            responsive: false,
-            plugins: {
-		      legend: {
-		        position: 'top',
-		      },
-		    },
-		    title: {
-		      display: true,
-		      text: 'Memory consumption in time'
-		    },
-		    hover: {
-              animationDuration: 0 // duration of animations when hovering an item
-        	},
-		    animation: {
-			  duration: 0
+			]
+		},
+		options: {
+			responsive: false,
+			plugins: {
+				legend: {
+					position: 'top',
+				},
+				title: {
+					display: true,
+					text: 'thread CPU time (ms per sample)'
+				},
+			},
+			hover: {
+				animationDuration: 0 // duration of animations when hovering an item
+			},
+			animation: {
+				duration: 0
 			},
 			responsiveAnimationDuration: 0,
-         },
-      });
+		},
+	});
 </script>
 
 </@html.simpleDocument>

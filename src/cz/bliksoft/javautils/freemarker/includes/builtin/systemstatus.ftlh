@@ -1,6 +1,6 @@
 <#import "html.ftlh" as html>
 <@html.additionalHead>
-<@html.title><#if env.appName??>${env.appName} status<#else>App status report</#if></@html.title>
+<@html.title><#if env.appName??><#if env.envName??>${env.envName}:</#if>${env.appName} status<#else>App status report</#if></@html.title>
 <@html.chartjs_inline />
 <#if GARBAGE!false> <meta http-equiv="refresh" content="15"></#if>
 

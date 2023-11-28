@@ -236,7 +236,7 @@ public class SystemReportHTTPHandler extends DefaultFreemarkerHTTPHandler {
 						return 0;
 				}
 			});
-			
+
 			List<Map<String, Object>> threads = new ArrayList<>(getThreadInfo().size());
 			ti.forEach(info -> {
 				long id = info.getThreadId();

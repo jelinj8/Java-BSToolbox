@@ -5,6 +5,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 public abstract class MessageInterceptWorker extends Thread {
+
+	public MessageInterceptWorker(String threadName) {
+		setName(threadName);
+	}
+
+	public MessageInterceptWorker() {
+		setName("MessageInterceptWorker");
+	}
+
 	protected Logger log = Logger.getLogger(this.getClass().toString());
 
 	public final Semaphore prepareLock = new Semaphore(0, true);

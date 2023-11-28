@@ -53,12 +53,16 @@ public class SystemUtils {
 				return;
 
 			log.fine("Registering shutdown hook");
-			Runtime.getRuntime().addShutdownHook(new Thread() {
+
+			Thread shutdownHookThread = new Thread() {
 				public void run() {
 					log.warning("Interrupt hook activated");
 					keepWorking.set(false);
 				}
-			});
+			};
+			shutdownHookThread.setName("ShutdownHook");
+
+			Runtime.getRuntime().addShutdownHook(shutdownHookThread);
 
 			installed = true;
 		}

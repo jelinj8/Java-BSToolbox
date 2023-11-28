@@ -28,6 +28,19 @@ public class ProxyHandler extends BasicHTTPHandler {
 	private long respondTimeout;
 	private long receiveTimeout;
 
+	/**
+	 * create proxy with default timeouts (60s/10s respond/receive)
+	 */
+	public ProxyHandler() {
+		this(60000, 10000);
+	}
+
+	/**
+	 * Create proxy with defined max. response/receive times
+	 * 
+	 * @param respondTimeout ms until the target should start sending response
+	 * @param receiveTimeout ms until the whole message is received
+	 */
 	public ProxyHandler(long respondTimeout, long receiveTimeout) {
 		this.respondTimeout = respondTimeout;
 		this.receiveTimeout = receiveTimeout;
@@ -157,7 +170,7 @@ public class ProxyHandler extends BasicHTTPHandler {
 						}
 					}
 				});
-				
+
 				t.setName("ProxyHTTPClientWait");
 
 				t.start();
@@ -170,15 +183,13 @@ public class ProxyHandler extends BasicHTTPHandler {
 						@Override
 						public void run() {
 							while (true) {
-								while (true) {
-									if (rh.isComplete())
-										break;
-									try {
-										Thread.sleep(10);
-									} catch (InterruptedException e) {
-										log.severe("Failed to complete response in time!");
-										break;
-									}
+								if (rh.isComplete())
+									break;
+								try {
+									Thread.sleep(1);
+								} catch (InterruptedException e) {
+									log.severe("Failed to complete response in time!");
+									break;
 								}
 							}
 						}

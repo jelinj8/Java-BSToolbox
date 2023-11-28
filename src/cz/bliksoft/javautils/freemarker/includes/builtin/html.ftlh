@@ -1,5 +1,4 @@
-<#macro document>
-<!DOCTYPE html>
+<#macro document><!DOCTYPE html>
 <html>
 <#nested>
 </html>

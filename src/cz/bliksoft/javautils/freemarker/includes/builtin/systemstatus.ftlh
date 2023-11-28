@@ -208,7 +208,7 @@
 				},
 				title: {
 					display: true,
-					text: 'thread CPU time (ms per sample)'
+					text: 'thread CPU time (ms per ${(msBetweenSamples/1000)?c}s  sample)'
 				},
 			},
 			hover: {

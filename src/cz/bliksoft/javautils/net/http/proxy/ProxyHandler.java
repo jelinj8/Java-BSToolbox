@@ -158,7 +158,7 @@ public class ProxyHandler extends BasicHTTPHandler {
 					}
 				});
 				
-				t.setName("ProxyHTTPClientWaitThread");
+				t.setName("ProxyHTTPClientWait");
 
 				t.start();
 				// wait for response from target
@@ -177,12 +177,13 @@ public class ProxyHandler extends BasicHTTPHandler {
 										Thread.sleep(10);
 									} catch (InterruptedException e) {
 										log.severe("Failed to complete response in time!");
+										break;
 									}
 								}
 							}
 						}
 					});
-					t2.setName("ProxyHTTPClientResponseForwardThread");
+					t2.setName("ProxyHTTPClientResponseForward");
 					t2.start();
 					t2.join(receiveTimeout);
 				} else {

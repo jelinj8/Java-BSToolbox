@@ -252,9 +252,9 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 		if (message != null) {
 			byte[] data = message.getBytes(StandardCharsets.UTF_8);
 			httpExchange.sendResponseHeaders(HTTPErrorCodes.OK.getValue(), data.length);
-			OutputStream os = httpExchange.getResponseBody();
-			os.write(data);
-			os.close();
+			try (OutputStream os = httpExchange.getResponseBody()) {
+				os.write(data);
+			}
 		} else {
 			httpExchange.sendResponseHeaders(HTTPErrorCodes.OK.getValue(), 0);
 		}
@@ -276,9 +276,9 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 			addHeader(httpExchange, HEADER_CONTENT_DISPOSITION,
 					HEADER_CONTENT_DISPOSITION_INLINE + "\"" + document.getName() + "\"");
 			httpExchange.sendResponseHeaders(HTTPErrorCodes.OK.getValue(), document.length());
-			OutputStream os = httpExchange.getResponseBody();
-			IOUtils.copy(is, os);
-			os.close();
+			try (OutputStream os = httpExchange.getResponseBody()) {
+				IOUtils.copy(is, os);
+			}
 		}
 	}
 
@@ -296,9 +296,9 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 			addCommonHeaders(httpExchange, MimeTypes.getMimeType(FilenameUtils.getExtension(fileName)));
 			httpExchange.sendResponseHeaders(HTTPErrorCodes.OK.getValue(), 0);
 
-			OutputStream os = httpExchange.getResponseBody();
-			IOUtils.copy(is, os);
-			os.close();
+			try (OutputStream os = httpExchange.getResponseBody()) {
+				IOUtils.copy(is, os);
+			}
 		}
 	}
 
@@ -328,9 +328,9 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 			byte[] data = message.getBytes(StandardCharsets.UTF_8);
 			httpExchange.sendResponseHeaders(
 					(code == null ? HTTPErrorCodes.SERVER_INTERNAL_SERVER_ERROR.getValue() : code), data.length);
-			OutputStream os = httpExchange.getResponseBody();
-			os.write(data);
-			os.close();
+			try (OutputStream os = httpExchange.getResponseBody()) {
+				os.write(data);
+			}
 		} else {
 			httpExchange.sendResponseHeaders(HTTPErrorCodes.SERVER_INTERNAL_SERVER_ERROR.getValue(), 0);
 		}
@@ -346,9 +346,9 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 		}
 
 		httpExchange.sendResponseHeaders(HTTPErrorCodes.OK.getValue(), data.length);
-		OutputStream os = httpExchange.getResponseBody();
-		os.write(data);
-		os.close();
+		try (OutputStream os = httpExchange.getResponseBody()) {
+			os.write(data);
+		}
 	}
 
 	protected static void sendClasspathResource(HttpExchange httpExchange, Class<?> loader, String path)
@@ -366,9 +366,9 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 					HEADER_CONTENT_DISPOSITION_ATTACHMENT + "\"" + fileName + "\"");
 			httpExchange.sendResponseHeaders(HTTPErrorCodes.OK.getValue(), 0);
 
-			OutputStream os = httpExchange.getResponseBody();
-			IOUtils.copy(is, os);
-			os.close();
+			try (OutputStream os = httpExchange.getResponseBody()) {
+				IOUtils.copy(is, os);
+			}
 		}
 	}
 
@@ -384,9 +384,9 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 		httpExchange.sendResponseHeaders(HTTPErrorCodes.OK.getValue(), file.length());
 
 		try (InputStream is = new FileInputStream(file)) {
-			OutputStream os = httpExchange.getResponseBody();
-			IOUtils.copy(is, os);
-			os.close();
+			try (OutputStream os = httpExchange.getResponseBody()) {
+				IOUtils.copy(is, os);
+			}
 		}
 	}
 

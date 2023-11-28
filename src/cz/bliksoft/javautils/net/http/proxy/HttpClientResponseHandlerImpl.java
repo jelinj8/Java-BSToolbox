@@ -33,6 +33,7 @@ public class HttpClientResponseHandlerImpl implements HttpClientResponseHandler<
 	public HttpExchange handleResponse(ClassicHttpResponse response) throws HttpException, IOException {
 		synchronized (this) {
 			receiving = true;
+			notifyAll();
 		}
 
 		Iterator<Header> it = response.headerIterator();
@@ -62,6 +63,7 @@ public class HttpClientResponseHandlerImpl implements HttpClientResponseHandler<
 
 		synchronized (this) {
 			completed = true;
+			notifyAll();
 		}
 
 		return httpExchange;

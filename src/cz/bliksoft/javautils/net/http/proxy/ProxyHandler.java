@@ -156,47 +156,14 @@ public class ProxyHandler extends BasicHTTPHandler {
 
 			try (CloseableHttpClient client = HttpClients.createDefault()) {
 				client.execute(req, rh);
-
-				Thread t = new Thread(new Runnable() {
-					@Override
-					public void run() {
-						while (true) {
-							if (rh.isReceiving())
-								break;
-							try {
-								Thread.sleep(20);
-							} catch (InterruptedException e) {
-							}
-						}
-					}
-				});
-
-				t.setName("ProxyHTTPClientWait");
-
-				t.start();
-				// wait for response from target
-				t.join(respondTimeout);
+				synchronized (rh) {
+					wait(respondTimeout);
+				}
 
 				if (rh.isReceiving()) {
-					// wait for data to copy
-					Thread t2 = new Thread(new Runnable() {
-						@Override
-						public void run() {
-							while (true) {
-								if (rh.isComplete())
-									break;
-								try {
-									Thread.sleep(1);
-								} catch (InterruptedException e) {
-									log.severe("Failed to complete response in time!");
-									break;
-								}
-							}
-						}
-					});
-					t2.setName("ProxyHTTPClientResponseForward");
-					t2.start();
-					t2.join(receiveTimeout);
+					synchronized (rh) {
+						wait(receiveTimeout);
+					}
 				} else {
 					sendERR(httpExchange, "Proxy sending timeout", HTTPErrorCodes.SERVER_GATEWAY_TIMEOUT.getValue());
 				}

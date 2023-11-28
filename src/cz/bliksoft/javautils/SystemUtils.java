@@ -8,6 +8,8 @@ import java.util.logging.Logger;
 public class SystemUtils {
 	static Logger log = Logger.getLogger(SystemUtils.class.getName());
 
+	static Object monitorObject = new Object();
+
 	static AtomicBoolean keepWorking = new AtomicBoolean(true);
 
 	static List<Runnable> interruptConsumers = new ArrayList<>();
@@ -23,6 +25,9 @@ public class SystemUtils {
 	public static void interrupt() {
 		log.info("Initiating termination");
 		keepWorking.set(false);
+		synchronized (monitorObject) {
+			monitorObject.notifyAll();
+		}
 	}
 
 	public static void keepRunningUntilInterrupted() {
@@ -32,7 +37,9 @@ public class SystemUtils {
 		log.info("Waiting for shutdown signal");
 		try {
 			while (keepWorking.get()) {
-				Thread.sleep(1000);
+				synchronized (monitorObject) {
+					monitorObject.wait();
+				}
 			}
 			log.info("Interruption initiated");
 			for (Runnable l : interruptConsumers) {
@@ -58,6 +65,9 @@ public class SystemUtils {
 				public void run() {
 					log.warning("Interrupt hook activated");
 					keepWorking.set(false);
+					synchronized (monitorObject) {
+						monitorObject.notifyAll();
+					}
 				}
 			};
 			shutdownHookThread.setName("ShutdownHook");

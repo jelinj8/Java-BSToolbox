@@ -32,6 +32,8 @@ public class SystemReportHTTPHandler extends DefaultFreemarkerHTTPHandler {
 	public static final long systemReportPause = 1000 * 10;
 	public static final int maxHistory = 240;
 
+	public static final int mb = 1024 * 1024;
+
 	class SystemReport {
 		public SystemReport() {
 			Runtime instance = Runtime.getRuntime();
@@ -132,8 +134,6 @@ public class SystemReportHTTPHandler extends DefaultFreemarkerHTTPHandler {
 		t.setDaemon(true);
 		t.start();
 	}
-
-	public static final int mb = 1024 * 1024;
 
 	@Override
 	public void handle(BSHttpContext context) throws IOException {

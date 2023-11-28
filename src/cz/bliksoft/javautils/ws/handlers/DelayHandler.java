@@ -8,26 +8,47 @@ import jakarta.xml.ws.handler.MessageContext;
 import jakarta.xml.ws.handler.soap.SOAPHandler;
 import jakarta.xml.ws.handler.soap.SOAPMessageContext;
 
+/**
+ * delay processing of SOAP message in one/both directions
+ * 
+ * @author jjelinek
+ *
+ */
 public class DelayHandler implements SOAPHandler<SOAPMessageContext> {
 
-	public DelayHandler(long delay) {
-		_delay = 20000l;
-	}
+	public enum MessageDirection {
+		IN, OUT, BOTH;
+	};
 
+	private MessageDirection direction;
 	private long _delay;
 
+	public DelayHandler(long delay, MessageDirection direction) {
+		this._delay = delay;
+		this.direction = direction;
+	}
+
+	@SuppressWarnings("incomplete-switch")
 	@Override
 	public boolean handleMessage(final SOAPMessageContext msgCtx) {
-		// Indicator telling us which direction this message is going in
-//		final Boolean outInd = (Boolean) msgCtx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+		if (direction != MessageDirection.BOTH) {
+			final Boolean outInd = (Boolean) msgCtx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
 
-		// if (outInd.booleanValue()) {
+			switch (direction) {
+			case IN:
+				if (outInd)
+					return true;
+			case OUT:
+				if (!outInd)
+					return true;
+			}
+		}
+
 		try {
 			Thread.sleep(_delay);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		// }
 		return true;
 	}
 

@@ -6,7 +6,7 @@ import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -176,7 +176,7 @@ public class BSHttpServer {
 		}
 
 		if (isMultithreaded) {
-			ArrayBlockingQueue<Runnable> abq = new ArrayBlockingQueue<>(MAX_BLOCKING_QUEUE);
+			LinkedBlockingDeque<Runnable> abq = new LinkedBlockingDeque<>(MAX_BLOCKING_QUEUE);
 			ThreadPoolExecutor tpe = new ThreadPoolExecutor(CORE_POOL_SIZE, MAX_POOL_SIZE, KEEP_ALIVE_TIME,
 					TimeUnit.SECONDS, abq);
 			tpe.setThreadFactory(new ThreadFactory() {

@@ -218,6 +218,7 @@ public class SystemReportHTTPHandler extends DefaultFreemarkerHTTPHandler {
 
 		variables.put("env", EnvironmentUtils.tryGetEnvironmentProperties());
 		variables.put("messages", LogUtils.getMessages());
+		variables.put("msBetweenSamples", systemReportPause);
 
 		Map<Long, Long> nanos = getLastThreadCpuMillis();
 

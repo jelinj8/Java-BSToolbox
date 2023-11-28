@@ -1,6 +1,6 @@
 <#import "html.ftlh" as html>
 <@html.additionalHead>
-<@html.title>Status repot</@html.title>
+<@html.title><#if env.appName??>${env.appName} status<#else>App status report</#if></@html.title>
 <@html.chartjs_inline />
 <#if GARBAGE!false> <meta http-equiv="refresh" content="15"></#if>
 
@@ -48,17 +48,31 @@
 		</tbody>
 	</table>
 	<table style="display:inline-block;">
-		<tbody>
-			<tr><th colspan="2" class="center">CPU</th><th class="right" width="100px">ms</th></tr>
-		</tbody>
-		<tbody>
-			<#list threads>
-			<#items as t>
-			<tr><td>${t.id?c}:${t.name}</td><td>${t.status!'?'}</td><td class="right">${t.millis?c!'?'}</td></tr>
-			</#items>
-			</#list>
-			<tr><td class="right">total threads</td><td class="left">${threads?size}</td><td class="right">${(cpuNanos/1000)?floor?c}</td></tr>
-		</tbody>
+		<#if CPU?size gt 1>
+			<tbody>
+				<tr><th colspan="2" class="center">CPU</th><th class="right" width="100px">% CPU</th></tr>
+			</tbody>
+			<tbody>
+					<#list threads>
+					<#items as t>
+					<tr><td>${t.id?c}:${t.name}</td><td>${t.status!'?'}</td><td class="right">${(t.millis/msBetweenSamples)?string("##0.00")!'?'}</td></tr>
+					</#items>
+					</#list>
+				<tr><td class="right">CPU total</td><td class="left">threads: ${threads?size}</td><td class="right">${(cpuNanos/msBetweenSamples/1000)?string("##0.00")}</td></tr>
+			</tbody>
+		<#else>
+			<tbody>
+				<tr><th colspan="2" class="center">CPU</th><th class="right" width="100px">ms</th></tr>
+			</tbody>
+			<tbody>
+					<#list threads>
+					<#items as t>
+					<tr><td>${t.id?c}:${t.name}</td><td>${t.status!'?'}</td><td class="right">${t.millis?c!'?'}</td></tr>
+					</#items>
+					</#list>
+				<tr><td class="right">CPU total</td><td class="left">threads: ${threads?size}</td><td class="right">${(cpuNanos/1000)?floor?c}</td></tr>
+			</tbody>
+		</#if>
 	</table>
   	<span style="width: 200px; height:200px;"><canvas id="memChart" style="width: 200px; height:200px; display:inline-block;"></canvas></span>
   	<span><canvas id="memHistoryChart" style="width: 100%; height:300px;"></canvas></span>

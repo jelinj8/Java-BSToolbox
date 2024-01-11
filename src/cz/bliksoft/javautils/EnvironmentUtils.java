@@ -20,11 +20,21 @@ public class EnvironmentUtils {
 	public static final String PROP_GLOBAL_CONFIG_DIR = "configDir";
 	public static final String PROP_ENVIRONMENT_PROPERTIES_FILE = "environmentConfig";
 
+	public static final String PROP_TIMESTAMP = "timestamp";
+
 	public static void init() throws IOException {
-		String envDirName = "env_config";
+		String envDirName;
 		File defaultEnvFile = new File("default.env");
-		if (defaultEnvFile.exists())
+		if (defaultEnvFile.exists()) {
 			envDirName = FileUtils.readFileToString(defaultEnvFile, Charsets.UTF_8);
+			if (envDirName != null)
+				envDirName = envDirName.trim();
+
+			if (envDirName.startsWith("#"))
+				envDirName = "env_config";
+		} else {
+			envDirName = "env_config";
+		}
 
 		environmentConfigDir = new File(
 				StringUtils.hasTextDefault(System.getenv(PROP_ENVIRONMENT_CONFIG_DIR), envDirName));
@@ -87,10 +97,11 @@ public class EnvironmentUtils {
 		environmentProperties.put(PROP_GLOBAL_CONFIG_DIR, globalConfigDir.getPath());
 		environmentProperties.put(PROP_ENVIRONMENT_CONFIG_DIR, environmentConfigDir.getPath());
 		environmentProperties.put(PROP_ENVIRONMENT_PROPERTIES_FILE, environmentConfig.getPath());
+		environmentProperties.put(PROP_TIMESTAMP, DateUtils.TimestampString());
 
-//		if (!environmentConfig.exists())
-//			throw new InitializationException(
-//					"Environment configuration file " + environmentConfig.getAbsolutePath() + " does not exist!");
+		//		if (!environmentConfig.exists())
+		//			throw new InitializationException(
+		//					"Environment configuration file " + environmentConfig.getAbsolutePath() + " does not exist!");
 
 		if (environmentConfig.exists()) {
 			Properties envP = PropertiesUtils.loadFromFile(environmentConfig, environmentProperties);
@@ -111,7 +122,7 @@ public class EnvironmentUtils {
 				}
 			});
 		}
-		
+
 		environmentProperties.forEach((k, v) -> {
 			if (!k.startsWith("."))
 				publicEnvironmentProperties.put(k, v);
@@ -129,12 +140,25 @@ public class EnvironmentUtils {
 		return globalConfigDir;
 	}
 
+	public static File getConfigDir(String subfile) {
+		checkInit();
+		return new File(globalConfigDir, subfile);
+	}
+
 	public static File getEnvironmentConfigDir() {
 		checkInit();
 		if (environmentConfigDir.exists())
 			return environmentConfigDir;
 		else
 			return globalConfigDir;
+	}
+
+	public static File getEnvironmentConfigDir(String subfile) {
+		checkInit();
+		if (environmentConfigDir.exists())
+			return new File(environmentConfigDir, subfile);
+		else
+			return new File(globalConfigDir, subfile);
 	}
 
 	private static Map<String, String> environmentProperties = new HashMap<>();

@@ -13,8 +13,9 @@ import java.util.concurrent.TimeUnit;
 public class DateUtils {
 	public static SimpleDateFormat timestampFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-SSS"); //$NON-NLS-1$
 	public static SimpleDateFormat ISO8824TimestampFormat = new SimpleDateFormat("yyyyMMddHHmmss"); //$NON-NLS-1$
+	
+	public static DateTimeFormatter JSONTimestampFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
 
-	// public static DateFormatter dF = DateFormatter. ofPattern("dd.MM.yyyy");
 	public static DateTimeFormatter dTF = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"); //$NON-NLS-1$
 
 	public static LocalDateTime LocalDateTimeFromString(String value) {

@@ -2,12 +2,10 @@ package cz.bliksoft.javautils.net.http.proxy;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URI;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -18,16 +16,9 @@ import org.apache.hc.client5.http.classic.methods.HttpPut;
 import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.EntityDetails;
-import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.io.entity.InputStreamEntity;
-import org.apache.hc.core5.http.protocol.HttpContext;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
@@ -116,13 +107,13 @@ public class ProxyHandler extends BasicHTTPHandler {
 	private String query = null;
 	private String fragment = null;
 
-	private static class ContentLengthHeaderRemover implements HttpRequestInterceptor {
-		@Override
-		public void process(HttpRequest request, EntityDetails entity, HttpContext context)
-				throws HttpException, IOException {
-			request.removeHeaders(BasicHTTPHandler.HEADER_CONTENT_LENGTH);
-		}
-	}
+	//	private static class ContentLengthHeaderRemover implements HttpRequestInterceptor {
+	//		@Override
+	//		public void process(HttpRequest request, EntityDetails entity, HttpContext context)
+	//				throws HttpException, IOException {
+	//			request.removeHeaders(BasicHTTPHandler.HEADER_CONTENT_LENGTH);
+	//		}
+	//	}
 
 	@Override
 	public void handle(HttpExchange httpExchange) throws IOException {
@@ -172,7 +163,13 @@ public class ProxyHandler extends BasicHTTPHandler {
 
 			for (Entry<String, List<String>> h : headers.entrySet()) {
 
-				if (BasicHTTPHandler.HEADER_CONTENT_TYPE.toLowerCase().equals(h.getKey().toLowerCase())) {
+				// remove header
+				if (HEADER_CONTENT_LENGTH.toLowerCase().equals(h.getKey().toLowerCase())) {
+					continue;
+				}
+
+				// save mime for later usage
+				if (HEADER_CONTENT_TYPE.toLowerCase().equals(h.getKey().toLowerCase())) {
 					contentType = h.getValue().get(0);
 				}
 				for (String value : h.getValue()) {
@@ -193,8 +190,9 @@ public class ProxyHandler extends BasicHTTPHandler {
 
 			final HttpClientResponseHandlerImpl rh = new HttpClientResponseHandlerImpl(httpExchange);
 
-			try (CloseableHttpClient client = HttpClients.custom()
-					.addRequestInterceptorFirst(new ContentLengthHeaderRemover()).build()) {
+			try (CloseableHttpClient client = HttpClients.createDefault()
+			//					HttpClients.custom().addRequestInterceptorFirst(new ContentLengthHeaderRemover()).build() // to fix 500: Content-Length already sent
+			) {
 				client.execute(req, rh);
 				synchronized (rh) {
 					wait(respondTimeout);

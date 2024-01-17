@@ -14,6 +14,7 @@ import org.apache.hc.core5.http.HttpException;
 
 import com.sun.net.httpserver.HttpExchange;
 
+import cz.bliksoft.javautils.net.http.BasicHTTPHandler;
 import cz.bliksoft.javautils.net.http.HTTPErrorCodes;
 
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
@@ -38,25 +39,29 @@ public class HttpClientResponseHandlerImpl implements HttpClientResponseHandler<
 
 		Iterator<Header> it = response.headerIterator();
 
-		// copy response headers
+		Long dataLength = 0l;
+		// copy response headers, except length, to be set by response handler
 		while (it.hasNext()) {
 			Header h = it.next();
 
-			List<String> hVal = httpExchange.getResponseHeaders().get(h.getName());
-			if (hVal == null) {
-				hVal = new ArrayList<>(1);
-				hVal.add(h.getValue());
-				httpExchange.getResponseHeaders().put(h.getName(), hVal);
+			if (BasicHTTPHandler.HEADER_CONTENT_LENGTH.toLowerCase().equals(h.getName().toLowerCase())) {
+				dataLength = Long.parseLong(h.getValue());
 			} else {
-				hVal.add(h.getValue());
+				List<String> hVal = httpExchange.getResponseHeaders().get(h.getName());
+				if (hVal == null) {
+					hVal = new ArrayList<>(1);
+					hVal.add(h.getValue());
+					httpExchange.getResponseHeaders().put(h.getName(), hVal);
+				} else {
+					hVal.add(h.getValue());
+				}
 			}
 		}
-		
 
 		// copy body
 		try (OutputStream os = httpExchange.getResponseBody()) {
 			try (InputStream is = response.getEntity().getContent()) {
-				httpExchange.sendResponseHeaders(HTTPErrorCodes.OK.getValue(), 0);
+				httpExchange.sendResponseHeaders(HTTPErrorCodes.OK.getValue(), dataLength);
 				IOUtils.copy(is, os);
 			}
 		}

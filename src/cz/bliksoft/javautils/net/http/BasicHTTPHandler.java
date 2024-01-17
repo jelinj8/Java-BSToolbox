@@ -42,6 +42,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	public static final String CONTENT_TYPE_JSON = "application/json; charset=utf-8";
 
 	public static final String HEADER_CONTENT_TYPE = "Content-Type";
+	public static final String HEADER_CONTENT_LENGTH = "Content-Length";
 	public static final String HEADER_CONTENT_TYPE_URLENCODED = "application/x-www-form-urlencoded";
 	public static final String HEADER_CONTENT_TYPE_MULTIPART = "multipart/form-data";
 	public static final String HEADER_FORWARDED_FOR = "X-Forwarded-For";

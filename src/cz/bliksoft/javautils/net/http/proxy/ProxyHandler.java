@@ -1,8 +1,13 @@
 package cz.bliksoft.javautils.net.http.proxy;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.text.MessageFormat;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -13,6 +18,16 @@ import org.apache.hc.client5.http.classic.methods.HttpPut;
 import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.function.Supplier;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.EntityDetails;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.HttpRequestInterceptor;
+import org.apache.hc.core5.http.io.entity.InputStreamEntity;
+import org.apache.hc.core5.http.protocol.HttpContext;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
@@ -38,8 +53,10 @@ public class ProxyHandler extends BasicHTTPHandler {
 	/**
 	 * Create proxy with defined max. response/receive times
 	 * 
-	 * @param respondTimeout ms until the target should start sending response
-	 * @param receiveTimeout ms until the whole message is received
+	 * @param respondTimeout
+	 *            ms until the target should start sending response
+	 * @param receiveTimeout
+	 *            ms until the whole message is received
 	 */
 	public ProxyHandler(long respondTimeout, long receiveTimeout) {
 		this.respondTimeout = respondTimeout;
@@ -99,8 +116,17 @@ public class ProxyHandler extends BasicHTTPHandler {
 	private String query = null;
 	private String fragment = null;
 
+	private static class ContentLengthHeaderRemover implements HttpRequestInterceptor {
+		@Override
+		public void process(HttpRequest request, EntityDetails entity, HttpContext context)
+				throws HttpException, IOException {
+			request.removeHeaders(BasicHTTPHandler.HEADER_CONTENT_LENGTH);
+		}
+	}
+
 	@Override
 	public void handle(HttpExchange httpExchange) throws IOException {
+		HttpEntity entity = null;
 		try {
 			HttpMethod method = HttpMethod.fromString(httpExchange.getRequestMethod());
 			URI uri = httpExchange.getRequestURI();
@@ -142,19 +168,33 @@ public class ProxyHandler extends BasicHTTPHandler {
 
 			Headers headers = httpExchange.getRequestHeaders();
 
-			headers.forEach((h, i) -> {
-				for (String value : i) {
-					if ("Host".equals(h)) {
-						finalReq.addHeader(h, authority);
+			String contentType = null;
+
+			for (Entry<String, List<String>> h : headers.entrySet()) {
+
+				if (BasicHTTPHandler.HEADER_CONTENT_TYPE.toLowerCase().equals(h.getKey().toLowerCase())) {
+					contentType = h.getValue().get(0);
+				}
+				for (String value : h.getValue()) {
+					if ("Host".equals(h.getKey())) {
+						finalReq.addHeader(h.getKey(), authority);
 					} else {
-						finalReq.addHeader(h, value);
+						finalReq.addHeader(h.getKey(), value);
 					}
 				}
-			});
+			}
+
+			InputStream is = httpExchange.getRequestBody();
+			if (is != null) {
+				ContentType ct = (contentType != null ? ContentType.create(contentType) : null);
+				entity = new InputStreamEntity(is, ct);
+				req.setEntity(entity);
+			}
 
 			final HttpClientResponseHandlerImpl rh = new HttpClientResponseHandlerImpl(httpExchange);
 
-			try (CloseableHttpClient client = HttpClients.createDefault()) {
+			try (CloseableHttpClient client = HttpClients.custom()
+					.addRequestInterceptorFirst(new ContentLengthHeaderRemover()).build()) {
 				client.execute(req, rh);
 				synchronized (rh) {
 					wait(respondTimeout);
@@ -170,6 +210,9 @@ public class ProxyHandler extends BasicHTTPHandler {
 			}
 		} catch (Exception e) {
 			sendERR(httpExchange, e.getMessage(), HTTPErrorCodes.SERVER_INTERNAL_SERVER_ERROR.getValue());
+		} finally {
+			if (entity != null)
+				entity.close();
 		}
 	}
 

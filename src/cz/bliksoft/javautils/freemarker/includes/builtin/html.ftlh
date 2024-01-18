@@ -42,8 +42,8 @@
 </div>
 </#macro>
 
-<#macro inlineform action='' method='post' target='' class=''><form <#if action??>action="${action}"</#if> method="${method}"<#if target?has_content> target="${target}"</#if><#if class?has_content> class="${class}"</#if> style=" display:inline!important;"><#nested></form></#macro>
-<#macro form       action='' method='post' target='' class=''><form <#if action??>action="${action}"</#if> method="${method}"<#if target?has_content> target="${target}"</#if><#if class?has_content> class="${class}"</#if>><#nested></form></#macro>
+<#macro inlineform action='' method='post' target='' class=''><form<#if action?has_content> action="${action}"</#if> method="${method}"<#if target?has_content> target="${target}"</#if><#if class?has_content> class="${class}"</#if> style=" display:inline!important;"><#nested></form></#macro>
+<#macro form       action='' method='post' target='' class=''><form<#if action?has_content> action="${action}"</#if> method="${method}"<#if target?has_content> target="${target}"</#if><#if class?has_content> class="${class}"</#if>><#nested></form></#macro>
 <#macro hiddenvalue name value><input type="hidden" name="${name}" value="${value}" /></#macro>
 <#macro button text name='submit' value='submit' class='' title=''><button name="${name}" value="${value}" type="submit"<#if class?has_content> class="${class}"</#if><#if title?has_content> title="${title}"</#if>>${text}</button></#macro>
 

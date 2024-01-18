@@ -44,7 +44,7 @@
 	</#list>
 		<tbody>
 			<tr><th colspan="2" class="center">GC</th></tr>
-			<tr><td colspan="2" class="right"><@html.inlineform '.'><@html.button 'refresh' 'refresh' 'true' /></@html.inlineform><@html.inlineform '.'><@html.button 'Run GC' 'collectGarbage' 'true' /></@html.inlineform></td></tr>
+			<tr><td colspan="2" class="right"><@html.inlineform './'><@html.button 'refresh' 'refresh' 'true' /></@html.inlineform><@html.inlineform './'><@html.button 'Run GC' 'collectGarbage' 'true' /></@html.inlineform></td></tr>
 		</tbody>
 	</table>
 	<table style="display:inline-block;">

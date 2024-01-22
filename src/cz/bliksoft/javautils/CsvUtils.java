@@ -21,22 +21,25 @@ public class CsvUtils {
 
 		String[] cols = line.split(separator, -1);
 
-		if (!hasHeader && columnNames == null) {
-			colNames = new ArrayList<>(cols.length);
-			for (String c : cols) {
-				colNames.add(c);
+		if (columnNames != null) {
+			colNames = columnNames;
+		} else {
+			if (hasHeader) {
+				// use first line as headers
+				colNames = new ArrayList<>(cols.length);
+				for (String c : cols) {
+					colNames.add(c);
+				}
+			} else {
+				// no header line and no column names, use just numbers
+				colNames = new ArrayList<>(cols.length);
+				for (int i = 0; i < cols.length; i++)
+					colNames.add(StringUtils.numberAsString(i));
 			}
 		}
 
-		if (columnNames == null) {
-			colNames = new ArrayList<>(cols.length);
-			for (int i = 0; i < cols.length; i++)
-				colNames.add(StringUtils.numberAsString(i));
-		} else {
-			colNames = columnNames;
-		}
-
 		if (hasHeader) {
+			// go to line after header
 			line = source.readLine();
 			if (line != null)
 				cols = line.split(separator, -1);
@@ -79,22 +82,25 @@ public class CsvUtils {
 
 		String[] cols = line.split(separator, -1);
 
-		if (!hasHeader && columnNames == null) {
-			colNames = new ArrayList<>(cols.length);
-			for (String c : cols) {
-				colNames.add(c);
+		if (columnNames != null) {
+			colNames = columnNames;
+		} else {
+			if (hasHeader) {
+				// use first line as headers
+				colNames = new ArrayList<>(cols.length);
+				for (String c : cols) {
+					colNames.add(c);
+				}
+			} else {
+				// no header line and no column names, use just numbers
+				colNames = new ArrayList<>(cols.length);
+				for (int i = 0; i < cols.length; i++)
+					colNames.add(StringUtils.numberAsString(i));
 			}
 		}
 
-		if (columnNames == null) {
-			colNames = new ArrayList<>(cols.length);
-			for (int i = 0; i < cols.length; i++)
-				colNames.add(StringUtils.numberAsString(i));
-		} else {
-			colNames = columnNames;
-		}
-
 		if (hasHeader) {
+			// go to line after header
 			line = source.readLine();
 			if (line != null)
 				cols = line.split(separator, -1);

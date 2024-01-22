@@ -11,6 +11,25 @@ import java.util.function.BiFunction;
 
 public class CsvUtils {
 
+	/**
+	 * load CSV with map key
+	 * 
+	 * @param source
+	 *            reader
+	 * @param separator
+	 *            separator regex (Regexp.quote)
+	 * @param hasHeader
+	 *            true to use first line (or skip if colNames provided)
+	 * @param colNames
+	 *            col names (overrides header)
+	 * @param keyName
+	 *            used column for map key
+	 * @param converter
+	 *            converter to be used, input is column index and string value,
+	 *            output should fit generic type
+	 * @return
+	 * @throws IOException
+	 */
 	public static <V> Map<String, Map<String, V>> loadCsvMap(BufferedReader source, String separator, boolean hasHeader,
 			List<String> columnNames, String keyName, BiFunction<Integer, String, V> converter) throws IOException {
 		String line = source.readLine();
@@ -73,6 +92,23 @@ public class CsvUtils {
 		return result;
 	}
 
+	/**
+	 * load CSV as list of Maps
+	 * 
+	 * @param source
+	 *            reader
+	 * @param separator
+	 *            separator regex (Regexp.quote)
+	 * @param hasHeader
+	 *            true to use first line (or skip if colNames provided)
+	 * @param colNames
+	 *            col names (overrides header)
+	 * @param converter
+	 *            converter to be used, input is column index and string value,
+	 *            output should fit generic type
+	 * @return
+	 * @throws IOException
+	 */
 	public static <V> List<Map<String, V>> loadCsvList(BufferedReader source, String separator, boolean hasHeader,
 			List<String> columnNames, BiFunction<Integer, String, V> converter) throws IOException {
 		String line = source.readLine();
@@ -129,6 +165,20 @@ public class CsvUtils {
 		return result;
 	}
 
+	/**
+	 * load CSV with map key
+	 * 
+	 * @param source
+	 *            reader
+	 * @param separator
+	 *            separator regex (Regexp.quote)
+	 * @param hasHeader
+	 *            true to use first line (or skip if colNames provided)
+	 * @param keyName
+	 *            used column for map key
+	 * @return
+	 * @throws IOException
+	 */
 	public static Map<String, Map<String, String>> loadCsvMap(BufferedReader source, String separator,
 			boolean hasHeader, String keyName) throws IOException {
 		return loadCsvMap(source, separator, hasHeader, null, keyName, (i, s) -> {
@@ -136,6 +186,22 @@ public class CsvUtils {
 		});
 	}
 
+	/**
+	 * load CSV with map key
+	 * 
+	 * @param source
+	 *            reader
+	 * @param separator
+	 *            separator regex (Regexp.quote)
+	 * @param hasHeader
+	 *            true to use first line (or skip if colNames provided)
+	 * @param colNames
+	 *            col names (overrides header)
+	 * @param keyName
+	 *            used column for map key
+	 * @return
+	 * @throws IOException
+	 */
 	public static Map<String, Map<String, String>> loadCsvMap(BufferedReader source, String separator,
 			boolean hasHeader, List<String> colNames, String keyName) throws IOException {
 		return loadCsvMap(source, separator, hasHeader, colNames, keyName, (i, s) -> {
@@ -143,6 +209,18 @@ public class CsvUtils {
 		});
 	}
 
+	/**
+	 * load CSV as list of Maps
+	 * 
+	 * @param source
+	 *            reader
+	 * @param separator
+	 *            separator regex (Regexp.quote)
+	 * @param hasHeader
+	 *            true to use first line (or skip if colNames provided)
+	 * @return
+	 * @throws IOException
+	 */
 	public static List<Map<String, String>> loadCsvList(BufferedReader source, String separator, boolean hasHeader)
 			throws IOException {
 		return loadCsvList(source, separator, hasHeader, null, (i, s) -> {
@@ -150,6 +228,20 @@ public class CsvUtils {
 		});
 	}
 
+	/**
+	 * load CSV as list of Maps
+	 * 
+	 * @param source
+	 *            reader
+	 * @param separator
+	 *            separator regex (Regexp.quote)
+	 * @param hasHeader
+	 *            true to use first line (or skip if colNames provided)
+	 * @param colNames
+	 *            col names (overrides header)
+	 * @return
+	 * @throws IOException
+	 */
 	public static List<Map<String, String>> loadCsvList(BufferedReader source, String separator, boolean hasHeader,
 			List<String> colNames) throws IOException {
 		return loadCsvList(source, separator, hasHeader, colNames, (i, s) -> {

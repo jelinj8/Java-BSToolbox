@@ -12,6 +12,21 @@ import java.util.function.BiFunction;
 public class CsvUtils {
 
 	/**
+	 * csv separated by ';', values optionally enclosed in '"'
+	 */
+	public static final String SEPARATOR_SEMICOLON_WITH_QUOTED_STRINGS = ";(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
+
+	/**
+	 * csv separated by ',', values optionally enclosed in '"'
+	 */
+	public static final String SEPARATOR_COMMA_WITH_QUOTED_STRINGS = ",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
+
+	/**
+	 * csv separated by '|', values optionally enclosed in '"'
+	 */
+	public static final String SEPARATOR_PIPE_WITH_QUOTED_STRINGS = "\\|(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
+	
+	/**
 	 * load CSV with map key
 	 * 
 	 * @param source

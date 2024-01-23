@@ -25,7 +25,7 @@ public class CsvUtils {
 	 * csv separated by '|', values optionally enclosed in '"'
 	 */
 	public static final String SEPARATOR_PIPE_WITH_QUOTED_STRINGS = "\\|(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
-	
+
 	/**
 	 * load CSV with map key
 	 * 
@@ -53,7 +53,7 @@ public class CsvUtils {
 
 		List<String> colNames = null;
 
-		String[] cols = line.split(separator, -1);
+		String[] cols = StringUtils.removeBOM(line).split(separator, -1);
 
 		if (columnNames != null) {
 			colNames = columnNames;
@@ -131,7 +131,7 @@ public class CsvUtils {
 			return null;
 		List<String> colNames = null;
 
-		String[] cols = line.split(separator, -1);
+		String[] cols = StringUtils.removeBOM(line).split(separator, -1);
 
 		if (columnNames != null) {
 			colNames = columnNames;

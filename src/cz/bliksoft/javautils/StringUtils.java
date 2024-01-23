@@ -397,4 +397,22 @@ public class StringUtils {
 
 		return prefix + string.substring(0, 1).toUpperCase() + string.substring(1);
 	}
+	
+	/**
+	 * remove BOM from beginning of the string if present
+	 * @param value
+	 * @return
+	 */
+	public static String removeBOM(String value) {
+	    // UTF-8 BOM is EF BB BF, see https://en.wikipedia.org/wiki/Byte_order_mark
+	    String bom = String.format("%x", new BigInteger(1, value.substring(0,3).getBytes()));
+	    if (bom.equals("efbbbf"))
+	        // UTF-8
+	        return value.substring(3, value.length());
+	    else if (bom.substring(0, 2).equals("feff") || bom.substring(0, 2).equals("ffe"))
+	        // UTF-16BE or UTF16-LE
+	        return value.substring(2, value.length());
+	    else
+	        return value;
+	}
 }

@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -397,22 +398,20 @@ public class StringUtils {
 
 		return prefix + string.substring(0, 1).toUpperCase() + string.substring(1);
 	}
-	
+
 	/**
 	 * remove BOM from beginning of the string if present
+	 * 
 	 * @param value
 	 * @return
 	 */
 	public static String removeBOM(String value) {
-	    // UTF-8 BOM is EF BB BF, see https://en.wikipedia.org/wiki/Byte_order_mark
-	    String bom = String.format("%x", new BigInteger(1, value.substring(0,3).getBytes()));
-	    if (bom.equals("efbbbf"))
-	        // UTF-8
-	        return value.substring(3, value.length());
-	    else if (bom.substring(0, 2).equals("feff") || bom.substring(0, 2).equals("ffe"))
-	        // UTF-16BE or UTF16-LE
-	        return value.substring(2, value.length());
-	    else
-	        return value;
+		if (value == null)
+			return null;
+
+		if (value.startsWith("\uFEFF"))
+			return value.substring(1);
+		else
+			return value;
 	}
 }

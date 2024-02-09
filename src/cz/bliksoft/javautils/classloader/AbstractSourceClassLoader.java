@@ -1,4 +1,4 @@
-package cz.bliksoft.javautils.javacode;
+package cz.bliksoft.javautils.classloader;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -21,16 +21,17 @@ import javax.tools.ToolProvider;
 /**
  * https://stackoverflow.com/questions/10882952/java-load-class-from-string
  * adapted to generic source
+ * For repeated loading of the same class create a new instance of this classloader.
  */
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
-public abstract class AbstractMemoryClassLoader<T, U> extends ClassLoader {
+public abstract class AbstractSourceClassLoader<T, U> extends ClassLoader {
 
-	public AbstractMemoryClassLoader() {
-		super(AbstractMemoryClassLoader.class.getClassLoader());
+	public AbstractSourceClassLoader() {
+		super(AbstractSourceClassLoader.class.getClassLoader());
 	}
 
-	public AbstractMemoryClassLoader(ClassLoader parent) {
+	public AbstractSourceClassLoader(ClassLoader parent) {
 		super(parent);
 	}
 
@@ -54,11 +55,9 @@ public abstract class AbstractMemoryClassLoader<T, U> extends ClassLoader {
 	/**
 	 * Load class from source
 	 * 
-	 * @param className
-	 *            e.g. test.MyClass
-	 * @param javaSource
-	 *            source content, type dependent on implementation (basically
-	 *            content of .java file)
+	 * @param className  e.g. test.MyClass
+	 * @param javaSource source content, type dependent on implementation (basically
+	 *                   content of .java file)
 	 * @return loaded Class<?>, e.g. to create instance and cast to known interface
 	 *         or to use reflection calls
 	 * @throws Exception
@@ -97,7 +96,7 @@ public abstract class AbstractMemoryClassLoader<T, U> extends ClassLoader {
 
 			// load class
 			byte[] bytes = compiledBytesOutputStream.toByteArray();
-			return super.defineClass(className, bytes, 0, bytes.length);
+			return defineClass(className, bytes, 0, bytes.length);
 		}
 	}
 
@@ -106,11 +105,10 @@ public abstract class AbstractMemoryClassLoader<T, U> extends ClassLoader {
 	/**
 	 * Creates object instance, optionally loading Class from source
 	 * 
-	 * @param className
-	 *            class name to be created (cache key)
-	 * @param input
-	 *            source code (if null, no loading attempt will be performed,
-	 *            calling Class.forName instead if not already cached)
+	 * @param className class name to be created (cache key)
+	 * @param input     source code (if null, no loading attempt will be performed,
+	 *                  calling Class.forName instead if not already cached and no
+	 *                  source is provided)
 	 * @return
 	 * @throws Exception
 	 */
@@ -139,5 +137,4 @@ public abstract class AbstractMemoryClassLoader<T, U> extends ClassLoader {
 			return null;
 		}
 	}
-	
 }

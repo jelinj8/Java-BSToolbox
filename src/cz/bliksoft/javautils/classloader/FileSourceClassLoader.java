@@ -1,4 +1,4 @@
-package cz.bliksoft.javautils.javacode;
+package cz.bliksoft.javautils.classloader;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,7 +10,7 @@ import javax.tools.SimpleJavaFileObject;
 
 import org.apache.commons.io.IOUtils;
 
-public class FileMemoryClassLoader<U> extends AbstractMemoryClassLoader<InputStream, U> {
+public class FileSourceClassLoader<U> extends AbstractSourceClassLoader<InputStream, U> {
 
 	@Override
 	public SimpleJavaFileObject getSource(String className, InputStream src) {

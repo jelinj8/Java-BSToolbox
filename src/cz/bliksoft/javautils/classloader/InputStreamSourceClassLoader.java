@@ -1,11 +1,11 @@
-package cz.bliksoft.javautils.javacode;
+package cz.bliksoft.javautils.classloader;
 
 import java.net.URI;
 
 import javax.tools.JavaFileObject.Kind;
 import javax.tools.SimpleJavaFileObject;
 
-public class StringMemoryClassLoader<U> extends AbstractMemoryClassLoader<String, U> {
+public class InputStreamSourceClassLoader<U> extends AbstractSourceClassLoader<String, U> {
 
 	@Override
 	public SimpleJavaFileObject getSource(String className, String src) {

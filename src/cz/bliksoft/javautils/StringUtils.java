@@ -69,10 +69,8 @@ public class StringUtils {
 	/**
 	 * pospojuje řetězce do seznamu s oddělovačem
 	 * 
-	 * @param separator
-	 *            oddělovač, který bude vložen mezi spojované hodnoty
-	 * @param args
-	 *            hodnoty pro spojení
+	 * @param separator oddělovač, který bude vložen mezi spojované hodnoty
+	 * @param args      hodnoty pro spojení
 	 * @return spojený řetězec
 	 */
 	public static String concatenateList(String separator, Object... args) {
@@ -91,12 +89,9 @@ public class StringUtils {
 	/**
 	 * poskládá řetězec z X opakování jedné hodnoty, oddělené oddělovačem
 	 * 
-	 * @param separator
-	 *            oddělovač
-	 * @param value
-	 *            opakovaná hodnota
-	 * @param count
-	 *            počet opakování
+	 * @param separator oddělovač
+	 * @param value     opakovaná hodnota
+	 * @param count     počet opakování
 	 * @return sestavený řetězec
 	 */
 	public static String repeatToString(String separator, Object value, int count) {
@@ -116,12 +111,9 @@ public class StringUtils {
 	 * sestaví řetězec ze vstupních hodnot, oddělených oddělovačem a doplněných o
 	 * příponu (příklad: 'val1 = ?,val2 = ?,val3 = ?,val4 = ?,val5 = ?')
 	 * 
-	 * @param value
-	 *            přípona k doplnění ke každé hodnotě
-	 * @param separator
-	 *            oddělovač
-	 * @param args
-	 *            hodnoty
+	 * @param value     přípona k doplnění ke každé hodnotě
+	 * @param separator oddělovač
+	 * @param args      hodnoty
 	 * @return sestavený řetězec
 	 */
 	public static String appendToEach(String value, String separator, Object... args) {
@@ -144,12 +136,9 @@ public class StringUtils {
 	 * sestaví řetězec ze vstupních hodnot, oddělených oddělovačem a doplněných o
 	 * příponu (příklad: 'val1 = ?,val2 = ?,val3 = ?,val4 = ?,val5 = ?')
 	 * 
-	 * @param value
-	 *            přípona k doplnění ke každé hodnotě
-	 * @param separator
-	 *            oddělovač
-	 * @param args
-	 *            hodnoty
+	 * @param value     přípona k doplnění ke každé hodnotě
+	 * @param separator oddělovač
+	 * @param args      hodnoty
 	 * @return sestavený řetězec
 	 */
 	public static String appendToEach(String value, String separator, String... args) {
@@ -213,8 +202,7 @@ public class StringUtils {
 	/**
 	 * kontrola, zda je řetězec prázdný
 	 * 
-	 * @param txt
-	 *            hodnota ke kontrole
+	 * @param txt hodnota ke kontrole
 	 * @return true pokud je řetězec neprázdný (!=null && length>0)
 	 */
 	public static boolean hasText(String txt) {
@@ -245,8 +233,12 @@ public class StringUtils {
 		return false;
 	}
 
+	private static MessageFormat numberFormat = null;
+
 	public static String numberAsString(Object value) {
-		return MessageFormat.format("{0,number,#}", value);
+		if (numberFormat == null)
+			numberFormat = new MessageFormat("{0,number,#}");
+		return numberFormat.format(value);
 	}
 
 	public static boolean isAlpha(String txt) {
@@ -279,12 +271,9 @@ public class StringUtils {
 	 * Pokud je návratový parametr řetězec a hodnota není prázdná, je tento řetězec
 	 * použit jako MessageFormat
 	 * 
-	 * @param txt
-	 *            hodnota, která má být testována na obsah textu
-	 * @param hasTextResult
-	 *            návratová hodnota nebo formátovací řetězec
-	 * @param hasntTextResult
-	 *            návratová hodnota
+	 * @param txt             hodnota, která má být testována na obsah textu
+	 * @param hasTextResult   návratová hodnota nebo formátovací řetězec
+	 * @param hasntTextResult návratová hodnota
 	 * @return
 	 */
 	public static Object hasTextSelect(String txt, Object hasTextResult, Object hasntTextResult) {

@@ -282,7 +282,7 @@ public class CsvUtils {
 			this.columnNames = columnNames;
 		}
 
-		Map<String, String> getMap(String key) {
+		public Map<String, String> getMap(String key) {
 			return splitCsv(get(key), separator, columnNames);
 		}
 	}

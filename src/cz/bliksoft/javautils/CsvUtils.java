@@ -257,9 +257,10 @@ public class CsvUtils {
 			rowResult = new HashMap<>(columnNames.size());
 			int index = 0;
 			for (String vKey : columnNames) {
-				if (index++ >= cols.length)
+				if (index >= cols.length)
 					break;
 				rowResult.put(vKey, cols[index]);
+				index++;
 			}
 		} else {
 			rowResult = new HashMap<>(cols.length);
@@ -323,7 +324,7 @@ public class CsvUtils {
 				cols = line.split(separator, -1);
 		}
 
-		LazyCsvMap result = new LazyCsvMap(separator, columnNames);
+		LazyCsvMap result = new LazyCsvMap(separator, colNames);
 		int rownum = 0;
 
 		Integer keyIndex = ((keyName == null) ? null : colNames.indexOf(keyName));

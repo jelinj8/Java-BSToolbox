@@ -1,4 +1,4 @@
-** common dependency base versions ** 
+# common dependency base versions
 
 to inherit all default versions import
 
@@ -16,7 +16,7 @@ to inherit all default versions import
 </dependencyManagement>
 ```
 
-**Freemarker**
+# Freemarker
 
 To use freemarker parts of this library, add
 
@@ -29,7 +29,7 @@ To use freemarker parts of this library, add
 ```
 to your classpath.
 
-**ZXing for QR code generation**
+# ZXing for QR code generation
 
 If you want to use QR generator, you'll need to provide ZXing library, e.g.:
 
@@ -43,9 +43,9 @@ If you want to use QR generator, you'll need to provide ZXing library, e.g.:
 </dependency>
 ```
 
-** OOXML **
+# OOXML
 
-Escel + word OpenDocuments
+Excel + word OpenDocuments
 
 ```
 <dependency>
@@ -55,7 +55,7 @@ Escel + word OpenDocuments
 </dependency>
 ```
 
-** Log4J2 **
+# Log4J2
 
 Optional, but reasonable to include
 
@@ -67,7 +67,7 @@ Optional, but reasonable to include
 </dependency>
 ```
 
-**JAXB**
+# JAXB
 
 Generally use classes from jakarta namespace.
 
@@ -79,7 +79,7 @@ Generally use classes from jakarta namespace.
 </dependency>
 ```
 
-** WS interface **
+ # WS interface
 
 ```
 <dependency>
@@ -91,7 +91,7 @@ Generally use classes from jakarta namespace.
 
 Jaxb is already included in WS client / server.
 
-** WS client **
+## WS client
 
 ```
 <dependency>
@@ -101,7 +101,7 @@ Jaxb is already included in WS client / server.
 </dependency>
 ```
 
-** WS server **
+## WS server
 
 ```
 <dependency>

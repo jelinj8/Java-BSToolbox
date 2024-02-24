@@ -220,7 +220,7 @@ public class BSHttpContext extends HashMap<String, Object> {
 		put(CTX_BASEPATH, ctx.getPath());
 
 		if (pathPrefix != null && path != null)
-			requested = path.replace(pathPrefix, "");
+			requested = path.replaceFirst(pathPrefix, "");
 		else
 			requested = path;
 

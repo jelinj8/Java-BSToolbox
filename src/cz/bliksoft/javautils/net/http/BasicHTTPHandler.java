@@ -176,6 +176,10 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 		pathPrefix = prefix;
 	}
 
+	/**
+	 * path fragment (regex), that will be removed in request URI (only it's first occurence)
+	 * @return
+	 */
 	public String getPathPrefix() {
 		return pathPrefix;
 	}

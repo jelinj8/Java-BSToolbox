@@ -37,6 +37,14 @@ public class DefaultFreemarkerHTTPHandler extends BasicHTTPHandler implements Cl
 
 	public Map<String, Object> extensions = new HashMap<>();
 
+	/**
+	 * global FreemarkerHttpHandler variables for all FreemarkerHandlers
+	 */
+	public static Map<String, Object> globalVariables = new HashMap<>();
+
+	/**
+	 * FreemarkerHttpHandler instance variables
+	 */
 	public Map<String, Object> variables = new HashMap<>();
 
 	public DefaultFreemarkerHTTPHandler() {
@@ -91,13 +99,11 @@ public class DefaultFreemarkerHTTPHandler extends BasicHTTPHandler implements Cl
 				log.fine("EnvironmentUtils not initialized.");
 			}
 
-			for (Entry<String, Object> ext : extensions.entrySet()) {
-				generator.addExtension(ext.getKey(), ext.getValue());
-			}
+			generator.addExtensions(extensions);
 
-			for (Entry<String, Object> var : variables.entrySet()) {
-				generator.setVariable(var.getKey(), var.getValue());
-			}
+			generator.setVariables(globalVariables);
+			generator.setVariables(variables);
+			generator.setVariables(context.contextVariables);
 
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "Failed to create FreemarkerGenerator.", e);

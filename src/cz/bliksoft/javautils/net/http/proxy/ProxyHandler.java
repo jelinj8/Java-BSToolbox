@@ -57,6 +57,10 @@ public class ProxyHandler extends BasicHTTPHandler {
 
 	private Function<URI, URI> rewriteUrl = null;
 
+	/**
+	 * function for URI transformation (overrides path prefix)
+	 * @param function
+	 */
 	public void setRewriteUri(Function<URI, URI> function) {
 		rewriteUrl = function;
 	}
@@ -143,11 +147,17 @@ public class ProxyHandler extends BasicHTTPHandler {
 			}
 
 			URI newUri = null;
+
 			if (rewriteUrl != null)
 				newUri = rewriteUrl.apply(uri);
 			else {
+				String newPath = uri.getPath();
+				
+				if (getPathPrefix() != null)
+					newPath = newPath.replaceFirst(getPathPrefix(), "");
+				
 				newUri = new URI(scheme != null ? scheme : (uri.getScheme() == null ? "http" : uri.getScheme()),
-						(authority != null ? authority : uri.getAuthority()), (path != null ? path : uri.getPath()),
+						(authority != null ? authority : uri.getAuthority()), (path != null ? path : newPath),
 						(query != null ? query : uri.getQuery()), (fragment != null ? fragment : uri.getFragment()));
 			}
 			final String authority = newUri.getAuthority();

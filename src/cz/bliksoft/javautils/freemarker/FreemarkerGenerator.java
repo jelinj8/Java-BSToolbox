@@ -201,14 +201,14 @@ public class FreemarkerGenerator {
 		Template tpl = getTemplate(templateName);
 		generate(out, tpl);
 	}
-	
+
 	public void generate(OutputStream out, Template template) throws IOException, TemplateException {
 		Map<String, Object> root = new HashMap<>();
 		registerExtensions(root);
 		registerVariables(root);
 		generate(out, template, root);
 	}
-	
+
 	private void generate(OutputStream outfile, Template tpl, Map<String, Object> root)
 			throws IOException, TemplateException {
 		try (OutputStreamWriter out = new OutputStreamWriter(outfile, StandardCharsets.UTF_8)) {
@@ -295,10 +295,20 @@ public class FreemarkerGenerator {
 		localExtensions.remove(key);
 	}
 
+	public void addExtensions(Map<String, Object> exts) {
+		if (exts != null)
+			localExtensions.putAll(exts);
+	}
+
 	private final HashMap<String, Object> variables = new HashMap<>();
 
 	public void setVariable(String name, Object value) {
 		variables.put(name, value);
+	}
+
+	public void setVariables(Map<String, Object> vars) {
+		if (vars != null)
+			variables.putAll(vars);
 	}
 
 	@SuppressWarnings("unchecked")

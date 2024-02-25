@@ -48,6 +48,7 @@ public class BSHttpContext extends HashMap<String, Object> {
 	public Map<String, Object> request;
 	public Map<String, List<Optional<MultiPart>>> POST = null;
 	public Map<String, String> cookies;
+	public Map<String, Object> contextVariables = null;
 
 	private long sessionId;
 	

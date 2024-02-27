@@ -32,6 +32,7 @@ import cz.bliksoft.javautils.xml.XmlUtils;
 public class LogUtils {
 
 	private static Logger log;
+	private static Logger messageLog;
 
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-SSS");
 
@@ -141,6 +142,7 @@ public class LogUtils {
 		}
 
 		log = Logger.getLogger(LogUtils.class.getName());
+		messageLog = Logger.getLogger("SystemMonitorMessages");
 
 		if (log4jConfigFile != null && !log4jConfigFile.exists()) {
 			log.severe("Missing configured Log4J config file: " + log4jConfigFile.getAbsolutePath());
@@ -352,8 +354,10 @@ public class LogUtils {
 	 * returns stack trace string representation
 	 * 
 	 * @param stack
-	 * @param skip     count of elements from top to skip
-	 * @param maxCount max printed elements count
+	 * @param skip
+	 *            count of elements from top to skip
+	 * @param maxCount
+	 *            max printed elements count
 	 * @return
 	 */
 	public static String traceToString(StackTraceElement[] stack, int skip, int maxCount) {
@@ -378,8 +382,10 @@ public class LogUtils {
 	 * returns stack trace string representation
 	 * 
 	 * @param stack
-	 * @param skip     class to skip on top of stack (find first other flass)
-	 * @param maxCount max printed elements count
+	 * @param skip
+	 *            class to skip on top of stack (find first other flass)
+	 * @param maxCount
+	 *            max printed elements count
 	 * @return
 	 */
 	public static String traceToString(StackTraceElement[] stack, String skip, int maxCount) {
@@ -433,8 +439,10 @@ public class LogUtils {
 	 * get current stack trace, skip the getting call + additional <code>skip</code>
 	 * levels.
 	 * 
-	 * @param maxCount maximal total length of result (0 for unlimited)
-	 * @param skip     additional levels to skip (0 for none)
+	 * @param maxCount
+	 *            maximal total length of result (0 for unlimited)
+	 * @param skip
+	 *            additional levels to skip (0 for none)
 	 * @return
 	 */
 	public static StackTraceElement[] getStackTrace(int maxCount, int skip) {
@@ -473,6 +481,7 @@ public class LogUtils {
 	 */
 	public static void addMessage(Object message) {
 		messages.add(new TimestampedObject<>(message));
+		messageLog.info(String.valueOf(message));
 	}
 
 	/**

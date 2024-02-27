@@ -3,6 +3,7 @@ package cz.bliksoft.javautils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.management.ManagementFactory;
@@ -11,6 +12,7 @@ import java.lang.management.ThreadMXBean;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -327,6 +329,19 @@ public class SystemMonitor {
 			writeSystemReport(fos);
 		} catch (IOException e) {
 			log.severe("Failed to open file for system report.");
+		}
+
+		List<TimestampedObject<Object>> messages = new ArrayList<>(LogUtils.getMessages());
+		if (messages.size() > 0) {
+			File messagesFile = LogUtils.getFile(name + "_messages", "txt");
+			try (FileWriter fw = new FileWriter(messagesFile)) {
+				for (TimestampedObject<Object> msg : messages) {
+					fw.write(MessageFormat.format("{0}|{1}", DateUtils.timestampFormat.format(msg.timestamp),
+							msg.value));
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 

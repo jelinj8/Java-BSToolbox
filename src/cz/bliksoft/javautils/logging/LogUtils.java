@@ -480,7 +480,9 @@ public class LogUtils {
 	 * @param message
 	 */
 	public static void addMessage(Object message) {
-		messages.add(new TimestampedObject<>(message));
+		synchronized (messages) {
+			messages.add(new TimestampedObject<>(message));
+		}
 		messageLog.info(String.valueOf(message));
 	}
 

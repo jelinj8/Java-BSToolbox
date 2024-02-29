@@ -55,7 +55,7 @@
 			<tbody>
 					<#list threads>
 					<#items as t>
-					<tr><td>${t.id?c}:${t.name}</td><td>${t.status!'?'}</td><td class="right">${(t.millis/msBetweenSamples)?string("##0.00")!'?'}</td></tr>
+					<tr <#if t.millis lt 0>class="striketrough"</#if>><td>${t.id?c}:${t.name}</td><td>${t.status!'?'}</td><td class="right"><#if t.millis lt 0><#else>${(t.millis/msBetweenSamples)?string("##0.00")!'?'}</#if></td></tr>
 					</#items>
 					</#list>
 				<tr><td class="right">CPU total</td><td class="left">threads: ${threads?size}</td><td class="right">${(cpuNanos/msBetweenSamples/1000)?string("##0.00")}</td></tr>
@@ -192,8 +192,8 @@
 			<#list threads>
 			<#items as t>
 			{
-				label: "${t.id?c}:${t.name} (${t.millis?c!'?'})",
-				data: [<#list CPU as rep>'${(rep[t.id?c+':'+t.name]?c)!'null'}',</#list>],
+				label: "${t.id?c}:${t.name} (<#if t.millis lt 0>X<#else>${t.millis?c!'?'}</#if>)",
+				data: [<#list CPU as rep>'<#if rep[t.id?c+':'+t.name] lt 0>null<#else>${(rep[t.id?c+':'+t.name]?c)!'null'}</#if>',</#list>],
 				spanGaps: false,
 			},
 			</#items>

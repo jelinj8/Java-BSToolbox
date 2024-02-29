@@ -1,7 +1,6 @@
 package cz.bliksoft.javautils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -19,7 +18,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,7 +26,6 @@ import cz.bliksoft.javautils.freemarker.FreemarkerGenerator;
 import cz.bliksoft.javautils.freemarker.includes.BuiltinTemplateLoader;
 import cz.bliksoft.javautils.logging.LogUtils;
 import freemarker.cache.ClassTemplateLoader;
-import freemarker.cache.FileTemplateLoader;
 import freemarker.cache.MultiTemplateLoader;
 import freemarker.cache.TemplateLoader;
 import freemarker.template.Template;
@@ -50,6 +47,8 @@ public class SystemMonitor {
 
 	private static Thread monitorThread = null;
 	private static Map<String, Object> baseVariables = new HashMap<>();
+
+	private static boolean keepThreads = false;
 
 	public static class SystemReport {
 		public SystemReport() {
@@ -82,6 +81,16 @@ public class SystemMonitor {
 
 			totalThreadCpuNanos = newThreadCpuNanos;
 			lastThreadCpuMillis = threadCpuMillis;
+
+			if (keepThreads)
+				for (ThreadInfo ti : threadInfo) {
+					Long threadID = ti.getThreadId();
+					if (!newThreadInfo.containsKey(threadID)) {
+						newThreadInfo.put(threadID, ti);
+						threadCpuMillis.put(threadID, -1l);
+					}
+				}
+
 			threadInfo = new ArrayList<>(newThreadInfo.values());
 		}
 
@@ -344,6 +353,10 @@ public class SystemMonitor {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	public static void setKeepDeadThreads(boolean keep) {
+		keepThreads = keep;
 	}
 
 }

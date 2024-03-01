@@ -138,8 +138,12 @@ public class SystemMonitor {
 		return totalThreadCpuNanos;
 	}
 
+	/**
+	 * return copy of current threadInfo list
+	 * @return
+	 */
 	public static List<ThreadInfo> getThreadInfo() {
-		return threadInfo;
+		return new ArrayList<>(threadInfo);
 	}
 
 	public static Map<Long, Long> getLastThreadCpuMillis() {
@@ -167,6 +171,8 @@ public class SystemMonitor {
 		List<Map<String, Object>> memoryReports = new ArrayList<>();
 		List<Map<String, Object>> cpuReports = new ArrayList<>();
 
+		List<ThreadInfo> ti = getThreadInfo();
+
 		for (SystemReport r : reports) {
 			timestamps.add(r.timestamp);
 
@@ -178,7 +184,7 @@ public class SystemMonitor {
 			memoryReports.add(rMap);
 
 			Map<String, Object> cMap = new HashMap<>();
-			getThreadInfo().forEach(info -> {
+			ti.forEach(info -> {
 				long id = info.getThreadId();
 				cMap.put(id + ":" + info.getThreadName(), r.getThreadCpuMillis().getOrDefault(id, 0l) / 1000l);
 			});
@@ -196,8 +202,6 @@ public class SystemMonitor {
 		currentVariables.put("messages", LogUtils.getMessages());
 
 		Map<Long, Long> nanos = getLastThreadCpuMillis();
-
-		List<ThreadInfo> ti = getThreadInfo();
 
 		if (ti != null) {
 			ti.sort(new Comparator<ThreadInfo>() {

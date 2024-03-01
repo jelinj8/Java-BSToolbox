@@ -140,6 +140,7 @@ public class SystemMonitor {
 
 	/**
 	 * return copy of current threadInfo list
+	 * 
 	 * @return
 	 */
 	public static List<ThreadInfo> getThreadInfo() {
@@ -331,6 +332,10 @@ public class SystemMonitor {
 	}
 
 	public static void logSystemReport(String name) {
+		logSystemReport(name, null);
+	}
+
+	public static void logSystemReport(String name, String messagesName) {
 		if (monitorThread == null) {
 			log.warning("System monitor not started, nothing to be reported.");
 			return;
@@ -345,16 +350,18 @@ public class SystemMonitor {
 			log.severe("Failed to open file for system report.");
 		}
 
-		List<TimestampedObject<Object>> messages = new ArrayList<>(LogUtils.getMessages());
-		if (messages.size() > 0) {
-			File messagesFile = LogUtils.getFile(name + "_messages", "txt");
-			try (FileWriter fw = new FileWriter(messagesFile)) {
-				for (TimestampedObject<Object> msg : messages) {
-					fw.write(MessageFormat.format("{0}|{1}\n", DateUtils.timestampFormat.format(msg.timestamp),
-							msg.value));
+		if (messagesName != null) {
+			List<TimestampedObject<Object>> messages = new ArrayList<>(LogUtils.getMessages());
+			if (messages.size() > 0) {
+				File messagesFile = LogUtils.getFile(messagesName, "txt");
+				try (FileWriter fw = new FileWriter(messagesFile)) {
+					for (TimestampedObject<Object> msg : messages) {
+						fw.write(MessageFormat.format("{0}|{1}\n", DateUtils.timestampFormat.format(msg.timestamp),
+								msg.value));
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
-			} catch (IOException e) {
-				e.printStackTrace();
 			}
 		}
 	}

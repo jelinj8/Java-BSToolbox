@@ -215,27 +215,15 @@ public class ObjectUtils {
 
 	public static void serializeToFile(File file, Object data) throws FileNotFoundException, IOException {
 		try (FileOutputStream fs = new FileOutputStream(file); ObjectOutputStream oos = new ObjectOutputStream(fs)) {
-			serializeToStream(fs, data);
-		}
-	}
-
-	public static void serializeToStream(OutputStream os, Object data) throws FileNotFoundException, IOException {
-		try (ObjectOutputStream oos = new ObjectOutputStream(os)) {
 			oos.writeObject(data);
 		}
 	}
 
 	public static Object deserializeFromFile(File file)
 			throws FileNotFoundException, IOException, ClassNotFoundException {
-		try (FileInputStream fis = new FileInputStream(file)) {
-			return deserializeFromStream(fis);
+		try (FileInputStream fis = new FileInputStream(file); ObjectInputStream ois = new ObjectInputStream(fis)) {
+			return ois.readObject();
 		}
 	}
 
-	public static Object deserializeFromStream(InputStream is)
-			throws FileNotFoundException, IOException, ClassNotFoundException {
-		try (ObjectInputStream oos = new ObjectInputStream(is)) {
-			return oos.readObject();
-		}
-	}
 }

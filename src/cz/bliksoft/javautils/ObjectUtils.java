@@ -2,8 +2,15 @@ package cz.bliksoft.javautils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -26,8 +33,10 @@ public class ObjectUtils {
 	 * for any object that implements Serializable. If the original is {@code null},
 	 * this method just returns {@code null}.
 	 *
-	 * @param <T>      the type of the object to be cloned
-	 * @param original the object to copied, may be {@code null}
+	 * @param <T>
+	 *            the type of the object to be cloned
+	 * @param original
+	 *            the object to copied, may be {@code null}
 	 * @return the copied object
 	 *
 	 * @since 1.1.1
@@ -62,8 +71,10 @@ public class ObjectUtils {
 	 * Objects.equals("Hi", "Ho") == false
 	 * </pre>
 	 *
-	 * @param o1 the first object to compare
-	 * @param o2 the second object to compare
+	 * @param o1
+	 *            the first object to compare
+	 * @param o2
+	 *            the second object to compare
 	 * @return boolean {@code true} if and only if both objects are {@code null} or
 	 *         equal according to {@link Object#equals(Object) equals} invoked on
 	 *         the first object
@@ -122,14 +133,14 @@ public class ObjectUtils {
 					sb.append(mp.filename);
 				}
 			}
-//		} else if (o instanceof Optional) {
-//			Optional op = (Optional) o;
-//			if (op.isPresent()) {
-//				sb.append("[X]");
-//				sb.append(describe(op.get(), localPad2));
-//			} else {
-//				sb.append("[O]");
-//			}
+			//		} else if (o instanceof Optional) {
+			//			Optional op = (Optional) o;
+			//			if (op.isPresent()) {
+			//				sb.append("[X]");
+			//				sb.append(describe(op.get(), localPad2));
+			//			} else {
+			//				sb.append("[O]");
+			//			}
 		} else if (o instanceof Map) {
 			sb.append("{");
 			if (((Map) o).size() > 0) {
@@ -202,4 +213,29 @@ public class ObjectUtils {
 		return sb.toString();
 	}
 
+	public static void serializeToFile(File file, Object data) throws FileNotFoundException, IOException {
+		try (FileOutputStream fs = new FileOutputStream(file); ObjectOutputStream oos = new ObjectOutputStream(fs)) {
+			serializeToStream(fs, data);
+		}
+	}
+
+	public static void serializeToStream(OutputStream os, Object data) throws FileNotFoundException, IOException {
+		try (ObjectOutputStream oos = new ObjectOutputStream(os)) {
+			oos.writeObject(data);
+		}
+	}
+
+	public static Object deserializeFromFile(File file)
+			throws FileNotFoundException, IOException, ClassNotFoundException {
+		try (FileInputStream fis = new FileInputStream(file)) {
+			return deserializeFromStream(fis);
+		}
+	}
+
+	public static Object deserializeFromStream(InputStream is)
+			throws FileNotFoundException, IOException, ClassNotFoundException {
+		try (ObjectInputStream oos = new ObjectInputStream(is)) {
+			return oos.readObject();
+		}
+	}
 }

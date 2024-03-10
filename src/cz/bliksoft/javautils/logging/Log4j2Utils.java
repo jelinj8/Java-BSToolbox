@@ -21,19 +21,21 @@ public class Log4j2Utils {
 			throws FileNotFoundException, IOException {
 		System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
 
-		if (tokensToReplace != null) {
-			try (TokenReplacingReader trdr = new TokenReplacingReader(configFile,
-					new MapTokenResolver(EnvironmentUtils.getEnvironmentProperties()))) {
+		if (configFile != null) {
+			if (tokensToReplace != null) {
+				try (TokenReplacingReader trdr = new TokenReplacingReader(configFile,
+						new MapTokenResolver(EnvironmentUtils.getEnvironmentProperties()))) {
 
-				try (InputStream is = trdr.toInputStream(StandardCharsets.UTF_8)) {
+					try (InputStream is = trdr.toInputStream(StandardCharsets.UTF_8)) {
+						ConfigurationSource configurationSource = new ConfigurationSource(is);
+						Configurator.initialize(null, configurationSource);
+					}
+				}
+			} else {
+				try (InputStream is = new FileInputStream(configFile)) {
 					ConfigurationSource configurationSource = new ConfigurationSource(is);
 					Configurator.initialize(null, configurationSource);
 				}
-			}
-		} else {
-			try (InputStream is = new FileInputStream(configFile)) {
-				ConfigurationSource configurationSource = new ConfigurationSource(is);
-				Configurator.initialize(null, configurationSource);
 			}
 		}
 
@@ -42,6 +44,10 @@ public class Log4j2Utils {
 			logger.warn("Java LogManager instantiated as " + LogManager.getLogManager().getClass().getName()
 					+ ", org.apache.logging.log4j.jul.LogManager not in place!");
 		}
-		logger.info("Log4J2 initialized with " + configFile.getAbsoluteFile());
+		if (configFile != null)
+			logger.info("Log4J2 initialized with " + configFile.getAbsoluteFile());
+		else {
+			logger.warn("Log4J2 initialized with implicit configuration");
+		}
 	}
 }

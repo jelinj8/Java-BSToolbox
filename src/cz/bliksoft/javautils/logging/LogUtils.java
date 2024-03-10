@@ -72,13 +72,23 @@ public class LogUtils {
 	}
 
 	/**
-	 * backwards compatibility for {@link LogUtils#initLog4J(File, boolean) optional
+	 * backwards compatibility for {@link LogUtils#initLog4J(File, Map) optional
 	 * variable replacement version}
 	 * 
 	 * @param configPath
 	 */
-	public static void initLog4J(File configPath) {
-		initLog4J(configPath, null);
+	public static void initLog4J() {
+		initLog4J(null, null);
+	}
+
+	/**
+	 * backwards compatibility for {@link LogUtils#initLog4J(File, Map) optional
+	 * variable replacement version}
+	 * 
+	 * @param configFile
+	 */
+	public static void initLog4J(File configFile) {
+		initLog4J(configFile, null);
 	}
 
 	/**
@@ -87,24 +97,9 @@ public class LogUtils {
 	 * @param configPath
 	 */
 	public static void initLog4J(File configPath, Map<String, String> replacementValues) {
-		log4jConfigFile = configPath;
-		if (log4jConfigFile == null)
-			log4jConfigFile = new File("log4j2.xml");
-
-		if (log4jConfigFile.exists()) {
-			//			if (replacementValues == null) {
-			//				System.setProperty("log4j2.configurationFile", (log4jConfigFile.getPath()));
-			//			} else {
-			//				// FIXME reimplementovat s načítáním tokenů
-			//				System.setProperty("log4j2.configurationFile", (log4jConfigFile.getPath()));
-			//			}
-
-			try {
-				Log4j2Utils.init(configPath, replacementValues);
-
-			} catch (IOException e) {
-
-			}
+		try {
+			Log4j2Utils.init(configPath, replacementValues);
+		} catch (IOException e) {
 		}
 	}
 
@@ -146,19 +141,11 @@ public class LogUtils {
 			logProps = new File(configuration.getProperty("loggingProperties", "logging.properties"));
 			String log4jConfigName = configuration.getProperty("log4j");
 			if (log4jConfigName != null) {
-				File log4jConfig = new File(log4jConfigName);
+				log4jConfigFile = new File(log4jConfigName);
 				if (EnvironmentUtils.isInitialized()) {
-					if (log4jConfig.exists()) {
-						initLog4J(log4jConfig, EnvironmentUtils.getEnvironmentProperties());
-					} else {
-						initLog4J(null, EnvironmentUtils.getEnvironmentProperties());
-					}
+					initLog4J(log4jConfigFile, EnvironmentUtils.getEnvironmentProperties());
 				} else {
-					if (log4jConfig.exists()) {
-						initLog4J(log4jConfig);
-					} else {
-						initLog4J(null);
-					}
+					initLog4J(log4jConfigFile);
 				}
 			}
 		} else {

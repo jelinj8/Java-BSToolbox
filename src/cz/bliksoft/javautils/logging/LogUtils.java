@@ -16,16 +16,26 @@ import java.text.SimpleDateFormat;
 import java.util.AbstractCollection;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import javax.swing.SwingUtilities;
+import javax.xml.parsers.ParserConfigurationException;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
+
+import cz.bliksoft.javautils.EnvironmentUtils;
+import cz.bliksoft.javautils.PropertiesUtils;
 import cz.bliksoft.javautils.TimestampedObject;
 import cz.bliksoft.javautils.binding.list.collections.LimitedList;
 import cz.bliksoft.javautils.streams.NoCloseOutputStream;
+import cz.bliksoft.javautils.streams.replacer.MapTokenResolver;
+import cz.bliksoft.javautils.streams.replacer.TokenReplacingReader;
 import cz.bliksoft.javautils.xml.XmlUtils;
 //import jakarta.xml.bind.JAXBException;
 
@@ -39,14 +49,36 @@ public class LogUtils {
 	// private static Properties props;
 	private static String logDir = null;
 	private static File logDirFile = null;
-	private static String logName;
+	//	private static String logName;
 
 	private static File log4jConfigFile = null;
 
 	private static LimitedList<TimestampedObject<Object>> messages = new LimitedList<>(100);
 
+	public static final String PROP_LOG_SSL = "logSSL";
+	public static final String PROP_LOG_SOAP = "logSOAP";
+	public static final String PROP_LOG_PKCS11 = "logPKCS11";
+	public static final String PROP_LOG_LOG_NAME = "logName";
+
+	/**
+	 * sets environment variable logName, if EnvironmentUtils are initialized, also
+	 * sets the variable in its environmentVariables
+	 * 
+	 * @param name
+	 */
 	public static void setLogName(String name) {
-		logName = name;
+		System.setProperty(PROP_LOG_LOG_NAME, name);
+		EnvironmentUtils.setEnvironmentPropertyIfInitialized(PROP_LOG_LOG_NAME, name);
+	}
+
+	/**
+	 * backwards compatibility for {@link LogUtils#initLog4J(File, boolean) optional
+	 * variable replacement version}
+	 * 
+	 * @param configPath
+	 */
+	public static void initLog4J(File configPath) {
+		initLog4J(configPath, null);
 	}
 
 	/**
@@ -54,34 +86,24 @@ public class LogUtils {
 	 * 
 	 * @param configPath
 	 */
-	public static void initLog4J(File configPath) {
+	public static void initLog4J(File configPath, Map<String, String> replacementValues) {
 		log4jConfigFile = configPath;
 		if (log4jConfigFile == null)
 			log4jConfigFile = new File("log4j2.xml");
 
 		if (log4jConfigFile.exists()) {
-			System.setProperty("log4j2.configurationFile", (log4jConfigFile.getPath()));
+			//			if (replacementValues == null) {
+			//				System.setProperty("log4j2.configurationFile", (log4jConfigFile.getPath()));
+			//			} else {
+			//				// FIXME reimplementovat s načítáním tokenů
+			//				System.setProperty("log4j2.configurationFile", (log4jConfigFile.getPath()));
+			//			}
 
 			try {
-				Class<?> log4jConfiguratorClass = Class.forName("org.apache.logging.log4j.LogManager");
-				if (log4jConfiguratorClass != null) {
-					System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
+				Log4j2Utils.init(configPath, replacementValues);
 
-					Method method = log4jConfiguratorClass.getMethod("getLogger");
-					org.apache.logging.log4j.Logger logger = (org.apache.logging.log4j.Logger) method.invoke(null);
+			} catch (IOException e) {
 
-					if (!"org.apache.logging.log4j.jul.LogManager"
-							.equals(LogManager.getLogManager().getClass().getName())) {
-
-						logger.warn("Java LogManager instantiated as " + LogManager.getLogManager().getClass().getName()
-								+ ", org.apache.logging.log4j.jul.LogManager not in place!");
-					}
-					logger.info("Log4J initialized with " + log4jConfigFile.getAbsoluteFile());
-				}
-			} catch (ClassNotFoundException e) {
-			} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
-					| InvocationTargetException e) {
-				e.printStackTrace();
 			}
 		}
 	}
@@ -111,24 +133,41 @@ public class LogUtils {
 				} else {
 					logDir = null;
 				}
-				if (logDir != null)
+				if (logDir != null) {
 					System.setProperty("logDir", logDir);
+					EnvironmentUtils.setEnvironmentPropertyIfInitialized(EnvironmentUtils.LOG_DIR, logDir);
+				}
 			}
-			if (logName != null)
-				System.setProperty("logName", logName);
+			String configuredLogName = configuration.getProperty("appName");
+			if (configuredLogName != null) {
+				setLogName(configuredLogName);
+			}
+
 			logProps = new File(configuration.getProperty("loggingProperties", "logging.properties"));
 			String log4jConfigName = configuration.getProperty("log4j");
 			if (log4jConfigName != null) {
 				File log4jConfig = new File(log4jConfigName);
-				if (log4jConfig.exists()) {
-					initLog4J(log4jConfig);
+				if (EnvironmentUtils.isInitialized()) {
+					if (log4jConfig.exists()) {
+						initLog4J(log4jConfig, EnvironmentUtils.getEnvironmentProperties());
+					} else {
+						initLog4J(null, EnvironmentUtils.getEnvironmentProperties());
+					}
 				} else {
-					initLog4J(null);
+					if (log4jConfig.exists()) {
+						initLog4J(log4jConfig);
+					} else {
+						initLog4J(null);
+					}
 				}
 			}
 		} else {
 			logProps = new File("logging.properties");
-			initLog4J(null);
+			if (EnvironmentUtils.isInitialized()) {
+				initLog4J(null);
+			} else {
+				initLog4J(null, EnvironmentUtils.getEnvironmentProperties());
+			}
 		}
 
 		if (logProps.exists()) {
@@ -149,14 +188,12 @@ public class LogUtils {
 		}
 
 		if (configuration != null) {
-			if ("true".equalsIgnoreCase(configuration.getProperty("logSSL", "false")))
+			if (PropertiesUtils.isTrue(configuration, PROP_LOG_SSL, false))
 				setSSLLogging();
-			if ("true".equalsIgnoreCase(configuration.getProperty("logSOAP", "false")))
+			if (PropertiesUtils.isTrue(configuration, PROP_LOG_SOAP, false))
 				setSOAPLogging();
-			if ("true".equalsIgnoreCase(configuration.getProperty("logPKCS11", "false")))
+			if (PropertiesUtils.isTrue(configuration, PROP_LOG_PKCS11, false))
 				setPKCSLogging();
-
-			logName = configuration.getProperty("appName");
 		}
 	}
 

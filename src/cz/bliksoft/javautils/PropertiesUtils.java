@@ -16,6 +16,8 @@ import cz.bliksoft.javautils.streams.replacer.MapTokenResolver;
 import cz.bliksoft.javautils.streams.replacer.TokenReplacingReader;
 
 public class PropertiesUtils {
+	public static final String PROP_VAL_TRUE = "true";
+	public static final String PROP_VAL_FALSE = "false";
 
 	public static void saveProperties(Properties properties, File propFile, String comment, boolean makeBackup)
 			throws IOException {
@@ -55,6 +57,30 @@ public class PropertiesUtils {
 			res.load(fis);
 		}
 		return res;
+	}
+
+	/**
+	 * checks if named property equals true, ignoring case.
+	 * 
+	 * @param properties
+	 * @param propertyName
+	 * @param defaultResult
+	 *            default property value if not contained in properties
+	 * @return property value (or optional default) equals 'true'. If default is
+	 *         null and property is not specified, returns null.
+	 */
+	public static Boolean isTrue(Properties properties, String propertyName, Boolean defaultResult) {
+		if (properties == null)
+			return null;
+		String p = properties.getProperty(propertyName);
+		if (p == null) {
+			if (defaultResult == null)
+				return null;
+			else
+				return defaultResult;
+		}
+
+		return PROP_VAL_TRUE.equalsIgnoreCase(p);
 	}
 
 }

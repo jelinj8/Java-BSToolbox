@@ -303,6 +303,18 @@ public class XmlUtils {
 		}
 	}
 
+	public static Document createDocument(InputStream xmlStream) throws ParserConfigurationException, SAXException, IOException {
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		// optional, but recommended
+		// process XML securely, avoid attacks like XML External Entities (XXE)
+		dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+
+		// parse XML file
+		DocumentBuilder db = dbf.newDocumentBuilder();
+		Document doc = db.parse(xmlStream);
+		return doc;
+	}
+
 	public static Document createDocument(File xmlFile) throws ParserConfigurationException, SAXException, IOException {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		// optional, but recommended

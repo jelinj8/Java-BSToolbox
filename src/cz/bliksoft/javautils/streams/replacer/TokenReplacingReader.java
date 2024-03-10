@@ -1,5 +1,7 @@
 package cz.bliksoft.javautils.streams.replacer;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.CharArrayReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -12,11 +14,16 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * http://tutorials.jenkov.com/java-howto/replace-strings-in-streams-arrays-files.html
  * 
- * @author Jakob Jenkov
+ * @author Jakob Jenkov, Jakub Jelínek
  * 
  */
 public class TokenReplacingReader extends Reader {
@@ -26,8 +33,27 @@ public class TokenReplacingReader extends Reader {
 	protected String tokenValue = null;
 	protected int tokenValueIndex = 0;
 
-	public TokenReplacingReader(InputStream source, ITokenResolver resolver) throws UnsupportedEncodingException {
-		this(new InputStreamReader(source, "UTF-8"), resolver);
+	/**
+	 * use UTF-8 as default
+	 * 
+	 * @param source
+	 * @param resolver
+	 * @throws UnsupportedEncodingException
+	 */
+	public TokenReplacingReader(InputStream source, ITokenResolver resolver) {
+		this(new InputStreamReader(source, StandardCharsets.UTF_8), resolver);
+	}
+
+	/**
+	 * specify input charset
+	 * 
+	 * @param source
+	 * @param charset
+	 * @param resolver
+	 * @throws UnsupportedEncodingException
+	 */
+	public TokenReplacingReader(InputStream source, Charset charset, ITokenResolver resolver) {
+		this(new InputStreamReader(source, charset), resolver);
 	}
 
 	public TokenReplacingReader(File source, ITokenResolver resolver) throws FileNotFoundException {
@@ -133,5 +159,25 @@ public class TokenReplacingReader extends Reader {
 
 	public void reset() throws IOException {
 		throw new RuntimeException("Operation Not Supported");
+	}
+
+	public String readAsString() throws IOException {
+		try (BufferedReader buffer = new BufferedReader(this)) {
+			return buffer.lines().map(line -> line + "\n").collect(Collectors.joining());
+		}
+	}
+
+	public List<String> readAllLines() throws IOException {
+		try (BufferedReader buffer = new BufferedReader(this)) {
+			List<String> lines = new LinkedList<>();
+			buffer.lines().forEach(l -> {
+				lines.add(l);
+			});
+			return lines;
+		}
+	}
+
+	public InputStream toInputStream(Charset charset) throws IOException {
+		return new ByteArrayInputStream(readAsString().getBytes(charset));
 	}
 }

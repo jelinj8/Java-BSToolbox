@@ -10,17 +10,40 @@ import org.apache.commons.codec.Charsets;
 import org.apache.commons.io.FileUtils;
 
 import cz.bliksoft.javautils.exceptions.InitializationException;
+import cz.bliksoft.javautils.logging.LogUtils;
 
+/**
+ * toolset for working with various configurations (environments) with a shared
+ * base (global config), allowing usage of <code>${variable}</code> placeholders
+ * replacement by environment variables and preloaded values
+ */
 public class EnvironmentUtils {
 	private static File environmentConfigDir = null;
 	private static File globalConfigDir = null;
 	private static File environmentConfig = null;
 
-	public static final String PROP_ENVIRONMENT_CONFIG_DIR = "environmentConfigDir";
+	/**
+	 * common configuration directory (shared between switchable environments)
+	 */
 	public static final String PROP_GLOBAL_CONFIG_DIR = "configDir";
+	/**
+	 * switchable environment config directory
+	 */
+	public static final String PROP_ENVIRONMENT_CONFIG_DIR = "environmentConfigDir";
+	/**
+	 * environment confiruration file name
+	 */
 	public static final String PROP_ENVIRONMENT_PROPERTIES_FILE = "environmentConfig";
 
+	/**
+	 * placeholder property for formatteed timestamp, created at initialization
+	 */
 	public static final String PROP_TIMESTAMP = "timestamp";
+
+	/**
+	 * placeholder property for configured log directory
+	 */
+	public static final String LOG_DIR = "logDir";
 
 	private static String getDefaultEnvDirName() throws IOException {
 		String envDirName;
@@ -38,6 +61,17 @@ public class EnvironmentUtils {
 		return envDirName;
 	}
 
+	/**
+	 * toolset initialization
+	 * <ul>
+	 * <li>"environmentConfigDir" from environment variable, preload or default file
+	 * (default.env in root)
+	 * <li>global "configDir" from environment variable, or preload
+	 * <li>"environmentConfig" file from environment variable, or preload
+	 * </ul>
+	 * 
+	 * @throws IOException
+	 */
 	public static void init() throws IOException {
 		environmentConfigDir = new File(StringUtils.hasTextDefault(System.getenv(PROP_ENVIRONMENT_CONFIG_DIR),
 				environmentProperties.getOrDefault(PROP_ENVIRONMENT_CONFIG_DIR, getDefaultEnvDirName())));
@@ -52,6 +86,21 @@ public class EnvironmentUtils {
 		commonInit();
 	}
 
+	/**
+	 * toolset initialization
+	 * <ul>
+	 * <li>"environmentConfigDir" from environment variable, preload or default file
+	 * (default.env in root)
+	 * <li>global "configDir" from environment variable, or preload
+	 * <li>"environmentConfig" file from environment variable, or preload
+	 * </ul>
+	 * Same as {@link EnvironmentUtils#init() init()}, just with another defaults
+	 * level
+	 * 
+	 * @param props
+	 *            defaults between environment variables and preload values
+	 * @throws IOException
+	 */
 	public static void init(Properties props) throws IOException {
 		environmentConfigDir = new File(StringUtils.hasTextDefault(System.getenv(PROP_ENVIRONMENT_CONFIG_DIR),
 				props.getProperty(PROP_ENVIRONMENT_CONFIG_DIR,
@@ -70,8 +119,11 @@ public class EnvironmentUtils {
 
 	/**
 	 * preload values directly, to be overridden by those loaded in proper init
+	 * (environment variables, then optional properties, then preloaded values, last
+	 * resort default files
 	 * 
 	 * @param props
+	 *            values to be preloaded as replacable values
 	 * @throws IOException
 	 */
 	public static void preinit(Properties props) throws IOException {
@@ -84,6 +136,12 @@ public class EnvironmentUtils {
 			String val = StringUtils.hasTextDefault(envValue, (String) value);
 			importVal((String) key, val);
 		});
+	}
+
+	public static void setEnvironmentPropertyIfInitialized(String name, String value) {
+		if (!isInitialized())
+			return;
+		setEnvironmentProperty(name, value);
 	}
 
 	public static void setEnvironmentProperty(String name, String value) {
@@ -120,10 +178,6 @@ public class EnvironmentUtils {
 		environmentProperties.put(PROP_ENVIRONMENT_PROPERTIES_FILE, environmentConfig.getPath());
 		environmentProperties.put(PROP_TIMESTAMP, DateUtils.TimestampString());
 
-		//		if (!environmentConfig.exists())
-		//			throw new InitializationException(
-		//					"Environment configuration file " + environmentConfig.getAbsolutePath() + " does not exist!");
-
 		if (environmentConfig.exists()) {
 			Properties envP = PropertiesUtils.loadFromFile(environmentConfig, environmentProperties);
 			envP.forEach((key, value) -> {
@@ -156,16 +210,32 @@ public class EnvironmentUtils {
 					"EnvironmentUtils.init was not called to initialize PropertiesUtils functions.");
 	}
 
+	/**
+	 * common configuration directory
+	 * 
+	 * @return
+	 */
 	public static File getConfigDir() {
 		checkInit();
 		return globalConfigDir;
 	}
 
+	/**
+	 * a file in common configuration directory
+	 * 
+	 * @param subfile
+	 * @return
+	 */
 	public static File getConfigDir(String subfile) {
 		checkInit();
 		return new File(globalConfigDir, subfile);
 	}
 
+	/**
+	 * current switchable environment configuration directory
+	 * 
+	 * @return
+	 */
 	public static File getEnvironmentConfigDir() {
 		checkInit();
 		if (environmentConfigDir.exists())
@@ -174,6 +244,12 @@ public class EnvironmentUtils {
 			return globalConfigDir;
 	}
 
+	/**
+	 * a file in current switchable environment configuration directory
+	 * 
+	 * @param subfile
+	 * @return
+	 */
 	public static File getEnvironmentConfigDir(String subfile) {
 		checkInit();
 		if (environmentConfigDir.exists())
@@ -196,6 +272,10 @@ public class EnvironmentUtils {
 		return environmentProperties;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public static Map<String, String> tryGetAllEnvironmentProperties() {
 		if (isInitialized())
 			return getAllEnvironmentProperties();
@@ -204,7 +284,8 @@ public class EnvironmentUtils {
 	}
 
 	/**
-	 * returns properties except those starting with a dot (hidden properties)
+	 * returns properties except those starting with a dot (hidden properties),
+	 * fails with InitializationException if not properly initialized.
 	 * 
 	 * @return
 	 */
@@ -213,6 +294,12 @@ public class EnvironmentUtils {
 		return publicEnvironmentProperties;
 	}
 
+	/**
+	 * returns properties except those starting with a dot (hidden properties),
+	 * returns empty map if not properly initialized.
+	 * 
+	 * @return
+	 */
 	public static Map<String, String> tryGetEnvironmentProperties() {
 		if (isInitialized())
 			return getEnvironmentProperties();
@@ -220,6 +307,11 @@ public class EnvironmentUtils {
 			return new HashMap<>();
 	}
 
+	/**
+	 * checks if the toolset was properly initialized
+	 * 
+	 * @return
+	 */
 	public static boolean isInitialized() {
 		return environmentConfigDir != null;
 	}

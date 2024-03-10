@@ -17,6 +17,7 @@ import cz.bliksoft.javautils.streams.replacer.TokenReplacingReader;
 
 public class PropertiesUtils {
 	public static final String PROP_VAL_TRUE = "true";
+	public static final String PROP_VAL_ONE = "1";
 	public static final String PROP_VAL_FALSE = "false";
 
 	public static void saveProperties(Properties properties, File propFile, String comment, boolean makeBackup)
@@ -80,7 +81,10 @@ public class PropertiesUtils {
 				return defaultResult;
 		}
 
-		return PROP_VAL_TRUE.equalsIgnoreCase(p);
+		if (PROP_VAL_TRUE.equalsIgnoreCase(p) || PROP_VAL_ONE.equals(p))
+			return true;
+		else
+			return false;
 	}
 
 }

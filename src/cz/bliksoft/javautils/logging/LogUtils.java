@@ -59,17 +59,7 @@ public class LogUtils {
 	public static final String PROP_LOG_SOAP = "logSOAP";
 	public static final String PROP_LOG_PKCS11 = "logPKCS11";
 	public static final String PROP_LOG_LOG_NAME = "logName";
-
-	/**
-	 * sets environment variable logName, if EnvironmentUtils are initialized, also
-	 * sets the variable in its environmentVariables
-	 * 
-	 * @param name
-	 */
-	public static void setLogName(String name) {
-		System.setProperty(PROP_LOG_LOG_NAME, name);
-		EnvironmentUtils.setEnvironmentPropertyIfInitialized(PROP_LOG_LOG_NAME, name);
-	}
+	public static final String PROP_LOG_APP_NAME = "appName";
 
 	/**
 	 * backwards compatibility for {@link LogUtils#initLog4J(File, Map) optional
@@ -133,9 +123,14 @@ public class LogUtils {
 					EnvironmentUtils.setEnvironmentPropertyIfInitialized(EnvironmentUtils.LOG_DIR, logDir);
 				}
 			}
-			String configuredLogName = configuration.getProperty("appName");
+			String configuredLogName = configuration.getProperty(PROP_LOG_LOG_NAME);
 			if (configuredLogName != null) {
-				setLogName(configuredLogName);
+				EnvironmentUtils.setEnvironmentPropertyIfInitialized(PROP_LOG_LOG_NAME, configuredLogName);
+			}
+
+			String configuredAppName = configuration.getProperty(PROP_LOG_APP_NAME);
+			if (configuredAppName != null) {
+				EnvironmentUtils.setEnvironmentPropertyIfInitialized(PROP_LOG_APP_NAME, configuredAppName);
 			}
 
 			logProps = new File(configuration.getProperty("loggingProperties", "logging.properties"));

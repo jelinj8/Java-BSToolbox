@@ -45,7 +45,7 @@ public class ObjectWrapperRegister extends DefaultObjectWrapper {
 				if (j8api != null) {
 					Constructor<?> ctor = j8api.getConstructor(freemarker.template.Version.class);
 					java8TimeAPIWrapper = ctor.newInstance(Configuration.VERSION_2_3_30);
-					log.info("no.api.freemarker.java8.Java8ObjectWrapper loaded, registering ObjectWrapper");
+					log.fine("no.api.freemarker.java8.Java8ObjectWrapper loaded, registering ObjectWrapper");
 				}
 			} catch (ClassNotFoundException e) {
 				log.info("no.api.freemarker.java8.Java8ObjectWrapper not present");
@@ -76,7 +76,7 @@ public class ObjectWrapperRegister extends DefaultObjectWrapper {
 	}
 
 	private static void registerDefaults() {
-		log.info("Registering default converters");
+		log.fine("Registering default converters");
 		addConverter(Optional.class, (t) -> {
 			if (((Optional<?>) t).isPresent())
 				return ((Optional<?>) t).get();

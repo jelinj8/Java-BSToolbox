@@ -48,7 +48,7 @@ public class CsvUtils {
 
 		List<String> colNames = null;
 
-		String[] cols = StringUtils.removeBOM(line).split(separator, -1);
+		String[] cols = line.split(separator, -1);
 
 		if (columnNames != null) {
 			colNames = columnNames;
@@ -121,7 +121,7 @@ public class CsvUtils {
 			return null;
 		List<String> colNames = null;
 
-		String[] cols = StringUtils.removeBOM(line).split(separator, -1);
+		String[] cols = line.split(separator, -1);
 
 		if (columnNames != null) {
 			colNames = columnNames;
@@ -295,8 +295,6 @@ public class CsvUtils {
 			return null;
 
 		List<String> colNames = null;
-
-		line = StringUtils.removeBOM(line);
 
 		String[] cols = line.split(separator, -1);
 

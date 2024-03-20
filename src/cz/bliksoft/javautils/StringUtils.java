@@ -10,6 +10,8 @@ import java.security.SecureRandom;
 import java.text.FieldPosition;
 import java.text.MessageFormat;
 
+import cz.bliksoft.javautils.logging.LogUtils;
+
 public class StringUtils {
 
 	private StringUtils() {
@@ -399,19 +401,4 @@ public class StringUtils {
 		return prefix + string.substring(0, 1).toUpperCase() + string.substring(1);
 	}
 
-	/**
-	 * remove BOM from beginning of the string if present
-	 * 
-	 * @param value
-	 * @return
-	 */
-	public static String removeBOM(String value) {
-		if (value == null)
-			return null;
-
-		if (value.startsWith("\uFEFF"))
-			return value.substring(1);
-		else
-			return value;
-	}
 }

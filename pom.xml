@@ -204,7 +204,7 @@
 
 		<dependency>
 			<groupId>com.sun.mail</groupId>
-			<artifactId>javax.mail</artifactId>
+			<artifactId>jakarta.mail</artifactId>
 			<scope>provided</scope>
 			<optional>true</optional>
 		</dependency>

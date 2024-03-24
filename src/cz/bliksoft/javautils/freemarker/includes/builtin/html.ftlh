@@ -10,6 +10,10 @@
 </head>
 </#macro>
 
+<#macro utf8>
+<meta charset="utf-8">
+</#macro>
+
 <#macro title><title><#nested></title></#macro>
 
 <#macro body class=''>
@@ -97,6 +101,7 @@ body {
 <#import "builtin/debug.ftl" as debug>
 <@document>
 <@head>
+<@utf8 />
 <@syntaxhighlighter />
 <@jquery_inline />
 <@chartjs_inline />

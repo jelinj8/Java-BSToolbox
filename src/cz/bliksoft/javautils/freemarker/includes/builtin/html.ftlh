@@ -103,11 +103,6 @@ body {
 <@document>
 <@head>
 <@utf8 />
-<@syntaxhighlighter />
-<@jquery_inline />
-<@chartjs_inline />
-<@highlighter />
-<@expander />
 <@css_styles />
 <@css_fullframe />
 <#if additionalHeadContent??>

@@ -3,6 +3,7 @@
 <@html.additionalHead>
 <@html.title><#if env.appName??>${env.appName}<#if env.envName??> (${env.envName})</#if> status<#else>App status report</#if></@html.title>
 <@html.chartjs_inline />
+<@html.jquery_inline />
 <@html.timestamputils />
 <#if GARBAGE!false> <meta http-equiv="refresh" content="15"></#if>
 </@html.additionalHead>

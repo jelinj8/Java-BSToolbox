@@ -14,7 +14,7 @@ public class IfElseIf implements XPathFunction {
 	public Object evaluate(List args) throws XPathFunctionException {
 		if (args.size() < 3)
 			throw new XPathFunctionException(
-					"XPath ifElseIf: minimal signature: ifElseIf(cond1, result1, elsecond2, result2, ... [, elseresultX])  ");
+					"XPath ifElseIf: minimal signature: ifElseIf(cond1, result1 [, elsecond2, result2, ... ], elseresult)");
 
 		String src = null;
 		try {
@@ -34,7 +34,7 @@ public class IfElseIf implements XPathFunction {
 			}
 
 		} catch (Exception e) {
-			throw new XPathFunctionException("Failed to evaluate conditioning: " + e.getMessage());
+			throw new XPathFunctionException("Failed to evaluate ifElseIf: " + e.getMessage());
 		}
 
 		throw new XPathFunctionException(MessageFormat.format(

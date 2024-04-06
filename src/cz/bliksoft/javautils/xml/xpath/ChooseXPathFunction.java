@@ -11,7 +11,7 @@ public class ChooseXPathFunction implements XPathFunction {
 	public Object evaluate(List args) throws XPathFunctionException {
 		if (args.size() != 3)
 			throw new XPathFunctionException(
-					"Expecting 3 arguments - boolean, result when tTRUE and result when FALSE. Received " + args.size()
+					"Expecting 3 arguments - boolean, result when TRUE and result when FALSE. Received " + args.size()
 							+ " arguments.");
 		boolean val;
 		try {

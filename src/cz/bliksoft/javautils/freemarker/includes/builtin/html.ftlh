@@ -59,6 +59,7 @@
 <#macro jquery_inline><script type="text/javascript"><#include 'jquery.js' parse=false></script></#macro>
 <#macro chartjs><script src="https://cdn.jsdelivr.net/npm/chart.js"></script></#macro>
 <#macro chartjs_inline><script><#include 'chart.js' parse=false></script></#macro>
+<#macro timestamputils><script><#include 'timestamputils.js' parse=false></script></#macro>
 
 <#macro formlink><script type="text/javascript"><#include 'formlink.js' parse=false></script></#macro>
 <#macro ajaxsubmit><script type="text/javascript"><#include 'ajaxsubmit.js' parse=false></script></#macro>

@@ -15,6 +15,7 @@ import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +50,8 @@ public class SystemMonitor {
 	private static Map<String, Object> baseVariables = new HashMap<>();
 
 	private static boolean keepThreads = false;
+
+	public static long startupTimestamp = (new Date()).getTime();
 
 	public static class SystemReport {
 		public SystemReport() {
@@ -201,6 +204,7 @@ public class SystemMonitor {
 
 		currentVariables.put("env", EnvironmentUtils.tryGetEnvironmentProperties());
 		currentVariables.put("messages", LogUtils.getMessages());
+		currentVariables.put("startupTime", startupTimestamp);
 
 		Map<Long, Long> nanos = getLastThreadCpuMillis();
 

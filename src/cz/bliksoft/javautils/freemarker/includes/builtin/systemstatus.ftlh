@@ -1,7 +1,9 @@
 <#import "html.ftlh" as html>
+<#include "builtin/functions.ftl">
 <@html.additionalHead>
 <@html.title><#if env.appName??>${env.appName}<#if env.envName??> (${env.envName})</#if> status<#else>App status report</#if></@html.title>
 <@html.chartjs_inline />
+<@html.timestamputils />
 <#if GARBAGE!false> <meta http-equiv="refresh" content="15"></#if>
 </@html.additionalHead>
 <@html.documentHeader>
@@ -79,10 +81,11 @@
   	<span><canvas id="cpuHistoryChart" style="width: 100%; height:300px;"></canvas></span>
 <#if messages?size gt 0>
 <#list messages>
-<table><tbody><th>timestamp</th><th>message</th></tbody>
+<table><tbody><th>timestamp</th><th>runtime</th><th>message</th></tbody>
+<tbody><th class="monospaced">${startupTime?number_to_date?string("yyyy-MM-dd HH:mm:ss.SSS")}</th><th class="runtime pointer-cursor lime_background monospaced" ms="0">${duration(0)}</th><th>STARTUP</th></tbody>
 <tbody>
 <#items as msg>
-<tr><td>${(msg.timestamp).format("yyyy-MM-dd HH:mm:ss.SSS")}</td><td class="pre-wrap monospaced">${msg.value!'-'}</td></tr>
+<tr><td class="monospaced">${(msg.timestamp).format("yyyy-MM-dd HH:mm:ss.SSS")}</td><td class="runtime pointer-cursor monospaced" ms="${(msg.millis-startupTime)?c}">${duration(msg.millis-startupTime)}</td><td class="pre-wrap monospaced">${msg.value!'-'}</td></tr>
 </#items>
 </tbody></table>
 <#else>
@@ -220,6 +223,20 @@
 			responsiveAnimationDuration: 0,
 		},
 	});
+	
+	$('.runtime').click(
+	  function(event) {
+	  	baseMs = event.target.getAttribute("ms");
+	  	$('.runtime').text(
+	  	function(index, currentContent){
+	  		resultMs = $('.runtime:eq('+index+')').attr('ms') - baseMs;
+	  		return formatDuration(resultMs) + ' (' + resultMs + 'ms)';
+	  	}
+	  	);
+	  	$('.runtime').removeClass('lime_background');
+	  	$(this).addClass('lime_background');
+	  }
+	);
 </script>
 
 </@html.simpleDocument>

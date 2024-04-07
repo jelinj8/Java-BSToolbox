@@ -303,7 +303,8 @@ public class XmlUtils {
 		}
 	}
 
-	public static Document createDocument(InputStream xmlStream) throws ParserConfigurationException, SAXException, IOException {
+	public static Document createDocument(InputStream xmlStream)
+			throws ParserConfigurationException, SAXException, IOException {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		// optional, but recommended
 		// process XML securely, avoid attacks like XML External Entities (XXE)
@@ -497,10 +498,13 @@ public class XmlUtils {
 		/**
 		 * register a function
 		 * 
-		 * @param prefix       namespace prefix
-		 * @param fName        function name, for specific arity add e.g. "fname:3"
-		 *                     (attempt for specific first, non-specific if not found)
-		 * @param functionImpl implementing object
+		 * @param prefix
+		 *            namespace prefix
+		 * @param fName
+		 *            function name, for specific arity add e.g. "fname:3" (attempt for
+		 *            specific first, non-specific if not found)
+		 * @param functionImpl
+		 *            implementing object
 		 */
 		public void addFunction(String prefix, String fName, XPathFunction functionImpl) {
 			Map<String, XPathFunction> pFunctions = functions.get(prefix);
@@ -562,6 +566,12 @@ public class XmlUtils {
 		}
 	}
 
+	/**
+	 * return text representation of object
+	 * @param xRes
+	 * @return
+	 * @throws XPathException when input is an empty node list (e.g. XPath query returned no nodes)
+	 */
 	public static String getResultText(Object xRes) throws XPathException {
 		if (xRes == null)
 			return null;
@@ -573,7 +583,8 @@ public class XmlUtils {
 			if (xRes2 instanceof Text)
 				return ((Text) xRes2).getNodeValue();
 
-			xRes2 = ((NodeList) xRes2).item(0);
+			NodeList nl = (NodeList) xRes2;
+			xRes2 = nl.item(0);
 			if (xRes2 == null)
 				throw new XPathException("Can't get string from an empty node list");
 		}
@@ -581,6 +592,12 @@ public class XmlUtils {
 		return ((Node) xRes2).getNodeValue();
 	}
 
+	/**
+	 * Returns first node
+	 * @param xRes
+	 * @return
+	 * @throws XPathException if source is an empty NodeList
+	 */
 	public static Node getFirstResultNode(Object xRes) throws XPathException {
 		if (xRes == null)
 			return null;

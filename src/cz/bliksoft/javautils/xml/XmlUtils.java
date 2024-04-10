@@ -64,6 +64,8 @@ import cz.bliksoft.javautils.xml.xpath.Default;
 import cz.bliksoft.javautils.xml.xpath.First;
 import cz.bliksoft.javautils.xml.xpath.FormatXPathFunction;
 import cz.bliksoft.javautils.xml.xpath.IfElseIf;
+import cz.bliksoft.javautils.xml.xpath.Join;
+import cz.bliksoft.javautils.xml.xpath.LogFunction;
 import cz.bliksoft.javautils.xml.xpath.MapXPathFunction;
 import cz.bliksoft.javautils.xml.xpath.XPathVarCache;
 import jakarta.xml.bind.JAXBContext;
@@ -559,10 +561,12 @@ public class XmlUtils {
 			functionResolver.addFunction(nsPrefix, "choose:3", new ChooseXPathFunction());
 			functionResolver.addFunction(nsPrefix, "var:2", new XPathVarCache());
 			functionResolver.addFunction(nsPrefix, "default:2", new Default());
+			functionResolver.addFunction(nsPrefix, "log", new LogFunction());
 			functionResolver.addFunction(nsPrefix, "map", new MapXPathFunction());
 			functionResolver.addFunction(nsPrefix, "format", new FormatXPathFunction());
 			functionResolver.addFunction(nsPrefix, "ifElseIf", new IfElseIf());
 			functionResolver.addFunction(nsPrefix, "first", new First());
+			functionResolver.addFunction(nsPrefix, "join", new Join());
 		}
 	}
 

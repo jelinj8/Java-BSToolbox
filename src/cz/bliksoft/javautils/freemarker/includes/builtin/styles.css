@@ -22,6 +22,10 @@
 	.box .row.footer {
 		flex: 0 1 auto;
 	}
+
+	.noscreen {
+		display: none;
+	}
 }
 
 .box {

@@ -50,6 +50,7 @@
 <#macro form       action='' method='post' target='' class=''><form<#if action?has_content> action="${action}"</#if> method="${method}"<#if target?has_content> target="${target}"</#if><#if class?has_content> class="${class}"</#if>><#nested></form></#macro>
 <#macro hiddenvalue name value><input type="hidden" name="${name}" value="${value}" /></#macro>
 <#macro button text name='submit' value='submit' class='' title=''><button name="${name}" value="${value}" type="submit"<#if class?has_content> class="${class}"</#if><#if title?has_content> title="${title}"</#if>>${text}</button></#macro>
+<#macro hiddenvalues parameters except=''><#list parameters as k, v><#if except??><#if except?is_sequence && except?seq_contains(k)><#continue><#elseif except?is_string && except==k><#continue></#if></#if><@hiddenvalue k v /></#list></#macro>
 
 <#macro utf8>
 <meta charset="UTF-8">

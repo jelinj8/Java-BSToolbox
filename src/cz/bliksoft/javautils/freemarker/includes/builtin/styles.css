@@ -1,6 +1,6 @@
 @media print {
 	.noprint {
-		display: none;
+		display: none!important;
 	}
 }
 
@@ -24,7 +24,7 @@
 	}
 
 	.noscreen {
-		display: none;
+		display: none!important;
 	}
 }
 

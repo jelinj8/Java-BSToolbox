@@ -10,12 +10,6 @@
 <@html.documentHeader>
 	<h1>System report (generated at ${.now?datetime?string["d.M.yyyy HH:mm:ss"]})<#if env.envName?? || env.appName??> <#if env.envName??>Env: ${env.envName} </#if><#if env.appName??>App: ${env.appName}</#if></#if></h1>
 </@html.documentHeader>
-<#-- <@html.documentFooter class='noprint'>
-<span class="button" id="expander_debug_pm" onclick="toggle_collapse('.expander_debug')">debug &plusmn;</span>
-<div class="expander_debug " style="display: none;">
-	<h1>HTTP input:</h1><div class="monospaced pre-wrap">${DescribeVariable(http.REQUEST, 'v', '|', '^')}</div>
-</div>
-</@html.documentFooter> -->
 <@html.simpleDocument>
 	<table style="display:inline-block;">
 		<tbody>
@@ -83,10 +77,10 @@
 <#if messages?size gt 0>
 <#list messages>
 <table><tbody><th>timestamp</th><th class="right">runtime</th><th class="right">(ms)</th><th>message</th></tbody>
-<tbody><th class="monospaced pointer-cursor lime_background" runtime="0">${startupTime?number_to_date?string("yyyy-MM-dd HH:mm:ss.SSS")}</th><th class="runtimeint right pointer-cursor lime_background monospaced" runtime="0">${duration(0)}</th><th class="runtimems right pointer-cursor lime_background monospaced" runtime="0">0</th><th runtime="0" class="lime_background">STARTUP</th></tbody>
+<tbody><th class="monospaced pointer-cursor lime_background runtime" runtime="0">${startupTime?number_to_date?string("yyyy-MM-dd HH:mm:ss.SSS")}</th><th class="runtimeint right pointer-cursor lime_background monospaced runtime" runtime="0">${duration(0)}</th><th class="runtimems right pointer-cursor lime_background monospaced runtime" runtime="0">0</th><th runtime="0" class="lime_background">STARTUP</th></tbody>
 <tbody>
 <#items as msg>
-<tr><td class="monospaced pointer-cursor" runtime="${(msg.millis-startupTime)?c}">${(msg.timestamp).format("yyyy-MM-dd HH:mm:ss.SSS")}</td><td class="runtimeint right pointer-cursor monospaced" runtime="${(msg.millis-startupTime)?c}">${duration(msg.millis-startupTime)}</td><td class="runtimems right pointer-cursor monospaced" runtime="${(msg.millis-startupTime)?c}">&nbsp;${(msg.millis-startupTime)?c}</td><td class="pre-wrap monospaced" runtime="${(msg.millis-startupTime)?c}">${msg.value!'-'}</td></tr>
+<tr><td class="monospaced pointer-cursor runtime" runtime="${(msg.millis-startupTime)?c}">${(msg.timestamp).format("yyyy-MM-dd HH:mm:ss.SSS")}</td><td class="runtimeint right pointer-cursor monospaced runtime" runtime="${(msg.millis-startupTime)?c}">${duration(msg.millis-startupTime)}</td><td class="runtimems right pointer-cursor monospaced runtime" runtime="${(msg.millis-startupTime)?c}">&nbsp;${(msg.millis-startupTime)?c}</td><td class="pre-wrap monospaced" runtime="${(msg.millis-startupTime)?c}">${msg.value!'-'}</td></tr>
 </#items>
 </tbody></table>
 <#else>
@@ -149,13 +143,6 @@
                borderColor: 'green',
                fill: true,
             },
-            <#-- {
-               label: "MiB total",
-               data: [
-               	<#list MEMORY as rep>'${(rep.TOTAL/1024/1024)?round?c}',</#list>
-               ],
-               borderColor: 'aqua',
-            }, -->
             ]
          },
 		options: {
@@ -225,7 +212,7 @@
 		},
 	});
 	
-	$("[runtime]").click(
+	$(".runtime").click(
 	  function(event) {
 	  	baseMs = event.target.getAttribute("runtime");
 	  	$('.runtimeint').text(

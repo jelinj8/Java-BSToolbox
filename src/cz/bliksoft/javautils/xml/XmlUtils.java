@@ -63,6 +63,7 @@ import cz.bliksoft.javautils.xml.xpath.ChooseXPathFunction;
 import cz.bliksoft.javautils.xml.xpath.Default;
 import cz.bliksoft.javautils.xml.xpath.First;
 import cz.bliksoft.javautils.xml.xpath.FormatXPathFunction;
+import cz.bliksoft.javautils.xml.xpath.UuidFunction;
 import cz.bliksoft.javautils.xml.xpath.IfElseIf;
 import cz.bliksoft.javautils.xml.xpath.Join;
 import cz.bliksoft.javautils.xml.xpath.LogFunction;
@@ -567,6 +568,7 @@ public class XmlUtils {
 			functionResolver.addFunction(nsPrefix, "ifElseIf", new IfElseIf());
 			functionResolver.addFunction(nsPrefix, "first", new First());
 			functionResolver.addFunction(nsPrefix, "join", new Join());
+			functionResolver.addFunction(nsPrefix, "uuid", new UuidFunction());
 		}
 	}
 

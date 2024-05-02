@@ -82,11 +82,11 @@
   	<span><canvas id="cpuHistoryChart" style="width: 100%; height:300px;"></canvas></span>
 <#if messages?size gt 0>
 <#list messages>
-<table><tbody><th>timestamp</th><th>runtime</th><th>message</th></tbody>
-<tbody><th class="monospaced">${startupTime?number_to_date?string("yyyy-MM-dd HH:mm:ss.SSS")}</th><th class="runtime pointer-cursor lime_background monospaced" ms="0">${duration(0)}</th><th>STARTUP</th></tbody>
+<table><tbody><th>timestamp</th><th class="right">runtime</th><th class="right">(ms)</th><th>message</th></tbody>
+<tbody><th class="monospaced pointer-cursor lime_background" runtime="0">${startupTime?number_to_date?string("yyyy-MM-dd HH:mm:ss.SSS")}</th><th class="runtimeint right pointer-cursor lime_background monospaced" runtime="0">${duration(0)}</th><th class="runtimems right pointer-cursor lime_background monospaced" runtime="0">0</th><th runtime="0" class="lime_background">STARTUP</th></tbody>
 <tbody>
 <#items as msg>
-<tr><td class="monospaced">${(msg.timestamp).format("yyyy-MM-dd HH:mm:ss.SSS")}</td><td class="runtime pointer-cursor monospaced" ms="${(msg.millis-startupTime)?c}">${duration(msg.millis-startupTime)}</td><td class="pre-wrap monospaced">${msg.value!'-'}</td></tr>
+<tr><td class="monospaced pointer-cursor" runtime="${(msg.millis-startupTime)?c}">${(msg.timestamp).format("yyyy-MM-dd HH:mm:ss.SSS")}</td><td class="runtimeint right pointer-cursor monospaced" runtime="${(msg.millis-startupTime)?c}">${duration(msg.millis-startupTime)}</td><td class="runtimems right pointer-cursor monospaced" runtime="${(msg.millis-startupTime)?c}">&nbsp;${(msg.millis-startupTime)?c}</td><td class="pre-wrap monospaced" runtime="${(msg.millis-startupTime)?c}">${msg.value!'-'}</td></tr>
 </#items>
 </tbody></table>
 <#else>
@@ -225,17 +225,26 @@
 		},
 	});
 	
-	$('.runtime').click(
+	$("[runtime]").click(
 	  function(event) {
-	  	baseMs = event.target.getAttribute("ms");
-	  	$('.runtime').text(
+	  	baseMs = event.target.getAttribute("runtime");
+	  	$('.runtimeint').text(
 	  	function(index, currentContent){
-	  		resultMs = $('.runtime:eq('+index+')').attr('ms') - baseMs;
-	  		return formatDuration(resultMs) + ' (' + resultMs + 'ms)';
+	  		resultMs = $('.runtimeint:eq('+index+')').attr('runtime') - baseMs;
+	  		return formatDuration(resultMs);
 	  	}
 	  	);
-	  	$('.runtime').removeClass('lime_background');
-	  	$(this).addClass('lime_background');
+	  	$('.runtimems').text(
+	  	function(index, currentContent){
+	  		resultMs = $('.runtimems:eq('+index+')').attr('runtime') - baseMs;
+	  		if(resultMs<0)
+	  			return resultMs;
+	  		else
+	  			return '\xa0' + resultMs;
+	  	}
+	  	);
+	  	$("[runtime]").removeClass('lime_background');
+	  	$("[runtime='"+baseMs+"']").addClass('lime_background');
 	  }
 	);
 </script>

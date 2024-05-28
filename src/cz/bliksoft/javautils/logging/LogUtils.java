@@ -13,9 +13,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.AbstractCollection;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -49,11 +53,19 @@ public class LogUtils {
 	// private static Properties props;
 	private static String logDir = null;
 	private static File logDirFile = null;
-	//	private static String logName;
+	// private static String logName;
 
 	private static File log4jConfigFile = null;
 
+	/**
+	 * temporary messages log (last N messages)
+	 */
 	private static LimitedList<TimestampedObject<Object>> messages = new LimitedList<>(100);
+	
+	/**
+	 * variables to be monitorable in system report
+	 */
+	private static Map<String, Object> publishedVariables = new HashMap<>();
 
 	public static final String PROP_LOG_SSL = "logSSL";
 	public static final String PROP_LOG_SOAP = "logSOAP";
@@ -373,10 +385,8 @@ public class LogUtils {
 	 * returns stack trace string representation
 	 * 
 	 * @param stack
-	 * @param skip
-	 *            count of elements from top to skip
-	 * @param maxCount
-	 *            max printed elements count
+	 * @param skip     count of elements from top to skip
+	 * @param maxCount max printed elements count
 	 * @return
 	 */
 	public static String traceToString(StackTraceElement[] stack, int skip, int maxCount) {
@@ -401,10 +411,8 @@ public class LogUtils {
 	 * returns stack trace string representation
 	 * 
 	 * @param stack
-	 * @param skip
-	 *            class to skip on top of stack (find first other flass)
-	 * @param maxCount
-	 *            max printed elements count
+	 * @param skip     class to skip on top of stack (find first other flass)
+	 * @param maxCount max printed elements count
 	 * @return
 	 */
 	public static String traceToString(StackTraceElement[] stack, String skip, int maxCount) {
@@ -458,10 +466,8 @@ public class LogUtils {
 	 * get current stack trace, skip the getting call + additional <code>skip</code>
 	 * levels.
 	 * 
-	 * @param maxCount
-	 *            maximal total length of result (0 for unlimited)
-	 * @param skip
-	 *            additional levels to skip (0 for none)
+	 * @param maxCount maximal total length of result (0 for unlimited)
+	 * @param skip     additional levels to skip (0 for none)
 	 * @return
 	 */
 	public static StackTraceElement[] getStackTrace(int maxCount, int skip) {
@@ -512,5 +518,41 @@ public class LogUtils {
 	 */
 	public static AbstractCollection<TimestampedObject<Object>> getMessages() {
 		return messages;
+	}
+
+	/**
+	 * set a variable to be shown in status report
+	 * @param name
+	 * @param value
+	 */
+	public static void setPublishedVariable(String name, Object value) {
+		if (value != null)
+			publishedVariables.put(name, value);
+		else
+			publishedVariables.remove(name);
+	}
+
+	/**
+	 * get a value registered for system report
+	 * @param name
+	 * @return
+	 */
+	public static Object getPublishedVariable(String name) {
+		return publishedVariables.get(name);
+	}
+
+	/**
+	 * clear system report variables
+	 */
+	public static void clearPublishedVariables() {
+		publishedVariables.clear();
+	}
+
+	/**
+	 * get all system report variables
+	 * @return
+	 */
+	public static Map<String, Object> getPublishedVariables() {
+		return publishedVariables;
 	}
 }

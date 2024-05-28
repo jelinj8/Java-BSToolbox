@@ -237,6 +237,8 @@ public class SystemMonitor {
 			currentVariables.put("threads", threads);
 		}
 
+		currentVariables.put("publishedVariables", LogUtils.getPublishedVariables());
+		
 		return currentVariables;
 	}
 

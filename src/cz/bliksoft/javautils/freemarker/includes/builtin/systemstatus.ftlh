@@ -74,18 +74,23 @@
   	<span style="width: 200px; height:200px;"><canvas id="memChart" style="width: 200px; height:200px; display:inline-block;"></canvas></span>
   	<span><canvas id="memHistoryChart" style="width: 100%; height:300px;"></canvas></span>
   	<span><canvas id="cpuHistoryChart" style="width: 100%; height:300px;"></canvas></span>
-<#if messages?size gt 0>
-<#list messages>
+<#if publishedVariables?size gt 0>
+<table>
+<tbody><th colspan="3" class="center">log variables</th></tbody> -->
+<tbody>
+<#list publishedVariables as k,v>
+<tr><td class="monospaced right">${k}</td><td>=</td><td class="left"><#if v?is_number>${v?c}<#elseif v?is_datetime>${v?string("yyyy-MM-dd HH:mm:ss.SSS")}<#elseif v?is_time>${v?string("HH:mm:ss.SSS")}<#elseif v?is_date>${v?string("yyyy-MM-dd")}<#else>${v}</#if></td></tr>
+</#list>
+</tbody></table>
+</#if>
 <table><tbody><th>timestamp</th><th class="right">runtime</th><th class="right">(ms)</th><th>message</th></tbody>
 <tbody><th class="monospaced pointer-cursor lime_background runtime" runtime="0">${startupTime?number_to_date?string("yyyy-MM-dd HH:mm:ss.SSS")}</th><th class="runtimeint right pointer-cursor lime_background monospaced runtime" runtime="0">${duration(0)}</th><th class="runtimems right pointer-cursor lime_background monospaced runtime" runtime="0">0</th><th runtime="0" class="lime_background">STARTUP</th></tbody>
 <tbody>
-<#items as msg>
+<#list messages as msg>
 <tr><td class="monospaced pointer-cursor runtime" runtime="${(msg.millis-startupTime)?c}">${(msg.timestamp).format("yyyy-MM-dd HH:mm:ss.SSS")}</td><td class="runtimeint right pointer-cursor monospaced runtime" runtime="${(msg.millis-startupTime)?c}">${duration(msg.millis-startupTime)}</td><td class="runtimems right pointer-cursor monospaced runtime" runtime="${(msg.millis-startupTime)?c}">&nbsp;${(msg.millis-startupTime)?c}</td><td class="pre-wrap monospaced" runtime="${(msg.millis-startupTime)?c}">${msg.value!'-'}</td></tr>
-</#items>
-</tbody></table>
-<#else>
 </#list>
-</#if>
+<tr><th class="monospaced pointer-cursor runtime" runtime="${((.now?long) - startupTime)?c}">${.now?long?number_to_date?string("yyyy-MM-dd HH:mm:ss.SSS")}</th><th class="runtimeint right pointer-cursor monospaced runtime" runtime="${((.now?long)-startupTime)?c}">${duration((.now?long)-startupTime)}</th><th class="runtimems right pointer-cursor monospaced runtime" runtime="${((.now?long)-startupTime)?c}">&nbsp;${((.now?long)-startupTime)?c}</th><th class="pre-wrap monospaced" runtime="${((.now?long)-startupTime)?c}">NOW</th></tr>
+</tbody></table>
 <script>
 
 	var chrt = $('#memChart');

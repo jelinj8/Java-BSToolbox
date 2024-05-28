@@ -9,37 +9,26 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.AbstractCollection;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import javax.swing.SwingUtilities;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
 
 import cz.bliksoft.javautils.EnvironmentUtils;
 import cz.bliksoft.javautils.PropertiesUtils;
 import cz.bliksoft.javautils.TimestampedObject;
 import cz.bliksoft.javautils.binding.list.collections.LimitedList;
 import cz.bliksoft.javautils.streams.NoCloseOutputStream;
-import cz.bliksoft.javautils.streams.replacer.MapTokenResolver;
-import cz.bliksoft.javautils.streams.replacer.TokenReplacingReader;
 import cz.bliksoft.javautils.xml.XmlUtils;
 //import jakarta.xml.bind.JAXBException;
 
@@ -65,7 +54,7 @@ public class LogUtils {
 	/**
 	 * variables to be monitorable in system report
 	 */
-	private static Map<String, Object> publishedVariables = new HashMap<>();
+	private static Map<String, Object> publishedVariables = new TreeMap<>();
 
 	public static final String PROP_LOG_SSL = "logSSL";
 	public static final String PROP_LOG_SOAP = "logSOAP";

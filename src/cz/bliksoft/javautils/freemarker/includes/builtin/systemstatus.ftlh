@@ -76,7 +76,7 @@
   	<span><canvas id="cpuHistoryChart" style="width: 100%; height:300px;"></canvas></span>
 <#if publishedVariables?size gt 0>
 <table>
-<tbody><th colspan="3" class="center">log variables</th></tbody> -->
+<tbody><th colspan="3" class="center">log variables</th></tbody>
 <tbody>
 <#list publishedVariables as k,v>
 <tr><td class="monospaced right">${k}</td><td>=</td><td class="left"><#if v?is_number>${v?c}<#elseif v?is_datetime>${v?string("yyyy-MM-dd HH:mm:ss.SSS")}<#elseif v?is_time>${v?string("HH:mm:ss.SSS")}<#elseif v?is_date>${v?string("yyyy-MM-dd")}<#else>${v}</#if></td></tr>

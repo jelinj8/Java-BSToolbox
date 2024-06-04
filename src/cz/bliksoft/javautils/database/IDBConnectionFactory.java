@@ -4,4 +4,5 @@ import java.sql.Connection;
 
 public interface IDBConnectionFactory {
 	public Connection getConnection(String reason) throws Exception;
+	void setAutoCommit(Boolean autoCommit);
 }

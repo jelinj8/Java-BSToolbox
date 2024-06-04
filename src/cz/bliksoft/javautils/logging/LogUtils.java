@@ -50,7 +50,7 @@ public class LogUtils {
 	 * temporary messages log (last N messages)
 	 */
 	private static LimitedList<TimestampedObject<Object>> messages = new LimitedList<>(100);
-	
+
 	/**
 	 * variables to be monitorable in system report
 	 */
@@ -255,10 +255,10 @@ public class LogUtils {
 	 * @param name
 	 * @param extension
 	 */
-	public static void logFile(String message, String name, String extension) {
+	public static File logFile(String message, String name, String extension) {
 
 		if (logDir == null)
-			return;
+			return null;
 
 		File f = getFile(name, extension);
 		// String dirPath = f.getAbsoluteFile().getParentFile().getAbsolutePath();
@@ -269,6 +269,7 @@ public class LogUtils {
 			log.log(Level.SEVERE, "Error logging to file " + f, e);
 			e.printStackTrace();
 		}
+		return f;
 	}
 
 	/**
@@ -278,10 +279,10 @@ public class LogUtils {
 	 * @param name
 	 * @param extension
 	 */
-	public static void logFile(byte[] message, String name, String extension) {
+	public static File logFile(byte[] message, String name, String extension) {
 
 		if (logDir == null)
-			return;
+			return null;
 
 		File f = getFile(name, extension);
 
@@ -290,8 +291,9 @@ public class LogUtils {
 		} catch (IOException e) {
 			log.log(Level.SEVERE, "Error logging to file " + f, e);
 			e.printStackTrace();
-
 		}
+
+		return f;
 	}
 
 	/**
@@ -511,6 +513,7 @@ public class LogUtils {
 
 	/**
 	 * set a variable to be shown in status report
+	 * 
 	 * @param name
 	 * @param value
 	 */
@@ -523,6 +526,7 @@ public class LogUtils {
 
 	/**
 	 * get a value registered for system report
+	 * 
 	 * @param name
 	 * @return
 	 */
@@ -539,6 +543,7 @@ public class LogUtils {
 
 	/**
 	 * get all system report variables
+	 * 
 	 * @return
 	 */
 	public static Map<String, Object> getPublishedVariables() {

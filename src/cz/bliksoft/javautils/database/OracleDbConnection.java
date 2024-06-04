@@ -70,6 +70,7 @@ public class OracleDbConnection implements IDBConnectionFactory {
 		return getConnection(null);
 	}
 
+	@Override
 	public Connection getConnection(String reason) throws Exception {
 		if (reason == null) {
 			StackTraceElement ste = Thread.currentThread().getStackTrace()[2];
@@ -180,6 +181,7 @@ public class OracleDbConnection implements IDBConnectionFactory {
 		return sb.toString();
 	}
 
+	@Override
 	public void setAutoCommit(Boolean ac) {
 		autoCommit = ac;
 	}

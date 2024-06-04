@@ -22,6 +22,8 @@ public class EnvironmentUtils {
 	private static File globalConfigDir = null;
 	private static File environmentConfig = null;
 
+	private static boolean initialized = false;
+
 	/**
 	 * common configuration directory (shared between switchable environments)
 	 */
@@ -79,9 +81,10 @@ public class EnvironmentUtils {
 		globalConfigDir = new File(StringUtils.hasTextDefault(System.getenv(PROP_GLOBAL_CONFIG_DIR),
 				environmentProperties.getOrDefault(PROP_GLOBAL_CONFIG_DIR, "config")));
 
-		environmentConfig = new File(environmentConfigDir,
-				StringUtils.hasTextDefault(System.getenv(PROP_ENVIRONMENT_PROPERTIES_FILE),
-						environmentProperties.getOrDefault(PROP_ENVIRONMENT_PROPERTIES_FILE, "env.properties")));
+		if (environmentConfig == null)
+			environmentConfig = new File(environmentConfigDir,
+					StringUtils.hasTextDefault(System.getenv(PROP_ENVIRONMENT_PROPERTIES_FILE),
+							environmentProperties.getOrDefault(PROP_ENVIRONMENT_PROPERTIES_FILE, "env.properties")));
 
 		commonInit();
 	}
@@ -97,8 +100,7 @@ public class EnvironmentUtils {
 	 * Same as {@link EnvironmentUtils#init() init()}, just with another defaults
 	 * level
 	 * 
-	 * @param props
-	 *            defaults between environment variables and preload values
+	 * @param props defaults between environment variables and preload values
 	 * @throws IOException
 	 */
 	public static void init(Properties props) throws IOException {
@@ -109,10 +111,11 @@ public class EnvironmentUtils {
 		globalConfigDir = new File(StringUtils.hasTextDefault(System.getenv(PROP_GLOBAL_CONFIG_DIR), props.getProperty(
 				PROP_GLOBAL_CONFIG_DIR, environmentProperties.getOrDefault(PROP_GLOBAL_CONFIG_DIR, "config"))));
 
-		environmentConfig = new File(environmentConfigDir,
-				StringUtils.hasTextDefault(System.getenv(PROP_ENVIRONMENT_PROPERTIES_FILE), props.getProperty(
-						PROP_ENVIRONMENT_PROPERTIES_FILE,
-						environmentProperties.getOrDefault(PROP_ENVIRONMENT_PROPERTIES_FILE, "env.properties"))));
+		if (environmentConfig == null)
+			environmentConfig = new File(environmentConfigDir,
+					StringUtils.hasTextDefault(System.getenv(PROP_ENVIRONMENT_PROPERTIES_FILE), props.getProperty(
+							PROP_ENVIRONMENT_PROPERTIES_FILE,
+							environmentProperties.getOrDefault(PROP_ENVIRONMENT_PROPERTIES_FILE, "env.properties"))));
 
 		commonInit();
 	}
@@ -122,8 +125,7 @@ public class EnvironmentUtils {
 	 * (environment variables, then optional properties, then preloaded values, last
 	 * resort default files
 	 * 
-	 * @param props
-	 *            values to be preloaded as replacable values
+	 * @param props values to be preloaded as replacable values
 	 * @throws IOException
 	 */
 	public static void preinit(Properties props) throws IOException {
@@ -202,6 +204,7 @@ public class EnvironmentUtils {
 			if (!k.startsWith("."))
 				publicEnvironmentProperties.put(k, v);
 		});
+		initialized = true;
 	}
 
 	private static void checkInit() {
@@ -232,7 +235,8 @@ public class EnvironmentUtils {
 	}
 
 	/**
-	 * current switchable environment configuration directory
+	 * current switchable environment configuration directory, defaults to global
+	 * config dir if it doesn't exist
 	 * 
 	 * @return
 	 */
@@ -255,7 +259,7 @@ public class EnvironmentUtils {
 		if (environmentConfigDir.exists())
 			return new File(environmentConfigDir, subfile);
 		else
-			return new File(globalConfigDir, subfile);
+			return new File(getEnvironmentConfigDir(), subfile);
 	}
 
 	private static Map<String, String> environmentProperties = new HashMap<>();
@@ -313,7 +317,18 @@ public class EnvironmentUtils {
 	 * @return
 	 */
 	public static boolean isInitialized() {
-		return environmentConfigDir != null;
+		return initialized;
+	}
+
+	/**
+	 * Set a directory to be used as an environment config. Can be done only once,
+	 * before initialization of EnvironmentUtils (if not called before,
+	 * initialization will perform its logic)
+	 * 
+	 * @param directory
+	 */
+	public static void setEnvironmentConfigDirectory(File directory) {
+		environmentConfigDir = directory;
 	}
 
 }

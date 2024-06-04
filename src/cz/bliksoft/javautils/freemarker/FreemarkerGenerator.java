@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 import cz.bliksoft.javautils.freemarker.extensions.TextReplacer;
 import cz.bliksoft.javautils.freemarker.extensions.global.Base64File;
 import cz.bliksoft.javautils.freemarker.extensions.global.Base64QR;
+import cz.bliksoft.javautils.freemarker.extensions.global.CMDPrompt;
 import cz.bliksoft.javautils.freemarker.extensions.global.Code128Encode;
 import cz.bliksoft.javautils.freemarker.extensions.global.Code128Width;
 import cz.bliksoft.javautils.freemarker.extensions.global.DescribeVariable;
@@ -239,6 +240,7 @@ public class FreemarkerGenerator {
 		res.put("parseXML", new ParseXml()); //$NON-NLS-1$
 
 		res.put("GUIPrompt", new GUIPrompt()); //$NON-NLS-1$
+		res.put("CMDPrompt", new CMDPrompt()); //$NON-NLS-1$
 		res.put("Base64File", new Base64File()); //$NON-NLS-1$
 		res.put("Base64QR", new Base64QR()); //$NON-NLS-1$
 		res.put("LogVariable", new LogVariable()); //$NON-NLS-1$

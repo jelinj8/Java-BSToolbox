@@ -10,8 +10,8 @@
 <@html.documentHeader>
 	<h1>System report (generated at ${.now?datetime?string["d.M.yyyy HH:mm:ss"]})<#if env.envName?? || env.appName??> <#if env.envName??>Env: ${env.envName} </#if><#if env.appName??>App: ${env.appName}</#if></#if></h1>
 </@html.documentHeader>
-<@html.simpleDocument>
-	<table style="display:inline-block;">
+<@html.simpleDocument 'borderless' 'borderless'>
+	<table class="colortable" style="display:inline-block;">
 		<tbody>
 			<tr><th colspan="2" class="center">Memory</th></tr>
 		</tbody>
@@ -44,7 +44,7 @@
 			<tr><td colspan="2" class="right"><@html.inlineform><input type="text" size="10" name="reportname" placeholder="reportName" value="fromWeb"><@html.button 'save' 'save' 'true' /></@html.inlineform> <@html.inlineform><@html.button 'refresh' 'refresh' 'true' /></@html.inlineform><@html.inlineform><@html.button 'Run GC' 'collectGarbage' 'true' /></@html.inlineform></td></tr>
 		</tbody>
 	</table>
-	<table style="display:inline-block;">
+	<table class="colortable" style="display:inline-block;">
 		<#if CPU?size gt 1>
 			<tbody>
 				<tr><th colspan="2" class="center">CPU</th><th class="right" width="100px">% CPU</th></tr>
@@ -75,7 +75,7 @@
   	<span><canvas id="memHistoryChart" style="width: 100%; height:300px;"></canvas></span>
   	<span><canvas id="cpuHistoryChart" style="width: 100%; height:300px;"></canvas></span>
 <#if publishedVariables?size gt 0>
-<table>
+<table class="colortable">
 <tbody><th colspan="3" class="center">log variables</th></tbody>
 <tbody>
 <#list publishedVariables as k,v>
@@ -83,7 +83,7 @@
 </#list>
 </tbody></table>
 </#if>
-<table><tbody><th>timestamp</th><th class="right">runtime</th><th class="right">(ms)</th><th>message</th></tbody>
+<table class="colortable"><tbody><th>timestamp</th><th class="right">runtime</th><th class="right">(ms)</th><th>message</th></tbody>
 <tbody><th class="monospaced pointer-cursor lime_background runtime" runtime="0">${startupTime?number_to_date?string("yyyy-MM-dd HH:mm:ss.SSS")}</th><th class="runtimeint right pointer-cursor lime_background monospaced runtime" runtime="0">${duration(0)}</th><th class="runtimems right pointer-cursor lime_background monospaced runtime" runtime="0">0</th><th runtime="0" class="lime_background">STARTUP</th></tbody>
 <tbody>
 <#list messages as msg>

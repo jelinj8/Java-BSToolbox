@@ -25,23 +25,30 @@ public class CMDPrompt implements TemplateMethodModelEx {
 	@Override
 	public Object exec(@SuppressWarnings("rawtypes") List arguments) throws TemplateModelException {
 		String prompt = String.valueOf(arguments.get(0));
-		if (arguments.size() == 1) {
+
+		String defaultResult = (arguments.size() > 1 ? String.valueOf(arguments.get(1)) : null);
+		if (arguments.size() < 3) {
 			try (Scanner scnr = new Scanner(CloseShieldInputStream.wrap(System.in))) { // Create a Scanner object
 				if (StringUtils.hasLength(prompt)) {
 					System.out.print(prompt);
+					if (defaultResult != null)
+						System.out.print(" [" + defaultResult + "]");
 					System.out.print(">");
 				} else {
-					System.out.print("Please enter value:>");
+					System.out.print("Please enter value:");
+					if (defaultResult != null)
+						System.out.print(" [" + defaultResult + "]");
+					System.out.print(">");
 				}
 				String res = scnr.nextLine();
 				if (StringUtils.hasLength(res))
 					return res;
 				else
-					return null;
+					return defaultResult;
 			}
 		} else {
 			List<Map<Integer, Object>> options = new LinkedList<>();
-			Object items = arguments.get(1);
+			Object items = arguments.get(2);
 			@SuppressWarnings("unchecked")
 			List<Object> o = ((List<Object>) ((TemplateModelListSequence) items).getWrappedObject());
 			int maxOptLen = 0;
@@ -85,7 +92,7 @@ public class CMDPrompt implements TemplateMethodModelEx {
 					System.out.print(">");
 					String resp = scnr.nextLine();
 					if (StringUtils.isEmpty(resp))
-						return null;
+						return defaultResult;
 					for (Map<Integer, Object> opt : options) {
 						if (resp.equals(String.valueOf(opt.get(ID_KEY)))) {
 							Object result = opt.get(RESULT_KEY);

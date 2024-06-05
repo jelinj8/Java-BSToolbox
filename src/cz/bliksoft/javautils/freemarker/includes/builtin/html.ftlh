@@ -1,5 +1,5 @@
-<#macro document><!DOCTYPE html>
-<html>
+<#macro document class=''><!DOCTYPE html>
+<html <#if class??>class="${class}"</#if>>
 <#nested>
 </html>
 </#macro>
@@ -11,7 +11,7 @@
 </#macro>
 
 <#macro utf8>
-<meta charset="utf-8">
+<meta charset="utf-8" />
 </#macro>
 
 <#macro title><title><#nested></title></#macro>
@@ -52,10 +52,6 @@
 <#macro button text name='submit' value='submit' class='' title=''><button name="${name}" value="${value}" type="submit"<#if class?has_content> class="${class}"</#if><#if title?has_content> title="${title}"</#if>>${text}</button></#macro>
 <#macro hiddenvalues parameters except=''><#list parameters as k, v><#if except??><#if except?is_sequence && except?seq_contains(k)><#continue><#elseif except?is_string && except==k><#continue></#if></#if><@hiddenvalue k v /></#list></#macro>
 
-<#macro utf8>
-<meta charset="UTF-8">
-</#macro>
-
 <#macro jquery><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script></#macro>
 <#macro jquery_inline><script type="text/javascript"><#include 'jquery.js' parse=false></script></#macro>
 <#macro chartjs><script src="https://cdn.jsdelivr.net/npm/chart.js"></script></#macro>
@@ -77,8 +73,16 @@
 <pre class="pre-wrap"><code<#if syntax!='default'> class="${syntax}"</#if>><#nested></code></pre>
 </#macro>
 
+<#macro css>
+<style>
+<#nested>
+</style>
+</#macro>
+
 <#macro css_styles>
-<style><#include 'styles.css' parse=false></style>
+<style>
+<#include 'styles.css' parse=false>
+</style>
 </#macro>
 
 <#macro css_fullframe>
@@ -99,13 +103,11 @@ body {
 <#macro documentHeader class=''><#assign definedHeaderClass=class /><#assign definedHeader><#nested></#assign></#macro>
 <#macro documentFooter class=''><#assign definedFooterClass=class /><#assign definedFooter><#nested></#assign></#macro>
 
-<#macro simpleDocument class=''>
-<#import "builtin/debug.ftl" as debug>
-<@document>
+<#macro simpleDocument class='' htmlClass=''>
+<@document htmlClass>
 <@head>
 <@utf8 />
 <@css_styles />
-<@css_fullframe />
 <#if additionalHeadContent??>
 ${additionalHeadContent?no_esc}
 </#if>

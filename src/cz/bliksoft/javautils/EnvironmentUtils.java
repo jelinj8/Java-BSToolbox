@@ -42,6 +42,8 @@ public class EnvironmentUtils {
 	 */
 	public static final String PROP_TIMESTAMP = "timestamp";
 
+	public static final String PROP_WORKDIR = "workdir";
+
 	/**
 	 * placeholder property for configured log directory
 	 */
@@ -179,6 +181,7 @@ public class EnvironmentUtils {
 		environmentProperties.put(PROP_ENVIRONMENT_CONFIG_DIR, environmentConfigDir.getPath());
 		environmentProperties.put(PROP_ENVIRONMENT_PROPERTIES_FILE, environmentConfig.getPath());
 		environmentProperties.put(PROP_TIMESTAMP, DateUtils.TimestampString());
+		environmentProperties.put(PROP_WORKDIR, new File(".").getAbsoluteFile().getParentFile().getAbsolutePath());
 
 		if (environmentConfig.exists()) {
 			Properties envP = PropertiesUtils.loadFromFile(environmentConfig, environmentProperties);

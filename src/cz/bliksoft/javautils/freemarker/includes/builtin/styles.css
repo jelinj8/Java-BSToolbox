@@ -1,6 +1,6 @@
 @media print {
 	.noprint {
-		display: none!important;
+		display: none !important;
 	}
 }
 
@@ -9,22 +9,18 @@
 		display: flex;
 		flex-flow: column;
 	}
-	
 	.box .row.header {
 		flex: 0 1 auto;
 	}
-	
 	.box .row.content {
 		flex: 1 1 auto;
 		overflow: auto;
 	}
-	
 	.box .row.footer {
 		flex: 0 1 auto;
 	}
-
 	.noscreen {
-		display: none!important;
+		display: none !important;
 	}
 }
 
@@ -64,33 +60,34 @@
 
 a.selected {
 	color: inherit;
-    font-weight: normal;
-    text-decoration: none;
+	font-weight: normal;
+	text-decoration: none;
 }
 
 a.button:link {
 	color: inherit;
-    font-weight: normal;
-    text-decoration: none;
+	font-weight: normal;
+	text-decoration: none;
 }
 
 a.button:visited {
 	color: inherit;
-    font-weight: normal;
-    text-decoration: none;
+	font-weight: normal;
+	text-decoration: none;
 }
 
 a.button:hover {
 	color: inherit;
-    font-weight: normal;
-    text-decoration: none;
+	font-weight: normal;
+	text-decoration: none;
 }
 
 .default-cursor {
-  cursor: default;
+	cursor: default;
 }
+
 .pointer-cursor {
-  cursor: pointer;
+	cursor: pointer;
 }
 
 .underlined {
@@ -106,25 +103,32 @@ a.button:hover {
 }
 
 .right {
-	text-align: right;
+	text-align: right !important;
 }
 
 .left {
-	text-align: left;
+	text-align: left !important;
 }
 
 .center {
-	text-align: center;
+	text-align: center !important;
 }
 
-table {
-	width: auto;
+.centermargin {
+	margin-left: auto;
+	margin-right: auto;
 }
 
-th {
-	text-align: left;
-	background-color: #a0e4fa;
-	white-space: nowrap;
+.top {
+	vertical-align: top;
+}
+
+.bottom {
+	vertical-align: bottom;
+}
+
+.middle {
+	vertical-align: middle;
 }
 
 .nowrap {
@@ -147,24 +151,38 @@ th {
 	font-weight: bold;
 }
 
+.italic {
+	font-style: italic;
+}
+
 .striketrough {
 	text-decoration: line-through;
 }
 
-tr {
-
+table {
+	width: auto;
 }
 
-td.paramtype {
+.colortable th {
+	text-align: left;
+	background-color: #a0e4fa;
+	white-space: nowrap;
+}
+
+.colortable td.paramtype {
 	text-align: right;
 }
 
-tr:nth-child(odd) {
+.colortable tr:nth-child(odd) {
 	background-color: rgb(254, 255, 230);
 }
 
-tr:nth-child(even) {
+.colortable tr:nth-child(even) {
 	background-color: rgb(240, 255, 223);
+}
+
+.colortable tr:hover {
+	background-color: #ffff80;
 }
 
 .lime_background, tr.lime_background {
@@ -203,19 +221,44 @@ tr:nth-child(even) {
 	background-color: rgb(255, 182, 109);
 }
 
-tr:hover {
-	background-color: #ffff80;
-}
-
 .highlighted {
 	background-color: fuchsia;
 	color: yellow;
 }
 
-.tableFixHead          { overflow: auto }
-.tableFixHead thead th { position: sticky; top: 0; z-index: 1; }
-.tableFixHead tbody th { position: sticky; left: 0; }
+.tableFixHead {
+	overflow: auto
+}
+
+.tableFixHead thead th {
+	position: sticky;
+	top: 0;
+	z-index: 1;
+}
+
+.tableFixHead tbody th {
+	position: sticky;
+	left: 0;
+}
+
+table td.fit, table th.fit {
+  white-space: nowrap
+}
+
+table td.expand, table th.expand {
+  width: 99%
+}
 
 .hidden {
 	display: none;
+}
+
+html.borderless, html.borderless body {
+	height: 100%;
+	margin: 0;
+}
+
+.sidepad {
+	padding-left: 1em;
+	padding-right: 1em;
 }

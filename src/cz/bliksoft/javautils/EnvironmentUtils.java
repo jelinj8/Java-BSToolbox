@@ -10,7 +10,6 @@ import org.apache.commons.codec.Charsets;
 import org.apache.commons.io.FileUtils;
 
 import cz.bliksoft.javautils.exceptions.InitializationException;
-import cz.bliksoft.javautils.logging.LogUtils;
 
 /**
  * toolset for working with various configurations (environments) with a shared

@@ -77,16 +77,16 @@ public class EnvironmentUtils {
 	 * @throws IOException
 	 */
 	public static void init() throws IOException {
-		environmentConfigDir = new File(StringUtils.hasTextDefault(System.getenv(PROP_ENVIRONMENT_CONFIG_DIR),
-				environmentProperties.getOrDefault(PROP_ENVIRONMENT_CONFIG_DIR, getDefaultEnvDirName())));
+		if (environmentConfigDir == null)
+			environmentConfigDir = new File(StringUtils.hasTextDefault(System.getenv(PROP_ENVIRONMENT_CONFIG_DIR),
+					environmentProperties.getOrDefault(PROP_ENVIRONMENT_CONFIG_DIR, getDefaultEnvDirName())));
 
 		globalConfigDir = new File(StringUtils.hasTextDefault(System.getenv(PROP_GLOBAL_CONFIG_DIR),
 				environmentProperties.getOrDefault(PROP_GLOBAL_CONFIG_DIR, "config")));
 
-		if (environmentConfig == null)
-			environmentConfig = new File(environmentConfigDir,
-					StringUtils.hasTextDefault(System.getenv(PROP_ENVIRONMENT_PROPERTIES_FILE),
-							environmentProperties.getOrDefault(PROP_ENVIRONMENT_PROPERTIES_FILE, "env.properties")));
+		environmentConfig = new File(environmentConfigDir,
+				StringUtils.hasTextDefault(System.getenv(PROP_ENVIRONMENT_PROPERTIES_FILE),
+						environmentProperties.getOrDefault(PROP_ENVIRONMENT_PROPERTIES_FILE, "env.properties")));
 
 		commonInit();
 	}
@@ -106,18 +106,18 @@ public class EnvironmentUtils {
 	 * @throws IOException
 	 */
 	public static void init(Properties props) throws IOException {
-		environmentConfigDir = new File(StringUtils.hasTextDefault(System.getenv(PROP_ENVIRONMENT_CONFIG_DIR),
-				props.getProperty(PROP_ENVIRONMENT_CONFIG_DIR,
-						environmentProperties.getOrDefault(PROP_ENVIRONMENT_CONFIG_DIR, getDefaultEnvDirName()))));
+		if (environmentConfigDir == null)
+			environmentConfigDir = new File(StringUtils.hasTextDefault(System.getenv(PROP_ENVIRONMENT_CONFIG_DIR),
+					props.getProperty(PROP_ENVIRONMENT_CONFIG_DIR,
+							environmentProperties.getOrDefault(PROP_ENVIRONMENT_CONFIG_DIR, getDefaultEnvDirName()))));
 
 		globalConfigDir = new File(StringUtils.hasTextDefault(System.getenv(PROP_GLOBAL_CONFIG_DIR), props.getProperty(
 				PROP_GLOBAL_CONFIG_DIR, environmentProperties.getOrDefault(PROP_GLOBAL_CONFIG_DIR, "config"))));
 
-		if (environmentConfig == null)
-			environmentConfig = new File(environmentConfigDir,
-					StringUtils.hasTextDefault(System.getenv(PROP_ENVIRONMENT_PROPERTIES_FILE), props.getProperty(
-							PROP_ENVIRONMENT_PROPERTIES_FILE,
-							environmentProperties.getOrDefault(PROP_ENVIRONMENT_PROPERTIES_FILE, "env.properties"))));
+		environmentConfig = new File(environmentConfigDir,
+				StringUtils.hasTextDefault(System.getenv(PROP_ENVIRONMENT_PROPERTIES_FILE), props.getProperty(
+						PROP_ENVIRONMENT_PROPERTIES_FILE,
+						environmentProperties.getOrDefault(PROP_ENVIRONMENT_PROPERTIES_FILE, "env.properties"))));
 
 		commonInit();
 	}

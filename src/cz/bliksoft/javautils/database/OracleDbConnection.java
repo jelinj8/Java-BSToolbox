@@ -22,6 +22,9 @@ import cz.bliksoft.javautils.PropertiesUtils;
 import cz.bliksoft.javautils.StringUtils;
 import cz.bliksoft.javautils.net.ProxySelectorRegistry;
 
+/**
+ * {@link IDBConnectionFactory} for creating Oracle database connections
+ */
 public class OracleDbConnection implements IDBConnectionFactory {
 	static Logger log = Logger.getLogger(OracleDbConnection.class.getName());
 

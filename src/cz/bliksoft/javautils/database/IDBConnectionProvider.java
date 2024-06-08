@@ -3,6 +3,9 @@ package cz.bliksoft.javautils.database;
 import java.io.Closeable;
 import java.sql.Connection;
 
+/**
+ * wrapper interface for database connection factories
+ */
 public interface IDBConnectionProvider extends Closeable {
 	public Connection getConnection(Object lockObject, String reason) throws Exception;
 

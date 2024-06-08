@@ -6,6 +6,9 @@ import java.sql.SQLException;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Logger;
 
+/**
+ * wrap a {@link IDBConnectionFactory} or an already existing {@link Connection} as a {@link IDBConnectionProvider}
+ */
 public class SingleSharedConnectionProvider implements IDBConnectionProvider {
 	Logger log = Logger.getLogger(SingleSharedConnectionProvider.class.getName());
 

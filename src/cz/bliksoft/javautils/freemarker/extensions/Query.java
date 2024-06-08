@@ -86,6 +86,9 @@ public class Query implements TemplateMethodModelEx {
 						case Types.INTEGER:
 							arguments.append("INTEGER");
 							break;
+						case Types.BIGINT:
+							arguments.append("BIGINT");
+							break;
 						case Types.NUMERIC:
 							arguments.append("NUMERIC");
 							break;
@@ -144,6 +147,10 @@ public class Query implements TemplateMethodModelEx {
 							val = Integer.valueOf(args.get(pID).toString());
 							argType = "INTEGER";
 							break;
+						case Types.BIGINT:
+							val = Long.valueOf(args.get(pID).toString());
+							argType = "BIGINT";
+							break;
 						case Types.DOUBLE:
 							val = Double.valueOf(args.get(pID).toString());
 							argType = "DOUBLE";
@@ -194,6 +201,10 @@ public class Query implements TemplateMethodModelEx {
 									case Types.SMALLINT:
 										colType = "INTEGER";
 										val = rs.getInt(cID);
+										break;
+									case Types.BIGINT:
+										colType = "LONG";
+										val = rs.getLong(cID);
 										break;
 									case Types.CHAR:
 									case Types.CLOB:

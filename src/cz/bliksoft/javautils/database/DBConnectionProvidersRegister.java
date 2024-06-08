@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * database connection registry for multiDB applications
+ */
 public class DBConnectionProvidersRegister implements Closeable {
 
 	IDBConnectionProvider defaultProvider = null;

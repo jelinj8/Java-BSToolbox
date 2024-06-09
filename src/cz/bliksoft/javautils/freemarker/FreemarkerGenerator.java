@@ -84,9 +84,9 @@ public class FreemarkerGenerator {
 	}
 
 	private void commonInit() {
-		cfg = new Configuration(Configuration.VERSION_2_3_30);
+		cfg = new Configuration(Configuration.VERSION_2_3_33);
 		cfg.setEncoding(Locale.getDefault(), "UTF8");
-		setNumberFormat(NumberFormats.COMPUTER);
+		// setNumberFormat(NumberFormats.COMPUTER);
 
 		cfg.setObjectWrapper(ObjectWrapperRegister.getInstance(Configuration.VERSION_2_3_33));
 	}
@@ -253,9 +253,6 @@ public class FreemarkerGenerator {
 		res.put("TXTTOHTML_WHITESPACE", //$NON-NLS-1$
 				new TextReplacer("&", "&amp;", " ", "&nbsp;", "\t", "&nbsp;&nbsp;&nbsp;", "<", "&lt;", ">", "&gt;",
 						"\"", "&quot;", "'", "&#39;", "\n", "<br>\n"));
-		// res.put("TXTTOHTML_SAFE", //$NON-NLS-1$
-		// new TextReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;", "\"", "&quot;", "'",
-		// "&#39;"));
 		return res;
 	}
 

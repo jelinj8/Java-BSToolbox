@@ -182,48 +182,48 @@ table {
 }
 
 .colortable tr:hover {
-	background-color: #ffff80;
+	background-color: #ffff80 !important;
 }
 
 .lime_background, tr.lime_background {
-	background-color: lime;
+	background-color: lime !important;
 }
 
 .red_background, tr.red_background {
-	background-color: red;
+	background-color: red !important;
 }
 
 .blue_background, tr.blue_background {
-	background-color: blue;
+	background-color: blue !important;
 }
 
 .orange_background, tr.orange_background {
-	background-color: orange;
+	background-color: orange !important;
 }
 
 .red_background, tr.red_background {
-	background-color: #ff8a8a;
+	background-color: #ff8a8a !important;
 }
 
 .gray_background, tr.gray_background {
-	background-color: rgb(247, 247, 247);
+	background-color: rgb(247, 247, 247) !important;
 }
 
 .white_background, tr.white_background {
-	background-color: white;
+	background-color: white !important;
 }
 
 .green_background, tr.green_background {
-	background-color: rgb(0, 255, 0);
+	background-color: rgb(0, 255, 0) !important;
 }
 
 .orange_background, tr.orange_background {
-	background-color: rgb(255, 182, 109);
+	background-color: rgb(255, 182, 109) !important;
 }
 
 .highlighted {
-	background-color: fuchsia;
-	color: yellow;
+	background-color: fuchsia !important;
+	color: yellow !important;
 }
 
 .tableFixHead {
@@ -253,7 +253,7 @@ table td.expand, table th.expand {
 	display: none;
 }
 
-html.borderless, html.borderless body {
+html.borderless, html.borderless body, .borderless {
 	height: 100%;
 	margin: 0;
 }
@@ -261,4 +261,12 @@ html.borderless, html.borderless body {
 .sidepad {
 	padding-left: 1em;
 	padding-right: 1em;
+}
+
+.pagebreak {
+	page-break-after: always;
+}
+
+.nopagebreak {
+	page-break-inside: avoid;
 }

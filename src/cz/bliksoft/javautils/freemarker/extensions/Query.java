@@ -175,8 +175,12 @@ public class Query implements TemplateMethodModelEx {
 					phase = "executing query";
 					timestamp = System.currentTimeMillis();
 
-					if (log.isLoggable(Level.FINE))
-						log.log(Level.FINE, "Executing query {0}", queryID);
+					if (log.isLoggable(Level.FINE)) {
+						log.log(Level.FINE,
+								MessageFormat.format(
+										"Executing query \nvvv ''{0}'' vvv\n{1}\n----\n{2}\n^^^ QUERY ^^^\n", queryID,
+										query, paramsToPrint));
+					}
 					if (pstmnt.execute()) {
 						if (log.isLoggable(Level.FINE))
 							log.log(Level.FINE,

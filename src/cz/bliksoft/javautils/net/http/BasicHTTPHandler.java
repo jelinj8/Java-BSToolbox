@@ -384,7 +384,8 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 		if (message != null) {
 			byte[] data = message.getBytes(StandardCharsets.UTF_8);
-			addHeader(httpExchange, HEADER_CONTENT_DISPOSITION, HEADER_CONTENT_DISPOSITION_INLINE + "\"fileName\"");
+			addHeader(httpExchange, HEADER_CONTENT_DISPOSITION,
+					HEADER_CONTENT_DISPOSITION_INLINE + "\"" + fileName + "\"");
 			httpExchange.sendResponseHeaders(HTTPErrorCodes.OK.getValue(), data.length);
 			try (OutputStream os = httpExchange.getResponseBody()) {
 				os.write(data);

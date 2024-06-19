@@ -25,8 +25,8 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 /**
- * HttpHandler to register with a path in BSHttpServer. multipart POST from
- * https://gist.github.com/JensWalter/0f19780d131d903879a2
+ * HttpHandler to register with a path in BSHttpServer.<br />
+ * multipart POST from https://gist.github.com/JensWalter/0f19780d131d903879a2
  */
 @SuppressWarnings("restriction")
 public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
@@ -138,46 +138,81 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	boolean _isSessionAware = false;
 
+	/**
+	 * set handler to process session parsing
+	 */
 	public void makeSessionAware() {
 		_isSessionAware = true;
 	}
 
+	/**
+	 * check if session setup should be performed
+	 * 
+	 * @return
+	 */
 	public boolean isSessionAware() {
 		return _isSessionAware;
 	}
 
 	private Set<HttpMethod> supportedMethods = new HashSet<>();
 
+	/**
+	 * add GET methods as supported by this handler
+	 */
 	public void addSupportedGET() {
 		supportedMethods.add(HttpMethod.GET);
 	}
 
+	/**
+	 * add POST methods as supported by this handler
+	 */
 	public void addSupportedPOST() {
 		supportedMethods.add(HttpMethod.POST);
 	}
 
+	/**
+	 * add GET and POST methods as supported by this handler
+	 */
 	public void addSupportedGETPOST() {
 		supportedMethods.add(HttpMethod.GET);
 		supportedMethods.add(HttpMethod.POST);
 	}
 
+	/**
+	 * add HTTP method supported by this handler
+	 * 
+	 * @param method
+	 */
 	public void addSupportedMethods(HttpMethod... method) {
 		for (int i = 0; i < method.length; i++)
 			supportedMethods.add(method[i]);
 	}
 
+	/**
+	 * HTTP methods supported by this handler
+	 * 
+	 * @return
+	 */
 	public Set<HttpMethod> getSupportedMethods() {
 		return supportedMethods;
 	}
 
 	private String pathPrefix = null;
 
+	/**
+	 * path fragment (regex), that will be removed in request URI (only it's first
+	 * occurence)
+	 * 
+	 * @return
+	 */
 	public void setPathPrefix(String prefix) {
 		pathPrefix = prefix;
 	}
 
 	/**
-	 * path fragment (regex), that will be removed in request URI (only it's first occurence)
+	 * path fragment (regex), that will be removed in request URI (only it's first
+	 * occurence)
+	 * 
 	 * @return
 	 */
 	public String getPathPrefix() {
@@ -186,14 +221,29 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	private String defaultRequired = null;
 
+	/**
+	 * override empty requested path with a default value
+	 * 
+	 * @param defaultReq
+	 */
 	public void setDefautlRequired(String defaultReq) {
 		this.defaultRequired = defaultReq;
 	}
 
+	/**
+	 * get default value for empty requested path
+	 * 
+	 * @return
+	 */
 	public String getDefaultRequired() {
 		return defaultRequired;
 	}
 
+	/**
+	 * sessionId generator
+	 * 
+	 * @return
+	 */
 	public long getSessionId() {
 		synchronized (globalSessionId) {
 			return globalSessionId++;
@@ -229,28 +279,69 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 		}
 	}
 
+	/**
+	 * get request body
+	 * 
+	 * @param httpExchange
+	 * @return
+	 * @throws IOException
+	 */
 	protected static String getRequestBody(HttpExchange httpExchange) throws IOException {
 		return IOUtils.toString(httpExchange.getRequestBody(), StandardCharsets.UTF_8);
 	}
 
+	/**
+	 * check if request is multipart
+	 * 
+	 * @param httpExchange
+	 * @return
+	 */
 	protected static boolean isMultipart(HttpExchange httpExchange) {
 		Headers headers = httpExchange.getRequestHeaders();
 		String contentType = headers.getFirst(HEADER_CONTENT_TYPE);
 		return (contentType.startsWith(HEADER_CONTENT_TYPE_MULTIPART));
 	}
 
+	/**
+	 * get request parameters
+	 * 
+	 * @param query
+	 * @return
+	 * @throws IOException
+	 */
 	protected static Map<String, List<Optional<String>>> getGetParams(String query) throws IOException {
 		return URIParameterDecode.splitQuery(query);
 	}
 
+	/**
+	 * send "OK" as OK text response
+	 * 
+	 * @param httpExchange
+	 * @throws IOException
+	 */
 	protected static void sendOK(HttpExchange httpExchange) throws IOException {
 		sendOK(httpExchange, "OK");
 	}
 
+	/**
+	 * semd OK text message
+	 * 
+	 * @param httpExchange
+	 * @param message
+	 * @throws IOException
+	 */
 	protected static void sendOK(HttpExchange httpExchange, String message) throws IOException {
 		sendOK(httpExchange, message, CONTENT_TYPE_TXT);
 	}
 
+	/**
+	 * send OK response with contentType
+	 * 
+	 * @param httpExchange
+	 * @param message
+	 * @param contentType
+	 * @throws IOException
+	 */
 	protected static void sendOK(HttpExchange httpExchange, String message, String contentType) throws IOException {
 		addCommonHeaders(httpExchange, contentType);
 
@@ -265,10 +356,51 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 		}
 	}
 
+	/**
+	 * access to response stream
+	 * 
+	 * @param httpExchange
+	 * @return
+	 */
 	protected static OutputStream getOutputStream(HttpExchange httpExchange) {
 		return httpExchange.getResponseBody();
 	}
 
+	/**
+	 * Send string as file with name and (optionally) specified mimeType
+	 * 
+	 * @param httpExchange
+	 * @param message
+	 * @param fileName
+	 * @param contentType
+	 * @throws IOException
+	 */
+	protected static void sendOKDocument(HttpExchange httpExchange, String message, String fileName, String contentType)
+			throws IOException {
+		if (contentType != null)
+			addCommonHeaders(httpExchange, contentType);
+		else
+			addCommonHeaders(httpExchange, MimeTypes.getMimeType(FilenameUtils.getExtension(fileName)));
+
+		if (message != null) {
+			byte[] data = message.getBytes(StandardCharsets.UTF_8);
+			addHeader(httpExchange, HEADER_CONTENT_DISPOSITION, HEADER_CONTENT_DISPOSITION_INLINE + "\"fileName\"");
+			httpExchange.sendResponseHeaders(HTTPErrorCodes.OK.getValue(), data.length);
+			try (OutputStream os = httpExchange.getResponseBody()) {
+				os.write(data);
+			}
+		} else {
+			httpExchange.sendResponseHeaders(HTTPErrorCodes.OK.getValue(), 0);
+		}
+	}
+
+	/**
+	 * return File as OK data
+	 * 
+	 * @param httpExchange
+	 * @param document
+	 * @throws IOException
+	 */
 	protected static void sendOKDocument(HttpExchange httpExchange, File document) throws IOException {
 		if (!document.exists()) {
 			log.severe(MessageFormat.format("File ''{0}'' not found", document.toString()));
@@ -287,6 +419,14 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 		}
 	}
 
+	/**
+	 * return resource as OK data
+	 * 
+	 * @param httpExchange
+	 * @param loader
+	 * @param path
+	 * @throws IOException
+	 */
 	protected static void sendOKResource(HttpExchange httpExchange, Class<?> loader, String path) throws IOException {
 		try (InputStream is = loader.getResourceAsStream(path)) {
 			if (is == null) {
@@ -307,24 +447,66 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 		}
 	}
 
+	/**
+	 * send prepared headersa with result code (default OK)
+	 * 
+	 * @param httpExchange
+	 * @param code
+	 * @param length
+	 * @throws IOException
+	 */
 	protected static void sendHeaders(HttpExchange httpExchange, Integer code, Long length) throws IOException {
 		httpExchange.sendResponseHeaders((code == null ? HTTPErrorCodes.OK.getValue() : code),
 				(length == null ? 0l : length));
 	}
 
+	/**
+	 * send text message with specified result code
+	 * 
+	 * @param httpExchange
+	 * @param message
+	 * @param code
+	 * @throws IOException
+	 */
 	protected static void sendERR(HttpExchange httpExchange, String message, HTTPErrorCodes code) throws IOException {
 		sendERR(httpExchange, message, CONTENT_TYPE_TXT, code.getValue());
 	}
 
+	/**
+	 * send text message with specified result code
+	 * 
+	 * @param httpExchange
+	 * @param message
+	 * @param code
+	 * @throws IOException
+	 */
 	protected static void sendERR(HttpExchange httpExchange, String message, Integer code) throws IOException {
 		sendERR(httpExchange, message, CONTENT_TYPE_TXT, code);
 	}
 
+	/**
+	 * send response with specified code and MimeType
+	 * 
+	 * @param httpExchange
+	 * @param message
+	 * @param contentType
+	 * @param code
+	 * @throws IOException
+	 */
 	protected static void sendERR(HttpExchange httpExchange, String message, String contentType, HTTPErrorCodes code)
 			throws IOException {
 		sendERR(httpExchange, message, contentType, code.getValue());
 	}
 
+	/**
+	 * send response with specified code and MimeType
+	 * 
+	 * @param httpExchange
+	 * @param message
+	 * @param contentType
+	 * @param code
+	 * @throws IOException
+	 */
 	protected static void sendERR(HttpExchange httpExchange, String message, String contentType, Integer code)
 			throws IOException {
 		addCommonHeaders(httpExchange, contentType);
@@ -341,9 +523,21 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 		}
 	}
 
+	/**
+	 * send binary data
+	 * 
+	 * @param httpExchange
+	 * @param data
+	 * @param contentType
+	 * @param fileName
+	 * @throws IOException
+	 */
 	protected static void sendData(HttpExchange httpExchange, byte[] data, String contentType, String fileName)
 			throws IOException {
-		addCommonHeaders(httpExchange, contentType);
+		if (contentType != null)
+			addCommonHeaders(httpExchange, contentType);
+		else
+			addCommonHeaders(httpExchange, MimeTypes.getMimeType(FilenameUtils.getExtension(fileName)));
 
 		if (fileName != null) {
 			addHeader(httpExchange, HEADER_CONTENT_DISPOSITION,
@@ -356,6 +550,14 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 		}
 	}
 
+	/**
+	 * send resource as data
+	 * 
+	 * @param httpExchange
+	 * @param loader
+	 * @param path
+	 * @throws IOException
+	 */
 	protected static void sendClasspathResource(HttpExchange httpExchange, Class<?> loader, String path)
 			throws IOException {
 		try (InputStream is = loader.getResourceAsStream(path)) {
@@ -377,6 +579,13 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 		}
 	}
 
+	/**
+	 * send file as data
+	 * 
+	 * @param httpExchange
+	 * @param file
+	 * @throws IOException
+	 */
 	protected static void sendFile(HttpExchange httpExchange, File file) throws IOException {
 		if (!file.isFile()) {
 			log.severe(MessageFormat.format("File ''{0}'' not found", file.toString()));
@@ -395,11 +604,24 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 		}
 	}
 
+	/**
+	 * basic header set (content type + origin=ANY)
+	 * 
+	 * @param httpExchange
+	 * @param contentType
+	 */
 	protected static void addCommonHeaders(HttpExchange httpExchange, String contentType) {
 		addHeader(httpExchange, HEADER_CONTENT_TYPE, contentType);
 		addHeader(httpExchange, HEADER_ORIGIN, HEADER_ORIGIN_ANY);
 	}
 
+	/**
+	 * add header
+	 * 
+	 * @param httpExchange
+	 * @param header
+	 * @param value
+	 */
 	private static void addHeader(HttpExchange httpExchange, String header, String value) {
 		List<String> hVal = httpExchange.getResponseHeaders().get(header);
 		if (hVal == null)
@@ -408,38 +630,92 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 		httpExchange.getResponseHeaders().put(header, hVal);
 	}
 
+	/**
+	 * set cookie
+	 * 
+	 * @param httpExchange
+	 * @param name
+	 * @param value
+	 * @param validity
+	 */
 	public static void addCookie(HttpExchange httpExchange, String name, String value, int validity) {
 		addHeader(httpExchange, HEADER_SET_COOKIE,
 				MessageFormat.format("{0}={1}; SameSite=Lax; Max-Age={2,number,#}", name, value, validity));
 	}
 
+	/**
+	 * set cookie
+	 * 
+	 * @param httpExchange
+	 * @param name
+	 * @param value
+	 */
 	public static void addCookie(HttpExchange httpExchange, String name, String value) {
 		addHeader(httpExchange, HEADER_SET_COOKIE, MessageFormat.format("{0}={1}; SameSite=Lax", name, value));
 	}
 
+	/**
+	 * set cookie
+	 * 
+	 * @param httpExchange
+	 * @param name
+	 * @param value
+	 * @param attribs
+	 */
 	public static void addCookie(HttpExchange httpExchange, String name, String value, String attribs) {
 		addHeader(httpExchange, HEADER_SET_COOKIE, MessageFormat.format("{0}={1}; {2}", name, value, attribs));
 	}
 
+	/**
+	 * set cookie
+	 * 
+	 * @param httpExchange
+	 * @param cookie
+	 */
 	public static void addCookie(HttpExchange httpExchange, Cookie cookie) {
 		addHeader(httpExchange, HEADER_SET_COOKIE, cookie.toString());
 	}
 
+	/**
+	 * init code
+	 */
 	public void start() {
 	}
 
+	/**
+	 * cleanup code
+	 */
 	@Override
 	public void close() {
 	}
 
+	/**
+	 * opportunity to stop closing of server by returning "false"
+	 * 
+	 * @return
+	 */
 	public boolean canClose() {
 		return true;
 	}
 
+	/**
+	 * check if a mandatory parameter is present in request
+	 * 
+	 * @param parameters
+	 * @param paramName
+	 * @return
+	 */
 	protected static boolean checkMandatoryPresent(Map<String, List<Optional<String>>> parameters, String paramName) {
 		return getParameterFirstValue(parameters, paramName) == null;
 	}
 
+	/**
+	 * get first value of request parameter
+	 * 
+	 * @param parameters
+	 * @param paramName
+	 * @return
+	 */
 	protected static String getParameterFirstValue(Map<String, List<Optional<String>>> parameters, String paramName) {
 		List<Optional<String>> vals = parameters.get(paramName);
 		if (vals == null)
@@ -450,6 +726,13 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 			return "";
 	}
 
+	/**
+	 * get all values of a parameter from request
+	 * 
+	 * @param parameters
+	 * @param paramName
+	 * @return
+	 */
 	protected static List<Optional<String>> getParameterValues(Map<String, List<Optional<String>>> parameters,
 			String paramName) {
 		List<Optional<String>> vals = parameters.get(paramName);

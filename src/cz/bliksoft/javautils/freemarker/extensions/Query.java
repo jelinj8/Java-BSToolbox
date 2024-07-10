@@ -1,5 +1,7 @@
 package cz.bliksoft.javautils.freemarker.extensions;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.io.Reader;
 import java.sql.Connection;
 import java.sql.Date;
@@ -13,6 +15,7 @@ import java.sql.Types;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -40,9 +43,90 @@ public class Query implements TemplateMethodModelEx {
 
 	private long timestamp;
 
+	private boolean iterable;
+
 	public Query(IDBConnectionProvider connectionProvider, IQueryProvider queryProvider) {
+		this(connectionProvider, queryProvider, false);
+	}
+
+	public Query(IDBConnectionProvider connectionProvider, IQueryProvider queryProvider, boolean iterable) {
 		this.connectionProvider = connectionProvider;
 		this.queryProvider = queryProvider;
+		this.iterable = iterable;
+	}
+
+	public class IterableQueryResult implements Iterator<Map<String, Object>>, Closeable {
+		PreparedStatement pstmnt;
+		ResultSet rs;
+		ResultSetMetaData md;
+		List<String> colNames;
+		long fetchedCount = 0l;
+		long timestamp = System.currentTimeMillis();
+		String queryID;
+
+		IterableQueryResult(PreparedStatement pstmnt, ResultSet rs, ResultSetMetaData md, List<String> colNames,
+				String queryID) {
+			this.rs = rs;
+			this.md = md;
+			this.pstmnt = pstmnt;
+			this.colNames = colNames;
+			this.queryID = queryID;
+		}
+
+		@Override
+		public boolean hasNext() {
+			try {
+				if (rs.isLast()) {
+					log.log(Level.INFO,
+							MessageFormat.format(
+									"Fetched last record of {2}. Total count: {0}, fetched in {1,number,#}ms",
+									fetchedCount, System.currentTimeMillis() - timestamp, queryID));
+					try {
+						close();
+					} catch (IOException e) {
+						log.log(Level.SEVERE, "Failed to close iterable query result resources", e);
+						e.printStackTrace();
+					}
+					return false;
+				} else {
+					return true;
+				}
+			} catch (SQLException e) {
+				log.log(Level.SEVERE, "Failed to check rs.next", e);
+				return false;
+			}
+		}
+
+		@Override
+		public Map<String, Object> next() {
+			try {
+				if (rs.next()) {
+					fetchedCount++;
+					HashMap<String, Object> row = new HashMap<>();
+					for (int cID = 1; cID <= md.getColumnCount(); cID++) {
+						Object val = getColumnData(rs, md, cID);
+						String name = colNames.get(cID - 1);
+						row.put(name, val);
+					}
+					return row;
+				} else {
+					return null;
+				}
+			} catch (SQLException | TemplateModelException e) {
+				log.log(Level.SEVERE, "Failed to get rs.next", e);
+				return null;
+			}
+		}
+
+		@Override
+		public void close() throws IOException {
+			try {
+				rs.close();
+				pstmnt.close();
+			} catch (SQLException e) {
+				throw new IOException("Failed to close iterable query result", e);
+			}
+		}
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -110,8 +194,8 @@ public class Query implements TemplateMethodModelEx {
 				String phase = "setting arguments";
 				StringBuilder paramsToPrint = new StringBuilder();
 				String argType = null;
-
-				try (PreparedStatement pstmnt = con.prepareStatement(query)) {
+				try {
+					PreparedStatement pstmnt = con.prepareStatement(query);
 					int pID = 1;
 					if (queryProvider.getArgumentTypes(queryID).size() > 0) {
 						paramsToPrint.append("arguments:");
@@ -188,126 +272,104 @@ public class Query implements TemplateMethodModelEx {
 											System.currentTimeMillis() - timestamp));
 						timestamp = System.currentTimeMillis();
 						List<HashMap<String, Object>> result = new ArrayList<>();
-						List<String> colNames = new ArrayList<>();
-						List<String> colTypes = new ArrayList<>();
-						String colType;
-						boolean firstRow = true;
-						phase = " fetching reseult";
-						try (ResultSet rs = pstmnt.getResultSet()) {
-							ResultSetMetaData md = rs.getMetaData();
-							while (rs.next()) {
-								HashMap<String, Object> row = new HashMap<>();
-								for (int cID = 1; cID <= md.getColumnCount(); cID++) {
-									Object val = null;
-									switch (md.getColumnType(cID)) {
-									case Types.INTEGER:
-									case Types.TINYINT:
-									case Types.SMALLINT:
-										colType = "INTEGER";
-										val = rs.getInt(cID);
-										break;
-									case Types.BIGINT:
-										colType = "LONG";
-										val = rs.getLong(cID);
-										break;
-									case Types.CHAR:
-									case Types.CLOB:
-									case Types.VARCHAR:
-										colType = "STRING";
-										val = rs.getString(cID);
-										break;
-									case Types.TIMESTAMP:
-										colType = "TIMESTAMP";
-										val = rs.getTimestamp(cID);
-										break;
-									case Types.DATE:
-										colType = "DATE";
-										val = rs.getDate(cID);
-										break;
-									case Types.NUMERIC:
-									case Types.DECIMAL:
-										colType = "DECIMAL";
-										val = rs.getBigDecimal(cID);
-										break;
-									case Types.DOUBLE:
-									case Types.FLOAT:
-										colType = "DOUBLE";
-										val = rs.getDouble(cID);
-										break;
-									case Types.LONGVARCHAR:
-										try (Reader rdr = rs.getCharacterStream(cID)) {
-											colType = "STRING";
-											final int buflen = 8 * 1024;
-											char[] arr = new char[buflen];
-											StringBuilder buffer = new StringBuilder();
-											int numCharsRead;
-											while ((numCharsRead = rdr.read(arr, 0, buflen)) != -1) {
-												buffer.append(arr, 0, numCharsRead);
-											}
-											val = buffer.toString();
-										} catch (Exception e) {
-											throw new TemplateModelException("LONG field read exception.", e);
-										}
-										break;
-									case 2007: // Oracle XMLType
-										colType = "UNKNOWN";
-										val = "Oracle XMLType, not supported";
-										// not working
-										// try {
-										// val = XmlUtils.convertStringToDocument(rs.getString(cID));
-										// colType = "XML";
-										// } catch (Exception e) {
-										// throw new TemplateModelException("XML field read exception.", e);
-										// }
-										// break;
+						List<String> colNames;
+						List<String> colTypes;
+						phase = " processing metaddata";
 
-										// case 2007: // Oracle XMLType, does not work
-										// val = String.valueOf(rs.getObject(cID));
-										// colType = "XML";
-										break;
-									case Types.SQLXML:
-										try {
-											SQLXML x = rs.getSQLXML(cID);
-											val = x; // .toString();// XmlUtils.convertStringToDocument(rdr);
-											colType = "XML";
-										} catch (Exception e) {
-											throw new TemplateModelException("XML field read exception.", e);
-										}
-										break;
-									default:
-										colType = "UNKNOWN";
-										val = "UNKNOWN COL TYPE " + md.getColumnType(cID) + ":"
-												+ md.getColumnTypeName(cID);
-										log.log(Level.SEVERE, MessageFormat.format("Unsupported column type: {0} ({1})",
-												md.getColumnTypeName(cID), md.getColumnType(cID)));
-									}
-									String name = md.getColumnName(cID);
-									row.put(name, val);
-									if (firstRow) {
-										colNames.add(name);
-										colTypes.add(colType);
-									}
+						ResultSet rs = pstmnt.getResultSet();
+						// try
+						{
+							String lastColType;
+							ResultSetMetaData md = rs.getMetaData();
+							colNames = new ArrayList<>(md.getColumnCount());
+							colTypes = new ArrayList<>(md.getColumnCount());
+
+							for (int cID = 1; cID <= md.getColumnCount(); cID++) {
+								switch (md.getColumnType(cID)) {
+								case Types.INTEGER:
+								case Types.TINYINT:
+								case Types.SMALLINT:
+									lastColType = "INTEGER";
+									break;
+								case Types.BIGINT:
+									lastColType = "LONG";
+									break;
+								case Types.CHAR:
+								case Types.CLOB:
+								case Types.VARCHAR:
+									lastColType = "STRING";
+									break;
+								case Types.TIMESTAMP:
+									lastColType = "TIMESTAMP";
+									break;
+								case Types.DATE:
+									lastColType = "DATE";
+									break;
+								case Types.NUMERIC:
+								case Types.DECIMAL:
+									lastColType = "DECIMAL";
+									break;
+								case Types.DOUBLE:
+								case Types.FLOAT:
+									lastColType = "DOUBLE";
+									break;
+								case Types.LONGVARCHAR:
+									lastColType = "STRING";
+									break;
+								case 2007: // Oracle XMLType
+									lastColType = "UNKNOWN";
+									// val = "Oracle XMLType, not supported";
+									break;
+								case Types.SQLXML:
+									lastColType = "XML";
+									break;
+								default:
+									lastColType = "UNKNOWN";
+									log.log(Level.SEVERE, MessageFormat.format("Unsupported column type: {0} ({1})",
+											md.getColumnTypeName(cID), md.getColumnType(cID)));
 								}
-								result.add(row);
-								firstRow = false;
+								colNames.add(md.getColumnName(cID));
+								colTypes.add(lastColType);
 							}
-							if (log.isLoggable(Level.INFO))
-								log.log(Level.INFO, MessageFormat.format("Result count: {0}, fetched in {1,number,#}ms",
-										result.size(), System.currentTimeMillis() - timestamp));
-							phase = " setting LastQuery vars";
+
 							Map<String, Object> qParams = new HashMap<>();
+							phase = " setting LastQuery vars";
 							qParams.put("columns", colNames);
 							qParams.put("columnTypes", colTypes);
 							qParams.put("SQL", query);
 							qParams.put("parameters", queryParameters);
 							qParams.put("parameterTypes", queryParameterTypes);
-							qParams.put("resultCount", result.size());
-							// qParams.put("result", result);
 
 							Environment.getCurrentEnvironment().setVariable("lastQuery",
 									Environment.getCurrentEnvironment().getObjectWrapper().wrap(qParams));
 
-							return result;
+							if (iterable) {
+								phase = " preparing iterable";
+								return new IterableQueryResult(pstmnt, rs, md, colNames, queryID);
+							} else {
+								phase = " fetching reseult";
+								while (rs.next()) {
+									HashMap<String, Object> row = new HashMap<>();
+									for (int cID = 1; cID <= md.getColumnCount(); cID++) {
+										Object val = getColumnData(rs, md, cID);
+										String name = md.getColumnName(cID);
+										row.put(name, val);
+									}
+									result.add(row);
+								}
+
+								rs.close();
+								pstmnt.close();
+
+								if (log.isLoggable(Level.INFO))
+									log.log(Level.INFO,
+											MessageFormat.format("{2} result count: {0}, fetched in {1,number,#}ms",
+													result.size(), System.currentTimeMillis() - timestamp, queryID));
+								if (!iterable)
+									qParams.put("resultCount", result.size());
+
+								return result;
+							}
 						}
 					} else {
 						throw new TemplateModelException("No result");
@@ -322,9 +384,82 @@ public class Query implements TemplateMethodModelEx {
 			} finally {
 				connectionProvider.releaseConnection(this);
 			}
-
 		} else {
 			throw new TemplateModelException("First parameter must be a Query identifier!");
 		}
+	}
+
+	private Object getColumnData(ResultSet rs, ResultSetMetaData md, int colIndex)
+			throws TemplateModelException, SQLException {
+		Object val = null;
+		switch (md.getColumnType(colIndex)) {
+		case Types.INTEGER:
+		case Types.TINYINT:
+		case Types.SMALLINT:
+			val = rs.getInt(colIndex);
+			break;
+		case Types.BIGINT:
+			val = rs.getLong(colIndex);
+			break;
+		case Types.CHAR:
+		case Types.CLOB:
+		case Types.VARCHAR:
+			val = rs.getString(colIndex);
+			break;
+		case Types.TIMESTAMP:
+			val = rs.getTimestamp(colIndex);
+			break;
+		case Types.DATE:
+			val = rs.getDate(colIndex);
+			break;
+		case Types.NUMERIC:
+		case Types.DECIMAL:
+			val = rs.getBigDecimal(colIndex);
+			break;
+		case Types.DOUBLE:
+		case Types.FLOAT:
+			val = rs.getDouble(colIndex);
+			break;
+		case Types.LONGVARCHAR:
+			try (Reader rdr = rs.getCharacterStream(colIndex)) {
+				final int buflen = 8 * 1024;
+				char[] arr = new char[buflen];
+				StringBuilder buffer = new StringBuilder();
+				int numCharsRead;
+				while ((numCharsRead = rdr.read(arr, 0, buflen)) != -1) {
+					buffer.append(arr, 0, numCharsRead);
+				}
+				val = buffer.toString();
+			} catch (Exception e) {
+				throw new TemplateModelException("LONG field read exception.", e);
+			}
+			break;
+		case 2007: // Oracle XMLType
+			val = "Oracle XMLType, not supported";
+			// not working
+			// try {
+			// val = XmlUtils.convertStringToDocument(rs.getString(cID));
+			// colType = "XML";
+			// } catch (Exception e) {
+			// throw new TemplateModelException("XML field read exception.", e);
+			// }
+			// break;
+
+			// case 2007: // Oracle XMLType, does not work
+			// val = String.valueOf(rs.getObject(cID));
+			// colType = "XML";
+			break;
+		case Types.SQLXML:
+			try {
+				SQLXML x = rs.getSQLXML(colIndex);
+				val = x; // .toString();// XmlUtils.convertStringToDocument(rdr);
+			} catch (Exception e) {
+				throw new TemplateModelException("XML field read exception.", e);
+			}
+			break;
+		default:
+			val = "UNKNOWN COL TYPE " + md.getColumnType(colIndex) + ":" + md.getColumnTypeName(colIndex);
+		}
+		return val;
 	}
 }

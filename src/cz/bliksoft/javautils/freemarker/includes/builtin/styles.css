@@ -267,6 +267,18 @@ html.borderless, html.borderless body, .borderless {
 	page-break-after: always;
 }
 
+.newpage {
+	page-break-before: always;
+}
+
+.newpage_left {
+	page-break-before: left;
+}
+
+.newpage_right {
+	page-break-before: right;
+}
+
 .nopagebreak {
 	page-break-inside: avoid;
 }

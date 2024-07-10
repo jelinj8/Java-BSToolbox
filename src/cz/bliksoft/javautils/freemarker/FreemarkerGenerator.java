@@ -108,7 +108,6 @@ public class FreemarkerGenerator {
 	 * generování pomocí TemplateLoaderu
 	 * 
 	 * @param templateLoader
-	 * @throws Exception
 	 */
 	public FreemarkerGenerator(TemplateLoader templateLoader) {
 		commonInit();
@@ -118,8 +117,7 @@ public class FreemarkerGenerator {
 	/**
 	 * generování pomocí TemplateLoaderu
 	 * 
-	 * @param templateLoader
-	 * @throws Exception
+	 * @param templateLoaders
 	 */
 	public FreemarkerGenerator(TemplateLoader... templateLoaders) {
 		commonInit();
@@ -141,7 +139,6 @@ public class FreemarkerGenerator {
 	 * generování pomocí šablon z classpath
 	 * 
 	 * @param templateLoaderClass
-	 * @throws Exception
 	 */
 	public FreemarkerGenerator(Class<?> templateLoaderClass) {
 		commonInit();
@@ -180,8 +177,9 @@ public class FreemarkerGenerator {
 		registerVariables(root);
 		StringWriter s = new StringWriter();
 		if (storeEnvironment) {
-			lastEnvironment = temp.createProcessingEnvironment(root, s);
-			lastEnvironment.process(); // process the template
+			Environment environment = temp.createProcessingEnvironment(root, s);
+			environment.process(); // process the template
+			lastEnvironment = environment; 
 		} else {
 			temp.process(root, s);
 		}
@@ -215,8 +213,9 @@ public class FreemarkerGenerator {
 			throws IOException, TemplateException {
 		try (OutputStreamWriter out = new OutputStreamWriter(outfile, StandardCharsets.UTF_8)) {
 			if (storeEnvironment) {
-				lastEnvironment = tpl.createProcessingEnvironment(root, out);
-				lastEnvironment.process(); // process the template
+				Environment environment = tpl.createProcessingEnvironment(root, out);
+				environment.process(); // process the template
+				lastEnvironment = environment; 
 			} else {
 				tpl.process(root, out);
 			}

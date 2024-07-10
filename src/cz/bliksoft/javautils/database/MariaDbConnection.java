@@ -93,7 +93,7 @@ public class MariaDbConnection implements IDBConnectionFactory {
 	private String getMysqlServerString() {
 		String dbUrl = "jdbc:mariadb:"; //$NON-NLS-1$
 
-		dbUrl += "//" + dbAddr + ":" + dbServerPort + "/" + dbName; //$NON-NLS-1$ //$NON-NLS-2$
+		dbUrl += "//" + dbAddr + ":" + dbServerPort + "/" + dbName + "?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true"; //$NON-NLS-1$ //$NON-NLS-2$
 		return dbUrl;
 	}
 

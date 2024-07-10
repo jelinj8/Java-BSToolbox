@@ -58,7 +58,7 @@ public abstract class AbstractSourceClassLoader<T, U> extends ClassLoader {
 	 * @param className  e.g. test.MyClass
 	 * @param javaSource source content, type dependent on implementation (basically
 	 *                   content of .java file)
-	 * @return loaded Class<?>, e.g. to create instance and cast to known interface
+	 * @return loaded {@code Class<?>}, e.g. to create instance and cast to known interface
 	 *         or to use reflection calls
 	 * @throws Exception
 	 */

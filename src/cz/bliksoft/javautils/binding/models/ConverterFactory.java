@@ -130,8 +130,8 @@ public final class ConverterFactory {
 	 * multiplier.
 	 * <p>
 	 *
-	 * <strong>Examples:</strong> multiplier=100, Double(1.23) -> Double(123),
-	 * multiplier=1000, Double(1.23) -> Double(1230)
+	 * <strong>Examples:</strong> multiplier=100, Double(1.23) -&gt; Double(123),
+	 * multiplier=1000, Double(1.23) -&gt; Double(1230)
 	 *
 	 * @param doubleSource a Double ValueModel
 	 * @param multiplier   the multiplier used for the conversion
@@ -167,8 +167,8 @@ public final class ConverterFactory {
 	 * multiplier to be 1000.
 	 * <p>
 	 *
-	 * <strong>Examples:</strong> multiplier=100, Double(1.23) -> Integer(123),
-	 * multiplier=1000, Double(1.23) -> Integer(1230)
+	 * <strong>Examples:</strong> multiplier=100, Double(1.23) -&gt; Integer(123),
+	 * multiplier=1000, Double(1.23) -&gt; Integer(1230)
 	 *
 	 * @param doubleSource a Double ValueModel
 	 * @param multiplier   the multiplier used to convert the Double to Integer
@@ -187,8 +187,8 @@ public final class ConverterFactory {
 	 * multiplier.
 	 * <p>
 	 *
-	 * <strong>Examples:</strong> multiplier=100, Float(1.23) -> Float(123),
-	 * multiplier=1000, Float(1.23) -> Float(1230)
+	 * <strong>Examples:</strong> multiplier=100, Float(1.23) -&gt; Float(123),
+	 * multiplier=1000, Float(1.23) -&gt; Float(1230)
 	 *
 	 * @param floatSource a Float ValueModel
 	 * @param multiplier  the multiplier used for the conversion
@@ -239,8 +239,8 @@ public final class ConverterFactory {
 	 * multiplier.
 	 * <p>
 	 *
-	 * Examples: multiplier=100, Integer(3) -> Integer(300), multiplier=1000,
-	 * Integer(3) -> Integer(3000)
+	 * Examples: multiplier=100, Integer(3) -&gt; Integer(300), multiplier=1000,
+	 * Integer(3) -&gt; Integer(3000)
 	 *
 	 * @param integerSource a Integer ValueModel
 	 * @param multiplier    the multiplier used for the conversion
@@ -260,7 +260,7 @@ public final class ConverterFactory {
 	 * multiplier.
 	 * <p>
 	 *
-	 * Examples: multiplier=100, Long(3) -> Long(300), multiplier=1000, Long(3) ->
+	 * Examples: multiplier=100, Long(3) -&gt; Long(300), multiplier=1000, Long(3) -&gt;
 	 * Long(3000)
 	 *
 	 * @param longSource a Long ValueModel

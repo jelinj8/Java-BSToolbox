@@ -23,10 +23,21 @@ public class TemplatedQueryProvider implements IQueryProvider {
 	private String lastSql = null;
 	private List<Integer> lastParameters = null;
 
+	/**
+	 * Query builder using a FreemarkerGeneartor
+	 * @param generator Preconfigured FreemarkerGenerator
+	 * @param cache don't reevaluate the query (stable queries)
+	 */
 	public TemplatedQueryProvider(FreemarkerGenerator generator, boolean cache) {
 		this(generator, null, cache);
 	}
 
+	/**
+	 * Query builder using a FreemarkerGeneartor
+	 * @param generator Preconfigured FreemarkerGenerator
+	 * @param basePath template path prefix (e.g. 'sql/')
+	 * @param cache don't reevaluate the query (stable queries)
+	 */
 	public TemplatedQueryProvider(FreemarkerGenerator generator, String basePath, boolean cache) {
 		this.basePath = basePath;
 		this.generator = generator;

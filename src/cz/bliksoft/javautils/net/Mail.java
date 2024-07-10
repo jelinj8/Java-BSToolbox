@@ -14,11 +14,13 @@ import jakarta.mail.internet.MimeMessage;
  * To uise please add
  * 
  * <pre>
+ * {@code
  * <dependency>
  *  <groupId>com.sun.mail</groupId>
  *  <artifactId>javax.mail</artifactId>
  *  <version>1.6.2</version>
  * </dependency>
+ * }
  * </pre>
  * 
  * to MVN dependencies.

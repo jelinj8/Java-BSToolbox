@@ -19,11 +19,11 @@ public class ByteUtils {
 	 * borrowed from
 	 * https://github.com/riversun/finbin/blob/master/src/main/java/org/riversun/finbin/BinarySearcher.java
 	 *
-	 * @param srcBytes
-	 * @param searchBytes
-	 * @param startIndex
-	 * @param endIndex
-	 * @return
+	 * @param srcBytes search in
+	 * @param searchBytes searched data
+	 * @param startIndex start index (zero based)
+	 * @param endIndex end index
+	 * @return zero based index of found data or -1
 	 */
 	public static int indexOf(byte[] srcBytes, byte[] searchBytes, int startIndex, int endIndex) {
 		if (searchBytes.length == 0 || (endIndex - startIndex + 1) < searchBytes.length) {
@@ -62,10 +62,10 @@ public class ByteUtils {
 	 * borrowed from
 	 * https://github.com/riversun/finbin/blob/master/src/main/java/org/riversun/finbin/BinarySearcher.java
 	 *
-	 * @param srcBytes
-	 * @param searchBytes
-	 * @param searchStartIndex
-	 * @param searchEndIndex
+	 * @param srcBytes search in
+	 * @param searchBytes searched data
+	 * @param searchStartIndex zero based start index
+	 * @param searchEndIndex end index
 	 * @return result index list
 	 */
 	public static List<Integer> searchBytes(byte[] srcBytes, byte[] searchBytes, int searchStartIndex,
@@ -85,6 +85,11 @@ public class ByteUtils {
 		return positionIndexList;
 	}
 
+	/**
+	 * read input stream as binary data
+	 * @param requestStream source input stream to be read
+	 * @return array of bytes
+	 */
 	public static byte[] getInputAsBinary(InputStream requestStream) {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		try {

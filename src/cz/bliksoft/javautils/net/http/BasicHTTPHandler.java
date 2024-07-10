@@ -25,7 +25,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 /**
- * HttpHandler to register with a path in BSHttpServer.<br />
+ * HttpHandler to register with a path in BSHttpServer.<br>
  * multipart POST from https://gist.github.com/JensWalter/0f19780d131d903879a2
  */
 @SuppressWarnings("restriction")
@@ -202,8 +202,6 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	/**
 	 * path fragment (regex), that will be removed in request URI (only it's first
 	 * occurence)
-	 * 
-	 * @return
 	 */
 	public void setPathPrefix(String prefix) {
 		pathPrefix = prefix;

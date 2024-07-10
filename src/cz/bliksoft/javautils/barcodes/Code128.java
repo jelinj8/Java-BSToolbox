@@ -22,7 +22,7 @@ import javax.swing.JLabel;
  * 
  * fixed charcodes for attached repaired font
  * 
- * @author jakub
+ * @author Jakub Jelínek
  *
  */
 public class Code128 {
@@ -84,7 +84,7 @@ public class Code128 {
 	}
 
 	/**
-	 * Barcode 128 encoder...</br>
+	 * Barcode 128 encoder...<br>
 	 * Example: System.out.println(Code128.codeIt("Hello World"));
 	 *
 	 * @param textToCode the text you want to code

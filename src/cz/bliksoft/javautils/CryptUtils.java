@@ -124,7 +124,6 @@ public class CryptUtils {
 	 * @throws GeneralSecurityException
 	 * @throws InvalidKeySpecException
 	 * @throws NoSuchAlgorithmException
-	 * @throws UnsupportedEncodingException
 	 */
 	public static String encrypt(String content, String salt) throws GeneralSecurityException {
 		if (defaultPWD == null)
@@ -141,7 +140,6 @@ public class CryptUtils {
 	 * @throws GeneralSecurityException
 	 * @throws InvalidKeySpecException
 	 * @throws NoSuchAlgorithmException
-	 * @throws UnsupportedEncodingException
 	 */
 	public static String encrypt(String content, String password, String salt) throws GeneralSecurityException {
 		return encrypt(content, createKey(password, salt));
@@ -187,7 +185,7 @@ public class CryptUtils {
 	 * @param props
 	 * @param propName
 	 * @param password šifrovací heslo
-	 * @param default hodnota hesla, pokud v properties není
+	 * @param defaultPwd hodnota hesla, pokud v properties není
 	 * @return
 	 * @throws GeneralSecurityException
 	 */

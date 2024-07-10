@@ -37,7 +37,7 @@ public class CsvUtils {
 	 *            separator regex (Regexp.quote)
 	 * @param hasHeader
 	 *            true to use first line (or skip if colNames provided)
-	 * @param colNames
+	 * @param columnNames
 	 *            col names (overrides header)
 	 * @param keyName
 	 *            used column for map key, if not present, first column will be used
@@ -213,7 +213,7 @@ public class CsvUtils {
 	 *            separator regex (Regexp.quote)
 	 * @param hasHeader
 	 *            true to use first line (or skip if colNames provided)
-	 * @param colNames
+	 * @param columnNames
 	 *            col names (overrides header)
 	 * @param converter
 	 *            converter to be used, input is column index and string value,

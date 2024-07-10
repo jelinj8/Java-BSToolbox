@@ -218,7 +218,7 @@ public class StringUtils {
 	 * 
 	 * @param txt
 	 *            hodnota ke kontrole
-	 * @return true pokud je řetězec neprázdný (!=null && length>0)
+	 * @return true pokud je řetězec neprázdný (!=null &amp;&amp; length&gt;0)
 	 */
 	public static boolean hasText(String txt) {
 		return ((txt != null) && (txt.length() > 0));

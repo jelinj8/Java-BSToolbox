@@ -60,6 +60,9 @@ import cz.bliksoft.javautils.binding.utils.IndirectPropertyChangeSupport;
 import cz.bliksoft.javautils.collections.WeakIdentityHashMap;
 
 /**
+ * Modified to use generics by J. Jelínek
+ * <p>
+ * 
  * Converts multiple Java Bean properties into ValueModels. The bean properties
  * must be single valued properties as described by the
  * <a href="http://java.sun.com/products/javabeans/docs/spec.html">Java Bean
@@ -172,11 +175,11 @@ import cz.bliksoft.javautils.collections.WeakIdentityHashMap;
  *
  * <strong>PropertyAdapter vs. BeanAdapter vs. PresentationModel</strong><br>
  * Basically the BeanAdapter does for multiple properties what the
- * {@link com.jgoodies.binding.beans.PropertyAdapter} does for a single bean
- * property. If you adapt multiple properties of the same bean, you better use
- * the BeanAdapter. It registers a single PropertyChangeListener with the bean,
- * where multiple PropertyAdapters would register multiple listeners. If you
- * adapt bean properties for an editor, you will typically use the
+ * {@link cz.bliksoft.javautils.binding.adapters.PropertyAdapter} does for a
+ * single bean property. If you adapt multiple properties of the same bean, you
+ * better use the BeanAdapter. It registers a single PropertyChangeListener with
+ * the bean, where multiple PropertyAdapters would register multiple listeners.
+ * If you adapt bean properties for an editor, you will typically use the
  * {@link com.jgoodies.binding.PresentationModel}. The PresentationModel is more
  * powerful than the BeanAdapter. It adds support for buffered models, and
  * provides an extensible mechanism for observing the change state of the bean

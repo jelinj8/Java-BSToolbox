@@ -22,7 +22,7 @@ public class URIParameterDecode {
 	 * Example
 	 * 
 	 * <pre>
-	 * a=1&b=2&c=&a=4
+	 * a=1&amp;b=2&amp;c=&amp;a=4
 	 * </pre>
 	 * 
 	 * is converted into

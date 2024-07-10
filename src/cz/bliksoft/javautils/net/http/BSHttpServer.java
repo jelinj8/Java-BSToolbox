@@ -90,7 +90,6 @@ public class BSHttpServer {
 	 * basic HTTP server.
 	 * 
 	 * @param port
-	 * @throws Exception
 	 */
 	public BSHttpServer(int port) {
 		this.httpPort = port;
@@ -102,7 +101,6 @@ public class BSHttpServer {
 	 * 
 	 * @param port
 	 * @param httpsConfigurator
-	 * @throws Exception
 	 */
 	public BSHttpServer(int port, HttpsConfigurator httpsConfigurator) {
 		this.httpPort = port;

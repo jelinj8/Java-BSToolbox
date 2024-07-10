@@ -180,7 +180,7 @@ public final class BoundedRangeAdapter implements BoundedRangeModel, Serializabl
 	 * to zero and falls within the adapter's constraints:
 	 * 
 	 * <pre>
-	 * minimum <= value <= value + extent <= maximum
+	 * minimum &lt;= value &lt;= value + extent &lt;= maximum
 	 * </pre>
 	 *
 	 * @param n the new extent before ensuring a non-negative number
@@ -201,7 +201,7 @@ public final class BoundedRangeAdapter implements BoundedRangeModel, Serializabl
 	 * properties obey this adapter's constraints:
 	 * 
 	 * <pre>
-	 * minimum <= value <= value + extent <= maximum
+	 * minimum &lt;= value &lt;= value + extent &lt;= maximum
 	 * </pre>
 	 *
 	 * @param n the new maximum before ensuring this adapter's constraints
@@ -220,7 +220,7 @@ public final class BoundedRangeAdapter implements BoundedRangeModel, Serializabl
 	 * properties obey this adapter's constraints:
 	 * 
 	 * <pre>
-	 * minimum <= value <= value + extent <= maximum
+	 * minimum &lt;= value &lt;= value + extent &lt;= maximum
 	 * </pre>
 	 *
 	 * @param n the new minimum before ensuring constraints
@@ -240,7 +240,7 @@ public final class BoundedRangeAdapter implements BoundedRangeModel, Serializabl
 	 * obey the usual constraints:
 	 * 
 	 * <pre>
-	 * minimum <= value <= value + extent <= maximum
+	 * minimum &lt;= value &lt;= value + extent &lt;= maximum
 	 * </pre>
 	 * <p>
 	 *
@@ -298,7 +298,7 @@ public final class BoundedRangeAdapter implements BoundedRangeModel, Serializabl
 	 * constraints:
 	 * 
 	 * <pre>
-	 * minimum <= value <= value + extent <= maximum
+	 * minimum &lt;= value &lt;= value + extent &lt;= maximum
 	 * </pre>
 	 *
 	 * @param n the new value before ensuring constraints

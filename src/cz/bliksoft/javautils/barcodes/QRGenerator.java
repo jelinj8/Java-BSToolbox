@@ -58,7 +58,7 @@ public class QRGenerator {
 	 * @param filePath   cesta k souboru
 	 * @param size       max velikost obrázku v pixelech
 	 * @param fileType   typ souboru (např. "png");
-	 * @throws IOException
+	 * @throws IOException on error
 	 */
 	public static void createQR(String myCodeText, String filePath, int size, String fileType) throws IOException {
 		File myFile = new File(filePath);

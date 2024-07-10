@@ -392,7 +392,6 @@ public final class Bindings {
 	 *                        holder is a ComponentValueModel, it is synchronized
 	 *                        with the comboBox properties <em>visible</em> and
 	 *                        <em>enabled</em>
-	 * @param <E>             the type of the combo box items
 	 *
 	 * @throws NullPointerException if the combo box or the selectionInList is
 	 *                              {@code null}
@@ -432,7 +431,6 @@ public final class Bindings {
 	 *                        holder is a ComponentValueModel, it is synchronized
 	 *                        with the comboBox properties <em>visible</em> and
 	 *                        <em>enabled</em>
-	 * @param <E>             the type of the combo box items
 	 * @param nullText        the text used to represent {@code null}
 	 *
 	 * @throws NullPointerException     if {@code combo box},

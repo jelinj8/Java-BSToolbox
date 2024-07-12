@@ -1,4 +1,4 @@
-<#macro document class=''><!DOCTYPE html>
+<#macro document class=''><!DOCTYPE html<#if additionalDoctypeDeclarationContent?has_content>${additionalDoctypeDeclarationContent?no_esc}</#if>>
 <html <#if class?has_content>class="${class}"</#if>>
 <#nested>
 </html>
@@ -17,7 +17,7 @@
 <#macro title><title><#nested></title></#macro>
 
 <#macro body class=''>
-<body <#if class?has_content>class="${class}"</#if>>
+<body<#if class?has_content> class="${class}"</#if>>
 <#nested>
 </body>
 </#macro>
@@ -100,6 +100,14 @@ body {
 <#macro qr data id='' alt='' class='' style='' modulus=1><img src="<@imgdata Base64QR(data, modulus) />"<#if id?has_content> id="${id}"</#if><#if class?has_content> class="${class}"</#if><#if style?has_content> style="${style}"</#if><#if alt?has_content> alt="${alt}"</#if> /></#macro>
 
 <#macro additionalHead><#assign additionalHeadContent><#nested></#assign></#macro>
+<#macro additionalDoctypeDeclaration><#assign additionalDoctypeDeclarationContent><#nested></#assign></#macro>
+<#macro additionalDoctypeDeclarationHTMLOnline><#assign additionalDoctypeDeclarationContent> [
+  <!ENTITY % htmlentities SYSTEM "https://www.w3.org/2003/entities/2007/htmlmathml-f.ent">
+  %htmlentities;
+]</#assign></#macro>
+<#macro additionalDoctypeDeclarationHTML><#assign additionalDoctypeDeclarationContent> [
+  <!ENTITY nbsp "&#x000A0;">
+]</#assign></#macro>
 <#macro documentHeader class=''><#assign definedHeaderClass=class /><#assign definedHeader><#nested></#assign></#macro>
 <#macro documentFooter class=''><#assign definedFooterClass=class /><#assign definedFooter><#nested></#assign></#macro>
 

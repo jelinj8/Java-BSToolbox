@@ -501,13 +501,10 @@ public class XmlUtils {
 		/**
 		 * register a function
 		 * 
-		 * @param prefix
-		 *            namespace prefix
-		 * @param fName
-		 *            function name, for specific arity add e.g. "fname:3" (attempt for
-		 *            specific first, non-specific if not found)
-		 * @param functionImpl
-		 *            implementing object
+		 * @param prefix       namespace prefix
+		 * @param fName        function name, for specific arity add e.g. "fname:3"
+		 *                     (attempt for specific first, non-specific if not found)
+		 * @param functionImpl implementing object
 		 */
 		public void addFunction(String prefix, String fName, XPathFunction functionImpl) {
 			Map<String, XPathFunction> pFunctions = functions.get(prefix);
@@ -574,9 +571,11 @@ public class XmlUtils {
 
 	/**
 	 * return text representation of object
+	 * 
 	 * @param xRes
 	 * @return
-	 * @throws XPathException when input is an empty node list (e.g. XPath query returned no nodes)
+	 * @throws XPathException when input is an empty node list (e.g. XPath query
+	 *                        returned no nodes)
 	 */
 	public static String getResultText(Object xRes) throws XPathException {
 		if (xRes == null)
@@ -600,6 +599,7 @@ public class XmlUtils {
 
 	/**
 	 * Returns first node
+	 * 
 	 * @param xRes
 	 * @return
 	 * @throws XPathException if source is an empty NodeList
@@ -691,6 +691,18 @@ public class XmlUtils {
 		LSSerializer lsSerializer = lsImpl.createLSSerializer();
 		lsSerializer.getDomConfig().setParameter("xml-declaration", false); //$NON-NLS-1$
 		return lsSerializer.writeToString(node);
+	}
+
+	public static void allowExternalDTD() {
+		System.setProperty("javax.xml.accessExternalDTD", "all");
+	}
+
+	public static void allowExternalSchema() {
+		System.setProperty("javax.xml.accessExternalSchema", "all");
+	}
+
+	public static void allowExternalStylesheet() {
+		System.setProperty("javax.xml.accessExternalStylesheet", "all");
 	}
 
 }

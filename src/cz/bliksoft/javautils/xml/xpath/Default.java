@@ -15,7 +15,10 @@ public class Default implements XPathFunction {
 	public Object evaluate(List args) throws XPathFunctionException {
 		try {
 			String s = XmlUtils.getResultText(args.get(0));
-			return s; // args.get(0);
+			if (s != null)
+				return s;
+			else
+				return args.get(1);
 		} catch (XPathException e) {
 			return args.get(1);
 		}

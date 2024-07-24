@@ -9,6 +9,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.text.FieldPosition;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
 
 import cz.bliksoft.javautils.logging.LogUtils;
 
@@ -73,9 +76,9 @@ public class StringUtils {
 	 * pospojuje řetězce do seznamu s oddělovačem
 	 * 
 	 * @param separator
-	 *            oddělovač, který bude vložen mezi spojované hodnoty
+	 *                  oddělovač, který bude vložen mezi spojované hodnoty
 	 * @param args
-	 *            hodnoty pro spojení
+	 *                  hodnoty pro spojení
 	 * @return spojený řetězec
 	 */
 	public static String concatenateList(String separator, Object... args) {
@@ -95,11 +98,11 @@ public class StringUtils {
 	 * poskládá řetězec z X opakování jedné hodnoty, oddělené oddělovačem
 	 * 
 	 * @param separator
-	 *            oddělovač
+	 *                  oddělovač
 	 * @param value
-	 *            opakovaná hodnota
+	 *                  opakovaná hodnota
 	 * @param count
-	 *            počet opakování
+	 *                  počet opakování
 	 * @return sestavený řetězec
 	 */
 	public static String repeatToString(String separator, Object value, int count) {
@@ -120,11 +123,11 @@ public class StringUtils {
 	 * příponu (příklad: 'val1 = ?,val2 = ?,val3 = ?,val4 = ?,val5 = ?')
 	 * 
 	 * @param value
-	 *            přípona k doplnění ke každé hodnotě
+	 *                  přípona k doplnění ke každé hodnotě
 	 * @param separator
-	 *            oddělovač
+	 *                  oddělovač
 	 * @param args
-	 *            hodnoty
+	 *                  hodnoty
 	 * @return sestavený řetězec
 	 */
 	public static String appendToEach(String value, String separator, Object... args) {
@@ -148,11 +151,11 @@ public class StringUtils {
 	 * příponu (příklad: 'val1 = ?,val2 = ?,val3 = ?,val4 = ?,val5 = ?')
 	 * 
 	 * @param value
-	 *            přípona k doplnění ke každé hodnotě
+	 *                  přípona k doplnění ke každé hodnotě
 	 * @param separator
-	 *            oddělovač
+	 *                  oddělovač
 	 * @param args
-	 *            hodnoty
+	 *                  hodnoty
 	 * @return sestavený řetězec
 	 */
 	public static String appendToEach(String value, String separator, String... args) {
@@ -283,11 +286,11 @@ public class StringUtils {
 	 * použit jako MessageFormat
 	 * 
 	 * @param txt
-	 *            hodnota, která má být testována na obsah textu
+	 *                        hodnota, která má být testována na obsah textu
 	 * @param hasTextResult
-	 *            návratová hodnota nebo formátovací řetězec
+	 *                        návratová hodnota nebo formátovací řetězec
 	 * @param hasntTextResult
-	 *            návratová hodnota
+	 *                        návratová hodnota
 	 * @return
 	 */
 	public static Object hasTextSelect(String txt, Object hasTextResult, Object hasntTextResult) {
@@ -399,6 +402,88 @@ public class StringUtils {
 			return string;
 
 		return prefix + string.substring(0, 1).toUpperCase() + string.substring(1);
+	}
+
+	/**
+	 * [code borrowed from ant.jar]
+	 * Crack a command line.
+	 * 
+	 * @param toProcess the command line to process.
+	 * @return the command line broken into strings.
+	 *         An empty or null toProcess parameter results in a zero sized array.
+	 */
+	public static String[] splitIntoArgsArray(String toProcess) {
+		final List<String> result = splitIntoArgsList(toProcess);
+		return result.toArray(new String[result.size()]);
+	}
+
+	/**
+	 * [code borrowed from ant.jar]
+	 * Crack a command line.
+	 * 
+	 * @param toProcess the command line to process.
+	 * @return the command line broken into strings.
+	 *         An empty or null toProcess parameter results in a zero sized list.
+	 */
+	public static List<String> splitIntoArgsList(String toProcess) {
+		if (toProcess == null || toProcess.length() == 0) {
+			// no command? no string
+			return new ArrayList<>(0);
+		}
+		// parse with a simple finite state machine
+
+		final int normal = 0;
+		final int inQuote = 1;
+		final int inDoubleQuote = 2;
+		int state = normal;
+		final StringTokenizer tok = new StringTokenizer(toProcess, "\"\' ", true);
+		final ArrayList<String> result = new ArrayList<String>();
+		final StringBuilder current = new StringBuilder();
+		boolean lastTokenHasBeenQuoted = false;
+
+		while (tok.hasMoreTokens()) {
+			String nextTok = tok.nextToken();
+			switch (state) {
+			case inQuote:
+				if ("\'".equals(nextTok)) {
+					lastTokenHasBeenQuoted = true;
+					state = normal;
+				} else {
+					current.append(nextTok);
+				}
+				break;
+			case inDoubleQuote:
+				if ("\"".equals(nextTok)) {
+					lastTokenHasBeenQuoted = true;
+					state = normal;
+				} else {
+					current.append(nextTok);
+				}
+				break;
+			default:
+				if ("\'".equals(nextTok)) {
+					state = inQuote;
+				} else if ("\"".equals(nextTok)) {
+					state = inDoubleQuote;
+				} else if (" ".equals(nextTok)) {
+					if (lastTokenHasBeenQuoted || current.length() != 0) {
+						result.add(current.toString());
+						current.setLength(0);
+					}
+				} else {
+					current.append(nextTok);
+				}
+				lastTokenHasBeenQuoted = false;
+				break;
+			}
+		}
+		if (lastTokenHasBeenQuoted || current.length() != 0) {
+			result.add(current.toString());
+		}
+		if (state == inQuote || state == inDoubleQuote) {
+			throw new RuntimeException("unbalanced quotes in " + toProcess);
+		}
+		return result;
 	}
 
 }

@@ -93,12 +93,22 @@ import jakarta.xml.bind.Unmarshaller;
 public class XmlUtils {
 	private static Logger log = Logger.getLogger(XmlUtils.class.getName());
 
+	private static String xslUrl = null;
+	private static String oneTimeXslUrl = null;
+
 	private static Marshaller getMarshaller(Class<?>... classes) throws JAXBException {
 		JAXBContext context;
 
 		context = JAXBContext.newInstance(classes);
 		Marshaller m = context.createMarshaller();
 		m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+		if (oneTimeXslUrl != null) {
+			m.setProperty("com.sun.xml.internal.bind.xmlHeaders",
+					"<?xml-stylesheet type='text/xsl' href=\"" + oneTimeXslUrl + "\" ?>");
+			oneTimeXslUrl = null;
+		} else if (xslUrl != null)
+			m.setProperty("com.sun.xml.internal.bind.xmlHeaders",
+					"<?xml-stylesheet type='text/xsl' href=\"" + xslUrl + "\" ?>");
 		return m;
 	}
 
@@ -693,14 +703,41 @@ public class XmlUtils {
 		return lsSerializer.writeToString(node);
 	}
 
+	/**
+	 * set XSLT url for next "marshall" operation, cleared afterwards (single use).
+	 * 
+	 * @param url
+	 */
+	public static void setXslUrlOnce(String url) {
+		oneTimeXslUrl = url;
+	}
+
+	/**
+	 * set XSLT url for "marshall" operations, set to null to clear.
+	 * 
+	 * @param url
+	 */
+	public static void setXslUrl(String url) {
+		xslUrl = url;
+	}
+
+	/**
+	 * set system property to allow downloading external DTD
+	 */
 	public static void allowExternalDTD() {
 		System.setProperty("javax.xml.accessExternalDTD", "all");
 	}
 
+	/**
+	 * set system property to allow downloading external schemas
+	 */
 	public static void allowExternalSchema() {
 		System.setProperty("javax.xml.accessExternalSchema", "all");
 	}
 
+	/**
+	 * set system property to allow downloading external stylesheets
+	 */
 	public static void allowExternalStylesheet() {
 		System.setProperty("javax.xml.accessExternalStylesheet", "all");
 	}

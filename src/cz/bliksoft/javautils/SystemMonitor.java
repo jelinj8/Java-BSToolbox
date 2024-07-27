@@ -246,17 +246,7 @@ public class SystemMonitor {
 		if (monitorThread != null)
 			return;
 
-		String version = System.getProperty("java.version");
-
-		if (version.startsWith("1.")) {
-			version = version.substring(2, 3);
-		} else {
-			int dot = version.indexOf(".");
-			if (dot != -1) {
-				version = version.substring(0, dot);
-			}
-		}
-		baseVariables.put("JAVA_VERSION", version);
+		baseVariables.put("JAVA_VERSION", SystemUtils.getJavaVersion());
 
 		try {
 			baseVariables.put("HOSTNAME", InetAddress.getLocalHost().getHostName());

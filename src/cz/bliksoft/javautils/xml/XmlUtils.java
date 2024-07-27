@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import javax.xml.XMLConstants;
@@ -30,6 +31,7 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -676,10 +678,36 @@ public class XmlUtils {
 
 	public static void transformDocument(Node doc, StreamSource template, StreamResult target)
 			throws TransformerException {
+		transformDocument(doc, template, target, null);
+	}
+
+	public static void transformDocument(Node doc, StreamSource template, StreamResult target,
+			Map<String, Object> variables) throws TransformerException {
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();
-		// add XSLT in Transformer
-		Transformer transformer = transformerFactory.newTransformer(template);
+		Templates templates = transformerFactory.newTemplates(template);
+		Transformer transformer = templates.newTransformer();
+		if (variables != null) {
+			for (Entry<String, Object> p : variables.entrySet())
+				transformer.setParameter(p.getKey(), p.getValue());
+		}
 		transformer.transform(new DOMSource(doc), target);
+	}
+
+	public static void transform(StreamSource source, StreamSource template, StreamResult target)
+			throws TransformerException {
+		transform(source, template, target, null);
+	}
+
+	public static void transform(StreamSource source, StreamSource template, StreamResult target,
+			Map<String, Object> variables) throws TransformerException {
+		TransformerFactory transformerFactory = TransformerFactory.newInstance();
+		Templates templates = transformerFactory.newTemplates(template);
+		Transformer transformer = templates.newTransformer();
+		if (variables != null) {
+			for (Entry<String, Object> p : variables.entrySet())
+				transformer.setParameter(p.getKey(), p.getValue());
+		}
+		transformer.transform(source, target);
 	}
 
 	public static String innerXml(Node node) {

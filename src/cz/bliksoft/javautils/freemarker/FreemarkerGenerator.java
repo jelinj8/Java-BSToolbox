@@ -50,7 +50,7 @@ import freemarker.template.TemplateException;
  * @author hroch
  */
 public class FreemarkerGenerator {
-	Logger log = Logger.getLogger(FreemarkerGenerator.class.getName());
+	static Logger log = Logger.getLogger(FreemarkerGenerator.class.getName());
 
 	private Configuration cfg;
 
@@ -179,7 +179,7 @@ public class FreemarkerGenerator {
 		if (storeEnvironment) {
 			Environment environment = temp.createProcessingEnvironment(root, s);
 			environment.process(); // process the template
-			lastEnvironment = environment; 
+			lastEnvironment = environment;
 		} else {
 			temp.process(root, s);
 		}
@@ -215,7 +215,7 @@ public class FreemarkerGenerator {
 			if (storeEnvironment) {
 				Environment environment = tpl.createProcessingEnvironment(root, out);
 				environment.process(); // process the template
-				lastEnvironment = environment; 
+				lastEnvironment = environment;
 			} else {
 				tpl.process(root, out);
 			}
@@ -357,6 +357,14 @@ public class FreemarkerGenerator {
 
 	public enum NumberFormats {
 		DEFAULT, PERCENT, COMPUTER, CURRENCY
+	}
+
+	public static void useJaxenForXPath() {
+		try {
+			freemarker.ext.dom.NodeModel.useJaxenXPathSupport();
+		} catch (Exception e) {
+			log.severe("Failed to set Freemarker to use Jaxen: " + e.getMessage());
+		}
 	}
 
 }

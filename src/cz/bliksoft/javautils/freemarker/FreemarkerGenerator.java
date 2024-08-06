@@ -27,10 +27,13 @@ import cz.bliksoft.javautils.freemarker.extensions.global.GUIPrompt;
 import cz.bliksoft.javautils.freemarker.extensions.global.HtmlPreformat;
 import cz.bliksoft.javautils.freemarker.extensions.global.IdentifyObjectType;
 import cz.bliksoft.javautils.freemarker.extensions.global.ImageResource;
+import cz.bliksoft.javautils.freemarker.extensions.global.LogMessage;
 import cz.bliksoft.javautils.freemarker.extensions.global.ParseXml;
 import cz.bliksoft.javautils.freemarker.extensions.global.PrettyPrintXml;
 import cz.bliksoft.javautils.freemarker.extensions.global.Regroup;
 import cz.bliksoft.javautils.freemarker.extensions.global.Reindex;
+import cz.bliksoft.javautils.freemarker.extensions.global.StringBuilderDirective;
+import cz.bliksoft.javautils.freemarker.extensions.global.SystemMessage;
 import cz.bliksoft.javautils.freemarker.extensions.global.LogVariable;
 import cz.bliksoft.javautils.freemarker.extensions.local.AnchorNumberer;
 import cz.bliksoft.javautils.freemarker.extensions.local.VariableCache;
@@ -245,7 +248,10 @@ public class FreemarkerGenerator {
 		res.put("Base64File", new Base64File()); //$NON-NLS-1$
 		res.put("Base64QR", new Base64QR()); //$NON-NLS-1$
 		res.put("LogVariable", new LogVariable()); //$NON-NLS-1$
+		res.put("LogMessage", new LogMessage()); //$NON-NLS-1$
+		res.put("SystemMessage", new SystemMessage()); //$NON-NLS-1$
 		res.put("DescribeVariable", new DescribeVariable()); //$NON-NLS-1$
+		res.put("StringBuilder", new StringBuilderDirective()); //$NON-NLS-1$
 
 		res.put("TXTTOHTML", //$NON-NLS-1$
 				new TextReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;", "\"", "&quot;", "'", "&#39;", "\n", "<br>\n"));
@@ -347,6 +353,7 @@ public class FreemarkerGenerator {
 			cfg.setNumberFormat("currency");
 			break;
 		case DEFAULT:
+		case NUMBER:
 			cfg.setNumberFormat("number");
 			break;
 		case PERCENT:
@@ -356,11 +363,16 @@ public class FreemarkerGenerator {
 	}
 
 	public enum NumberFormats {
-		DEFAULT, PERCENT, COMPUTER, CURRENCY
+		DEFAULT, NUMBER, PERCENT, COMPUTER, CURRENCY
 	}
 
+	private static boolean jaxenSet = false;
+
 	public static void useJaxenForXPath() {
+		if (jaxenSet)
+			return;
 		try {
+			jaxenSet = true;
 			freemarker.ext.dom.NodeModel.useJaxenXPathSupport();
 		} catch (Exception e) {
 			log.severe("Failed to set Freemarker to use Jaxen: " + e.getMessage());

@@ -5,7 +5,6 @@ import java.util.logging.Logger;
 
 import cz.bliksoft.javautils.ObjectUtils;
 import freemarker.ext.util.WrapperTemplateModel;
-import freemarker.template.SimpleScalar;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
 

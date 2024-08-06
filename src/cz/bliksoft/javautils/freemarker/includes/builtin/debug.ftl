@@ -10,7 +10,7 @@
             <#list object as key, value>
                 <#if first="false">,</#if>
                 <#assign res><@objectToJson value!"" /></#assign>
-            "${key}": ${res?trim}
+            "${key}": "${res?trim?json_string}"
                 <#assign first="false">
             </#list>
         }
@@ -51,7 +51,7 @@
 			<#elseif object?is_macro>
 			"MACRO"
 			<#else>
-			"${object?trim?replace('\\','\\\\"')?replace('"','\\"')?replace('\t','\\t')?replace('\b','\\b')?replace('\f','\\f')?replace('\n','\\n')?replace('\r','\\r')}"
+			"${object?trim?json_string}"
 			</#if>
         </#if>
     </@compress>
@@ -78,9 +78,9 @@ ${pad}	${value}<#if !item?is_last>,</#if>
             </#list>
 ${pad}	}
 				<#break>
-				<#case "text"><#if object?trim?length gt -1>${pad}"${object?trim?replace('\\','\\\\"')?replace('"','\\"')}"</#if><#break>
+				<#case "text"><#if object?trim?length gt -1>${pad}"${object?trim?json_string}"</#if><#break>
 				<#case "attribute">
-${pad}@${object?node_name}:"${object!""?trim?replace('\\','\\\\"')?replace('"','\\"')}"
+${pad}@${object?node_name}:"${object!""?trim?json_string}"
 				<#break>
 				<#case "comment">
 ${pad}	<!-- ${object} -->
@@ -105,7 +105,7 @@ ${pad}]</#if>
 ${pad}	NODE_type:"${object?node_type}"
 			</#switch>
 		<#elseif object?is_string>
-${pad}	"${object?trim?replace('\\','\\\\"')?replace('"','\\"')}"
+${pad}	"${object?trim?json_string}"
 <#--         <#elseif object?is_hash_ex> -->
         <#elseif object?is_hash>
 ${pad}{
@@ -141,7 +141,7 @@ ${pad}	"METHOD"
 			<#elseif object?is_macro>
 ${pad}	"MACRO"
 			<#else>
-${pad}	?"${object?trim?replace('\\','\\\\"')?replace('"','\\"')}"?
+${pad}	?"${object?trim?json_string}"?
 			</#if>
         </#if>
     </#if>

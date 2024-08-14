@@ -499,7 +499,8 @@ public class LogUtils {
 		synchronized (messages) {
 			messages.add(new TimestampedObject<>(message));
 		}
-		messageLog.info(String.valueOf(message));
+		if (messageLog != null)
+			messageLog.info(String.valueOf(message));
 	}
 
 	/**

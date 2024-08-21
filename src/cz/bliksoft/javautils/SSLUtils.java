@@ -52,7 +52,28 @@ public class SSLUtils {
 		}
 	}
 
+	/**
+	 * to enable communication with old servers
+	 */
 	public static void enableTLSv1() {
 		System.setProperty("https.protocols", "TLSv1,TLSv1.1,TLSv1.2");
+		System.setProperty("jdk.tls.client.protocols", "TLSv1,TLSv1.1,TLSv1.2");
 	}
+
+	/**
+	 * to enable communication with old servers
+	 */
+	public static void enableTLSv1_1() {
+		System.setProperty("https.protocols", "TLSv1.1,TLSv1.2");
+		System.setProperty("jdk.tls.client.protocols", "TLSv1.1,TLSv1.2");
+	}
+
+	/**
+	 * e.g. for Java 1.6
+	 */
+	public static void requireTLSv1_2() {
+		System.setProperty("https.protocols", "TLSv1.2");
+		System.setProperty("jdk.tls.client.protocols", "TLSv1.2");
+	}
+
 }

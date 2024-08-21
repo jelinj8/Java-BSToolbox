@@ -34,9 +34,9 @@ public class ObjectUtils {
 	 * this method just returns {@code null}.
 	 *
 	 * @param <T>
-	 *            the type of the object to be cloned
+	 *                 the type of the object to be cloned
 	 * @param original
-	 *            the object to copied, may be {@code null}
+	 *                 the object to copied, may be {@code null}
 	 * @return the copied object
 	 *
 	 * @since 1.1.1
@@ -72,9 +72,9 @@ public class ObjectUtils {
 	 * </pre>
 	 *
 	 * @param o1
-	 *            the first object to compare
+	 *           the first object to compare
 	 * @param o2
-	 *            the second object to compare
+	 *           the second object to compare
 	 * @return boolean {@code true} if and only if both objects are {@code null} or
 	 *         equal according to {@link Object#equals(Object) equals} invoked on
 	 *         the first object
@@ -133,14 +133,14 @@ public class ObjectUtils {
 					sb.append(mp.filename);
 				}
 			}
-			//		} else if (o instanceof Optional) {
-			//			Optional op = (Optional) o;
-			//			if (op.isPresent()) {
-			//				sb.append("[X]");
-			//				sb.append(describe(op.get(), localPad2));
-			//			} else {
-			//				sb.append("[O]");
-			//			}
+			// } else if (o instanceof Optional) {
+			// Optional op = (Optional) o;
+			// if (op.isPresent()) {
+			// sb.append("[X]");
+			// sb.append(describe(op.get(), localPad2));
+			// } else {
+			// sb.append("[O]");
+			// }
 		} else if (o instanceof Map) {
 			sb.append("{");
 			if (((Map) o).size() > 0) {
@@ -225,5 +225,5 @@ public class ObjectUtils {
 			return ois.readObject();
 		}
 	}
-
+	
 }

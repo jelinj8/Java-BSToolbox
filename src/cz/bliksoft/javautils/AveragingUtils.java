@@ -19,7 +19,7 @@ public class AveragingUtils {
 	 * @param key
 	 * @param value
 	 */
-	public void addToAverage(String key, Double value) {
+	public static void addToAverage(String key, Double value) {
 		synchronized (averages) {
 			DoubleObject<Double, Long> val = averages.get(key);
 			if (val == null)
@@ -39,7 +39,7 @@ public class AveragingUtils {
 	 * @param key
 	 * @return
 	 */
-	public Double getAverage(String key) {
+	public static Double getAverage(String key) {
 		synchronized (averages) {
 			DoubleObject<Double, Long> val = averages.get(key);
 			if (val == null)
@@ -55,7 +55,7 @@ public class AveragingUtils {
 	 * @param key
 	 * @return
 	 */
-	public Long getCount(String key) {
+	public static Long getCount(String key) {
 		synchronized (averages) {
 			DoubleObject<Double, Long> val = averages.get(key);
 			if (val == null)

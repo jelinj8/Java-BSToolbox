@@ -7,7 +7,7 @@ import java.util.Map;
  * helper for recording process averages
  */
 public class AveragingUtils {
-	
+
 	/**
 	 * contains mapped values with <sum, count>
 	 */
@@ -29,6 +29,7 @@ public class AveragingUtils {
 				sum += value;
 				Long count = val.getO2();
 				count++;
+				averages.put(key, new DoubleObject<Double, Long>(sum, count));
 			}
 		}
 	}

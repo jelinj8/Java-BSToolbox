@@ -76,4 +76,12 @@ public class SSLUtils {
 		System.setProperty("jdk.tls.client.protocols", "TLSv1.2");
 	}
 
+	/**
+	 * e.g. for loadbalancer connections
+	 */
+	public static void allowUnasafeRenegotiation() {
+		System.setProperty("jdk.tls.allowUnsafeServerCertChange", "true");
+		System.setProperty("sun.security.ssl.allowUnsafeRenegotiation", "true");
+	}
+
 }

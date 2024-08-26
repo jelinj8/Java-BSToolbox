@@ -226,7 +226,8 @@ public class ProxyHandler extends BasicHTTPHandler {
 
 	@Override
 	public void handle(BSHttpContext context) throws IOException {
-		throw new RuntimeException("Unused method");
+		handle(context.httpExchange);
+		//throw new RuntimeException("Unused method");
 		// this method is not used in proxy handler
 	}
 }

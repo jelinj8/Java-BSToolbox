@@ -24,6 +24,8 @@ import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
+import cz.bliksoft.javautils.net.http.BasicHTTPHandler.HttpMethod;
+
 /**
  * HttpHandler to register with a path in BSHttpServer.<br>
  * multipart POST from https://gist.github.com/JensWalter/0f19780d131d903879a2
@@ -186,6 +188,29 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	public void addSupportedMethods(HttpMethod... method) {
 		for (int i = 0; i < method.length; i++)
 			supportedMethods.add(method[i]);
+	}
+
+	/**
+	 * add supported methods by string list
+	 * 
+	 * @param methodList
+	 */
+	public void addSupportedMethods(String methodList) {
+		String methods = methodList.toUpperCase();
+		if (methods.contains("GET"))
+			addSupportedMethods(HttpMethod.GET);
+		if (methods.contains("CREATE"))
+			addSupportedMethods(HttpMethod.CREATE);
+		if (methods.contains("DELETE"))
+			addSupportedMethods(HttpMethod.DELETE);
+		if (methods.contains("PATCH"))
+			addSupportedMethods(HttpMethod.PATCH);
+		if (methods.contains("POST"))
+			addSupportedMethods(HttpMethod.POST);
+		if (methods.contains("PUT"))
+			addSupportedMethods(HttpMethod.PUT);
+		if (methods.contains("UPDATE"))
+			addSupportedMethods(HttpMethod.UPDATE);
 	}
 
 	/**

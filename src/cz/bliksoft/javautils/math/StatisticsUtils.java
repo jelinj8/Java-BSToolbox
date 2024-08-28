@@ -9,18 +9,18 @@ import cz.bliksoft.javautils.math.statistics.IStatisticFilter;
 import cz.bliksoft.javautils.math.statistics.RollingAverage;
 
 /**
- * helper for recording process averages, by default sum/count (real average),
+ * helper for processing values, by default sum/count (real average),
  * supports registering other implementations/filters
  */
 public class StatisticsUtils {
 
 	/**
-	 * contains mapped values with <sum, count>
+	 * contains mapped filters
 	 */
 	private static Map<Object, IStatisticFilter> filters = new HashMap<>();
 
 	/**
-	 * register averager (instance of specific implementation)
+	 * register {@link IStatisticFilter} (instance of specific implementation)
 	 * 
 	 * @param key
 	 * @param averager instance of specific implementation ({@link RollingAverage},
@@ -31,7 +31,7 @@ public class StatisticsUtils {
 	}
 
 	/**
-	 * add new record to keyed sum
+	 * add new record to keyed filter
 	 * 
 	 * @param key
 	 * @param value
@@ -50,7 +50,7 @@ public class StatisticsUtils {
 	}
 
 	/**
-	 * get current keyed average
+	 * get current keyed filter value
 	 * 
 	 * @param key
 	 * @return

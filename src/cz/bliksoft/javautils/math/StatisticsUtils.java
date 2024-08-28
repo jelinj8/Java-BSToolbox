@@ -36,7 +36,7 @@ public class StatisticsUtils {
 	 * @param key
 	 * @param value
 	 */
-	public static void addToFilter(Object key, Double value) {
+	public static void addValue(Object key, Double value) {
 		synchronized (filters) {
 			IStatisticFilter val = filters.get(key);
 			if (val == null) {

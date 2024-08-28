@@ -17,7 +17,7 @@ public class StatisticsUtils {
 	/**
 	 * contains mapped values with <sum, count>
 	 */
-	private static Map<Object, IStatisticFilter> averages = new HashMap<>();
+	private static Map<Object, IStatisticFilter> filters = new HashMap<>();
 
 	/**
 	 * register averager (instance of specific implementation)
@@ -26,8 +26,8 @@ public class StatisticsUtils {
 	 * @param averager instance of specific implementation ({@link RollingAverage},
 	 *                 {@link ApproximatedRollingAverage}, {@link Average}...)
 	 */
-	public static void addAverage(Object key, IStatisticFilter averager) {
-		averages.put(key, averager);
+	public static void addFilter(Object key, IStatisticFilter averager) {
+		filters.put(key, averager);
 	}
 
 	/**
@@ -36,13 +36,13 @@ public class StatisticsUtils {
 	 * @param key
 	 * @param value
 	 */
-	public static void addToAverage(Object key, Double value) {
-		synchronized (averages) {
-			IStatisticFilter val = averages.get(key);
+	public static void addToFilter(Object key, Double value) {
+		synchronized (filters) {
+			IStatisticFilter val = filters.get(key);
 			if (val == null) {
 				Average a = new Average();
 				a.addValue(value);
-				averages.put(key, a);
+				filters.put(key, a);
 			} else {
 				val.addValue(value);
 			}
@@ -55,9 +55,9 @@ public class StatisticsUtils {
 	 * @param key
 	 * @return
 	 */
-	public static Double getAverage(Object key) {
-		synchronized (averages) {
-			IStatisticFilter val = averages.get(key);
+	public static Double getValue(Object key) {
+		synchronized (filters) {
+			IStatisticFilter val = filters.get(key);
 			if (val == null)
 				return 0d;
 			else
@@ -72,8 +72,8 @@ public class StatisticsUtils {
 	 * @return
 	 */
 	public static Long getCount(Object key) {
-		synchronized (averages) {
-			IStatisticFilter val = averages.get(key);
+		synchronized (filters) {
+			IStatisticFilter val = filters.get(key);
 			if (val == null)
 				return 0l;
 			else

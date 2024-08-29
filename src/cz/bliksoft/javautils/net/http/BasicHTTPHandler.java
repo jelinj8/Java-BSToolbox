@@ -42,6 +42,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	public static final String CONTENT_TYPE_XML = "text/xml; charset=utf-8";
 	public static final String CONTENT_TYPE_DATA = "application/octet-stream";
 	public static final String CONTENT_TYPE_JSON = "application/json; charset=utf-8";
+	public static final String CONTENT_TYPE_PDF = "application/pdf";
 
 	public static final String HEADER_CONTENT_TYPE = "Content-Type";
 	public static final String HEADER_CONTENT_LENGTH = "Content-Length";
@@ -472,7 +473,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	}
 
 	/**
-	 * send prepared headersa with result code (default OK)
+	 * send prepared headers with result code (default OK)
 	 * 
 	 * @param httpExchange
 	 * @param code
@@ -646,7 +647,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	 * @param header
 	 * @param value
 	 */
-	private static void addHeader(HttpExchange httpExchange, String header, String value) {
+	protected static void addHeader(HttpExchange httpExchange, String header, String value) {
 		List<String> hVal = httpExchange.getResponseHeaders().get(header);
 		if (hVal == null)
 			hVal = new ArrayList<>(1);
@@ -662,7 +663,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	 * @param value
 	 * @param validity
 	 */
-	public static void addCookie(HttpExchange httpExchange, String name, String value, int validity) {
+	protected static void addCookie(HttpExchange httpExchange, String name, String value, int validity) {
 		addHeader(httpExchange, HEADER_SET_COOKIE,
 				MessageFormat.format("{0}={1}; SameSite=Lax; Max-Age={2,number,#}", name, value, validity));
 	}
@@ -674,7 +675,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	 * @param name
 	 * @param value
 	 */
-	public static void addCookie(HttpExchange httpExchange, String name, String value) {
+	protected static void addCookie(HttpExchange httpExchange, String name, String value) {
 		addHeader(httpExchange, HEADER_SET_COOKIE, MessageFormat.format("{0}={1}; SameSite=Lax", name, value));
 	}
 
@@ -686,7 +687,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	 * @param value
 	 * @param attribs
 	 */
-	public static void addCookie(HttpExchange httpExchange, String name, String value, String attribs) {
+	protected static void addCookie(HttpExchange httpExchange, String name, String value, String attribs) {
 		addHeader(httpExchange, HEADER_SET_COOKIE, MessageFormat.format("{0}={1}; {2}", name, value, attribs));
 	}
 
@@ -696,7 +697,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	 * @param httpExchange
 	 * @param cookie
 	 */
-	public static void addCookie(HttpExchange httpExchange, Cookie cookie) {
+	protected static void addCookie(HttpExchange httpExchange, Cookie cookie) {
 		addHeader(httpExchange, HEADER_SET_COOKIE, cookie.toString());
 	}
 

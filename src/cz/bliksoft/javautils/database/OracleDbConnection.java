@@ -122,7 +122,13 @@ public class OracleDbConnection implements IDBConnectionFactory {
 
 	public static final String PROP_CLEAR_PWD = "oraPasswordClear";
 	public static final String PROP_PWD = "oraPassword";
+	public static final String PROP_PORT = "oraServerPort";
 	public static final String PROP_PWD_ENC = "oraPassword_enc";
+
+	public static final String PROP_SID = "oraDatabase";
+	public static final String PROP_SERVICE = "oraService";
+	public static final String PROP_SERVER = "oraAddr";
+	public static final String PROP_USER = "oraUserName";
 
 	private void processOptions() throws GeneralSecurityException, IOException {
 		Properties properties = PropertiesUtils.loadFromFile(propertiesFile,
@@ -132,11 +138,11 @@ public class OracleDbConnection implements IDBConnectionFactory {
 		if (oraPassword == null)
 			oraPassword = CryptUtils.getPwdFromProperties(properties, PROP_PWD);
 
-		oraSID = properties.getProperty("oraDatabase");
-		serviceName = properties.getProperty("oraService");
-		oraAddr = properties.getProperty("oraAddr");
-		oraServerPort = Integer.parseInt(properties.getProperty("oraServerPort", "1521"));
-		oraUserName = properties.getProperty("oraUserName");
+		oraSID = properties.getProperty(PROP_SID);
+		serviceName = properties.getProperty(PROP_SERVICE);
+		oraAddr = properties.getProperty(PROP_SERVER);
+		oraServerPort = Integer.parseInt(properties.getProperty(PROP_PORT, "1521"));
+		oraUserName = properties.getProperty(PROP_USER);
 
 		ProxySelectorRegistry.addProxyConfiguration(properties);
 

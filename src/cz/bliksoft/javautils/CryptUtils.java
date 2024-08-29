@@ -24,20 +24,11 @@ public class CryptUtils {
 	private static Logger log = Logger.getLogger(CryptUtils.class.getName());
 
 	private static String defaultPWD = null;
-	private static String cypherSpec = "AES/GCM/NoPadding"; //$NON-NLS-1$
+
+	private static String cypherSpec = "AES/CBC/PKCS5Padding"; //$NON-NLS-1$
 
 	public static void setDefaultPassword(String passwd) {
 		defaultPWD = passwd;
-	}
-
-	/**
-	 * Used to change from default cypher specification (recommended
-	 * AES/GCM/NoPadding) to e.g. AES/CBC/PKCS5Padding
-	 * 
-	 * @param cypherSpec
-	 */
-	public static void setCypherSpec(String cypherSpec) {
-		CryptUtils.cypherSpec = cypherSpec;
 	}
 
 	public static SecretKeySpec createSecretKey(char[] password, byte[] salt, int iterationCount, int keyLength)
@@ -175,7 +166,8 @@ public class CryptUtils {
 	 * @return
 	 * @throws GeneralSecurityException
 	 */
-	public static String getPwdFromProperties(Properties props, String propName, String defaultPwd) throws GeneralSecurityException {
+	public static String getPwdFromProperties(Properties props, String propName, String defaultPwd)
+			throws GeneralSecurityException {
 		return getPwdFromProperties(props, propName, null, defaultPwd);
 	}
 
@@ -184,7 +176,7 @@ public class CryptUtils {
 	 * 
 	 * @param props
 	 * @param propName
-	 * @param password šifrovací heslo
+	 * @param password   šifrovací heslo
 	 * @param defaultPwd hodnota hesla, pokud v properties není
 	 * @return
 	 * @throws GeneralSecurityException

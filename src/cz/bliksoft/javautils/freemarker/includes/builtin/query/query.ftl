@@ -1,4 +1,5 @@
 <#assign dateTimeFormatString="yyyy-MM-dd HH:mm:ss" />
+<#assign timestampFormatString="yyyy-MM-dd HH:mm:ss.SSS" />
 
 <#macro query_info lastQuery>
 ${TXTTOHTML_WHITESPACE(lastQuery.SQL)}<br/>

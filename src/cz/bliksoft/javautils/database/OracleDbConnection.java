@@ -7,6 +7,7 @@ import java.sql.Array;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
@@ -33,6 +34,8 @@ public class OracleDbConnection implements IDBConnectionFactory {
 	private static File globalPropertiesFile;
 	private static Class<?> driver = null;
 	private Boolean autoCommit = null;
+
+	private String timezone = null;
 
 	public static OracleDbConnection getInstance() throws Exception {
 		if (singletonInstance == null) {
@@ -88,6 +91,13 @@ public class OracleDbConnection implements IDBConnectionFactory {
 		Connection c = DriverManager.getConnection(serverString, oraUserName, oraPassword);
 		if (autoCommit != null)
 			c.setAutoCommit(autoCommit);
+
+		if (timezone != null) {
+			try (PreparedStatement pstmnt = c.prepareStatement("alter session set time_zone='"+timezone+"'")) {
+				//				pstmnt.setString(1, timezone);
+				pstmnt.execute();
+			}
+		}
 		return c;
 	}
 
@@ -130,6 +140,8 @@ public class OracleDbConnection implements IDBConnectionFactory {
 	public static final String PROP_SERVER = "oraAddr";
 	public static final String PROP_USER = "oraUserName";
 
+	public static final String PROP_TIMEZONE = "timezone";
+
 	private void processOptions() throws GeneralSecurityException, IOException {
 		Properties properties = PropertiesUtils.loadFromFile(propertiesFile,
 				EnvironmentUtils.tryGetAllEnvironmentProperties());
@@ -143,6 +155,8 @@ public class OracleDbConnection implements IDBConnectionFactory {
 		oraAddr = properties.getProperty(PROP_SERVER);
 		oraServerPort = Integer.parseInt(properties.getProperty(PROP_PORT, "1521"));
 		oraUserName = properties.getProperty(PROP_USER);
+
+		timezone = properties.getProperty(PROP_TIMEZONE);
 
 		ProxySelectorRegistry.addProxyConfiguration(properties);
 

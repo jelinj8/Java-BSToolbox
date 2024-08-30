@@ -16,7 +16,6 @@ import java.util.function.Function;
 import java.util.logging.Logger;
 
 import cz.bliksoft.javautils.TimestampedObject;
-import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.ObjectWrapper;
 import freemarker.template.TemplateModel;
@@ -43,8 +42,11 @@ public class ObjectWrapperRegister extends DefaultObjectWrapper {
 			try {
 				Class<?> j8api = Class.forName("no.api.freemarker.java8.Java8ObjectWrapper");
 				if (j8api != null) {
-					Constructor<?> ctor = j8api.getConstructor(freemarker.template.Version.class);
-					java8TimeAPIWrapper = ctor.newInstance(Configuration.VERSION_2_3_30);
+					Class<?> zs = Class.forName("no.api.freemarker.java8.zone.ZoneStrategy");
+					Constructor<?> ctor = j8api.getConstructor(freemarker.template.Version.class, zs);
+					Class<?> zsc = Class.forName("no.api.freemarker.java8.zone.EnvironmentZoneStrategy");
+					Object strategy = zsc.newInstance();
+					java8TimeAPIWrapper = ctor.newInstance(incompatibleImprovements, strategy);
 					log.fine("no.api.freemarker.java8.Java8ObjectWrapper loaded, registering ObjectWrapper");
 				}
 			} catch (ClassNotFoundException e) {

@@ -3,6 +3,8 @@ package cz.bliksoft.javautils.freemarker.extensions;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.Reader;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -13,6 +15,9 @@ import java.sql.SQLXML;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.text.MessageFormat;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -44,6 +49,8 @@ public class Query implements TemplateMethodModelEx {
 	private long timestamp;
 
 	private boolean iterable;
+
+	private static Method oraclexmlTypeMethod = null;
 
 	public Query(IDBConnectionProvider connectionProvider, IQueryProvider queryProvider) {
 		this(connectionProvider, queryProvider, false);
@@ -299,6 +306,10 @@ public class Query implements TemplateMethodModelEx {
 								case Types.VARCHAR:
 									lastColType = "STRING";
 									break;
+								case -101: // Oracle TIMESTAMP_WITH_TIMEZONE
+								case Types.TIMESTAMP_WITH_TIMEZONE:
+									lastColType = "TIMESTAMP_WITH_TIMEZONE";
+									break;
 								case Types.TIMESTAMP:
 									lastColType = "TIMESTAMP";
 									break;
@@ -317,7 +328,7 @@ public class Query implements TemplateMethodModelEx {
 									lastColType = "STRING";
 									break;
 								case 2007: // Oracle XMLType
-									lastColType = "UNKNOWN";
+									lastColType = "ORA XMLTYPE";
 									// val = "Oracle XMLType, not supported";
 									break;
 								case Types.SQLXML:
@@ -406,12 +417,29 @@ public class Query implements TemplateMethodModelEx {
 		case Types.VARCHAR:
 			val = rs.getString(colIndex);
 			break;
-		case Types.TIMESTAMP:
-			val = rs.getTimestamp(colIndex);
+		case -101: // Oracle TIMESTAMP_WITH_TIMEZONE
+		{
+			val = rs.getObject(colIndex, OffsetDateTime.class);
+			if (val != null)
+				val = ((OffsetDateTime) val).toInstant();
 			break;
-		case Types.DATE:
-			val = rs.getDate(colIndex);
+		}
+		case Types.TIMESTAMP_WITH_TIMEZONE: {
+			val = rs.getObject(colIndex, OffsetDateTime.class);
+			if (val != null)
+				val = ((OffsetDateTime) val).toInstant();
 			break;
+		}
+		case Types.TIMESTAMP: {
+			Timestamp ts = rs.getTimestamp(colIndex);
+			val = ts != null ? ts.toInstant() : null;
+			break;
+		}
+		case Types.DATE: {
+			Date d = rs.getDate(colIndex);
+			val = d != null ? d.toInstant() : null;
+			break;
+		}
 		case Types.NUMERIC:
 		case Types.DECIMAL:
 			val = rs.getBigDecimal(colIndex);
@@ -435,19 +463,20 @@ public class Query implements TemplateMethodModelEx {
 			}
 			break;
 		case 2007: // Oracle XMLType
-			val = "Oracle XMLType, not supported";
-			// not working
-			// try {
-			// val = XmlUtils.convertStringToDocument(rs.getString(cID));
-			// colType = "XML";
-			// } catch (Exception e) {
-			// throw new TemplateModelException("XML field read exception.", e);
-			// }
-			// break;
+			val = rs.getObject(colIndex);
+			if (val != null) {
+				try {
+					if (oraclexmlTypeMethod == null) {
+						Class<?> c = val.getClass();
+						oraclexmlTypeMethod = c.getMethod("getStringVal");
+					}
+					val = (String) oraclexmlTypeMethod.invoke(val);
+				} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
+						| InvocationTargetException e) {
+					val = "Oracle XMLType, failed to retrieve value";
+				}
+			}
 
-			// case 2007: // Oracle XMLType, does not work
-			// val = String.valueOf(rs.getObject(cID));
-			// colType = "XML";
 			break;
 		case Types.SQLXML:
 			try {

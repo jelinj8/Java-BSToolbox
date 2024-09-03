@@ -30,8 +30,11 @@ Result count: ${lastQuery.resultCount}
 	<#list lastQuery.columns as col><#if line[col]??>
 	<#switch lastQuery.columnTypes[col?index]>
 		<#case 'DATE'>
-		<#case 'TIMESTAMP'>
 			<td class="right">${TXTTOHTML_WHITESPACE((line[col])?string[dateTimeFormatString])}
+		<#break>
+		<#case 'TIMESTAMP'>
+		<#case 'TIMESTAMP_WITH_TIMEZONE'>
+			<td class="right">${TXTTOHTML_WHITESPACE((line[col])?string[timestampFormatString])}
 		<#break>
 		<#case 'LONG'>
 		<#case 'INTEGER'>

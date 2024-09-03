@@ -35,7 +35,7 @@ public abstract class AbstractDBConnection implements IDBConnectionFactory {
 	public static final String PROP_CLEAR_PWD = "dbPasswordClear";
 	public static final String PROP_PWD = "dbPassword";
 	public static final String PROP_PWD_ENC = "dbPassword_enc";
-	public static final String PROP_TIMEZONE = "timezone";
+	public static final String PROP_TIMEZONE = "dbTimezone";
 
 	public static final String PROP_ADDR = "dbAddr";
 	public static final String PROP_PORT = "dbServerPort";

@@ -27,4 +27,8 @@ public class NumericUtils {
 		return StringUtils.numberAsString(value);
 	}
 
+	public static String numberAsStringPadded(Object value, int decimals) {
+		return String.format("%0" + decimals + "d", value);
+	}
+
 }

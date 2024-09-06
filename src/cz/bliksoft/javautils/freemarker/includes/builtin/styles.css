@@ -242,11 +242,11 @@ table {
 }
 
 table td.fit, table th.fit {
-  white-space: nowrap
+	white-space: nowrap
 }
 
 table td.expand, table th.expand {
-  width: 99%
+	width: 99%
 }
 
 .hidden {

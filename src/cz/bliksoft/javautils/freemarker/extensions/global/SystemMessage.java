@@ -36,21 +36,22 @@ public class SystemMessage implements TemplateMethodModelEx, TemplateDirectiveMo
 	public void execute(Environment env, @SuppressWarnings("rawtypes") Map params, TemplateModel[] loopVars,
 			TemplateDirectiveBody body) throws TemplateException, IOException {
 
-		StringWriter w = new StringWriter();
+		try (StringWriter w = new StringWriter()) {
 
-		if (!params.isEmpty()) {
-			@SuppressWarnings("unchecked")
-			Iterator<Entry<String, TemplateModel>> iterator = params.entrySet().iterator();
-			Entry<String, TemplateModel> firstParam = iterator.next();
-			if (firstParam != null) {
-				w.write(String.valueOf(firstParam.getValue()));
+			if (!params.isEmpty()) {
+				@SuppressWarnings("unchecked")
+				Iterator<Entry<String, TemplateModel>> iterator = params.entrySet().iterator();
+				Entry<String, TemplateModel> firstParam = iterator.next();
+				if (firstParam != null) {
+					w.write(String.valueOf(firstParam.getValue()));
+				}
 			}
-		}
 
-		if (body != null) {
-			body.render(w);
+			if (body != null) {
+				body.render(w);
+			}
+			LogUtils.addMessage(w.toString());
 		}
-		LogUtils.addMessage(w.toString());
 	}
 
 }

@@ -1,13 +1,21 @@
 package cz.bliksoft.javautils.freemarker.extensions;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import freemarker.core.Environment;
+import freemarker.template.TemplateDirectiveBody;
+import freemarker.template.TemplateDirectiveModel;
+import freemarker.template.TemplateException;
 import freemarker.template.TemplateMethodModelEx;
+import freemarker.template.TemplateModel;
 import freemarker.template.TemplateModelException;
 
-public class Log implements TemplateMethodModelEx {
+public class Log implements TemplateMethodModelEx, TemplateDirectiveModel {
 	Logger logger;
 	Level logLevel = Level.INFO;
 
@@ -48,4 +56,13 @@ public class Log implements TemplateMethodModelEx {
 		return "";
 	}
 
+	@SuppressWarnings("rawtypes")
+	@Override
+	public void execute(Environment env, Map params, TemplateModel[] loopVars, TemplateDirectiveBody body)
+			throws TemplateException, IOException {
+		try (StringWriter w = new StringWriter()) {
+			body.render(w);
+			logger.log(logLevel, w.toString());
+		}
+	}
 }

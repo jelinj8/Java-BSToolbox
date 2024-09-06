@@ -66,6 +66,24 @@ public class StringUtils {
 		return val.trim();
 	}
 
+	public static String stripNewlines(String val) {
+		if (val == null)
+			return null;
+		return val.replaceAll("^[\n\r]", "").replaceAll("[\n\r]$", "");
+	}
+
+	public static String stripNewlinesFromEnd(String val) {
+		if (val == null)
+			return null;
+		return val.replaceAll("[\n\r]$", "");
+	}
+
+	public static String stripNewlinesFromStart(String val) {
+		if (val == null)
+			return null;
+		return val.replaceAll("^[\\n\\r]", "");
+	}
+
 	public static boolean hasLength(String value) {
 		if (isEmpty(value))
 			return false;

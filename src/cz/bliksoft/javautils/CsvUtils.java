@@ -190,7 +190,7 @@ public class CsvUtils {
 
 		while (line != null) {
 			if (cols.length > 0) {
-				Map<String, V> row = new LinkedHashMap<>();
+//				Map<String, V> row = new LinkedHashMap<>();
 
 				K key = (keyConverter != null ? keyConverter.apply(cols[keyPosition]) : (K) cols[keyPosition]);
 				V val = (valueConverter != null ? valueConverter.apply(cols[valuePosition]) : (V) cols[valuePosition]);

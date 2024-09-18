@@ -1,7 +1,6 @@
 package cz.bliksoft.javautils.freemarker.extensions.global;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Iterator;
 import java.util.List;
@@ -10,7 +9,6 @@ import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import cz.bliksoft.javautils.logging.LogUtils;
-import cz.bliksoft.javautils.streams.NoCloseOutputStream;
 import freemarker.core.Environment;
 import freemarker.template.TemplateDirectiveBody;
 import freemarker.template.TemplateDirectiveModel;

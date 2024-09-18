@@ -501,4 +501,15 @@ public class StringUtils {
 		return result;
 	}
 
+	/**
+	 * replace characters not safe for file name usage with underscore (allows
+	 * alphanumeric characters, hyphen, dot, space and underscore
+	 * 
+	 * @param original
+	 * @return
+	 */
+	public static String makeFileNameSafe(String original) {
+		return original.replaceAll("[^\\p{IsAlphabetic}\\p{IsDigit}\\-\\._ ]", "_");
+	}
+
 }

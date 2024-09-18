@@ -10,11 +10,13 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 import org.apache.commons.io.FilenameUtils;
@@ -24,7 +26,7 @@ import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
-import cz.bliksoft.javautils.net.http.BasicHTTPHandler.HttpMethod;
+import cz.bliksoft.javautils.StringUtils;
 
 /**
  * HttpHandler to register with a path in BSHttpServer.<br>
@@ -32,8 +34,6 @@ import cz.bliksoft.javautils.net.http.BasicHTTPHandler.HttpMethod;
  */
 @SuppressWarnings("restriction")
 public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
-
-	private static Long globalSessionId = 0l;
 
 	private static Logger log = Logger.getLogger(BasicHTTPHandler.class.getName());
 
@@ -106,11 +106,24 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	 * </pre>
 	 * 
 	 * @param httpExchange
-	 * @param path         URI, starts with '/'
+	 * @param path
+	 *                         URI, starts with '/'
 	 * @param params
 	 * @throws IOException
 	 */
-	public abstract void handle(BSHttpContext context) throws IOException;
+
+	/**
+	 * main request handling method
+	 * 
+	 * @param context
+	 *                    preparsed request
+	 * @return true for finished processing (do not try next handlers/steps), can
+	 *         return false for specific handlers that will continue with following
+	 *         steps (e.g. authentification prehandler). Basically return true if
+	 *         the response already started to send headers.
+	 * @throws IOException
+	 */
+	public abstract boolean handle(BSHttpContext context) throws IOException;
 
 	public enum HttpMethod {
 		GET, POST, PUT, PATCH, DELETE, CREATE, UPDATE, OTHER;
@@ -139,13 +152,42 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 		}
 	};
 
-	boolean _isSessionAware = false;
+	public static Set<HttpMethod> getAllMethods() {
+		Set<HttpMethod> res = new HashSet<>(8);
+		res.add(HttpMethod.GET);
+		res.add(HttpMethod.POST);
+		res.add(HttpMethod.PUT);
+		res.add(HttpMethod.PATCH);
+		res.add(HttpMethod.DELETE);
+		res.add(HttpMethod.CREATE);
+		res.add(HttpMethod.UPDATE);
+		res.add(HttpMethod.OTHER);
+		return res;
+	}
+
+	private static String runCookiePrefix = UUID.randomUUID().toString();
+	String _sessionCookiePrefix = null;
+	String _sessionCookiePath = "/";
 
 	/**
-	 * set handler to process session parsing
+	 * set handler to process session setup with default cookie prefix
 	 */
 	public void makeSessionAware() {
-		_isSessionAware = true;
+		makeSessionAware(runCookiePrefix, null);
+	}
+
+	/**
+	 * set handler to process session setup
+	 * 
+	 * @param sessionContextName
+	 *                               cookie name prefix to use, random value
+	 *                               generated on startup
+	 * @param path
+	 *                               http path to be set, null for /
+	 */
+	public void makeSessionAware(String sessionContextName, String path) {
+		_sessionCookiePrefix = (StringUtils.hasLength(sessionContextName) ? sessionContextName : runCookiePrefix);
+		_sessionCookiePath = (StringUtils.hasLength(path) ? path : "/");
 	}
 
 	/**
@@ -154,7 +196,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	 * @return
 	 */
 	public boolean isSessionAware() {
-		return _isSessionAware;
+		return _sessionCookiePrefix != null;
 	}
 
 	private Set<HttpMethod> supportedMethods = new HashSet<>();
@@ -189,6 +231,15 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	public void addSupportedMethods(HttpMethod... method) {
 		for (int i = 0; i < method.length; i++)
 			supportedMethods.add(method[i]);
+	}
+
+	/**
+	 * add HTTP method supported by this handler
+	 * 
+	 * @param method
+	 */
+	public void addSupportedMethods(Collection<HttpMethod> methods) {
+		supportedMethods.addAll(methods);
 	}
 
 	/**
@@ -263,17 +314,6 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 		return defaultRequired;
 	}
 
-	/**
-	 * sessionId generator
-	 * 
-	 * @return
-	 */
-	public long getSessionId() {
-		synchronized (globalSessionId) {
-			return globalSessionId++;
-		}
-	}
-
 	@Override
 	public void handle(HttpExchange httpExchange) throws IOException {
 		try {
@@ -282,7 +322,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 			String path = uri.getPath();
 			String query = uri.getQuery();
 
-			BSHttpContext context = new BSHttpContext(pathPrefix, httpExchange, path, query, method, getSessionId());
+			BSHttpContext context = new BSHttpContext(pathPrefix, httpExchange, path, query, method);
 
 			if (context.requested == null && defaultRequired != null)
 				context.requested = defaultRequired;
@@ -293,11 +333,13 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 				throw new IOException("Unsupported method: " + method);
 			}
 
-			if (_isSessionAware) {
-				context.initSession();
+			if (isSessionAware()) {
+				context.initSession(_sessionCookiePrefix, _sessionCookiePath);
 			}
 
-			handle(context);
+			if (!handle(context)) {
+				throw new RuntimeException("Request not marked as handled!");
+			}
 		} catch (Exception e) {
 			sendERR(httpExchange, e.getMessage(), HTTPErrorCodes.SERVER_INTERNAL_SERVER_ERROR.getValue());
 		}
@@ -655,41 +697,56 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 		httpExchange.getResponseHeaders().put(header, hVal);
 	}
 
-	/**
-	 * set cookie
-	 * 
-	 * @param httpExchange
-	 * @param name
-	 * @param value
-	 * @param validity
-	 */
-	protected static void addCookie(HttpExchange httpExchange, String name, String value, int validity) {
-		addHeader(httpExchange, HEADER_SET_COOKIE,
-				MessageFormat.format("{0}={1}; SameSite=Lax; Max-Age={2,number,#}", name, value, validity));
-	}
-
-	/**
-	 * set cookie
-	 * 
-	 * @param httpExchange
-	 * @param name
-	 * @param value
-	 */
-	protected static void addCookie(HttpExchange httpExchange, String name, String value) {
-		addHeader(httpExchange, HEADER_SET_COOKIE, MessageFormat.format("{0}={1}; SameSite=Lax", name, value));
-	}
-
-	/**
-	 * set cookie
-	 * 
-	 * @param httpExchange
-	 * @param name
-	 * @param value
-	 * @param attribs
-	 */
-	protected static void addCookie(HttpExchange httpExchange, String name, String value, String attribs) {
-		addHeader(httpExchange, HEADER_SET_COOKIE, MessageFormat.format("{0}={1}; {2}", name, value, attribs));
-	}
+	//	/**
+	//	 * set cookie
+	//	 * 
+	//	 * @param httpExchange
+	//	 * @param name
+	//	 * @param value
+	//	 * @param validity
+	//	 */
+	//	protected static void addCookie(HttpExchange httpExchange, String name, String value, int validity) {
+	//		addHeader(httpExchange, HEADER_SET_COOKIE,
+	//				MessageFormat.format("{0}={1}; SameSite=Lax; Max-Age={2,number,#}", name, value, validity));
+	//	}
+	//
+	//	/**
+	//	 * set cookie
+	//	 * 
+	//	 * @param httpExchange
+	//	 * @param name
+	//	 * @param value
+	//	 */
+	//	protected static void addCookie(HttpExchange httpExchange, String name, String value) {
+	//		addHeader(httpExchange, HEADER_SET_COOKIE, MessageFormat.format("{0}={1}; SameSite=Lax", name, value));
+	//	}
+	//
+	//	/**
+	//	 * set cookie
+	//	 * 
+	//	 * @param httpExchange
+	//	 * @param name
+	//	 * @param value
+	//	 * @param attribs
+	//	 */
+	//	protected static void addCookie(HttpExchange httpExchange, String name, String value, String attribs) {
+	//		addHeader(httpExchange, HEADER_SET_COOKIE, MessageFormat.format("{0}={1}; {2}", name, value, attribs));
+	//	}
+	//
+	//	/**
+	//	 * set cookie
+	//	 * 
+	//	 * @param httpExchange
+	//	 * @param name
+	//	 * @param value
+	//	 * @param validity
+	//	 * @param attribs
+	//	 */
+	//	protected static void addCookie(HttpExchange httpExchange, String name, String value, int validity,
+	//			String attribs) {
+	//		addHeader(httpExchange, HEADER_SET_COOKIE, MessageFormat
+	//				.format("{0}={1}; SameSite=Lax; Max-Age={2,number,#}; {3}", name, value, validity, attribs));
+	//	}
 
 	/**
 	 * set cookie

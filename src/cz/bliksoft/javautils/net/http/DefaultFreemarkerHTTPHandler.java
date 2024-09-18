@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -71,7 +70,7 @@ public class DefaultFreemarkerHTTPHandler extends BasicHTTPHandler implements Cl
 
 	@SuppressWarnings("restriction")
 	@Override
-	public void handle(BSHttpContext context) throws IOException {
+	public boolean handle(BSHttpContext context) throws IOException {
 		String path = context.requested;
 
 		if (StringUtils.isEmpty(path) || "/".equals(path))
@@ -109,7 +108,7 @@ public class DefaultFreemarkerHTTPHandler extends BasicHTTPHandler implements Cl
 			log.log(Level.SEVERE, "Failed to create FreemarkerGenerator.", e);
 			sendERR(context.httpExchange, "Failed to create FreeemarkerGenerator",
 					HTTPErrorCodes.SERVER_INTERNAL_SERVER_ERROR.getValue());
-			return;
+			return true;
 		}
 
 		try {
@@ -120,7 +119,7 @@ public class DefaultFreemarkerHTTPHandler extends BasicHTTPHandler implements Cl
 			log.log(Level.SEVERE, "Failed to get template.", e);
 			sendERR(context.httpExchange, "Failed to get template",
 					HTTPErrorCodes.SERVER_INTERNAL_SERVER_ERROR.getValue());
-			return;
+			return true;
 		}
 
 		try (OutputStream os = context.httpExchange.getResponseBody()) {
@@ -128,7 +127,7 @@ public class DefaultFreemarkerHTTPHandler extends BasicHTTPHandler implements Cl
 		} catch (TemplateException e) {
 			log.log(Level.SEVERE, "Failed to process template, sending response already started", e);
 		}
-		return;
+		return true;
 	}
 
 	public void setVariable(String name, Properties values) {

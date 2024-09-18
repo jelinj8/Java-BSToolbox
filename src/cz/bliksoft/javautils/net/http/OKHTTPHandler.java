@@ -9,7 +9,8 @@ public class OKHTTPHandler extends BasicHTTPHandler {
 	}
 	
 	@Override
-	public void handle(BSHttpContext context) throws IOException {
+	public boolean handle(BSHttpContext context) throws IOException {
 		sendOK(context.httpExchange);
+		return true;
 	}
 }

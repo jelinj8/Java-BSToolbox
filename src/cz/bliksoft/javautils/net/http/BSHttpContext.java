@@ -21,6 +21,7 @@ import cz.bliksoft.javautils.ByteUtils;
 import cz.bliksoft.javautils.DateUtils;
 import cz.bliksoft.javautils.collections.TimestampedHashMap;
 import cz.bliksoft.javautils.net.http.BasicHTTPHandler.HttpMethod;
+import cz.bliksoft.javautils.net.http.Cookie.SameSite;
 import cz.bliksoft.javautils.net.http.MultiPart.PartType;
 
 @SuppressWarnings("restriction")
@@ -50,25 +51,24 @@ public class BSHttpContext extends HashMap<String, Object> {
 	public Map<String, String> cookies;
 	public Map<String, Object> contextVariables = null;
 
-	private long sessionId;
-	
-	public long getSessionId() {
-		return sessionId;
-	}
-	
+	public boolean handled = false;
+
+	private String sessionID;
+
 	protected static int sessionValidity = 20;
 	protected static TimestampedHashMap<String, Map<String, Object>> sessionCache = new TimestampedHashMap<>(
 			sessionValidity * 60000);
 
-	protected static Map<String, Object> session = null;
+	private Map<String, Object> session = null;
 
 	public Map<String, Object> getSession() {
 		return session;
 	}
 
-	public Map<String, Object> initSession() {
+	public Map<String, Object> initSession(String contextName, String cookiePath) {
+		final String sessionKey = contextName + "_";
 		sessionCache.cleanup();
-		String sessionID = cookies.get(BasicHTTPHandler.COOKIE_SESSION_ID);
+		sessionID = cookies.get(sessionKey + BasicHTTPHandler.COOKIE_SESSION_ID);
 		session = sessionCache.touch(sessionID);
 		if (session == null) {
 			sessionID = UUID.randomUUID().toString();
@@ -77,12 +77,25 @@ public class BSHttpContext extends HashMap<String, Object> {
 			session.put("started", Instant.now());
 			sessionCache.put(sessionID, session);
 			cookies.put(BasicHTTPHandler.COOKIE_SESSION_ID, sessionID);
-			BasicHTTPHandler.addCookie(httpExchange, BasicHTTPHandler.COOKIE_SESSION_ID, sessionID,
-					sessionValidity * 60);
+			BasicHTTPHandler.addCookie(httpExchange,
+					Cookie.create(sessionKey + BasicHTTPHandler.COOKIE_SESSION_ID, sessionID).withSameSite(SameSite.Lax)
+							.withPath(cookiePath));
+			//			BasicHTTPHandler.addCookie(httpExchange, sessionKey + BasicHTTPHandler.COOKIE_SESSION_ID, sessionID,
+			//					sessionValidity * 60, "SameSite=Lax; Path=" + cookiePath);
+			session.put("lastReq", DateUtils.XMLTimestampString());
+		} else {
+			session.put("lastReq", cookies.get(sessionKey + BasicHTTPHandler.COOKIE_PREVIOUS_REQ));
 		}
 
-		BasicHTTPHandler.addCookie(httpExchange, BasicHTTPHandler.COOKIE_PREVIOUS_REQ, DateUtils.XMLTimestampString());
+		BasicHTTPHandler.addCookie(httpExchange,
+				Cookie.create(sessionKey + BasicHTTPHandler.COOKIE_PREVIOUS_REQ, DateUtils.XMLTimestampString())
+						.withSameSite(SameSite.Lax).withPath(cookiePath));
 		return session;
+	}
+
+	public void clearSession() {
+		sessionCache.remove(sessionID);
+		session.clear();
 	}
 
 	protected Map<String, List<Optional<MultiPart>>> getMultipartPostParams(HttpExchange httpExchange)
@@ -206,10 +219,8 @@ public class BSHttpContext extends HashMap<String, Object> {
 		return cookies;
 	}
 
-	public BSHttpContext(String pathPrefix, HttpExchange httpExchange, String path, String query, HttpMethod method, long sessionId)
+	public BSHttpContext(String pathPrefix, HttpExchange httpExchange, String path, String query, HttpMethod method)
 			throws IOException {
-		this.sessionId = sessionId;
-		
 		this.method = method;
 		this.httpExchange = httpExchange;
 
@@ -254,5 +265,13 @@ public class BSHttpContext extends HashMap<String, Object> {
 
 		cookies = getCookies(httpExchange);
 		put(CTX_COOKIES, cookies);
+	}
+
+	public void setHandled() {
+		handled = true;
+	}
+
+	public boolean isHandled() {
+		return handled;
 	}
 }

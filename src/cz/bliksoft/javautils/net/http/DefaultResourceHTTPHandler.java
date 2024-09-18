@@ -30,7 +30,7 @@ public class DefaultResourceHTTPHandler extends BasicHTTPHandler implements Clos
 	}
 
 	@Override
-	public void handle(BSHttpContext context) throws IOException {
+	public boolean handle(BSHttpContext context) throws IOException {
 		String fullPath = (pages != null ? context.path.replace(pages, "") : context.path);
 		if (fullPath.startsWith("/"))
 			fullPath = fullPath.substring(1);
@@ -39,6 +39,7 @@ public class DefaultResourceHTTPHandler extends BasicHTTPHandler implements Clos
 				sendClasspathResource(context.httpExchange, loader, fullPath);
 			else
 				sendOKResource(context.httpExchange, loader, fullPath);
+			return true;
 		} catch (IOException e) {
 			log.fine(MessageFormat.format("Failed to serve resource {0}: {1}", fullPath, e.getMessage()));
 			throw e;

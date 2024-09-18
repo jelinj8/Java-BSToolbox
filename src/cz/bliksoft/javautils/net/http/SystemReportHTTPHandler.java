@@ -7,7 +7,6 @@ import com.sun.net.httpserver.HttpServer;
 
 import cz.bliksoft.javautils.SystemMonitor;
 import cz.bliksoft.javautils.freemarker.includes.BuiltinTemplateLoader;
-import cz.bliksoft.javautils.logging.LogUtils;
 import freemarker.cache.ClassTemplateLoader;
 
 @SuppressWarnings("restriction")
@@ -22,7 +21,7 @@ public class SystemReportHTTPHandler extends DefaultFreemarkerHTTPHandler {
 	}
 
 	@Override
-	public void handle(BSHttpContext context) throws IOException {
+	public boolean handle(BSHttpContext context) throws IOException {
 
 		context.requested = "systemstatus.ftlh";
 
@@ -51,7 +50,7 @@ public class SystemReportHTTPHandler extends DefaultFreemarkerHTTPHandler {
 		}
 		context.contextVariables.put("GARBAGE", collectGarbage);
 
-		super.handle(context);
+		return super.handle(context);
 	}
 
 	public static void addEndpoint(HttpServer server) {

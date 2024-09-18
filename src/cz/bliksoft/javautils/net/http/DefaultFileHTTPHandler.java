@@ -28,7 +28,7 @@ public class DefaultFileHTTPHandler extends BasicHTTPHandler implements Closeabl
 	}
 
 	@Override
-	public void handle(BSHttpContext context) throws IOException {
+	public boolean handle(BSHttpContext context) throws IOException {
 		switch (context.method) {
 		case GET:
 		case POST:
@@ -48,6 +48,6 @@ public class DefaultFileHTTPHandler extends BasicHTTPHandler implements Closeabl
 			sendFile(context.httpExchange, pageFile);
 		else
 			sendOKDocument(context.httpExchange, pageFile);
-
+		return true;
 	}
 }

@@ -4,6 +4,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Cookie {
+	public enum SameSite {
+		Strict, Lax, None
+	}
+
 	private String name;
 	private String value;
 	private Date expires;
@@ -12,10 +16,15 @@ public class Cookie {
 	private String path;
 	private boolean secure;
 	private boolean httpOnly;
-	private String sameSite;
+	private SameSite sameSite;
+
+	private Cookie(String name, String value) {
+		this.name = name;
+		this.value = value;
+	}
 
 	public Cookie(String name, String value, Date expires, Integer maxAge, String domain, String path, boolean secure,
-			boolean httpOnly, String sameSite) {
+			boolean httpOnly, SameSite sameSite) {
 		this.name = name;
 		this.value = value;
 		this.expires = expires;
@@ -25,6 +34,46 @@ public class Cookie {
 		this.secure = secure;
 		this.httpOnly = httpOnly;
 		this.sameSite = sameSite;
+	}
+
+	public static Cookie create(String name, String value) {
+		return new Cookie(name, value);
+
+	}
+
+	public Cookie withExpiry(Date expires) {
+		this.expires = expires;
+		return this;
+	}
+
+	public Cookie withMaxAge(Integer maxAge) {
+		this.maxAge = maxAge;
+		return this;
+	}
+
+	public Cookie withDomain(String domain) {
+		this.domain = domain;
+		return this;
+	}
+
+	public Cookie withPath(String path) {
+		this.path = path;
+		return this;
+	}
+
+	public Cookie withSecure(boolean secure) {
+		this.secure = secure;
+		return this;
+	}
+
+	public Cookie withHTTPOnly(boolean httpOnly) {
+		this.httpOnly = httpOnly;
+		return this;
+	}
+
+	public Cookie withSameSite(SameSite sameSite) {
+		this.sameSite = sameSite;
+		return this;
 	}
 
 	public String toString() {

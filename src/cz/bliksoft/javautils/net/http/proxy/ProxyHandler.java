@@ -45,9 +45,9 @@ public class ProxyHandler extends BasicHTTPHandler {
 	 * Create proxy with defined max. response/receive times
 	 * 
 	 * @param respondTimeout
-	 *            ms until the target should start sending response
+	 *                           ms until the target should start sending response
 	 * @param receiveTimeout
-	 *            ms until the whole message is received
+	 *                           ms until the whole message is received
 	 */
 	public ProxyHandler(long respondTimeout, long receiveTimeout) {
 		this.respondTimeout = respondTimeout;
@@ -59,6 +59,7 @@ public class ProxyHandler extends BasicHTTPHandler {
 
 	/**
 	 * function for URI transformation (overrides path prefix)
+	 * 
 	 * @param function
 	 */
 	public void setRewriteUri(Function<URI, URI> function) {
@@ -152,10 +153,10 @@ public class ProxyHandler extends BasicHTTPHandler {
 				newUri = rewriteUrl.apply(uri);
 			else {
 				String newPath = uri.getPath();
-				
+
 				if (getPathPrefix() != null)
 					newPath = newPath.replaceFirst(getPathPrefix(), "");
-				
+
 				newUri = new URI(scheme != null ? scheme : (uri.getScheme() == null ? "http" : uri.getScheme()),
 						(authority != null ? authority : uri.getAuthority()), (path != null ? path : newPath),
 						(query != null ? query : uri.getQuery()), (fragment != null ? fragment : uri.getFragment()));
@@ -225,9 +226,10 @@ public class ProxyHandler extends BasicHTTPHandler {
 	}
 
 	@Override
-	public void handle(BSHttpContext context) throws IOException {
-		handle(context.httpExchange);
-		//throw new RuntimeException("Unused method");
+	public boolean handle(BSHttpContext context) throws IOException {
+		//		handle(context.httpExchange);
+		//		return true;
+		throw new RuntimeException("Unused method - should not be called!");
 		// this method is not used in proxy handler
 	}
 }

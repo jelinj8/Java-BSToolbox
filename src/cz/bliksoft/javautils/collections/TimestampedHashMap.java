@@ -10,7 +10,17 @@ import java.util.Map;
 import java.util.Set;
 
 import cz.bliksoft.javautils.TimestampedObject;
+import cz.bliksoft.javautils.files.DeleteOnCloseFile;
 
+/**
+ * Allows storage of objects with a timestamp and (optionally) limited validity
+ * since last access. If objects removed by timeout implement
+ * {@link AutoCloseable} an attempt is made to close them (swallowing potential
+ * exception). To be used e.g. as a cache with {@link DeleteOnCloseFile}
+ * 
+ * @param <K>
+ * @param <V>
+ */
 public class TimestampedHashMap<K, V> implements Map<K, V> {
 
 	private long validity = 0;
@@ -21,7 +31,10 @@ public class TimestampedHashMap<K, V> implements Map<K, V> {
 	}
 
 	/**
-	 * validity in milliseconds. Negative means get-once and remove, zero is unlimited.
+	 * Record validity in milliseconds. Negative means get-once and remove, zero is
+	 * unlimited. Expired values are cleared only by explicit calls to
+	 * {@link #cleanup()}.
+	 * 
 	 * @param validity
 	 */
 	public TimestampedHashMap(long validity) {
@@ -85,8 +98,9 @@ public class TimestampedHashMap<K, V> implements Map<K, V> {
 	public V get(Object key) {
 		synchronized (values) {
 			TimestampedObject<V> val = values.get(key);
-			if (validity < 0)
+			if (validity < 0) {
 				values.remove(key);
+			}
 
 			if (val != null) {
 				return val.getValue();
@@ -97,6 +111,7 @@ public class TimestampedHashMap<K, V> implements Map<K, V> {
 
 	/**
 	 * like get, but updating object timestamp
+	 * 
 	 * @param key
 	 * @return
 	 */
@@ -106,7 +121,7 @@ public class TimestampedHashMap<K, V> implements Map<K, V> {
 			if (validity < 0) {
 				values.remove(key);
 			}
-			
+
 			if (val != null) {
 				val.touch();
 				return val.getValue();
@@ -166,6 +181,10 @@ public class TimestampedHashMap<K, V> implements Map<K, V> {
 		}
 	}
 
+	/**
+	 * Returns a shallow copy of values list (changes are not reflected in original
+	 * Map)
+	 */
 	@Override
 	public Collection<V> values() {
 		synchronized (values) {
@@ -178,6 +197,10 @@ public class TimestampedHashMap<K, V> implements Map<K, V> {
 		}
 	}
 
+	/**
+	 * To be called periodically e.g. by a maintenance job. Removes expired values
+	 * and closes them if they implement {@link AutoCloseable}.
+	 */
 	public void cleanup() {
 		if (validity == 0)
 			return;
@@ -190,7 +213,13 @@ public class TimestampedHashMap<K, V> implements Map<K, V> {
 			}
 
 			for (K keyToRemove : toRemove) {
-				values.remove(keyToRemove);
+				TimestampedObject<V> r = values.remove(keyToRemove);
+				if (r.getValue() instanceof AutoCloseable)
+					try {
+						((AutoCloseable) r).close();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 			}
 		}
 	}

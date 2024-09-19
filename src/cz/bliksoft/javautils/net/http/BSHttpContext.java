@@ -40,6 +40,7 @@ public class BSHttpContext extends HashMap<String, Object> {
 	public static final String CTX_REQUEST = "REQUEST";
 	public static final String CTX_BASEPATH = "basepath";
 	public static final String CTX_PATH = "path";
+	public static final String CTX_SESSION = "session";
 
 	public HttpMethod method;
 	public String path;
@@ -101,7 +102,7 @@ public class BSHttpContext extends HashMap<String, Object> {
 	 * @param cookiePath
 	 * @return
 	 */
-	public Map<String, Object> initSession(String contextName, String cookiePath) {
+	public void initSession(String contextName, String cookiePath) {
 		final String sessionKey = contextName + "_";
 		sessionCache.cleanup();
 		sessionID = cookies.get(sessionKey + BasicHTTPHandler.COOKIE_SESSION_ID);
@@ -121,10 +122,11 @@ public class BSHttpContext extends HashMap<String, Object> {
 			session.put("lastReq", cookies.get(sessionKey + BasicHTTPHandler.COOKIE_PREVIOUS_REQ));
 		}
 
+		put(CTX_SESSION, session);
+
 		BasicHTTPHandler.addCookie(httpExchange,
 				Cookie.create(sessionKey + BasicHTTPHandler.COOKIE_PREVIOUS_REQ, DateUtils.XMLTimestampString())
 						.withSameSite(SameSite.Lax).withPath(cookiePath));
-		return session;
 	}
 
 	/**

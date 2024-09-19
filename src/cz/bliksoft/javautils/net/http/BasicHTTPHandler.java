@@ -143,7 +143,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	private static String runCookiePrefix = UUID.randomUUID().toString();
 	String _sessionCookiePrefix = null;
 	String _sessionCookiePath = "/";
-
+	
 	/**
 	 * set handler to process session setup with default cookie prefix
 	 */

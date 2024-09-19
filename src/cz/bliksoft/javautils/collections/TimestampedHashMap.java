@@ -8,15 +8,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 
 import cz.bliksoft.javautils.TimestampedObject;
 import cz.bliksoft.javautils.files.DeleteOnCloseFile;
 
 /**
  * Allows storage of objects with a timestamp and (optionally) limited validity
- * since last access. If objects removed by timeout implement
- * {@link AutoCloseable} an attempt is made to close them (swallowing potential
- * exception). To be used e.g. as a cache with {@link DeleteOnCloseFile}
+ * since last access. Timeouted objects removed by {@link #cleanup()} can be
+ * processed by setting {@link #cleanupMethod}. To be used e.g. as a cache with
+ * {@link DeleteOnCloseFile}
  * 
  * @param <K>
  * @param <V>
@@ -39,6 +40,19 @@ public class TimestampedHashMap<K, V> implements Map<K, V> {
 	 */
 	public TimestampedHashMap(long validity) {
 		this.validity = validity;
+	}
+
+	/**
+	 * Record validity in milliseconds. Negative means get-once and remove, zero is
+	 * unlimited. Expired values are cleared only by explicit calls to
+	 * {@link #cleanup()}.
+	 * 
+	 * @param validity
+	 * @param cleanupMethod
+	 */
+	public TimestampedHashMap(long validity, BiConsumer<K, TimestampedObject<V>> cleanupMethod) {
+		this.validity = validity;
+		this.cleanupMethod = cleanupMethod;
 	}
 
 	@Override
@@ -198,8 +212,7 @@ public class TimestampedHashMap<K, V> implements Map<K, V> {
 	}
 
 	/**
-	 * To be called periodically e.g. by a maintenance job. Removes expired values
-	 * and closes them if they implement {@link AutoCloseable}.
+	 * To be called periodically e.g. by a maintenance job. Removes expired values.
 	 */
 	public void cleanup() {
 		if (validity == 0)
@@ -214,13 +227,18 @@ public class TimestampedHashMap<K, V> implements Map<K, V> {
 
 			for (K keyToRemove : toRemove) {
 				TimestampedObject<V> r = values.remove(keyToRemove);
-				if (r.getValue() instanceof AutoCloseable)
-					try {
-						((AutoCloseable) r).close();
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
+				if (cleanupMethod != null)
+					itemTimedOut(keyToRemove, r);
 			}
 		}
+	}
+
+	/**
+	 * cleanup method to be used for timed-out values.
+	 */
+	public BiConsumer<K, TimestampedObject<V>> cleanupMethod = null;
+
+	private void itemTimedOut(K key, TimestampedObject<V> r) {
+		cleanupMethod.accept(key, r);
 	}
 }

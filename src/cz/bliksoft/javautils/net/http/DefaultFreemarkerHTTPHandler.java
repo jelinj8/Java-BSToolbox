@@ -68,10 +68,28 @@ public class DefaultFreemarkerHTTPHandler extends BasicHTTPHandler implements Cl
 		this.templateLoader = loader;
 	}
 
+	/**
+	 * set default index report
+	 * 
+	 * @param indexName
+	 */
+	public void setIndexFileName(String indexName) {
+		indexFileName = indexName;
+	}
+
+	/**
+	 * get default index report
+	 * 
+	 * @return
+	 */
+	public String getIndexFileName() {
+		return indexFileName;
+	}
+
 	@SuppressWarnings("restriction")
 	@Override
 	public boolean handle(BSHttpContext context) throws IOException {
-		String path = context.requested;
+		String path = getRequestedPath(context);
 
 		if (StringUtils.isEmpty(path) || "/".equals(path))
 			path = indexFileName;

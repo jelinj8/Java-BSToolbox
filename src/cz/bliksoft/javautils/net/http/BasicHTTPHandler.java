@@ -56,35 +56,10 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	public static final String HEADER_CONTENT_DISPOSITION_INLINE = "inline; filename=";
 	public static final String HEADER_SET_COOKIE = "Set-Cookie";
 	public static final String HEADER_COOKIE = "Cookie";
+	public static final String HEADER_LOCATION = "Location";
 
 	public static final String COOKIE_SESSION_ID = "ExchangeId";
 	public static final String COOKIE_PREVIOUS_REQ = "PreviousReq";
-
-	/**
-	 * (new Date()).toUTCString() http timestamp like "Wed, 21 Oct 2015 07:28:00
-	 * GMT"
-	 */
-	public static final String ATTRIB_EXPIRES = "Expires=";
-
-	/**
-	 * validity in seconds
-	 */
-	public static final String ATTRIB_MAX_AGE = "Max-Age=";
-
-	/**
-	 * e.g. example.com
-	 */
-	public static final String ATTRIB_DOMAIN = "Domain=";
-
-	/**
-	 * e.g. /ui/
-	 */
-	public static final String ATTRIB_PATH = "Path=";
-	public static final String ATTRIB_SECURE = "Secure";
-	public static final String ATTRIB_HTTP_ONLY = "HttpOnly";
-	public static final String ATTRIB_SAME_SITE_LAX = "SameSite=Lax";
-	public static final String ATTRIB_SAME_SITE_STRICT = "SameSite=Strict";
-	public static final String ATTRIB_SAME_SITE_NONE_SECURE = "SameSite=None; Secure";
 
 	/**
 	 * <pre>
@@ -314,6 +289,22 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 		return defaultRequired;
 	}
 
+	protected String getRequestedPath(BSHttpContext context) {
+		String requested;
+		if (pathPrefix != null && context.path != null)
+			requested = context.path.replaceFirst(pathPrefix, "");
+		else
+			requested = context.path;
+
+		if ("/".equals(requested) || "".equals(requested))
+			requested = null;
+
+		if (requested == null && defaultRequired != null)
+			requested = defaultRequired;
+
+		return requested;
+	}
+
 	@Override
 	public void handle(HttpExchange httpExchange) throws IOException {
 		try {
@@ -323,9 +314,6 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 			String query = uri.getQuery();
 
 			BSHttpContext context = new BSHttpContext(pathPrefix, httpExchange, path, query, method);
-
-			if (context.requested == null && defaultRequired != null)
-				context.requested = defaultRequired;
 
 			if (!supportedMethods.contains(context.method)) {
 				sendERR(httpExchange, "Unsupported method: " + method,
@@ -588,6 +576,13 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 		} else {
 			httpExchange.sendResponseHeaders(HTTPErrorCodes.SERVER_INTERNAL_SERVER_ERROR.getValue(), 0);
 		}
+	}
+
+	protected static void sendRedirect(HttpExchange httpExchange, HTTPErrorCodes code, String newLocation)
+			throws IOException {
+		addHeader(httpExchange, HEADER_ORIGIN, HEADER_ORIGIN_ANY);
+		addHeader(httpExchange, HEADER_LOCATION, newLocation);
+		sendERR(httpExchange, "Redirect", code);
 	}
 
 	/**

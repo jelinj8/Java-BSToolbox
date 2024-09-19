@@ -18,12 +18,13 @@ public class SystemReportHTTPHandler extends DefaultFreemarkerHTTPHandler {
 		addSupportedGETPOST();
 		setTemplateLoader(new ClassTemplateLoader(BuiltinTemplateLoader.class, "builtin"));
 		SystemMonitor.startSystemMonitor();
+		setIndexFileName("systemstatus.ftlh");
 	}
 
 	@Override
 	public boolean handle(BSHttpContext context) throws IOException {
-
-		context.requested = "systemstatus.ftlh";
+		// clear path to force index
+		context.path = null;
 
 		context.contextVariables = SystemMonitor.getVariables();
 

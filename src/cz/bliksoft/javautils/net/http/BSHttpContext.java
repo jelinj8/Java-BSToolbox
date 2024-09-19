@@ -39,12 +39,10 @@ public class BSHttpContext extends HashMap<String, Object> {
 	public static final String CTX_GET = "GET";
 	public static final String CTX_REQUEST = "REQUEST";
 	public static final String CTX_BASEPATH = "basepath";
-	public static final String CTX_REQUESTED = "requested";
 	public static final String CTX_PATH = "path";
 
 	public HttpMethod method;
 	public String path;
-	public String requested;
 	public HttpExchange httpExchange;
 	public HttpContext ctx;
 	public Map<String, List<Optional<String>>> GET;
@@ -296,16 +294,6 @@ public class BSHttpContext extends HashMap<String, Object> {
 		ctx = httpExchange.getHttpContext();
 
 		put(CTX_BASEPATH, ctx.getPath());
-
-		if (pathPrefix != null && path != null)
-			requested = path.replaceFirst(pathPrefix, "");
-		else
-			requested = path;
-
-		if ("/".equals(requested) || "".equals(requested))
-			requested = null;
-
-		put(CTX_REQUESTED, requested);
 
 		GET = URIParameterDecode.splitQuery(query);
 		put(CTX_GET, GET);

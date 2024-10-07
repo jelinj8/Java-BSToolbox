@@ -269,10 +269,11 @@ public class Query implements TemplateMethodModelEx {
 								MessageFormat.format(
 										"Executing query \nvvv ''{0}'' vvv\n{1}\n----\n{2}\n^^^ QUERY ^^^\n", queryID,
 										query, paramsToPrint));
-					}
+					} else if (log.isLoggable(Level.INFO))
+						log.log(Level.INFO, MessageFormat.format("Executing query {0}", queryID));
 					if (pstmnt.execute()) {
-						if (log.isLoggable(Level.FINE))
-							log.log(Level.FINE,
+						if (log.isLoggable(Level.INFO))
+							log.log(Level.INFO,
 									MessageFormat.format("Fetching result for query {0} after {1,number,#}ms", queryID,
 											System.currentTimeMillis() - timestamp));
 						timestamp = System.currentTimeMillis();

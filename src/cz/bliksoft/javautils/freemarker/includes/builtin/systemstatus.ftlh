@@ -2,6 +2,7 @@
 <#include "builtin/functions.ftl">
 <@html.additionalHead>
 <@html.title><#if env.appName??>${env.appName}<#if env.envName??> (${env.envName})</#if> status<#else>App status report</#if></@html.title>
+<@html.expander />
 <@html.chartjs_inline />
 <@html.jquery_inline />
 <@html.timestamputils />
@@ -52,7 +53,7 @@
 			<tbody>
 					<#list threads>
 					<#items as t>
-					<tr <#if t.millis lt 0>class="striketrough"</#if>><td>${t.id?c}:${t.name}</td><td>${t.status!'?'}</td><td class="right"><#if t.millis lt 0><#else>${(t.millis/msBetweenSamples)?string("##0.00")!'?'}</#if></td></tr>
+					<tr <#if t.millis lt 0>class="striketrough"</#if>><td>${t.id?c}:${t.name}</td><td>${t.status!'?'}</td><td class="right"><#if t.millis lt 0><#else>${(t.millis/msBetweenSamples)?string("##0.00")!'?'}</#if></td><#if t.stack?has_content><td class="button" onclick="toggle_collapse('#threadstack_${t.id?c}');">stack</td><td class="pre-wrap monospaced gray_background" id="threadstack_${t.id?c}" style="display:none;">${t.stack!''}</td></#if></tr>
 					</#items>
 					</#list>
 				<tr><td class="right">CPU total</td><td class="left">threads: ${threads?size}</td><td class="right">${(cpuNanos/msBetweenSamples/1000)?string("##0.00")}</td></tr>
@@ -64,7 +65,7 @@
 			<tbody>
 					<#list threads>
 					<#items as t>
-					<tr><td>${t.id?c}:${t.name}</td><td>${t.status!'?'}</td><td class="right">${t.millis?c!'?'}</td></tr>
+					<tr><td>${t.id?c}:${t.name}</td><td>${t.status!'?'}</td><td class="right">${t.millis?c!'?'}</td><#if t.stack?has_content><td class="button" onclick="toggle_collapse('#threadstack_${t.id?c}');">stack</td><td class="pre-wrap monospaced gray_background" id="threadstack_${t.id?c}" style="display:none;">${t.stack!''}</td></#if></tr>
 					</#items>
 					</#list>
 				<tr><td class="right">CPU total</td><td class="left">threads: ${threads?size}</td><td class="right">${(cpuNanos/1000)?floor?c}</td></tr>

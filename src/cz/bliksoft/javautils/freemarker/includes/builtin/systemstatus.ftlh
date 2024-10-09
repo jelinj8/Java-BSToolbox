@@ -65,7 +65,7 @@
 			<tbody>
 					<#list threads>
 					<#items as t>
-					<tr><td>${t.id?c}:${t.name}</td><td>${t.status!'?'}</td><td class="right">${t.millis?c!'?'}</td><#if t.stack?has_content><td class="button" onclick="toggle_collapse('#threadstack_${t.id?c}');">stack</td><td class="pre-wrap monospaced gray_background" id="threadstack_${t.id?c}" style="display:none;">${t.stack!''}</td></#if></tr>
+					<tr><td>${t.id?c}:${t.name}</td><td<#if (t.status!'?')='BLOCKING'> class="orange_background"</#if>>${t.status!'?'}</td><td class="right">${t.millis?c!'?'}</td><#if t.stack?has_content><td class="button" onclick="toggle_collapse('#threadstack_${t.id?c}');">stack</td><td class="pre-wrap monospaced gray_background" id="threadstack_${t.id?c}" style="display:none;">${t.stack!''}</td></#if></tr>
 					</#items>
 					</#list>
 				<tr><td class="right">CPU total</td><td class="left">threads: ${threads?size}</td><td class="right">${(cpuNanos/1000)?floor?c}</td></tr>

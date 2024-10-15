@@ -7,6 +7,9 @@ import cz.bliksoft.javautils.xml.XmlUtils;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
 
+/**
+ * better to use ?replace("\\s*$", "", "r") or ?replace(^\\s*", "", "r")
+ */
 public class Trim implements TemplateMethodModelEx {
 
 	public enum Direction {

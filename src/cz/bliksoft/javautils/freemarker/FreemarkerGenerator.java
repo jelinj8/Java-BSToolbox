@@ -34,6 +34,8 @@ import cz.bliksoft.javautils.freemarker.extensions.global.Regroup;
 import cz.bliksoft.javautils.freemarker.extensions.global.Reindex;
 import cz.bliksoft.javautils.freemarker.extensions.global.StringBuilderDirective;
 import cz.bliksoft.javautils.freemarker.extensions.global.SystemMessage;
+import cz.bliksoft.javautils.freemarker.extensions.global.Trim;
+import cz.bliksoft.javautils.freemarker.extensions.global.Trim.Direction;
 import cz.bliksoft.javautils.freemarker.extensions.global.LogVariable;
 import cz.bliksoft.javautils.freemarker.extensions.local.AnchorNumberer;
 import cz.bliksoft.javautils.freemarker.extensions.local.VariableCache;
@@ -252,6 +254,9 @@ public class FreemarkerGenerator {
 		res.put("SystemMessage", new SystemMessage()); //$NON-NLS-1$
 		res.put("DescribeVariable", new DescribeVariable()); //$NON-NLS-1$
 		res.put("StringBuilder", new StringBuilderDirective()); //$NON-NLS-1$
+
+		res.put("ltrim", new Trim(Direction.LEFT));
+		res.put("rtrim", new Trim(Direction.RIGHT));
 
 		res.put("TXTTOHTML", //$NON-NLS-1$
 				new TextReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;", "\"", "&quot;", "'", "&#39;", "\n", "<br>\n"));

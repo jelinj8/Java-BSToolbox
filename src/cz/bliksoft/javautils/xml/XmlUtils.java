@@ -771,4 +771,28 @@ public class XmlUtils {
 		System.setProperty("javax.xml.accessExternalStylesheet", "all");
 	}
 
+	/**
+	 * get child node by name
+	 * @param node
+	 * @param name
+	 * @return
+	 */
+	public static Node getChildByName(Node node, String name) {
+		if (node == null)
+			return null;
+		if (node instanceof Element) {
+			NodeList result = ((Element) node).getElementsByTagName(name);
+			if (result.getLength() > 0)
+				return result.item(0);
+		} else {
+			Node n = node.getFirstChild();
+			while (n != null) {
+				if (name.equals(n.getNodeName()))
+					return n;
+				n = n.getNextSibling();
+			}
+		}
+		return null;
+	}
+
 }

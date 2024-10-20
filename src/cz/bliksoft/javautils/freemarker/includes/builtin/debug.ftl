@@ -72,19 +72,19 @@ ${pad}}
         <#elseif object?is_node>
 			<#switch object?node_type>
 				<#case "document">
-${pad}	${object?node_name}:{
+${pad}DOCUMENT:{
             <#list object?children as item>
-                <#assign value><@objectToFormattedJson object=item!'NULL'  pad=('\t'+pad)/></#assign>
-${pad}	${value}<#if !item?is_last>,</#if>
+                <#assign value><@objectToFormattedJson object=item!'NULL'  pad=('\t')/></#assign>
+${pad}${value}<#if !item?is_last>,</#if>
             </#list>
-${pad}	}
+${pad}}
 				<#break>
 				<#case "text"><#if object?trim?length gt -1>${pad}"${object?trim?json_string}"</#if><#break>
 				<#case "attribute">
 ${pad}@${object?node_name}:"${object!""?trim?json_string}"
 				<#break>
 				<#case "comment">
-${pad}	<!-- ${object} -->
+${pad}<!-- ${object} -->
 				<#break>
 				<#case "element">
 ${pad}${object?node_name}<#if object.@@?size+object?children?size gt 0>:[
@@ -102,8 +102,10 @@ ${value?chop_linebreak}<#if !item?is_last || object?children?size gt 0>,</#if>
 						</#if>
 ${pad}]</#if>
 				<#break>
+				<#case "document_type">
+${pad}DOCTYPE<#break>
 				<#default>
-${pad}	NODE_type:"${object?node_type}"
+${pad}NODE_type:"${object?node_type}"
 			</#switch>
 		<#elseif object?is_string>
 ${pad}	"${object?trim?json_string}"

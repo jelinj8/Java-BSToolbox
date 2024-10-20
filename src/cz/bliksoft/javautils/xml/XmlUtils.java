@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.XMLConstants;
@@ -56,8 +57,10 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
+import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 import cz.bliksoft.javautils.StringUtils;
 import cz.bliksoft.javautils.streams.xml.ElementWriter;
@@ -277,6 +280,7 @@ public class XmlUtils {
 		factory.setNamespaceAware(true);
 		DocumentBuilder builder;
 		builder = factory.newDocumentBuilder();
+		builder.setErrorHandler(new XMLErrorHandler());
 		Document doc = builder.parse(new InputSource(new StringReader(xmlStr)));
 		return doc;
 	}
@@ -287,6 +291,7 @@ public class XmlUtils {
 		factory.setNamespaceAware(true);
 		DocumentBuilder builder;
 		builder = factory.newDocumentBuilder();
+		builder.setErrorHandler(new XMLErrorHandler());
 		Document doc = builder.parse(new InputSource(xmlRdr));
 		return doc;
 	}
@@ -296,6 +301,7 @@ public class XmlUtils {
 		factory.setNamespaceAware(true);
 		DocumentBuilder builder;
 		builder = factory.newDocumentBuilder();
+		builder.setErrorHandler(new XMLErrorHandler());
 		Document doc = builder.parse(new InputSource(new StringReader(xmlStr)));
 		Node n = doc.getDocumentElement();
 		return n;
@@ -327,6 +333,7 @@ public class XmlUtils {
 
 		// parse XML file
 		DocumentBuilder db = dbf.newDocumentBuilder();
+		db.setErrorHandler(new XMLErrorHandler());
 		Document doc = db.parse(xmlStream);
 		return doc;
 	}
@@ -339,6 +346,7 @@ public class XmlUtils {
 
 		// parse XML file
 		DocumentBuilder db = dbf.newDocumentBuilder();
+		db.setErrorHandler(new XMLErrorHandler());
 		Document doc = db.parse(xmlFile);
 		return doc;
 	}
@@ -364,6 +372,7 @@ public class XmlUtils {
 		DocumentBuilder docBuilder;
 		try {
 			docBuilder = docFactory.newDocumentBuilder();
+			docBuilder.setErrorHandler(new XMLErrorHandler());
 			Document doc = docBuilder.newDocument();
 			Element rootElement = doc.createElement(rootName);
 			doc.appendChild(rootElement);
@@ -394,6 +403,7 @@ public class XmlUtils {
 		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 		transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+		transformer.setOutputProperty(OutputKeys.METHOD, "xml");
 		StringWriter sw = new StringWriter();
 		StreamResult result = new StreamResult(sw);
 		DOMSource src = new DOMSource((doc instanceof Document ? ((Document) doc).getDocumentElement() : doc));
@@ -768,6 +778,31 @@ public class XmlUtils {
 	 */
 	public static void allowExternalStylesheet() {
 		System.setProperty("javax.xml.accessExternalStylesheet", "all");
+	}
+
+	/**
+	 * get child node by name
+	 * 
+	 * @param node
+	 * @param name
+	 * @return
+	 */
+	public static Node getChildByName(Node node, String name) {
+		if (node == null)
+			return null;
+		if (node instanceof Element) {
+			NodeList result = ((Element) node).getElementsByTagName(name);
+			if (result.getLength() > 0)
+				return result.item(0);
+		} else {
+			Node n = node.getFirstChild();
+			while (n != null) {
+				if (name.equals(n.getNodeName()))
+					return n;
+				n = n.getNextSibling();
+			}
+		}
+		return null;
 	}
 
 }

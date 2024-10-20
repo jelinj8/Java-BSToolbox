@@ -192,8 +192,8 @@
 		<dependencies>
 			<dependency>
 				<groupId>cz.bliksoft.java</groupId>
-				<artifactId>dependency-management-8</artifactId>
-				<version>1.0.0-SNAPSHOT</version>
+				<artifactId>dependency-management</artifactId>
+				<version>1.8.0</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -203,14 +203,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>cz.bliksoft.java</groupId>
-			<artifactId>dependency-management-8-freemarker</artifactId>
-			<type>pom</type>
-			<scope>provided</scope>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>cz.bliksoft.java</groupId>
-			<artifactId>dependency-management-8-service</artifactId>
+			<artifactId>dependency-management-freemarker</artifactId>
 			<type>pom</type>
 			<scope>provided</scope>
 			<optional>true</optional>
@@ -218,7 +211,15 @@
 
 		<dependency>
 			<groupId>cz.bliksoft.java</groupId>
-			<artifactId>dependency-management-8-log4j</artifactId>
+			<artifactId>dependency-management-service</artifactId>
+			<type>pom</type>
+			<scope>provided</scope>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
+			<groupId>cz.bliksoft.java</groupId>
+			<artifactId>dependency-management-log4j</artifactId>
 			<type>pom</type>
 			<scope>provided</scope>
 			<optional>true</optional>
@@ -227,11 +228,13 @@
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>commons-codec</groupId>
 			<artifactId>commons-codec</artifactId>
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>

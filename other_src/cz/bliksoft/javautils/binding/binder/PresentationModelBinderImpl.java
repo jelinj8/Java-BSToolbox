@@ -44,7 +44,7 @@ import cz.bliksoft.javautils.binding.binder.interfaces.IPresentationModel;
  *
  * @since 2.3
  */
-public class PresentationModelBinderImpl<PM extends IPresentationModel> extends BeanBinderImpl<PM>
+public class PresentationModelBinderImpl<PM extends IPresentationModel<?>> extends BeanBinderImpl<PM>
 		implements PresentationModelBinder {
 
 	// Instance Creation ******************************************************

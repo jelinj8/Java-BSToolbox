@@ -314,21 +314,19 @@ public final class TableRowSorterListSelectionModel extends DefaultListSelection
 
 	// Mapping Indices ********************************************************
 
-	@SuppressWarnings("rawtypes")
 	private int convertIndexToModel(int index) {
 		if (index == -1) {
 			return -1;
 		}
-		RowSorter rowSorter = table.getRowSorter();
+		RowSorter<?> rowSorter = table.getRowSorter();
 		return rowSorter == null ? index : rowSorter.convertRowIndexToModel(index);
 	}
 
-	@SuppressWarnings("rawtypes")
 	private int convertIndexToView(int index) {
 		if (index == -1) {
 			return -1;
 		}
-		RowSorter rowSorter = table.getRowSorter();
+		RowSorter<?> rowSorter = table.getRowSorter();
 		return rowSorter == null ? index : rowSorter.convertRowIndexToView(index);
 	}
 
@@ -347,9 +345,8 @@ public final class TableRowSorterListSelectionModel extends DefaultListSelection
 			updateViewSelectionFromModel(e.getFirstIndex(), inBounds(e.getLastIndex()));
 		}
 
-		@SuppressWarnings("rawtypes")
 		private int inBounds(int index) {
-			RowSorter rowSorter = table.getRowSorter();
+			RowSorter<?> rowSorter = table.getRowSorter();
 			int rowCount = rowSorter == null ? table.getRowCount() : rowSorter.getViewRowCount();
 			return Math.min(index, rowCount - 1);
 		}

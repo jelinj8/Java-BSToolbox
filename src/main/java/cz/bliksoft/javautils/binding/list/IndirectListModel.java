@@ -150,23 +150,12 @@ public class IndirectListModel<E> extends BasicBean implements ListModel<E> {
 	 */
 	public static final String PROPERTY_LIST_HOLDER = "listHolder";
 
-	// ************************************************************************
-
-	/**
-	 * An empty {@code ListModel} that is used if the list holder's content is null.
-	 *
-	 * @see #getListModel()
-	 */
-	@SuppressWarnings("rawtypes")
-	private static final ListModel EMPTY_LIST_MODEL = new EmptyListModel();
-
 	// Instance Fields ********************************************************
 
 	/**
 	 * Holds a {@code List} or {@code ListModel} that in turn holds the elements.
 	 */
-	@SuppressWarnings("rawtypes")
-	private IValueModel listHolder;
+	private IValueModel<?> listHolder;
 
 	/**
 	 * Holds a copy of the listHolder's value. Used as the old list when the
@@ -276,15 +265,15 @@ public class IndirectListModel<E> extends BasicBean implements ListModel<E> {
 	 *
 	 * @throws NullPointerException if {@code listHolder} is {@code null}
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public IndirectListModel(IValueModel listHolder) {
+	@SuppressWarnings({ "unchecked" })
+	public IndirectListModel(IValueModel<?> listHolder) {
 		checkNotNull(listHolder, "The list holder must not be null.");
 		checkListHolderIdentityCheck(listHolder);
 
 		listChangeHandler = new ListChangeHandler();
 		listDataChangeHandler = createListDataChangeHandler();
 
-		this.listHolder = listHolder;
+		this.listHolder = (IValueModel<Object>) listHolder;
 		this.listHolder.addValueChangeListener(listChangeHandler);
 		// If the IValueModel holds a ListModel observe list data changes too.
 		list = listHolder.getValue();
@@ -350,7 +339,7 @@ public class IndirectListModel<E> extends BasicBean implements ListModel<E> {
 	 */
 	@SuppressWarnings("unchecked")
 	public final void setList(List<E> newList) {
-		getListHolder().setValue(newList);
+		((IValueModel<List<E>>) getListHolder()).setValue(newList);
 	}
 
 	/**
@@ -367,11 +356,11 @@ public class IndirectListModel<E> extends BasicBean implements ListModel<E> {
 	 * @see #setListModel(ListModel)
 	 * @see #setList(List)
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public final ListModel getListModel() {
+	@SuppressWarnings({ "unchecked" })
+	public final ListModel<E> getListModel() {
 		Object aListModel = getListHolder().getValue();
 		if (aListModel == null) {
-			return EMPTY_LIST_MODEL;
+			return new EmptyListModel();
 		}
 		if (aListModel instanceof ListModel) {
 			return (ListModel<E>) aListModel;
@@ -389,7 +378,7 @@ public class IndirectListModel<E> extends BasicBean implements ListModel<E> {
 	 */
 	@SuppressWarnings("unchecked")
 	public final void setListModel(ListModel<E> newListModel) {
-		getListHolder().setValue(newListModel);
+		((IValueModel<ListModel<E>>) getListHolder()).setValue(newListModel);
 	}
 
 	// Accessing the List/ListModel Holder ************************************
@@ -399,8 +388,7 @@ public class IndirectListModel<E> extends BasicBean implements ListModel<E> {
 	 *
 	 * @return the model that holds the List/ListModel
 	 */
-	@SuppressWarnings("rawtypes")
-	public final IValueModel getListHolder() {
+	public final IValueModel<?> getListHolder() {
 		return listHolder;
 	}
 
@@ -424,19 +412,18 @@ public class IndirectListModel<E> extends BasicBean implements ListModel<E> {
 	 *                                  doesn't check the identity when changing its
 	 *                                  value
 	 */
-	@SuppressWarnings("rawtypes")
 	public final void setListModelHolder(IValueModel<ListModel<E>> newListHolder) {
 		checkNotNull(newListHolder, "The new list holder must not be null.");
-		checkListHolderIdentityCheck(newListHolder);
-
-		IValueModel oldListHolder = getListHolder();
+		IValueModel<?> oldListHolder = getListHolder();
 		if (oldListHolder == newListHolder) {
 			return;
 		}
 
+		checkListHolderIdentityCheck(newListHolder);
+
 		Object oldListModel = list;
 		int oldSize = listSize;
-		Object newList = newListHolder.getValue();
+		ListModel<E> newList = newListHolder.getValue();
 
 		oldListHolder.removeValueChangeListener(listChangeHandler);
 		listHolder = newListHolder;
@@ -706,10 +693,9 @@ public class IndirectListModel<E> extends BasicBean implements ListModel<E> {
 		} else {
 			list = newList;
 		}
-		int newSize = getSize(newList);
 		listSize = getSize(newList);
 		firePropertyChange(PROPERTY_LIST, oldList, newList);
-		fireListChanged(oldSize - 1, newSize - 1);
+		fireListChanged(oldSize - 1, listSize - 1);
 	}
 
 	/**
@@ -774,12 +760,11 @@ public class IndirectListModel<E> extends BasicBean implements ListModel<E> {
 	 * Throws an IllegalArgumentException if the given ValueModel is a ValueHolder
 	 * that has the identityCheck feature disabled.
 	 */
-	@SuppressWarnings("rawtypes")
-	private static void checkListHolderIdentityCheck(IValueModel aListHolder) {
+	private static void checkListHolderIdentityCheck(IValueModel<?> aListHolder) {
 		if (!(aListHolder instanceof AbstractValueModel)) {
 			return;
 		}
-		checkArgument(((AbstractValueModel) aListHolder).isIdentityCheckEnabled(),
+		checkArgument(((AbstractValueModel<?>) aListHolder).isIdentityCheckEnabled(),
 				"The list holder must have the identity check enabled.");
 	}
 
@@ -788,12 +773,7 @@ public class IndirectListModel<E> extends BasicBean implements ListModel<E> {
 	/**
 	 * A ListModel that has no elements, a size of 0, and never fires an event.
 	 */
-	@SuppressWarnings("rawtypes")
-	private static final class EmptyListModel implements ListModel, Serializable {
-
-		/**
-		 * 
-		 */
+	private class EmptyListModel implements ListModel<E>, Serializable {
 		private static final long serialVersionUID = 4743142144192755319L;
 
 		/**
@@ -808,7 +788,7 @@ public class IndirectListModel<E> extends BasicBean implements ListModel<E> {
 		 * Returns {@code null} because this model has no elements.
 		 */
 		@Override
-		public Object getElementAt(int index) {
+		public E getElementAt(int index) {
 			return null;
 		}
 

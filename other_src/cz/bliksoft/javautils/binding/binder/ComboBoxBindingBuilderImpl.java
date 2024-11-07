@@ -52,9 +52,9 @@ import cz.bliksoft.javautils.binding.Bindings;
  * @author Karsten Lentzsch
  * @since 2.7
  */
-public class ComboBoxBindingBuilderImpl implements ComboBoxBindingBuilder {
+public class ComboBoxBindingBuilderImpl<E> implements ComboBoxBindingBuilder<E> {
 
-	private final ComboBoxModel comboBoxModel;
+	private final ComboBoxModel<E> comboBoxModel;
 
 	// Instance Creation ******************************************************
 
@@ -65,20 +65,20 @@ public class ComboBoxBindingBuilderImpl implements ComboBoxBindingBuilder {
 	 *
 	 * @throws NullPointerException if {@code comboBoxModel} is {@code null}
 	 */
-	public ComboBoxBindingBuilderImpl(ComboBoxModel comboBoxModel) {
+	public ComboBoxBindingBuilderImpl(ComboBoxModel<E> comboBoxModel) {
 		this.comboBoxModel = checkNotNull(comboBoxModel, "The ComboBoxModel must no be null.");
 	}
 
 	// SelectionInListBindingBuilder Implementation ***************************
 
 	@Override
-	public void to(JComboBox comboBox) {
+	public void to(JComboBox<E> comboBox) {
 		Bindings.bind(comboBox, comboBoxModel);
 	}
 
 	@Override
-	public void to(JComboBox comboBox, String nullText) {
-		Bindings.bind(comboBox, comboBoxModel, nullText);
+	public void to(JComboBox<E> comboBox, E nullElement, String nullText) {
+		Bindings.bind(comboBox, comboBoxModel, nullElement, nullText);
 	}
 
 	// Subclass Utils *********************************************************
@@ -86,7 +86,7 @@ public class ComboBoxBindingBuilderImpl implements ComboBoxBindingBuilder {
 	/**
 	 * @return this builder's SelectionInList
 	 */
-	protected final ComboBoxModel getComboBoxModel() {
+	protected final ComboBoxModel<E> getComboBoxModel() {
 		return comboBoxModel;
 	}
 

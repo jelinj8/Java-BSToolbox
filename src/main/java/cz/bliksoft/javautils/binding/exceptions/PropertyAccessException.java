@@ -43,9 +43,8 @@ public final class PropertyAccessException extends PropertyException {
 	 *                         nonexistent or unknown.
 	 * @return an exception that describes a read access problem
 	 */
-	@SuppressWarnings("rawtypes")
-	public static PropertyAccessException createReadAccessException(Object bean, PropertyAccessor propertyAccessor,
-			Throwable cause) {
+	public static PropertyAccessException createReadAccessException(Object bean,
+			PropertyAccessor<?, ?> propertyAccessor, Throwable cause) {
 		return new PropertyAccessException(createReadAccessMessage(bean, propertyAccessor, cause), cause);
 	}
 
@@ -58,9 +57,8 @@ public final class PropertyAccessException extends PropertyException {
 	 * @param causeMessage     describes the cause
 	 * @return an exception that describes a read access problem
 	 */
-	@SuppressWarnings("rawtypes")
-	public static PropertyAccessException createReadAccessException(Object bean, PropertyAccessor propertyAccessor,
-			String causeMessage) {
+	public static PropertyAccessException createReadAccessException(Object bean,
+			PropertyAccessor<?, ?> propertyAccessor, String causeMessage) {
 		return new PropertyAccessException(createReadAccessMessage(bean, propertyAccessor, causeMessage), null);
 	}
 
@@ -77,9 +75,8 @@ public final class PropertyAccessException extends PropertyException {
 	 *                         nonexistent or unknown.
 	 * @return an exception that describes a write access problem
 	 */
-	@SuppressWarnings("rawtypes")
 	public static PropertyAccessException createWriteAccessException(Object bean, Object value,
-			PropertyAccessor propertyAccessor, Throwable cause) {
+			PropertyAccessor<?, ?> propertyAccessor, Throwable cause) {
 		return new PropertyAccessException(createWriteAccessMessage(bean, value, propertyAccessor, cause), cause);
 	}
 
@@ -93,14 +90,12 @@ public final class PropertyAccessException extends PropertyException {
 	 * @param causeMessage     describes the cause
 	 * @return an exception that describes a write access problem
 	 */
-	@SuppressWarnings("rawtypes")
 	public static PropertyAccessException createWriteAccessException(Object bean, Object value,
-			PropertyAccessor propertyAccessor, String causeMessage) {
+			PropertyAccessor<?, ?> propertyAccessor, String causeMessage) {
 		return new PropertyAccessException(createWriteAccessMessage(bean, value, propertyAccessor, causeMessage), null);
 	}
 
-	@SuppressWarnings("rawtypes")
-	private static String createReadAccessMessage(Object bean, PropertyAccessor propertyAccessor, Object cause) {
+	private static String createReadAccessMessage(Object bean, PropertyAccessor<?, ?> propertyAccessor, Object cause) {
 		String beanType = bean == null ? null : bean.getClass().getName();
 		return "Failed to read an adapted Java Bean property." + "\ncause=" + cause + "\nbean=" + bean + "\nbean type="
 				+ beanType + "\nproperty name=" + propertyAccessor.getPropertyName() + "\nproperty type="
@@ -108,8 +103,7 @@ public final class PropertyAccessException extends PropertyException {
 				+ propertyAccessor.getReadMethod();
 	}
 
-	@SuppressWarnings("rawtypes")
-	private static String createWriteAccessMessage(Object bean, Object value, PropertyAccessor propertyAccessor,
+	private static String createWriteAccessMessage(Object bean, Object value, PropertyAccessor<?, ?> propertyAccessor,
 			Object cause) {
 
 		String beanType = bean == null ? null : bean.getClass().getName();

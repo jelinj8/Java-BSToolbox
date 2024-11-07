@@ -53,7 +53,7 @@ import javax.swing.JTable;
  *
  * @since 2.3
  */
-public interface SelectionInListBindingBuilder {
+public interface SelectionInListBindingBuilder<E> {
 
 	/**
 	 * Binds this builder's SelectionInList to the given combo box.
@@ -67,7 +67,7 @@ public interface SelectionInListBindingBuilder {
 	 *
 	 * @throws NullPointerException if {@code comboBox} is {@code null}
 	 */
-	void to(JComboBox comboBox);
+	void to(JComboBox<E> comboBox);
 
 	/**
 	 * Binds this builder's SelectionInList to the given combo box where
@@ -89,7 +89,7 @@ public interface SelectionInListBindingBuilder {
 	 *
 	 * @throws NullPointerException if {@code comboBox} is {@code null}
 	 */
-	void to(JComboBox comboBox, String nullElementText);
+	void to(JComboBox<E> comboBox, E nullElement, String nullElementText);
 
 	/**
 	 * Binds this builder's SelectionInList to the given list.
@@ -103,7 +103,7 @@ public interface SelectionInListBindingBuilder {
 	 *
 	 * @throws NullPointerException if {@code list} is {@code null}
 	 */
-	void to(JList list);
+	void to(JList<E> list);
 
 	/**
 	 * Binds this builder's SelectionInList to the given table.

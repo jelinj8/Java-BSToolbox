@@ -293,16 +293,14 @@ public class BeanAdapter<B> extends BasicBean implements IBeanChannel<B> {
 
 	private final Logger log = Logger.getLogger(this.getClass().getName());
 
-	@SuppressWarnings("rawtypes")
-	private static WeakIdentityHashMap<Object, BeanAdapter> beanAdapters = new WeakIdentityHashMap<>();
+	private static WeakIdentityHashMap<Object, BeanAdapter<?>> beanAdapters = new WeakIdentityHashMap<>();
 
 	@SuppressWarnings("unchecked")
 	public static <T> BeanAdapter<T> getDefaultBeanAdapter(Object key) {
-		return beanAdapters.computeIfAbsent(key, k -> new BeanAdapter<T>((T) null, true));
+		return (BeanAdapter<T>) beanAdapters.computeIfAbsent(key, k -> new BeanAdapter<T>((T) null, true));
 	}
 
-	@SuppressWarnings("rawtypes")
-	public static <T> void setDefaultBeanAdapter(Object key, BeanAdapter adapter) {
+	public static <T> void setDefaultBeanAdapter(Object key, BeanAdapter<?> adapter) {
 		beanAdapters.put(key, adapter);
 	}
 

@@ -38,6 +38,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyDescriptor;
 import java.beans.PropertyVetoException;
+import java.util.function.BiFunction;
 
 import cz.bliksoft.javautils.ObjectUtils;
 import cz.bliksoft.javautils.binding.BeanUtils;
@@ -153,14 +154,12 @@ public final class PropertyConnector {
 	/**
 	 * Describes the accessor for property1; basically a getter and setter.
 	 */
-	@SuppressWarnings("rawtypes")
-	private final PropertyAccessor property1Accessor;
+	private final PropertyAccessor<Object, Object> property1Accessor;
 
 	/**
 	 * Describes the accessor for property1; basically a getter and setter.
 	 */
-	@SuppressWarnings("rawtypes")
-	private final PropertyAccessor property2Accessor;
+	private final PropertyAccessor<Object, Object> property2Accessor;
 
 	// Instance creation ****************************************************
 
@@ -182,7 +181,8 @@ public final class PropertyConnector {
 	 *                                  name are equal, or if both properties are
 	 *                                  read-only
 	 */
-	private PropertyConnector(Object bean1, String property1Name, Object bean2, String property2Name) {
+	private PropertyConnector(Object bean1, String property1Name, Object bean2, String property2Name,
+			BiFunction<Object, Boolean, Object> converter) {
 		this.bean1 = checkNotNull(bean1, "Bean1 must not be null.");
 		this.bean2 = checkNotNull(bean2, "Bean2 must not be null.");
 		this.bean1Class = bean1.getClass();
@@ -194,6 +194,9 @@ public final class PropertyConnector {
 
 		property1Accessor = getPropertyAccessor(bean1Class, property1Name);
 		property2Accessor = getPropertyAccessor(bean2Class, property2Name);
+
+		if (converter != null)
+			this.convert = converter;
 
 		// Used to check if property2 shall be observed,
 		// i.e. if a listener shall be registered with property2.
@@ -222,7 +225,8 @@ public final class PropertyConnector {
 		// Observe property1 if and only if bean1 provides support for
 		// bound bean properties, and if updates can be written to property2.
 		if (property1Observable && property2Writable) {
-			property1ChangeHandler = new PropertyChangeHandler(bean1, property1Accessor, bean2, property2Accessor);
+			property1ChangeHandler = new PropertyChangeHandler(bean1, property1Accessor, bean2, property2Accessor,
+					true);
 			addPropertyChangeHandler(bean1, bean1Class, property1ChangeHandler);
 		} else {
 			property1ChangeHandler = null;
@@ -231,7 +235,8 @@ public final class PropertyConnector {
 		// Observe property2 if and only if bean2 provides support for
 		// bound bean properties, and if updates can be written to property1.
 		if (property2Observable && property1Writable) {
-			property2ChangeHandler = new PropertyChangeHandler(bean2, property2Accessor, bean1, property1Accessor);
+			property2ChangeHandler = new PropertyChangeHandler(bean2, property2Accessor, bean1, property1Accessor,
+					false);
 			addPropertyChangeHandler(bean2, bean2Class, property2ChangeHandler);
 		} else {
 			property2ChangeHandler = null;
@@ -254,6 +259,9 @@ public final class PropertyConnector {
 	 * @param property1Name the name of the first property
 	 * @param bean2         the bean that owns the second property
 	 * @param property2Name the name of the second property
+	 * @param converter     BiFunction that converts datatypes if neccesary (input
+	 *                      is a value and direction of conversion, result is the
+	 *                      opposite type). Defaults to direct copy.
 	 * @return the PropertyConnector used to synchronize the properties, required if
 	 *         property1 or property2 shall be updated
 	 *
@@ -261,8 +269,9 @@ public final class PropertyConnector {
 	 * @throws IllegalArgumentException if the beans are identical and the property
 	 *                                  name are equal
 	 */
-	public static PropertyConnector connect(Object bean1, String property1Name, Object bean2, String property2Name) {
-		return new PropertyConnector(bean1, property1Name, bean2, property2Name);
+	public static PropertyConnector connect(Object bean1, String property1Name, Object bean2, String property2Name,
+			BiFunction<Object, Boolean, Object> converter) {
+		return new PropertyConnector(bean1, property1Name, bean2, property2Name, converter);
 	}
 
 	/**
@@ -283,8 +292,9 @@ public final class PropertyConnector {
 	 *
 	 * @since 2.0
 	 */
-	public static void connectAndUpdate(IValueModel<?> valueModel, Object bean2, String property2Name) {
-		PropertyConnector connector = new PropertyConnector(valueModel, "value", bean2, property2Name);
+	public static void connectAndUpdate(IValueModel<?> valueModel, Object bean2, String property2Name,
+			BiFunction<Object, Boolean, Object> converter) {
+		PropertyConnector connector = new PropertyConnector(valueModel, "value", bean2, property2Name, converter);
 		connector.updateProperty2();
 	}
 
@@ -334,10 +344,9 @@ public final class PropertyConnector {
 	 *
 	 * @see #updateProperty2()
 	 */
-	@SuppressWarnings("unchecked")
 	public void updateProperty1() {
 		Object property2Value = property2Accessor.getValue(bean2);
-		setValueSilently(bean2, property2Accessor, bean1, property1Accessor, property2Value);
+		setValueSilently(bean2, property2Accessor, bean1, property1Accessor, property2Value, false);
 	}
 
 	/**
@@ -346,10 +355,9 @@ public final class PropertyConnector {
 	 *
 	 * @see #updateProperty1()
 	 */
-	@SuppressWarnings("unchecked")
 	public void updateProperty2() {
 		Object property1Value = property1Accessor.getValue(bean1);
-		setValueSilently(bean1, property1Accessor, bean2, property2Accessor, property1Value);
+		setValueSilently(bean1, property1Accessor, bean2, property2Accessor, property1Value, true);
 	}
 
 	// Release ****************************************************************
@@ -414,10 +422,14 @@ public final class PropertyConnector {
 
 	// Helper Methods to Get and Set a Property Value *************************
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private void setValueSilently(Object sourceBean, PropertyAccessor sourcePropertyAccessor, Object targetBean,
-			PropertyAccessor targetPropertyAccessor, Object newValue) {
-		Object targetValue = targetPropertyAccessor.getValue(targetBean);
+	public BiFunction<Object, Boolean, Object> convert = (i, d) -> {
+		return i;
+	};
+
+	@SuppressWarnings("unchecked")
+	private <S, SV, T, TV> void setValueSilently(S sourceBean, PropertyAccessor<S, SV> sourcePropertyAccessor,
+			T targetBean, PropertyAccessor<T, TV> targetPropertyAccessor, TV newValue, boolean direction) {
+		TV targetValue = targetPropertyAccessor.getValue(targetBean);
 		if (targetValue == newValue) {
 			return;
 		}
@@ -444,7 +456,7 @@ public final class PropertyConnector {
 			boolean sourcePropertyWritable = sourcePropertyAccessor.getWriteMethod() != null;
 			if (sourcePropertyWritable) {
 				try {
-					sourcePropertyAccessor.setValue(sourceBean, targetValue);
+					sourcePropertyAccessor.setValue(sourceBean, (SV) convert.apply(targetValue, direction));
 				} catch (PropertyVetoException e) {
 					// Ignore. The value set is a modified variant
 					// of a value that had been accepted before.
@@ -468,9 +480,10 @@ public final class PropertyConnector {
 	 * @return the descriptor for the given bean and property name
 	 * @throws PropertyNotFoundException if the property could not be found
 	 */
-	@SuppressWarnings("rawtypes")
-	private static PropertyAccessor getPropertyAccessor(Class<?> beanClass, String propertyName) {
-		return PropertyAccessors.getProvider().getAccessor(beanClass, propertyName, null, null);
+	@SuppressWarnings("unchecked")
+	private static <B, V> PropertyAccessor<B, V> getPropertyAccessor(Class<?> beanClass, String propertyName) {
+		return (PropertyAccessor<B, V>) PropertyAccessors.getProvider().getAccessor(beanClass, propertyName, null,
+				null);
 	}
 
 	/**
@@ -486,8 +499,7 @@ public final class PropertyConnector {
 		/**
 		 * Holds the property descriptor for the bean to read from.
 		 */
-		@SuppressWarnings("rawtypes")
-		private final PropertyAccessor sourcePropertyDescriptor;
+		private final PropertyAccessor<Object, Object> sourcePropertyDescriptor;
 
 		/**
 		 * Holds the bean to update.
@@ -497,16 +509,17 @@ public final class PropertyConnector {
 		/**
 		 * Holds the property descriptor for the bean to update.
 		 */
-		@SuppressWarnings("rawtypes")
-		private final PropertyAccessor targetPropertyDescriptor;
+		private final PropertyAccessor<Object, Object> targetPropertyDescriptor;
 
-		@SuppressWarnings("rawtypes")
-		private PropertyChangeHandler(Object sourceBean, PropertyAccessor sourcePropertyDescriptor, Object targetBean,
-				PropertyAccessor targetPropertyDescriptor) {
+		private final boolean direction;
+
+		private PropertyChangeHandler(Object sourceBean, PropertyAccessor<Object, Object> sourcePropertyDescriptor,
+				Object targetBean, PropertyAccessor<Object, Object> targetPropertyDescriptor, boolean direction) {
 			this.sourceBean = sourceBean;
 			this.sourcePropertyDescriptor = sourcePropertyDescriptor;
 			this.targetBean = targetBean;
 			this.targetPropertyDescriptor = targetPropertyDescriptor;
+			this.direction = direction;
 		}
 
 		/**
@@ -517,17 +530,17 @@ public final class PropertyConnector {
 		 *
 		 * @param evt the property change event to be handled
 		 */
-		@SuppressWarnings("unchecked")
 		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
 			String sourcePropertyName = sourcePropertyDescriptor.getPropertyName();
 			String propertyName = evt.getPropertyName();
 			if (propertyName == null || propertyName.equals(sourcePropertyName)) {
-				Object newValue = evt.getNewValue();
+				Object newValue = (Object) evt.getNewValue();
 				if (newValue == null || propertyName == null) {
-					newValue = sourcePropertyDescriptor.getValue(sourceBean);
+					newValue = (Object) sourcePropertyDescriptor.getValue(sourceBean);
 				}
-				setValueSilently(sourceBean, sourcePropertyDescriptor, targetBean, targetPropertyDescriptor, newValue);
+				setValueSilently(sourceBean, sourcePropertyDescriptor, targetBean, targetPropertyDescriptor, newValue,
+						direction);
 			}
 		}
 

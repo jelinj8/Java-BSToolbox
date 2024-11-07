@@ -471,8 +471,7 @@ public final class SelectionInList<E> extends IndirectListModel<E> implements IV
 	 *
 	 * @throws NullPointerException if {@code listHolder} is {@code null}
 	 */
-	@SuppressWarnings("rawtypes")
-	public SelectionInList(IValueModel listHolder) {
+	public <L> SelectionInList(IValueModel<L> listHolder) {
 		this(listHolder, new DefaultValueModel<>(null, true));
 	}
 
@@ -496,8 +495,7 @@ public final class SelectionInList<E> extends IndirectListModel<E> implements IV
 	 * @throws NullPointerException if {@code listHolder} or {@code selectionHolder}
 	 *                              is {@code null}
 	 */
-	@SuppressWarnings("rawtypes")
-	public SelectionInList(IValueModel listHolder, IValueModel<E> selectionHolder) {
+	public <L> SelectionInList(IValueModel<L> listHolder, IValueModel<E> selectionHolder) {
 		this(listHolder, selectionHolder, new DefaultValueModel<>(Integer.valueOf(NO_SELECTION_INDEX)));
 	}
 
@@ -529,8 +527,7 @@ public final class SelectionInList<E> extends IndirectListModel<E> implements IV
 	 * @throws ClassCastException       if the listModelHolder contents is neither a
 	 *                                  List nor a ListModel
 	 */
-	@SuppressWarnings("rawtypes")
-	public SelectionInList(IValueModel listHolder, IValueModel<E> selectionHolder,
+	public <L> SelectionInList(IValueModel<L> listHolder, IValueModel<E> selectionHolder,
 			IValueModel<Integer> selectionIndexHolder) {
 		super(listHolder);
 		this.selectionHolder = checkNotNull(selectionHolder, "The selection holder must not be null.");
@@ -886,7 +883,6 @@ public final class SelectionInList<E> extends IndirectListModel<E> implements IV
 	 *         or -1 if the element is {@code null} or the list does not contain
 	 *         this element.
 	 */
-	@SuppressWarnings("rawtypes")
 	private static int indexOf(Object aList, Object element) {
 		if (element == null || getSize(aList) == 0) {
 			return NO_SELECTION_INDEX;
@@ -896,7 +892,7 @@ public final class SelectionInList<E> extends IndirectListModel<E> implements IV
 		}
 
 		// Search the first occurrence of element in the list model.
-		ListModel listModel = (ListModel) aList;
+		ListModel<?> listModel = (ListModel<?>) aList;
 		int size = listModel.getSize();
 		for (int index = 0; index < size; index++) {
 			if (element.equals(listModel.getElementAt(index))) {

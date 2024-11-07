@@ -364,7 +364,7 @@ public class PresentationModel<B> extends BasicBean implements IPresentationMode
 	 * @see #isBuffering()
 	 * @see #setTriggerChannel(ValueModel)
 	 */
-	private final Map<String, WrappedBuffer> wrappedBuffers;
+	private final Map<String, WrappedBuffer<?>> wrappedBuffers;
 
 	/**
 	 * Listens to value changes and validates this model. The validation result is
@@ -805,8 +805,7 @@ public class PresentationModel<B> extends BasicBean implements IPresentationMode
 	 *
 	 * @since 1.1
 	 */
-	@SuppressWarnings("unchecked")
-	public void setBufferedValue(String propertyName, Object newValue) {
+	public <V> void setBufferedValue(String propertyName, V newValue) {
 		getBufferedModel(propertyName).setValue(newValue);
 	}
 
@@ -856,8 +855,7 @@ public class PresentationModel<B> extends BasicBean implements IPresentationMode
 	 * @see #getModel(String, String, String)
 	 * @see #getBufferedModel(String)
 	 */
-	@SuppressWarnings("rawtypes")
-	public IValueModel getModel(String propertyName) {
+	public IValueModel<?> getModel(String propertyName) {
 		return beanAdapter.getValueModel(propertyName);
 	}
 
@@ -906,8 +904,7 @@ public class PresentationModel<B> extends BasicBean implements IPresentationMode
 	 * @see #getModel(String, String, String)
 	 * @see #getBufferedModel(String)
 	 */
-	@SuppressWarnings("rawtypes")
-	public IValueModel getModel(String propertyName, String getterName, String setterName) {
+	public <V> IValueModel<V> getModel(String propertyName, String getterName, String setterName) {
 		return beanAdapter.getValueModel(propertyName, getterName, setterName);
 	}
 
@@ -959,11 +956,11 @@ public class PresentationModel<B> extends BasicBean implements IPresentationMode
 	 *
 	 * @since 1.1
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings("unchecked")
 	@Override
-	public AbstractWrappedComponentValueModel getComponentModel(String propertyName) {
-		return componentModels.computeIfAbsent(propertyName,
-				propName -> new DefaultComponentValueModel(getModel(propName)));
+	public AbstractWrappedComponentValueModel<B> getComponentModel(String propertyName) {
+		return (AbstractWrappedComponentValueModel<B>) componentModels.computeIfAbsent(propertyName,
+				propName -> new DefaultComponentValueModel<>(getModel(propName)));
 	}
 
 	/**
@@ -1062,8 +1059,7 @@ public class PresentationModel<B> extends BasicBean implements IPresentationMode
 	 * @see #getModel(String)
 	 * @see #getBufferedModel(String, String, String)
 	 */
-	@SuppressWarnings("rawtypes")
-	public BufferedValueModel getBufferedModel(String propertyName) {
+	public <V> BufferedValueModel<V> getBufferedModel(String propertyName) {
 		return getBufferedModel(propertyName, null, null);
 	}
 
@@ -1112,11 +1108,11 @@ public class PresentationModel<B> extends BasicBean implements IPresentationMode
 	 * @see #getModel(String)
 	 * @see #getBufferedModel(String)
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public BufferedValueModel getBufferedModel(String propertyName, String getterName, String setterName) {
-		WrappedBuffer wrappedBuffer = wrappedBuffers.get(propertyName);
+	@SuppressWarnings({ "unchecked" })
+	public <V> BufferedValueModel<V> getBufferedModel(String propertyName, String getterName, String setterName) {
+		WrappedBuffer<V> wrappedBuffer = (WrappedBuffer<V>) wrappedBuffers.get(propertyName);
 		if (wrappedBuffer == null) {
-			wrappedBuffer = new WrappedBuffer(buffer(getModel(propertyName, getterName, setterName)), getterName,
+			wrappedBuffer = new WrappedBuffer<>(buffer(getModel(propertyName, getterName, setterName)), getterName,
 					setterName);
 			wrappedBuffers.put(propertyName, wrappedBuffer);
 		} else {
@@ -1179,10 +1175,9 @@ public class PresentationModel<B> extends BasicBean implements IPresentationMode
 	 *
 	 * @since 1.1
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public AbstractWrappedComponentValueModel getBufferedComponentModel(String propertyName) {
+	public AbstractWrappedComponentValueModel<?> getBufferedComponentModel(String propertyName) {
 		return bufferedComponentModels.computeIfAbsent(propertyName,
-				propName -> new DefaultComponentValueModel(getBufferedModel(propName)));
+				propName -> new DefaultComponentValueModel<>(getBufferedModel(propName)));
 	}
 
 	/**
@@ -1244,7 +1239,7 @@ public class PresentationModel<B> extends BasicBean implements IPresentationMode
 
 		IValueModel<Boolean> oldTriggerChannel = getTriggerChannel();
 		triggerChannel = newTriggerChannel;
-		for (WrappedBuffer wrappedBuffer : wrappedBuffers.values()) {
+		for (WrappedBuffer<?> wrappedBuffer : wrappedBuffers.values()) {
 			wrappedBuffer.buffer.setTriggerChannel(triggerChannel);
 		}
 		firePropertyChange(PROPERTY_TRIGGERCHANNEL, oldTriggerChannel, newTriggerChannel);
@@ -1305,7 +1300,7 @@ public class PresentationModel<B> extends BasicBean implements IPresentationMode
 			return;
 		}
 		boolean nowBuffering = false;
-		for (WrappedBuffer wrappedBuffer : wrappedBuffers.values()) {
+		for (WrappedBuffer<?> wrappedBuffer : wrappedBuffers.values()) {
 			BufferedValueModel<?> model = wrappedBuffer.buffer;
 			nowBuffering = nowBuffering || model.isBuffering();
 			if (!buffering && nowBuffering) {
@@ -1625,13 +1620,13 @@ public class PresentationModel<B> extends BasicBean implements IPresentationMode
 	 * @see PresentationModel#getBufferedModel(String)
 	 * @see PresentationModel#getBufferedModel(String, String, String)
 	 */
-	private static final class WrappedBuffer {
+	private static final class WrappedBuffer<V>  {
 
-		final BufferedValueModel<?> buffer;
+		final BufferedValueModel<V> buffer;
 		final String getterName;
 		final String setterName;
 
-		WrappedBuffer(BufferedValueModel<?> buffer, String getterName, String setterName) {
+		WrappedBuffer(BufferedValueModel<V> buffer, String getterName, String setterName) {
 			this.buffer = buffer;
 			this.getterName = getterName;
 			this.setterName = setterName;

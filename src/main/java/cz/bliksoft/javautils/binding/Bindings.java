@@ -52,7 +52,6 @@ import java.lang.ref.WeakReference;
 import javax.swing.AbstractButton;
 import javax.swing.ButtonModel;
 import javax.swing.ComboBoxModel;
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -63,7 +62,6 @@ import javax.swing.JPasswordField;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.ListCellRenderer;
 import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListDataListener;
@@ -365,12 +363,9 @@ public final class Bindings {
 	 *
 	 * @since 2.7
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static void bind(JComboBox<?> comboBox, ComboBoxModel<?> model, String nullText) {
+	public static <V> void bind(JComboBox<V> comboBox, ComboBoxModel<V> model, V nullElement, String nullText) {
 		checkNotNull(model, MUST_NOT_BE_NULL, "combo box model"); //$NON-NLS-1$
-		final NullElement nullElement = new NullElement(nullText);
-		comboBox.setModel(new NullElementComboBoxModel(model, nullElement));
-		comboBox.setRenderer(new NullElementComboBoxRenderer(comboBox.getRenderer(), nullElement));
+		comboBox.setModel(new NullElementComboBoxModel<V>(model, nullElement));
 	}
 
 	/**
@@ -400,10 +395,9 @@ public final class Bindings {
 	 *
 	 * @since 1.0.1
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static void bind(JComboBox<?> comboBox, SelectionInList<?> selectionInList) {
+	public static <V> void bind(JComboBox<V> comboBox, SelectionInList<V> selectionInList) {
 		checkNotNull(selectionInList, MUST_NOT_BE_NULL, "SelectionInList"); //$NON-NLS-1$
-		comboBox.setModel(new ComboBoxAdapter(selectionInList));
+		comboBox.setModel(new ComboBoxAdapter<V>(selectionInList));
 		addComponentPropertyHandler(comboBox, selectionInList.getSelectionHolder());
 	}
 
@@ -442,12 +436,10 @@ public final class Bindings {
 	 *
 	 * @since 2.3
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static void bind(JComboBox<?> comboBox, SelectionInList<?> selectionInList, String nullText) {
-		final NullElement nullElement = new NullElement(nullText);
+	public static <V> void bind(JComboBox<V> comboBox, SelectionInList<V> selectionInList, V nullElement,
+			String nullText) {
 		bind(comboBox, selectionInList);
-		comboBox.setModel(new NullElementComboBoxModel(comboBox.getModel(), nullElement));
-		comboBox.setRenderer(new NullElementComboBoxRenderer(comboBox.getRenderer(), nullElement));
+		comboBox.setModel(new NullElementComboBoxModel<>(comboBox.getModel(), nullElement));
 	}
 
 	/**
@@ -703,7 +695,7 @@ public final class Bindings {
 		checkNotNull(component, MUST_NOT_BE_NULL, "component"); //$NON-NLS-1$
 		checkNotNull(valueModel, MUST_NOT_BE_NULL, "value model"); //$NON-NLS-1$
 		checkNotBlank(propertyName, MUST_NOT_BE_BLANK, "property name"); //$NON-NLS-1$
-		PropertyConnector.connectAndUpdate(valueModel, component, propertyName);
+		PropertyConnector.connectAndUpdate(valueModel, component, propertyName, null);
 
 		addComponentPropertyHandler(component, valueModel);
 	}
@@ -836,7 +828,6 @@ public final class Bindings {
 	 *
 	 * @since 2.0.1
 	 */
-	@SuppressWarnings({ "rawtypes" })
 	public static boolean isFocusOwnerBuffering() {
 		Component focusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
 		if (!(focusOwner instanceof JComponent)) {
@@ -846,7 +837,7 @@ public final class Bindings {
 		if (!(value instanceof BufferedValueModel)) {
 			return false;
 		}
-		BufferedValueModel commitOnFocusLostModel = (BufferedValueModel) value;
+		BufferedValueModel<?> commitOnFocusLostModel = (BufferedValueModel<?>) value;
 		return commitOnFocusLostModel.isBuffering();
 	}
 
@@ -906,11 +897,10 @@ public final class Bindings {
 			this.component = component;
 		}
 
-		@SuppressWarnings("rawtypes")
 		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
 			String propertyName = evt.getPropertyName();
-			IComponentValueModel<?> model = (IComponentValueModel) evt.getSource();
+			IComponentValueModel<?> model = (IComponentValueModel<?>) evt.getSource();
 			if (IComponentModel.PROPERTY_ENABLED.equals(propertyName)) {
 				component.setEnabled(model.isEnabled());
 			} else if (IComponentModel.PROPERTY_VISIBLE.equals(propertyName)) {
@@ -921,34 +911,6 @@ public final class Bindings {
 				}
 			}
 		}
-	}
-
-	// Helper Classes for ComboBox Null Elements ******************************
-
-	/**
-	 * An unmodifiable object that is used to represent a meta-option for
-	 * {@code null} values using a given string, e.g. &quot;(None)&quot;. Used by
-	 * the {@link NullElementComboBoxModel} as element that represents the
-	 * {@code null} value. And used by the {@link NullElementComboBoxRenderer} to
-	 * identify and render the special element.
-	 */
-	private static final class NullElement {
-
-		private final String text;
-
-		// Instance Creation **************************************************
-
-		NullElement(String text) {
-			this.text = checkNotBlank(text, MUST_NOT_BE_BLANK, "text"); //$NON-NLS-1$
-		}
-
-		// Overriding Object Behavior *****************************************
-
-		@Override
-		public String toString() {
-			return text;
-		}
-
 	}
 
 	/**
@@ -969,7 +931,7 @@ public final class Bindings {
 
 		NullElementComboBoxModel(ComboBoxModel<E> delegate, E nullElement) {
 			this.delegate = checkNotNull(delegate, MUST_NOT_BE_NULL, "wrapped ComboBoxModel"); //$NON-NLS-1$
-			this.nullElement = checkNotNull(nullElement, MUST_NOT_BE_NULL, "null element"); //$NON-NLS-1$
+			this.nullElement = nullElement;
 		}
 
 		// ComboBoxModel Implementation ---------------------------------------
@@ -981,14 +943,14 @@ public final class Bindings {
 
 		@Override
 		public E getElementAt(int index) {
-			return index == 0 ? nullElement : delegate.getElementAt(index - 1);
+			return index == 0 ? null : delegate.getElementAt(index - 1);
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
 		public E getSelectedItem() {
 			E selected = (E) delegate.getSelectedItem();
-			return selected == null ? nullElement : selected;
+			return selected;
 		}
 
 		@Override
@@ -1004,44 +966,6 @@ public final class Bindings {
 		@Override
 		public void removeListDataListener(ListDataListener l) {
 			delegate.removeListDataListener(l);
-		}
-
-	}
-
-	/**
-	 * Wraps a given ListCellRenderer and adds a special rendering behavior for the
-	 * {@link NullElementComboBoxModel}'s null element.
-	 */
-	private static final class NullElementComboBoxRenderer extends DefaultListCellRenderer {
-
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 3865049050917223866L;
-		/**
-		 * Holds the wrapped renderer that is used to delegate requests related to all
-		 * elements except the special null element.
-		 */
-		@SuppressWarnings("rawtypes")
-		private final ListCellRenderer delegate;
-		private final NullElement nullElement;
-
-		// Instance Creation --------------------------------------------------
-
-		NullElementComboBoxRenderer(ListCellRenderer<?> delegate, NullElement nullElement) {
-			this.delegate = checkNotNull(delegate, MUST_NOT_BE_NULL, "wrapped ListCellRenderer"); //$NON-NLS-1$
-			this.nullElement = checkNotNull(nullElement, MUST_NOT_BE_NULL, "null element"); //$NON-NLS-1$
-		}
-
-		// Overriding Superclass Behavior -------------------------------------
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
-				boolean cellHasFocus) {
-			return value == nullElement
-					? super.getListCellRendererComponent(list, nullElement, index, isSelected, cellHasFocus)
-					: delegate.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 		}
 
 	}

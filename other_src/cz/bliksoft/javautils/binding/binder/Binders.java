@@ -91,7 +91,7 @@ public final class Binders {
 	 * @return the created binder
 	 */
 	public static BeanBinder binderFor(Object bean) {
-		return new BeanBinderImpl(bean);
+		return new BeanBinderImpl<Object>(bean);
 	}
 
 	/**
@@ -121,7 +121,7 @@ public final class Binders {
 	 * @return the created binder
 	 */
 	public static PresentationModelBinder binderFor(IPresentationModel<?> model) {
-		return new PresentationModelBinderImpl(model);
+		return new PresentationModelBinderImpl<IPresentationModel<?>>(model);
 	}
 
 	/**

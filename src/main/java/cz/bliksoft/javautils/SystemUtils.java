@@ -53,9 +53,10 @@ public class SystemUtils {
 	}
 
 	private static Boolean installed = false;
+	private static Object sync = new Object();
 
 	public static void installShutdownHook() {
-		synchronized (installed) {
+		synchronized (sync) {
 			if (installed)
 				return;
 

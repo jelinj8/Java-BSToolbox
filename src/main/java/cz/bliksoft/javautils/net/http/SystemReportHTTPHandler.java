@@ -9,7 +9,6 @@ import cz.bliksoft.javautils.SystemMonitor;
 import cz.bliksoft.javautils.freemarker.includes.BuiltinTemplateLoader;
 import freemarker.cache.ClassTemplateLoader;
 
-@SuppressWarnings("restriction")
 public class SystemReportHTTPHandler extends DefaultFreemarkerHTTPHandler {
 
 	private static final Logger log = Logger.getLogger(SystemReportHTTPHandler.class.getName());

@@ -86,7 +86,6 @@ public class DefaultFreemarkerHTTPHandler extends BasicHTTPHandler implements Cl
 		return indexFileName;
 	}
 
-	@SuppressWarnings("restriction")
 	@Override
 	public boolean handle(BSHttpContext context) throws IOException {
 		String path = getRequestedPath(context);

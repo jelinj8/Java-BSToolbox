@@ -19,7 +19,6 @@ import cz.bliksoft.javautils.net.http.HTTPErrorCodes;
 
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 
-@SuppressWarnings("restriction")
 public class HttpClientResponseHandlerImpl implements HttpClientResponseHandler<HttpExchange> {
 	HttpExchange httpExchange;
 

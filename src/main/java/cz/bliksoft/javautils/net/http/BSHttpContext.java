@@ -26,7 +26,6 @@ import cz.bliksoft.javautils.net.http.BasicHTTPHandler.HttpMethod;
 import cz.bliksoft.javautils.net.http.Cookie.SameSite;
 import cz.bliksoft.javautils.net.http.MultiPart.PartType;
 
-@SuppressWarnings("restriction")
 public class BSHttpContext extends HashMap<String, Object> {
 
 	/**

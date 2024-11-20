@@ -32,7 +32,6 @@ import cz.bliksoft.javautils.StringUtils;
  * HttpHandler to register with a path in BSHttpServer.<br>
  * multipart POST from https://gist.github.com/JensWalter/0f19780d131d903879a2
  */
-@SuppressWarnings("restriction")
 public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	private static Logger log = Logger.getLogger(BasicHTTPHandler.class.getName());

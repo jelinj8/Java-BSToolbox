@@ -27,7 +27,6 @@ import cz.bliksoft.javautils.net.http.BSHttpContext;
 import cz.bliksoft.javautils.net.http.BasicHTTPHandler;
 import cz.bliksoft.javautils.net.http.HTTPErrorCodes;
 
-@SuppressWarnings("restriction")
 public class ProxyHandler extends BasicHTTPHandler {
 	private static final Logger log = Logger.getLogger(ProxyHandler.class.getPackage().getName());
 

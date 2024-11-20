@@ -17,7 +17,6 @@ import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpsConfigurator;
 import com.sun.net.httpserver.HttpsServer;
 
-@SuppressWarnings("restriction")
 public class BSHttpServer {
 	private Logger log = Logger.getLogger(BSHttpServer.class.getName());
 

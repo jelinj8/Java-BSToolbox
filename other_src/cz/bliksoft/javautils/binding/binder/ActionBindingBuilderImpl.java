@@ -72,7 +72,7 @@ public class ActionBindingBuilderImpl implements ActionBindingBuilder {
 	}
 
 	@Override
-	public void to(JComboBox comboBox) {
+	public void to(JComboBox<?> comboBox) {
 		comboBox.setAction(action);
 	}
 

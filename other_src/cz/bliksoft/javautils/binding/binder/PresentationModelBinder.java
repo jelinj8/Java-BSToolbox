@@ -69,6 +69,6 @@ public interface PresentationModelBinder extends BeanBinder {
 	 *
 	 * @throws NullPointerException if {@code propertyName} is {@code null}
 	 */
-	ValueModelBindingBuilder bindBeanProperty(String propertyName);
+	ValueModelBindingBuilder<?> bindBeanProperty(String propertyName);
 
 }

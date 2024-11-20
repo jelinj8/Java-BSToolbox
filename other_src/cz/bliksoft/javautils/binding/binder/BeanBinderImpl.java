@@ -62,8 +62,8 @@ public class BeanBinderImpl<B> // extends ObservableBean>
 	// BeanBinder Implementation **********************************************
 
 	@Override
-	public ValueModelBindingBuilder bindProperty(String propertyName) {
-		return new ValueModelBindingBuilderImpl(getBeanAdapter().getValueModel(propertyName), propertyName);
+	public ValueModelBindingBuilder<?> bindProperty(String propertyName) {
+		return new ValueModelBindingBuilderImpl<>(getBeanAdapter().getValueModel(propertyName), propertyName);
 	}
 
 	// Helper Code ************************************************************

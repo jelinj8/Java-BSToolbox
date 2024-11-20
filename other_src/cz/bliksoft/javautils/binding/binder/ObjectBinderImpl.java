@@ -50,35 +50,37 @@ import cz.bliksoft.javautils.binding.list.SelectionInList;
  *
  * @since 2.3
  */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class ObjectBinderImpl implements ObjectBinder {
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public ActionBindingBuilder bind(Action action) {
 		return new ActionBindingBuilderImpl(action);
 	}
 
 	@Override
-	public ComboBoxBindingBuilder bind(ComboBoxModel<?> comboBoxModel) {
+	public ComboBoxBindingBuilder<?> bind(ComboBoxModel<?> comboBoxModel) {
 		return new ComboBoxBindingBuilderImpl(comboBoxModel);
 	}
 
 	@Override
-	public ListBindingBuilder bind(Object[] data, ListSelectionModel selectionModel) {
+	public ListBindingBuilder<?> bind(Object[] data, ListSelectionModel selectionModel) {
 		return new ListBindingBuilderImpl(data, selectionModel);
 	}
 
 	@Override
-	public ListBindingBuilder bind(List<?> data, ListSelectionModel selectionModel) {
+	public ListBindingBuilder<?> bind(List<?> data, ListSelectionModel selectionModel) {
 		return new ListBindingBuilderImpl(data, selectionModel);
 	}
 
 	@Override
-	public ListBindingBuilder bind(ListModel<?> dataModel, ListSelectionModel selectionModel) {
+	public ListBindingBuilder<?> bind(ListModel<?> dataModel, ListSelectionModel selectionModel) {
 		return new ListBindingBuilderImpl(dataModel, selectionModel);
 	}
 
 	@Override
-	public SelectionInListBindingBuilder bind(SelectionInList<?> selectionInList) {
+	public SelectionInListBindingBuilder<?> bind(SelectionInList<?> selectionInList) {
 		return new SelectionInListBindingBuilderImpl(selectionInList);
 	}
 

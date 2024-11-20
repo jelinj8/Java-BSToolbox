@@ -51,10 +51,7 @@ import javax.swing.JTextField;
  *
  * @since 2.3
  * 
- * @deprecated Replaced by the event handler classes in the JGoodies Smart
- *             Client's Sandbox
  */
-@Deprecated
 public interface ActionBindingBuilder {
 
 	/**
@@ -83,7 +80,7 @@ public interface ActionBindingBuilder {
 	 * 
 	 * @since 2.10
 	 */
-	void to(JComboBox comboBox);
+	void to(JComboBox<?> comboBox);
 
 	/**
 	 * Sets this builder's Action in the given text field.

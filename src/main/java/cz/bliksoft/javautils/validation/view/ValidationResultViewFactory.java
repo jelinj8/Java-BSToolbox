@@ -34,6 +34,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -266,8 +267,8 @@ public final class ValidationResultViewFactory {
 	 *
 	 * @return a default error icon
 	 */
-	public static ImageIcon getErrorIcon() {
-		return Icons.ERROR_ICON;
+	public static Image getErrorIcon() {
+		return Icons.ERROR_ICON.getImage();
 	}
 
 	/**
@@ -275,8 +276,8 @@ public final class ValidationResultViewFactory {
 	 *
 	 * @return a default warning icon
 	 */
-	public static ImageIcon getWarningIcon() {
-		return Icons.WARNING_ICON;
+	public static Image getWarningIcon() {
+		return Icons.WARNING_ICON.getImage();
 	}
 
 	/**
@@ -285,8 +286,8 @@ public final class ValidationResultViewFactory {
 	 *
 	 * @return a small default error icon
 	 */
-	public static ImageIcon getSmallErrorIcon() {
-		return Icons.SMALL_ERROR_ICON;
+	public static Image getSmallErrorIcon() {
+		return Icons.SMALL_ERROR_ICON.getImage();
 	}
 
 	/**
@@ -295,8 +296,8 @@ public final class ValidationResultViewFactory {
 	 *
 	 * @return a small default warning icon
 	 */
-	public static ImageIcon getSmallWarningIcon() {
-		return Icons.SMALL_WARNING_ICON;
+	public static Image getSmallWarningIcon() {
+		return Icons.SMALL_WARNING_ICON.getImage();
 	}
 
 	/**
@@ -304,8 +305,8 @@ public final class ValidationResultViewFactory {
 	 *
 	 * @return a default information icon
 	 */
-	public static ImageIcon getInfoIcon() {
-		return Icons.INFO_ICON;
+	public static Image getInfoIcon() {
+		return Icons.INFO_ICON.getImage();
 	}
 
 	/**
@@ -313,8 +314,8 @@ public final class ValidationResultViewFactory {
 	 *
 	 * @return a small default information icon
 	 */
-	public static ImageIcon getSmallInfoIcon() {
-		return Icons.SMALL_INFO_ICON;
+	public static Image getSmallInfoIcon() {
+		return Icons.SMALL_INFO_ICON.getImage();
 	}
 
 	/**
@@ -322,8 +323,8 @@ public final class ValidationResultViewFactory {
 	 *
 	 * @return a check icon
 	 */
-	public static ImageIcon getCheckIcon() {
-		return Icons.CHECK_ICON;
+	public static Image getCheckIcon() {
+		return Icons.CHECK_ICON.getImage();
 	}
 
 	/**
@@ -341,11 +342,11 @@ public final class ValidationResultViewFactory {
 	public static Icon getIcon(Severity severity) {
 		switch (severity) {
 		case ERROR:
-			return getErrorIcon();
+			return Icons.ERROR_ICON;
 		case WARNING:
-			return getWarningIcon();
+			return Icons.WARNING_ICON;
 		case INFO:
-			return getInfoIcon();
+			return Icons.INFO_ICON;
 		case OK:
 			return null;
 		default:
@@ -368,11 +369,11 @@ public final class ValidationResultViewFactory {
 	public static Icon getSmallIcon(Severity severity) {
 		switch (severity) {
 		case ERROR:
-			return getSmallErrorIcon();
+			return Icons.SMALL_ERROR_ICON;
 		case WARNING:
-			return getSmallWarningIcon();
+			return Icons.SMALL_WARNING_ICON;
 		case INFO:
-			return getSmallInfoIcon();
+			return Icons.SMALL_INFO_ICON;
 		case OK:
 			return null;
 		default:
@@ -558,7 +559,7 @@ public final class ValidationResultViewFactory {
 	 * Provides icons useful for presenting validation feedback. These icons are
 	 * constructed from byte arrays.
 	 */
-	private static final class Icons {
+	public static final class Icons {
 
 		private static final byte[] ERROR_GIF_BYTES = { 71, 73, 70, 56, 57, 97, 16, 0, 16, 0, -77, 0, 0, -1, 127, 63,
 				-8, 88, 56, -1, 95, 63, -8, 56, 56, -33, 63, 63, -65, 63, 63, -104, 56, 56, 127, 63, 63, -1, -65, -65,
@@ -608,19 +609,19 @@ public final class ValidationResultViewFactory {
 				-128, -26, 0, 8, -40, 0, 23, 110, 16, 3, 44, -102, -83, -17, 43, -30, 56, 19, 47, -11, -101, -103, -114,
 				-56, 8, 0, 59 };
 
-		private static final ImageIcon ERROR_ICON = new ImageIcon(ERROR_GIF_BYTES);
+		public static final ImageIcon ERROR_ICON = new ImageIcon(ERROR_GIF_BYTES);
 
-		private static final ImageIcon SMALL_ERROR_ICON = new ImageIcon(SMALL_ERROR_GIF_BYTES);
+		public static final ImageIcon SMALL_ERROR_ICON = new ImageIcon(SMALL_ERROR_GIF_BYTES);
 
-		private static final ImageIcon WARNING_ICON = new ImageIcon(WARNING_GIF_BYTES);
+		public static final ImageIcon WARNING_ICON = new ImageIcon(WARNING_GIF_BYTES);
 
-		private static final ImageIcon SMALL_WARNING_ICON = new ImageIcon(SMALL_WARNING_GIF_BYTES);
+		public static final ImageIcon SMALL_WARNING_ICON = new ImageIcon(SMALL_WARNING_GIF_BYTES);
 
-		private static final ImageIcon INFO_ICON = new ImageIcon(INFO_GIF_BYTES);
+		public static final ImageIcon INFO_ICON = new ImageIcon(INFO_GIF_BYTES);
 
-		private static final ImageIcon SMALL_INFO_ICON = new ImageIcon(SMALL_INFO_GIF_BYTES);
+		public static final ImageIcon SMALL_INFO_ICON = new ImageIcon(SMALL_INFO_GIF_BYTES);
 
-		private static final ImageIcon CHECK_ICON = new ImageIcon(CHECK_ICON_BYTES);
+		public static final ImageIcon CHECK_ICON = new ImageIcon(CHECK_ICON_BYTES);
 
 	}
 

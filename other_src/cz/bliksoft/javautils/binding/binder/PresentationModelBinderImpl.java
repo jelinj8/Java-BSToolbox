@@ -63,8 +63,8 @@ public class PresentationModelBinderImpl<PM extends IPresentationModel<?>> exten
 	// PresentationModelBinder Implementation *********************************
 
 	@Override
-	public ValueModelBindingBuilder bindBeanProperty(String propertyName) {
-		return new ValueModelBindingBuilderImpl(getTarget().getComponentModel(propertyName), propertyName);
+	public ValueModelBindingBuilder<?> bindBeanProperty(String propertyName) {
+		return new ValueModelBindingBuilderImpl<>(getTarget().getComponentModel(propertyName), propertyName);
 	}
 
 }

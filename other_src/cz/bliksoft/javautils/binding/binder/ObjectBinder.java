@@ -90,7 +90,7 @@ public interface ObjectBinder {
 	 *
 	 * @since 2.7
 	 */
-	ComboBoxBindingBuilder bind(ComboBoxModel<?> comboBoxModel);
+	ComboBoxBindingBuilder<?> bind(ComboBoxModel<?> comboBoxModel);
 
 	/**
 	 * Creates and returns a binding builder for the given fixed data and selection
@@ -113,7 +113,7 @@ public interface ObjectBinder {
 	 *
 	 * @since 2.7
 	 */
-	ListBindingBuilder bind(Object[] data, ListSelectionModel selectionModel);
+	ListBindingBuilder<?> bind(Object[] data, ListSelectionModel selectionModel);
 
 	/**
 	 * Creates and returns a binding builder for the given fixed data and selection
@@ -136,7 +136,7 @@ public interface ObjectBinder {
 	 *
 	 * @since 2.7
 	 */
-	ListBindingBuilder bind(List<?> data, ListSelectionModel selectionModel);
+	ListBindingBuilder<?> bind(List<?> data, ListSelectionModel selectionModel);
 
 	/**
 	 * Creates and returns a binding builder for the given ListModel and
@@ -157,7 +157,7 @@ public interface ObjectBinder {
 	 * @throws NullPointerException if {@code dataModel} or {@code selectionModel}
 	 *                              is {@code null}
 	 */
-	ListBindingBuilder bind(ListModel<?> dataModel, ListSelectionModel selectionModel);
+	ListBindingBuilder<?> bind(ListModel<?> dataModel, ListSelectionModel selectionModel);
 
 	/**
 	 * Creates and returns a binding builder that manages a SelectionInList that can
@@ -177,7 +177,7 @@ public interface ObjectBinder {
 	 *
 	 * @throws NullPointerException if {@code selectionInList} is {@code null}
 	 */
-	SelectionInListBindingBuilder bind(SelectionInList<?> selectionInList);
+	SelectionInListBindingBuilder<?> bind(SelectionInList<?> selectionInList);
 
 	/**
 	 * Creates and returns a binding builder that manages a ValueModel that can be
@@ -193,6 +193,6 @@ public interface ObjectBinder {
 	 *
 	 * @throws NullPointerException if {@code valueModel} is {@code null}
 	 */
-	ValueModelBindingBuilder bind(IValueModel<?> valueModel);
+	ValueModelBindingBuilder<?> bind(IValueModel<?> valueModel);
 
 }

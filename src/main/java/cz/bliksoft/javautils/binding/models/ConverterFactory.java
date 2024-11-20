@@ -260,8 +260,8 @@ public final class ConverterFactory {
 	 * multiplier.
 	 * <p>
 	 *
-	 * Examples: multiplier=100, Long(3) -&gt; Long(300), multiplier=1000, Long(3) -&gt;
-	 * Long(3000)
+	 * Examples: multiplier=100, Long(3) -&gt; Long(300), multiplier=1000, Long(3)
+	 * -&gt; Long(3000)
 	 *
 	 * @param longSource a Long ValueModel
 	 * @param multiplier the multiplier used for the conversion
@@ -331,8 +331,30 @@ public final class ConverterFactory {
 		return new ConverterValueModel<>(source, new StringConverter(format));
 	}
 
+	public static <T> IValueModel<T> createObjectConverter(IValueModel<Object> source) {
+		return new ConverterValueModel<>(source, new TypedObjectConverter<T>());
+	}
+
 	// Converter Implementations **********************************************
 
+	/**
+	 * cast value to target type
+	 * @param <T>
+	 */
+	public static final class TypedObjectConverter<T> implements IBindingConverter<Object, T> {
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public T targetValue(Object sourceValue) {
+			return (T) sourceValue;
+		}
+
+		@Override
+		public Object sourceValue(T targetValue) {
+			return targetValue;
+		}
+	}
+	
 	/**
 	 * Negates Booleans leaving null unchanged. Maps Boolean.TRUE to Boolean.FALSE,
 	 * Boolean.FALSE to Boolean.TRUE, and null to null.

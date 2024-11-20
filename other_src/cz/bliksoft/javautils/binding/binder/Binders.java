@@ -138,8 +138,8 @@ public final class Binders {
 	 *             from the JGoodies Sandbox.
 	 */
 	@Deprecated
-	public static ActionPresentationModelBinder binderFor(IActionPresentationModel<?> model) {
-		return new ActionPresentationModelBinderImpl(model);
+	public static <B> ActionPresentationModelBinder binderFor(IActionPresentationModel<B> model) {
+		return new ActionPresentationModelBinderImpl<B>(model);
 	}
 
 }

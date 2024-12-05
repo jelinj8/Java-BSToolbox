@@ -1,5 +1,5 @@
 <#import "html.ftlh" as html>
-<#include "builtin/functions.ftl">
+<#include "functions.ftl">
 <@html.additionalHead>
 <@html.title><#if env.appName??>${env.appName}<#if env.envName??> (${env.envName})</#if> status<#else>App status report</#if></@html.title>
 <@html.chartjs_inline />

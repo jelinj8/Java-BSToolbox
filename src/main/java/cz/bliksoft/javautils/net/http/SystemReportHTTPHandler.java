@@ -15,9 +15,9 @@ public class SystemReportHTTPHandler extends DefaultFreemarkerHTTPHandler {
 
 	public SystemReportHTTPHandler() {
 		addSupportedGETPOST();
-		setTemplateLoader(new ClassTemplateLoader(BuiltinTemplateLoader.class, "builtin"));
+		setTemplateLoader(BuiltinTemplateLoader.getBuiltinTemplateLoader());
 		SystemMonitor.startSystemMonitor();
-		setIndexFileName("systemstatus.ftlh");
+		setIndexFileName("builtin/systemstatus.ftlh");
 	}
 
 	@Override

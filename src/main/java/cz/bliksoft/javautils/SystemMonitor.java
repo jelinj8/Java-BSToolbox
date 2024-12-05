@@ -287,16 +287,12 @@ public class SystemMonitor {
 	}
 
 	public static void writeSystemReport(OutputStream os) {
-		String path = "systemstatus.ftlh";
+		String path = "builtin/systemstatus.ftlh";
 
 		FreemarkerGenerator generator = null;
 		Template template = null;
 		try {
-			List<TemplateLoader> loaders = new ArrayList<>(2);
-			loaders.add(BuiltinTemplateLoader.getBuiltinTemplateLoader());
-			loaders.add(new ClassTemplateLoader(BuiltinTemplateLoader.class, "builtin"));
-
-			generator = new FreemarkerGenerator(new MultiTemplateLoader(loaders.toArray(new TemplateLoader[] {})));
+			generator = new FreemarkerGenerator(BuiltinTemplateLoader.getBuiltinTemplateLoader());
 
 			try {
 				generator.setVariable("environment", EnvironmentUtils.getEnvironmentProperties());

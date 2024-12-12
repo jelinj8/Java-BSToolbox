@@ -68,9 +68,9 @@ import cz.bliksoft.javautils.binding.models.ConverterValueModel;
  *
  * @since 2.3
  */
-public class ValueModelBindingBuilderImpl implements ValueModelBindingBuilder {
+public class ValueModelBindingBuilderImpl<E> implements ValueModelBindingBuilder<E> {
 
-	private final IValueModel valueModel;
+	private final IValueModel<E> valueModel;
 	private final String propertyName;
 
 	// Instance Creation ******************************************************
@@ -85,7 +85,7 @@ public class ValueModelBindingBuilderImpl implements ValueModelBindingBuilder {
 	 *
 	 * @throws NullPointerException if {@code valueModel} is {@code null}
 	 */
-	public ValueModelBindingBuilderImpl(IValueModel valueModel) {
+	public ValueModelBindingBuilderImpl(IValueModel<E> valueModel) {
 		this(valueModel, null);
 	}
 
@@ -101,7 +101,7 @@ public class ValueModelBindingBuilderImpl implements ValueModelBindingBuilder {
 	 * @throws IllegalArgumentException if {@code propertyName} is empty or
 	 *                                  whitespace
 	 */
-	public ValueModelBindingBuilderImpl(IValueModel valueModel, String propertyName) {
+	public ValueModelBindingBuilderImpl(IValueModel<E> valueModel, String propertyName) {
 		this.valueModel = checkNotNull(valueModel, "The ValueModel must not be null.");
 		this.propertyName = propertyName;
 		if (propertyName != null) {
@@ -111,14 +111,17 @@ public class ValueModelBindingBuilderImpl implements ValueModelBindingBuilder {
 
 	// Conversions ************************************************************
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public ValueModelBindingBuilder converted(IBindingConverter converter) {
-		return new ValueModelBindingBuilderImpl(new ConverterValueModel(getValueModel(), converter), getPropertyName());
+	public ValueModelBindingBuilder<E> converted(IBindingConverter<?, ?> converter) {
+		return new ValueModelBindingBuilderImpl<E>(new ConverterValueModel(getValueModel(), converter),
+				getPropertyName());
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public ValueModelBindingBuilder formatted(Format format) {
-		return new ValueModelBindingBuilderImpl(ConverterFactory.createStringConverter(getValueModel(), format),
+	public ValueModelBindingBuilder<E> formatted(Format format) {
+		return new ValueModelBindingBuilderImpl<E>(ConverterFactory.createStringConverter(getValueModel(), format),
 				getPropertyName());
 	}
 
@@ -135,45 +138,49 @@ public class ValueModelBindingBuilderImpl implements ValueModelBindingBuilder {
 
 	// Selections *************************************************************
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public <E> SelectionInListBindingBuilder asSelectionIn(E[] array) {
+	public SelectionInListBindingBuilder<E> asSelectionIn(E[] array) {
 		checkNotNull(array, "The array must not be null.");
 		SelectionInList<E> selectionInList = new SelectionInList<E>(array, getValueModel());
-		return new SelectionInListBindingBuilderImpl(selectionInList, getPropertyName());
+		return new SelectionInListBindingBuilderImpl<E>(selectionInList, getPropertyName());
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public <E> SelectionInListBindingBuilder asSelectionIn(List<E> list) {
+	public SelectionInListBindingBuilder<E> asSelectionIn(List<E> list) {
 		checkNotNull(list, "The List must not be null.");
 		SelectionInList<E> selectionInList = new SelectionInList<E>(list, getValueModel());
-		return new SelectionInListBindingBuilderImpl(selectionInList, getPropertyName());
+		return new SelectionInListBindingBuilderImpl<E>(selectionInList, getPropertyName());
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public <E> SelectionInListBindingBuilder asSelectionIn(ListModel<E> listModel) {
+	public SelectionInListBindingBuilder<E> asSelectionIn(ListModel<E> listModel) {
 		checkNotNull(listModel, "The ListModel must not be null.");
 		SelectionInList<E> selectionInList = new SelectionInList<E>(listModel, getValueModel());
-		return new SelectionInListBindingBuilderImpl(selectionInList, getPropertyName());
+		return new SelectionInListBindingBuilderImpl<E>(selectionInList, getPropertyName());
 	}
 
 	// Bindings ***************************************************************
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void to(AbstractButton toggleButton) {
 		checkNotNull(toggleButton, "The toggle button must not be null.");
-		Bindings.bind(toggleButton, valueModel);
+		Bindings.bind(toggleButton, (IValueModel<Boolean>) valueModel);
 		setValidationMessageKey(toggleButton);
 	}
 
 	@Override
-	public void to(AbstractButton toggleButton, Object selectedValue, Object deselectedValue) {
+	public void to(AbstractButton toggleButton, E selectedValue, E deselectedValue) {
 		checkNotNull(toggleButton, "The toggle button must not be null.");
 		Bindings.bind(toggleButton, valueModel, selectedValue, deselectedValue);
 		setValidationMessageKey(toggleButton);
 	}
 
 	@Override
-	public void to(AbstractButton toggleButton, Object choice) {
+	public void to(AbstractButton toggleButton, E choice) {
 		checkNotNull(toggleButton, "The toggle button must not be null.");
 		Bindings.bind(toggleButton, valueModel, choice);
 		setValidationMessageKey(toggleButton);
@@ -184,17 +191,19 @@ public class ValueModelBindingBuilderImpl implements ValueModelBindingBuilder {
 //        Bindings.bind(colorChooser, valueModel);
 //    }
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void to(JFormattedTextField formattedTextField) {
 		checkNotNull(formattedTextField, "The formatted text field must not be null.");
-		Bindings.bind(formattedTextField, valueModel);
+		Bindings.bind(formattedTextField, (IValueModel<String>) valueModel);
 		setValidationMessageKey(formattedTextField);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void to(JLabel label) {
 		checkNotNull(label, "The label must not be null.");
-		Bindings.bind(label, valueModel);
+		Bindings.bind(label, (IValueModel<String>) valueModel);
 	}
 
 	@Override
@@ -202,11 +211,12 @@ public class ValueModelBindingBuilderImpl implements ValueModelBindingBuilder {
 		to(textArea, Commit.ON_FOCUS_LOST);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void to(JTextArea textArea, Commit commitType) {
 		checkNotNull(textArea, "The text area must not be null.");
 		checkNotNull(commitType, "The commit type must not be null.");
-		Bindings.bind(textArea, valueModel, commitType == Commit.ON_FOCUS_LOST);
+		Bindings.bind(textArea, (IValueModel<String>) valueModel, commitType == Commit.ON_FOCUS_LOST);
 		setValidationMessageKey(textArea);
 	}
 
@@ -219,13 +229,14 @@ public class ValueModelBindingBuilderImpl implements ValueModelBindingBuilder {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void to(JTextField textField, Commit commitType) {
 		checkNotNull(textField, "The text field must not be null.");
 		checkNotNull(commitType, "The commit type must not be null.");
 		checkArgument(!(textField instanceof JFormattedTextField),
 				"For JFormattedTextField use method #to(JFormattedTextField)");
-		Bindings.bind(textField, valueModel, commitType == Commit.ON_FOCUS_LOST);
+		Bindings.bind(textField, (IValueModel<String>) valueModel, commitType == Commit.ON_FOCUS_LOST);
 		setValidationMessageKey(textField);
 	}
 

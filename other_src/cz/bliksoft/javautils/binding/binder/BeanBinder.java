@@ -68,6 +68,6 @@ public interface BeanBinder extends ObjectBinder {
 	 *
 	 * @throws NullPointerException if {@code propertyName} is {@code null}
 	 */
-	ValueModelBindingBuilder bindProperty(String propertyName);
+	ValueModelBindingBuilder<?> bindProperty(String propertyName);
 
 }

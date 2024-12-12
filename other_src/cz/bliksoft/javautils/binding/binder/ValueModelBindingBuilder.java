@@ -64,7 +64,7 @@ import cz.bliksoft.javautils.binding.models.ConverterFactory;
  *
  * @since 2.3
  */
-public interface ValueModelBindingBuilder {
+public interface ValueModelBindingBuilder<E> {
 
 	/**
 	 * Describes the commit types used for text field and text area bindings.
@@ -105,7 +105,7 @@ public interface ValueModelBindingBuilder {
 	 *
 	 * @since 2.7
 	 */
-	ValueModelBindingBuilder converted(IBindingConverter<?, ?> converter);
+	ValueModelBindingBuilder<?> converted(IBindingConverter<?, ?> converter);
 
 	/**
 	 * Wraps this builder's ValueModel with a string converter and creates and
@@ -122,7 +122,7 @@ public interface ValueModelBindingBuilder {
 	 *
 	 * @throws NullPointerException if {@code format} is {@code null}
 	 */
-	ValueModelBindingBuilder formatted(Format format);
+	ValueModelBindingBuilder<?> formatted(Format format);
 
 //  ValueModelBindingBuilder buffered(ValueModel triggerChannel);
 //
@@ -146,7 +146,7 @@ public interface ValueModelBindingBuilder {
 	 *
 	 * @throws NullPointerException if {@code array} is {@code null}
 	 */
-	<E> SelectionInListBindingBuilder asSelectionIn(E[] array);
+	SelectionInListBindingBuilder<E> asSelectionIn(E[] array);
 
 	/**
 	 * Creates and returns a SelectionInListBindingBuilder on a SelectionInList with
@@ -165,7 +165,7 @@ public interface ValueModelBindingBuilder {
 	 *
 	 * @throws NullPointerException if {@code list} is {@code null}
 	 */
-	<E> SelectionInListBindingBuilder asSelectionIn(List<E> list);
+	SelectionInListBindingBuilder<E> asSelectionIn(List<E> list);
 
 	/**
 	 * Creates and returns a SelectionInListBindingBuilder on a SelectionInList with
@@ -184,7 +184,7 @@ public interface ValueModelBindingBuilder {
 	 *
 	 * @throws NullPointerException if {@code listModel} is {@code null}
 	 */
-	<E> SelectionInListBindingBuilder asSelectionIn(ListModel<E> listModel);
+	SelectionInListBindingBuilder<E> asSelectionIn(ListModel<E> listModel);
 
 	// Bindings ***************************************************************
 
@@ -220,7 +220,7 @@ public interface ValueModelBindingBuilder {
 	 *
 	 * @see Bindings#bind(AbstractButton, com.jgoodies.binding.value.ValueModel)
 	 */
-	void to(AbstractButton toggleButton, Object selectedValue, Object deselectedValue);
+	void to(AbstractButton toggleButton, E selectedValue, E deselectedValue);
 
 	/**
 	 * Binds this builder's ValueModel to the given toggle button (radio button
@@ -240,7 +240,7 @@ public interface ValueModelBindingBuilder {
 	 * @see Bindings#bind(AbstractButton, com.jgoodies.binding.value.ValueModel,
 	 *      Object)
 	 */
-	void to(AbstractButton toggleButton, Object choice);
+	void to(AbstractButton toggleButton, E choice);
 
 	// Due to a bug in Java 1.4.2, Java 5 and Java 6, the following
 	// binding has been commented. To work correctly, the JColorChooser

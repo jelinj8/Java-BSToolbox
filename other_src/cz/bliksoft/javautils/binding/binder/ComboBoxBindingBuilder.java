@@ -49,7 +49,7 @@ import javax.swing.JComboBox;
  *
  * @since 2.7
  */
-public interface ComboBoxBindingBuilder {
+public interface ComboBoxBindingBuilder<E> {
 
 	/**
 	 * Binds this builder's ComboBoxModel to the given combo box.
@@ -63,7 +63,7 @@ public interface ComboBoxBindingBuilder {
 	 *
 	 * @throws NullPointerException if {@code comboBox} is {@code null}
 	 */
-	void to(JComboBox comboBox);
+	void to(JComboBox<E> comboBox);
 
 	/**
 	 * Binds this builder's ComboBoxModel to the given combo box where {@code null}
@@ -88,6 +88,6 @@ public interface ComboBoxBindingBuilder {
 	 * @throws IllegalArgumentException if {@code nullElementText} is empty or
 	 *                                  whitespace
 	 */
-	void to(JComboBox comboBox, String nullElementText);
+	void to(JComboBox<E> comboBox, E nullElement, String nullElementText);
 
 }

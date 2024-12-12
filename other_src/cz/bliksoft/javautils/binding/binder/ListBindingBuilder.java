@@ -50,7 +50,7 @@ import javax.swing.JTable;
  *
  * @since 2.3
  */
-public interface ListBindingBuilder {
+public interface ListBindingBuilder<T> {
 
 	/**
 	 * Sets this builder's ListModel and ListSelectionModel in the given list.
@@ -63,7 +63,7 @@ public interface ListBindingBuilder {
 	 *
 	 * @throws NullPointerException if {@code table} is {@code null}
 	 */
-	void to(JList list);
+	void to(JList<T> list);
 
 	/**
 	 * Sets this builder's ListModel and ListSelectionModel in the given table. As a

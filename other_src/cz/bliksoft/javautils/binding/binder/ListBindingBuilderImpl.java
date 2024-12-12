@@ -51,19 +51,19 @@ import cz.bliksoft.javautils.binding.Bindings;
  *
  * @since 2.3
  */
-public class ListBindingBuilderImpl implements ListBindingBuilder {
+public class ListBindingBuilderImpl<T> implements ListBindingBuilder<T> {
 
-	private final ListModel dataModel;
+	private final ListModel<T> dataModel;
 	private final ListSelectionModel selectionModel;
 
 	// Instance Creation ******************************************************
 
-	public ListBindingBuilderImpl(Object[] data, ListSelectionModel selectionModel) {
-		this(new ArrayToListModel(data), selectionModel);
+	public ListBindingBuilderImpl(T[] data, ListSelectionModel selectionModel) {
+		this(new ArrayToListModel<>(data), selectionModel);
 	}
 
-	public ListBindingBuilderImpl(List<?> data, ListSelectionModel selectionModel) {
-		this(new ListToListModel(data), selectionModel);
+	public ListBindingBuilderImpl(List<T> data, ListSelectionModel selectionModel) {
+		this(new ListToListModel<>(data), selectionModel);
 	}
 
 	/**
@@ -75,7 +75,7 @@ public class ListBindingBuilderImpl implements ListBindingBuilder {
 	 * @throws NullPointerException if {@code dataModel} or {@code selectionModel}
 	 *                              is {@code null}
 	 */
-	public ListBindingBuilderImpl(ListModel dataModel, ListSelectionModel selectionModel) {
+	public ListBindingBuilderImpl(ListModel<T> dataModel, ListSelectionModel selectionModel) {
 		this.dataModel = checkNotNull(dataModel, "The ListModel must not be null.");
 		this.selectionModel = checkNotNull(selectionModel, "The ListSelectionModel must not be null.");
 	}
@@ -88,24 +88,24 @@ public class ListBindingBuilderImpl implements ListBindingBuilder {
 	}
 
 	@Override
-	public void to(JList list) {
+	public void to(JList<T> list) {
 		list.setModel(dataModel);
 		list.setSelectionModel(selectionModel);
 	}
 
 	// Helper Classes *********************************************************
 
-	private static final class ArrayToListModel extends AbstractListModel {
+	private static final class ArrayToListModel<T> extends AbstractListModel<T> {
+		private static final long serialVersionUID = 4031212719740054721L;
+		private final T[] array;
 
-		private final Object[] array;
-
-		ArrayToListModel(Object[] array) {
+		ArrayToListModel(T[] array) {
 			this.array = array;
 
 		}
 
 		@Override
-		public Object getElementAt(int index) {
+		public T getElementAt(int index) {
 			return array[index];
 		}
 
@@ -115,17 +115,17 @@ public class ListBindingBuilderImpl implements ListBindingBuilder {
 		}
 	}
 
-	private static final class ListToListModel extends AbstractListModel {
+	private static final class ListToListModel<T> extends AbstractListModel<T> {
+		private static final long serialVersionUID = -3804464983831615301L;
+		private final List<T> list;
 
-		private final List<?> list;
-
-		ListToListModel(List<?> list) {
+		ListToListModel(List<T> list) {
 			this.list = list;
 
 		}
 
 		@Override
-		public Object getElementAt(int index) {
+		public T getElementAt(int index) {
 			return list.get(index);
 		}
 

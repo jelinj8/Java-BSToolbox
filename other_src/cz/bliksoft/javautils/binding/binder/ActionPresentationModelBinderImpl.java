@@ -44,10 +44,10 @@ import cz.bliksoft.javautils.binding.binder.interfaces.IActionPresentationModel;
  *             Client's Sandbox
  */
 @Deprecated
-public class ActionPresentationModelBinderImpl extends PresentationModelBinderImpl<IActionPresentationModel>
+public class ActionPresentationModelBinderImpl<B> extends PresentationModelBinderImpl<IActionPresentationModel<B>>
 		implements ActionPresentationModelBinder {
 
-	public ActionPresentationModelBinderImpl(IActionPresentationModel model) {
+	public ActionPresentationModelBinderImpl(IActionPresentationModel<B> model) {
 		super(model);
 	}
 

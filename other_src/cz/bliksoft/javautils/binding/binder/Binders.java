@@ -91,7 +91,7 @@ public final class Binders {
 	 * @return the created binder
 	 */
 	public static BeanBinder binderFor(Object bean) {
-		return new BeanBinderImpl(bean);
+		return new BeanBinderImpl<Object>(bean);
 	}
 
 	/**
@@ -121,7 +121,7 @@ public final class Binders {
 	 * @return the created binder
 	 */
 	public static PresentationModelBinder binderFor(IPresentationModel<?> model) {
-		return new PresentationModelBinderImpl(model);
+		return new PresentationModelBinderImpl<IPresentationModel<?>>(model);
 	}
 
 	/**
@@ -138,8 +138,8 @@ public final class Binders {
 	 *             from the JGoodies Sandbox.
 	 */
 	@Deprecated
-	public static ActionPresentationModelBinder binderFor(IActionPresentationModel<?> model) {
-		return new ActionPresentationModelBinderImpl(model);
+	public static <B> ActionPresentationModelBinder binderFor(IActionPresentationModel<B> model) {
+		return new ActionPresentationModelBinderImpl<B>(model);
 	}
 
 }

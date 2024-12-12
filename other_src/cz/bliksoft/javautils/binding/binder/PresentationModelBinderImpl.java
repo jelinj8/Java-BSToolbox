@@ -44,7 +44,7 @@ import cz.bliksoft.javautils.binding.binder.interfaces.IPresentationModel;
  *
  * @since 2.3
  */
-public class PresentationModelBinderImpl<PM extends IPresentationModel> extends BeanBinderImpl<PM>
+public class PresentationModelBinderImpl<PM extends IPresentationModel<?>> extends BeanBinderImpl<PM>
 		implements PresentationModelBinder {
 
 	// Instance Creation ******************************************************
@@ -63,8 +63,8 @@ public class PresentationModelBinderImpl<PM extends IPresentationModel> extends 
 	// PresentationModelBinder Implementation *********************************
 
 	@Override
-	public ValueModelBindingBuilder bindBeanProperty(String propertyName) {
-		return new ValueModelBindingBuilderImpl(getTarget().getComponentModel(propertyName), propertyName);
+	public ValueModelBindingBuilder<?> bindBeanProperty(String propertyName) {
+		return new ValueModelBindingBuilderImpl<>(getTarget().getComponentModel(propertyName), propertyName);
 	}
 
 }

@@ -60,9 +60,9 @@ import cz.bliksoft.javautils.binding.list.SelectionInList;
  *
  * @since 2.3
  */
-public class SelectionInListBindingBuilderImpl implements SelectionInListBindingBuilder {
+public class SelectionInListBindingBuilderImpl<E> implements SelectionInListBindingBuilder<E> {
 
-	private final SelectionInList<?> selectionInList;
+	private final SelectionInList<E> selectionInList;
 
 	/**
 	 * An optional property name that has been used to create the SelectionInList.
@@ -79,7 +79,7 @@ public class SelectionInListBindingBuilderImpl implements SelectionInListBinding
 	 *
 	 * @throws NullPointerException if {@code selectionInList} is {@code null}
 	 */
-	public SelectionInListBindingBuilderImpl(SelectionInList<?> selectionInList) {
+	public SelectionInListBindingBuilderImpl(SelectionInList<E> selectionInList) {
 		this(selectionInList, null);
 	}
 
@@ -95,7 +95,7 @@ public class SelectionInListBindingBuilderImpl implements SelectionInListBinding
 	 * @throws IllegalArgumentException if {@code propertyName} is empty or
 	 *                                  whitespace
 	 */
-	public SelectionInListBindingBuilderImpl(SelectionInList<?> selectionInList, String propertyName) {
+	public SelectionInListBindingBuilderImpl(SelectionInList<E> selectionInList, String propertyName) {
 		this.selectionInList = checkNotNull(selectionInList, "The SelectionInList must no be null.");
 		this.propertyName = propertyName;
 		if (propertyName != null) {
@@ -106,19 +106,19 @@ public class SelectionInListBindingBuilderImpl implements SelectionInListBinding
 	// SelectionInListBindingBuilder Implementation ***************************
 
 	@Override
-	public void to(JComboBox comboBox) {
+	public void to(JComboBox<E> comboBox) {
 		Bindings.bind(comboBox, selectionInList);
 		setValidationMessageKey(comboBox);
 	}
 
 	@Override
-	public void to(JComboBox comboBox, String nullText) {
-		Bindings.bind(comboBox, selectionInList, nullText);
+	public void to(JComboBox<E> comboBox, E nullElement, String nullText) {
+		Bindings.bind(comboBox, selectionInList, nullElement, nullText);
 		setValidationMessageKey(comboBox);
 	}
 
 	@Override
-	public void to(JList list) {
+	public void to(JList<E> list) {
 		Bindings.bind(list, selectionInList);
 	}
 
@@ -132,7 +132,7 @@ public class SelectionInListBindingBuilderImpl implements SelectionInListBinding
 	/**
 	 * @return this builder's SelectionInList
 	 */
-	protected final SelectionInList getSelectionInList() {
+	protected final SelectionInList<E> getSelectionInList() {
 		return selectionInList;
 	}
 

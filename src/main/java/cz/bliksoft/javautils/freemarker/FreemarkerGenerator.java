@@ -167,14 +167,11 @@ public class FreemarkerGenerator {
 		cfg.setLocalizedLookup(false);
 	}
 
-	public String generate(String templateName) throws IOException, TemplateException {
-		return generate(templateName, null);
+	public String generate(Template tpl) throws IOException, TemplateException {
+		return generate(tpl, null);
 	}
 
-	public String generate(String templateName, Object data) throws IOException, TemplateException {
-
-		Template temp = getTemplate(templateName);
-
+	public String generate(Template tpl, Object data) throws IOException, TemplateException {
 		Map<String, Object> root = new HashMap<>();
 		registerExtensions(root);
 		if (data != null)
@@ -182,13 +179,22 @@ public class FreemarkerGenerator {
 		registerVariables(root);
 		StringWriter s = new StringWriter();
 		if (storeEnvironment) {
-			Environment environment = temp.createProcessingEnvironment(root, s);
+			Environment environment = tpl.createProcessingEnvironment(root, s);
 			environment.process(); // process the template
 			lastEnvironment = environment;
 		} else {
-			temp.process(root, s);
+			tpl.process(root, s);
 		}
 		return s.toString();
+	}
+
+	public String generate(String templateName) throws IOException, TemplateException {
+		return generate(templateName, null);
+	}
+
+	public String generate(String templateName, Object data) throws IOException, TemplateException {
+		Template temp = getTemplate(templateName);
+		return generate(temp, data);
 	}
 
 	public void generate(File outfile, String templateName) throws IOException, TemplateException {

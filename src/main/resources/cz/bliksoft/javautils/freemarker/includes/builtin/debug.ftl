@@ -110,15 +110,26 @@ ${pad}NODE_type:"${object?node_type}"
 		<#elseif object?is_string>
 ${pad}	"${object?trim?json_string}"
 <#--         <#elseif object?is_hash_ex> -->
-        <#elseif object?is_hash>
+ <#--       <#elseif object?is_hash>
 ${pad}{
-${pad}	[
-            <#list object as item>
+            <#list object as key, val>
+                <#assign value><@objectToFormattedJson object=val!"" pad=('\t'+pad)/></#assign>
+${pad}	"${key}": ${value?trim}<#if !key?is_last>,</#if>
+            </#list>
+${pad}}-->
+        <#elseif object?is_hash>
+${pad}{	simple HASH }
+<#--${pad}	[
+            <#list object?keys as item>
                 <#assign value><@objectToFormattedJson object=item!'NULL'  pad=('\t'+pad)/></#assign>
 ${pad}	${value?trim}<#if !item?is_last>,</#if>
             </#list>
 ${pad}	]
-${pad}}
+${pad}}-->
+			<#elseif object?is_method>
+${pad}	"METHOD"
+			<#elseif object?is_macro>
+${pad}	"MACRO"
         <#elseif object?is_enumerable>
 ${pad}[
             <#list object as item>
@@ -139,10 +150,6 @@ ${pad}	"${object?string[dateFormatString]}"
 ${pad}	"${object?string[dateTimeFormatString]}"
 			<#elseif object?is_time>
 ${pad}	"${object?string[timeFormatString]}"
-			<#elseif object?is_method>
-${pad}	"METHOD"
-			<#elseif object?is_macro>
-${pad}	"MACRO"
 			<#else>
 ${pad}	?"${object?trim?json_string}"?
 			</#if>

@@ -43,6 +43,7 @@ public class Query implements TemplateMethodModelEx {
 
 	private IDBConnectionProvider connectionProvider = null;
 	private IQueryProvider queryProvider = null;
+	private Integer queryTimeout = 0;
 
 	private long timestamp;
 
@@ -58,6 +59,17 @@ public class Query implements TemplateMethodModelEx {
 		this.connectionProvider = connectionProvider;
 		this.queryProvider = queryProvider;
 		this.iterable = iterable;
+	}
+
+	public void setQueryTimeout(Integer timeoutSec) {
+		if (timeoutSec == null)
+			queryTimeout = 0;
+		else
+			queryTimeout = timeoutSec;
+	}
+
+	public Integer getQueryTimeout() {
+		return queryTimeout;
 	}
 
 	public class IterableQueryResult implements Iterator<Map<String, Object>>, Closeable {
@@ -201,6 +213,9 @@ public class Query implements TemplateMethodModelEx {
 				String argType = null;
 				try {
 					PreparedStatement pstmnt = con.prepareStatement(query);
+					if (queryTimeout != 0) {
+						pstmnt.setQueryTimeout(queryTimeout);
+					}
 					int pID = 1;
 					if (queryProvider.getArgumentTypes(queryID).size() > 0) {
 						paramsToPrint.append("arguments:");

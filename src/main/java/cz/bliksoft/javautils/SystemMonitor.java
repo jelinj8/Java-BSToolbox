@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -55,6 +56,10 @@ public class SystemMonitor {
 
 	public static class SystemReport {
 		public SystemReport() {
+			this(false);
+		}
+
+		public SystemReport(boolean getTraces) {
 			Runtime instance = Runtime.getRuntime();
 			totalMemory = instance.totalMemory();
 			freeMemory = instance.freeMemory();
@@ -69,7 +74,7 @@ public class SystemMonitor {
 			Map<Long, ThreadInfo> newThreadInfo = new HashMap<>();
 
 			for (Long threadID : threadMXBean.getAllThreadIds()) {
-				ThreadInfo info = threadMXBean.getThreadInfo(threadID);
+				ThreadInfo info = threadMXBean.getThreadInfo(threadID, getTraces ? Integer.MAX_VALUE : 0);
 				newThreadInfo.put(threadID, info);
 				Long threadNanos = threadMXBean.getThreadCpuTime(threadID);
 
@@ -141,15 +146,6 @@ public class SystemMonitor {
 		return totalThreadCpuNanos;
 	}
 
-	/**
-	 * return copy of current threadInfo list
-	 * 
-	 * @return
-	 */
-	public static List<ThreadInfo> getThreadInfo() {
-		return new ArrayList<>(threadInfo);
-	}
-
 	public static Map<Long, Long> getLastThreadCpuMillis() {
 		return lastThreadCpuMillis;
 	}
@@ -158,7 +154,7 @@ public class SystemMonitor {
 		Map<String, Object> currentVariables = new HashMap<>();
 		currentVariables.putAll(baseVariables);
 
-		SystemReport rep = new SystemReport();
+		SystemReport rep = new SystemReport(true);
 
 		currentVariables.put("MEMORY_FREE", rep.getFree() / mb);
 		currentVariables.put("MEMORY_USED", rep.getUsed() / mb);
@@ -209,26 +205,29 @@ public class SystemMonitor {
 		Map<Long, Long> nanos = getLastThreadCpuMillis();
 
 		if (ti != null) {
-			ti.sort(new Comparator<ThreadInfo>() {
-				@Override
-				public int compare(ThreadInfo o1, ThreadInfo o2) {
-					if (o1.getThreadId() < o2.getThreadId())
-						return -1;
-					else if (o1.getThreadId() > o2.getThreadId())
-						return 1;
-					else
-						return 0;
-				}
-			});
 
-			List<Map<String, Object>> threads = new ArrayList<>(getThreadInfo().size());
+			List<Map<String, Object>> threads = new ArrayList<>(ti.size());
 			ti.forEach(info -> {
 				long id = info.getThreadId();
 				Map<String, Object> t = new HashMap<>();
 				t.put("name", info.getThreadName());
 				t.put("status", info.getThreadState().toString());
-				t.put("millis", nanos.get(id));
+				Long tmpnanos = nanos.get(id);
+				if (tmpnanos == null)
+					tmpnanos = 0l;
+				t.put("millis", tmpnanos);
 				t.put("id", id);
+
+				StackTraceElement[] stack = info.getStackTrace();
+				if (stack.length > 0) {
+					StringBuilder stackTrace = new StringBuilder();
+					for (int i = 0; i < stack.length; i++) {
+						StackTraceElement stackI = stack[i];
+						stackTrace.append(MessageFormat.format("{0}.{1}[{2}:{3}]\n", stackI.getClassName(),
+								stackI.getMethodName(), stackI.getFileName(), stackI.getLineNumber()));
+					}
+					t.put("stack", stackTrace.toString());
+				}
 				threads.add(t);
 			});
 			currentVariables.put("threads", threads);
@@ -238,8 +237,30 @@ public class SystemMonitor {
 		}
 
 		currentVariables.put("publishedVariables", LogUtils.getPublishedVariables());
-		
+
 		return currentVariables;
+	}
+
+	/**
+	 * return copy of current threadInfo list
+	 * 
+	 * @return
+	 */
+	public static List<ThreadInfo> getThreadInfo() {
+
+		List<ThreadInfo> res = new ArrayList<>(threadInfo);
+		res.sort(new Comparator<ThreadInfo>() {
+			@Override
+			public int compare(ThreadInfo o1, ThreadInfo o2) {
+				if (o1.getThreadId() < o2.getThreadId())
+					return -1;
+				else if (o1.getThreadId() > o2.getThreadId())
+					return 1;
+				else
+					return 0;
+			}
+		});
+		return res;
 	}
 
 	public static void startSystemMonitor() {

@@ -4,11 +4,19 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.AlgorithmParameters;
 import java.security.GeneralSecurityException;
+import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
 import java.util.zip.CRC32;
 import java.util.zip.Checksum;
 
@@ -252,4 +260,19 @@ public class CryptUtils {
 		crc32.update(bytes, 0, bytes.length);
 		return crc32.getValue();
 	}
+	
+	public static RSAPrivateKey privateKeyFromString(String data) throws InvalidKeySpecException, NoSuchAlgorithmException {
+		String privateKeyContent = data.replaceAll("\\R", "").replace("-----BEGIN PRIVATE KEY-----", "").replace("-----END PRIVATE KEY-----", "");
+		KeyFactory kf = KeyFactory.getInstance("RSA");
+		PKCS8EncodedKeySpec keySpecPKCS8 = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKeyContent));
+        return (RSAPrivateKey) kf.generatePrivate(keySpecPKCS8);
+	}
+	
+	public static RSAPublicKey publicKeyFromString(String data) throws InvalidKeySpecException, NoSuchAlgorithmException {
+		String publicKeyContent = data.replaceAll("\\R", "").replaceAll("\\n", "").replace("-----BEGIN PUBLIC KEY-----", "").replace("-----END PUBLIC KEY-----", "");
+		KeyFactory kf = KeyFactory.getInstance("RSA");
+		X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(Base64.getDecoder().decode(publicKeyContent));
+        return (RSAPublicKey) kf.generatePublic(keySpecX509);
+	}
+	
 }

@@ -89,11 +89,11 @@ public class FreemarkerGenerator {
 	}
 
 	private void commonInit() {
-		cfg = new Configuration(Configuration.VERSION_2_3_33);
+		cfg = new Configuration(Configuration.VERSION_2_3_34);
 		cfg.setEncoding(Locale.getDefault(), "UTF8");
 		// setNumberFormat(NumberFormats.COMPUTER);
 
-		cfg.setObjectWrapper(ObjectWrapperRegister.getInstance(Configuration.VERSION_2_3_33));
+		cfg.setObjectWrapper(ObjectWrapperRegister.getInstance(Configuration.VERSION_2_3_34));
 	}
 
 	/**

@@ -19,7 +19,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,9 +26,6 @@ import cz.bliksoft.javautils.binding.list.collections.LimitedList;
 import cz.bliksoft.javautils.freemarker.FreemarkerGenerator;
 import cz.bliksoft.javautils.freemarker.includes.BuiltinTemplateLoader;
 import cz.bliksoft.javautils.logging.LogUtils;
-import freemarker.cache.ClassTemplateLoader;
-import freemarker.cache.MultiTemplateLoader;
-import freemarker.cache.TemplateLoader;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 

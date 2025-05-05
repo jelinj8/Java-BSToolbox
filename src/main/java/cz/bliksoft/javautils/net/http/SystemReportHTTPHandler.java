@@ -7,7 +7,6 @@ import com.sun.net.httpserver.HttpServer;
 
 import cz.bliksoft.javautils.SystemMonitor;
 import cz.bliksoft.javautils.freemarker.includes.BuiltinTemplateLoader;
-import freemarker.cache.ClassTemplateLoader;
 
 public class SystemReportHTTPHandler extends DefaultFreemarkerHTTPHandler {
 

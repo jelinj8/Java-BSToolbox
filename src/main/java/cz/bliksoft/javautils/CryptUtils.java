@@ -6,7 +6,6 @@ import java.security.AlgorithmParameters;
 import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
@@ -16,7 +15,6 @@ import java.util.Base64;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
 import java.util.zip.CRC32;
 import java.util.zip.Checksum;
 

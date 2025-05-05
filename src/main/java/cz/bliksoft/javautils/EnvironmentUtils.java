@@ -2,11 +2,11 @@ package cz.bliksoft.javautils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.codec.Charsets;
 import org.apache.commons.io.FileUtils;
 
 import cz.bliksoft.javautils.exceptions.InitializationException;
@@ -52,7 +52,7 @@ public class EnvironmentUtils {
 		String envDirName;
 		File defaultEnvFile = new File("default.env");
 		if (defaultEnvFile.exists()) {
-			envDirName = FileUtils.readFileToString(defaultEnvFile, Charsets.UTF_8);
+			envDirName = FileUtils.readFileToString(defaultEnvFile, StandardCharsets.UTF_8);
 			if (envDirName != null)
 				envDirName = envDirName.trim();
 

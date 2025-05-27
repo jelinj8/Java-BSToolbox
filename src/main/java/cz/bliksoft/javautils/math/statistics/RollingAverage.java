@@ -36,8 +36,13 @@ public class RollingAverage implements IStatisticFilter {
 	public Double getValue() {
 		return sum / values.size();
 	}
-	
+
 	public Long getCount() {
+		return (long) values.size();
+	}
+
+	@Override
+	public Long getTotalCount() {
 		return totalValCount;
 	}
 

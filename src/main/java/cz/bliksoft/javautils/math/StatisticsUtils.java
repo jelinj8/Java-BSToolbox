@@ -23,8 +23,9 @@ public class StatisticsUtils {
 	 * register {@link IStatisticFilter} (instance of specific implementation)
 	 * 
 	 * @param key
-	 * @param averager instance of specific implementation ({@link RollingAverage},
-	 *                 {@link ApproximatedRollingAverage}, {@link Average}...)
+	 * @param averager
+	 *            instance of specific implementation ({@link RollingAverage},
+	 *            {@link ApproximatedRollingAverage}, {@link Average}...)
 	 */
 	public static void addFilter(Object key, IStatisticFilter averager) {
 		filters.put(key, averager);
@@ -50,7 +51,8 @@ public class StatisticsUtils {
 	}
 
 	/**
-	 * get current keyed filter value
+	 * get current keyed filter value, swallows potential
+	 * {@link ArithmeticException} (e.g. division by zero)
 	 * 
 	 * @param key
 	 * @return
@@ -60,8 +62,13 @@ public class StatisticsUtils {
 			IStatisticFilter val = filters.get(key);
 			if (val == null)
 				return 0d;
-			else
-				return val.getValue();
+			else {
+				try {
+					return val.getValue();
+				} catch (ArithmeticException e) {
+					return 0d;
+				}
+			}
 		}
 	}
 

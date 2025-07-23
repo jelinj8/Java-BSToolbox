@@ -10,6 +10,7 @@ public class ApproximatedRollingAverage implements IStatisticFilter {
 		this.windowSize = windowSize;
 	}
 
+	@Override
 	public void addValue(Double value) {
 		if (valCount == 0) {
 			this.value = value;
@@ -22,19 +23,28 @@ public class ApproximatedRollingAverage implements IStatisticFilter {
 		}
 	}
 
+	@Override
 	public void addValue(Long value) {
 		addValue(value.doubleValue());
 	}
 
+	@Override
 	public Long getLongValue() {
 		return Math.round(value);
 	}
 
+	@Override
 	public Double getValue() {
 		return value;
 	}
 
+	@Override
 	public Long getCount() {
+		return (long) valCount;
+	}
+
+	@Override
+	public Long getTotalCount() {
 		return totalValCount;
 	}
 }

@@ -24,8 +24,13 @@ public class Average implements IStatisticFilter {
 	public Double getValue() {
 		return sum / totalValCount;
 	}
-	
+
 	public Long getCount() {
 		return totalValCount;
 	}
+
+	public Long getTotalCount() {
+		return totalValCount;
+	}
+
 }

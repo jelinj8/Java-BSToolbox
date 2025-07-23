@@ -23,13 +23,14 @@ import cz.bliksoft.javautils.PropertiesUtils;
 import cz.bliksoft.javautils.StringUtils;
 
 public class ProxySelectorRegistry extends ProxySelector {
-	private static final String PROP_PROXY_PORT = "proxyPort";
 
-	private static final String PROP_PROXY_TARGET = "proxyTarget";
+	public static final String PROP_PROXY_PORT = "proxyPort";
 
-	private static final String PROP_PROXY_MATCH = "proxyMatch";
+	public static final String PROP_PROXY_TARGET = "proxyTarget";
 
-	private static final String PROP_PROXY_URL = "proxyUrl";
+	public static final String PROP_PROXY_MATCH = "proxyMatch";
+
+	public static final String PROP_PROXY_URL = "proxyUrl";
 
 	static Logger log = Logger.getLogger(ProxySelectorRegistry.class.getName());
 
@@ -103,7 +104,8 @@ public class ProxySelectorRegistry extends ProxySelector {
 		}
 
 		if (registeredProxies.size() > 0)
-			log.info(MessageFormat.format("Proxy not found for {0} and no default was specified, using direct connection.", uri));
+			log.info(MessageFormat
+					.format("Proxy not found for {0} and no default was specified, using direct connection.", uri));
 
 		if (originalProxySelector != null)
 			return originalProxySelector.select(uri);
@@ -119,14 +121,32 @@ public class ProxySelectorRegistry extends ProxySelector {
 		log.log(Level.SEVERE, "Connection to " + uri + " failed.", ioe);
 	}
 
+	/**
+	 * load proxy config from properties file
+	 * 
+	 * @param propertiesF
+	 * @throws IOException
+	 */
 	public static void addProxyConfiguration(File propertiesF) throws IOException {
 		addProxyConfiguration(PropertiesUtils.loadFromFile(propertiesF));
 	}
 
+	/**
+	 * load proxy config from loaded properties
+	 * 
+	 * @param properties
+	 */
 	public static void addProxyConfiguration(Properties properties) {
 		addProxyConfiguration(properties, null);
 	}
 
+	/**
+	 * load proxy config from loaded properties, use specified prefix for property
+	 * names
+	 * 
+	 * @param properties
+	 * @param configPrefix
+	 */
 	public static void addProxyConfiguration(Properties properties, String configPrefix) {
 		boolean hasPrefix = StringUtils.hasText(configPrefix);
 
@@ -147,6 +167,23 @@ public class ProxySelectorRegistry extends ProxySelector {
 				throw e;
 			}
 
+			addProxyConfiguration(proxyUrl, proxyPort, proxyTarget, proxyMatch);
+		}
+	}
+
+	/**
+	 * register a proxy configuration. If neither proxyTarget nor proxyMatch is
+	 * specified, sets a default proxy
+	 * 
+	 * @param proxyUrl    proxy url to be used
+	 * @param proxyPort   proxy port
+	 * @param proxyTarget specific URL or comma separated list of URLs to redirect
+	 *                    trough proxy
+	 * @param proxyMatch  regex or comma separated regex list to match against url
+	 */
+	public static void addProxyConfiguration(String proxyUrl, Integer proxyPort, String proxyTarget,
+			String proxyMatch) {
+		if (StringUtils.hasLength(proxyUrl)) {
 			ProxySelectorRegistry.register();
 
 			if (StringUtils.hasLength(proxyTarget) || StringUtils.hasLength(proxyMatch)) {

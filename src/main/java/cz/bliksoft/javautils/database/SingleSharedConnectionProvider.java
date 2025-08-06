@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.concurrent.Semaphore;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 

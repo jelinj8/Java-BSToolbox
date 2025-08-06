@@ -4,10 +4,13 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.concurrent.Semaphore;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 /**
- * wrap a {@link IDBConnectionFactory} or an already existing {@link Connection} as a {@link IDBConnectionProvider}
+ * wrap a {@link IDBConnectionFactory} or an already existing {@link Connection}
+ * as a {@link IDBConnectionProvider}
  */
 public class SingleSharedConnectionProvider implements IDBConnectionProvider {
 	Logger log = Logger.getLogger(SingleSharedConnectionProvider.class.getName());
@@ -54,6 +57,45 @@ public class SingleSharedConnectionProvider implements IDBConnectionProvider {
 	 */
 	public SingleSharedConnectionProvider(IDBConnectionFactory connectionProvider, String name) {
 		this.connectionProvider = connectionProvider;
+		this.providerName = name;
+	}
+
+	/**
+	 * create lazily fetched connection
+	 * 
+	 * @param connectionProvider
+	 */
+	public SingleSharedConnectionProvider(Supplier<Connection> connectionFactory) {
+		this.connectionProvider = new IDBConnectionFactory() {
+
+			@Override
+			public void setAutoCommit(Boolean autoCommit) {
+			}
+
+			@Override
+			public Connection getConnection(String reason) throws Exception {
+				return connectionFactory.get();
+			}
+		};
+	}
+
+	/**
+	 * create lazily fetched connection
+	 * 
+	 * @param connectionProvider
+	 */
+	public SingleSharedConnectionProvider(Supplier<Connection> connectionFactory, String name) {
+		this.connectionProvider = new IDBConnectionFactory() {
+
+			@Override
+			public void setAutoCommit(Boolean autoCommit) {
+			}
+
+			@Override
+			public Connection getConnection(String reason) throws Exception {
+				return connectionFactory.get();
+			}
+		};
 		this.providerName = name;
 	}
 

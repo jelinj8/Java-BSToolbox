@@ -292,7 +292,10 @@ public class FreemarkerGenerator {
 		}
 	}
 
-	private static Map<String, Object> globalExtensions = getDefaultGlobalExtensions();
+	/**
+	 * available to allow configuring foreign Freemarker generators, e.g. for Springboot as shared variables.
+	 */
+	public static final Map<String, Object> globalExtensions = getDefaultGlobalExtensions();
 
 	public static void addGlobalExtension(String key, Object ext) {
 		globalExtensions.put(key, ext);
@@ -302,7 +305,7 @@ public class FreemarkerGenerator {
 		globalExtensions.remove(key);
 	}
 
-	private Map<String, Object> localExtensions = getDefaultLocalExtensions();
+	private final Map<String, Object> localExtensions = getDefaultLocalExtensions();
 
 	public void addExtension(String key, Object ext) {
 		localExtensions.put(key, ext);

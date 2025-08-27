@@ -11,7 +11,7 @@ public class CountingMap extends HashMap<String, Long> {
 	 * 
 	 */
 	private static final long serialVersionUID = -1238326355476731803L;
-	
+
 	private final Long startingValue;
 
 	public CountingMap(long startValue) {
@@ -23,16 +23,6 @@ public class CountingMap extends HashMap<String, Long> {
 	}
 
 	/**
-	 * get keyed value, starting value if not present
-	 * 
-	 * @param key
-	 * @return
-	 */
-	public Long getValue(String key) {
-		return get(key);
-	}
-
-	/**
 	 * get keyed value or specified default
 	 * 
 	 * @param key
@@ -40,7 +30,7 @@ public class CountingMap extends HashMap<String, Long> {
 	 * @return
 	 */
 	public Long getOrDefault(String key, Long defaultValue) {
-		return getOrDefault(key, defaultValue);
+		return super.getOrDefault(key, defaultValue);
 	}
 
 	/**
@@ -50,7 +40,7 @@ public class CountingMap extends HashMap<String, Long> {
 	 * @return
 	 */
 	public long inc(String key) {
-		Long v = getOrDefault(key, startingValue);
+		Long v = super.getOrDefault(key, startingValue);
 		put(key, ++v);
 		return v;
 	}
@@ -63,7 +53,7 @@ public class CountingMap extends HashMap<String, Long> {
 	 * @return
 	 */
 	public long inc(String key, long step) {
-		Long v = getOrDefault(key, startingValue);
+		Long v = super.getOrDefault(key, startingValue);
 		v += step;
 		put(key, v);
 		return v;
@@ -76,7 +66,7 @@ public class CountingMap extends HashMap<String, Long> {
 	 * @return
 	 */
 	public long dec(String key) {
-		Long v = getOrDefault(key, startingValue);
+		Long v = super.getOrDefault(key, startingValue);
 		put(key, --v);
 		return v;
 	}
@@ -89,7 +79,7 @@ public class CountingMap extends HashMap<String, Long> {
 	 * @return
 	 */
 	public long dec(String key, long step) {
-		Long v = getOrDefault(key, startingValue);
+		Long v = super.getOrDefault(key, startingValue);
 		v -= step;
 		put(key, v);
 		return v;

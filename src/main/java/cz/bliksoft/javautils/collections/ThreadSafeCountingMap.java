@@ -6,19 +6,17 @@ import java.util.Map;
 /**
  * Map of incrementable values, thread safe (synchronized)
  */
-public class CountingMap extends HashMap<String, Long> {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1238326355476731803L;
-	
+public class ThreadSafeCountingMap {
+	Map<String, Long> values = new HashMap<>();
+	private Object lock = new Object();
+
 	private final Long startingValue;
 
-	public CountingMap(long startValue) {
+	public ThreadSafeCountingMap(long startValue) {
 		this.startingValue = startValue;
 	}
 
-	public CountingMap() {
+	public ThreadSafeCountingMap() {
 		this(0l);
 	}
 
@@ -29,7 +27,9 @@ public class CountingMap extends HashMap<String, Long> {
 	 * @return
 	 */
 	public Long getValue(String key) {
-		return get(key);
+		synchronized (lock) {
+			return values.get(key);
+		}
 	}
 
 	/**
@@ -40,7 +40,9 @@ public class CountingMap extends HashMap<String, Long> {
 	 * @return
 	 */
 	public Long getOrDefault(String key, Long defaultValue) {
-		return getOrDefault(key, defaultValue);
+		synchronized (lock) {
+			return values.getOrDefault(key, defaultValue);
+		}
 	}
 
 	/**
@@ -50,9 +52,11 @@ public class CountingMap extends HashMap<String, Long> {
 	 * @return
 	 */
 	public long inc(String key) {
-		Long v = getOrDefault(key, startingValue);
-		put(key, ++v);
-		return v;
+		synchronized (lock) {
+			Long v = values.getOrDefault(key, startingValue);
+			values.put(key, ++v);
+			return v;
+		}
 	}
 
 	/**
@@ -63,10 +67,12 @@ public class CountingMap extends HashMap<String, Long> {
 	 * @return
 	 */
 	public long inc(String key, long step) {
-		Long v = getOrDefault(key, startingValue);
-		v += step;
-		put(key, v);
-		return v;
+		synchronized (lock) {
+			Long v = values.getOrDefault(key, startingValue);
+			v += step;
+			values.put(key, v);
+			return v;
+		}
 	}
 
 	/**
@@ -76,23 +82,47 @@ public class CountingMap extends HashMap<String, Long> {
 	 * @return
 	 */
 	public long dec(String key) {
-		Long v = getOrDefault(key, startingValue);
-		put(key, --v);
-		return v;
+		synchronized (lock) {
+			Long v = values.getOrDefault(key, startingValue);
+			values.put(key, --v);
+			return v;
+		}
 	}
 
 	/**
-	 * decrement a value by step
+	 * decrement value by step
 	 * 
 	 * @param key
 	 * @param step
 	 * @return
 	 */
 	public long dec(String key, long step) {
-		Long v = getOrDefault(key, startingValue);
-		v -= step;
-		put(key, v);
-		return v;
+		synchronized (lock) {
+			Long v = values.getOrDefault(key, startingValue);
+			v -= step;
+			values.put(key, v);
+			return v;
+		}
+	}
+
+	/**
+	 * remove all values
+	 */
+	public void clear() {
+		synchronized (lock) {
+			values.clear();
+		}
+	}
+
+	/**
+	 * count used keys
+	 * 
+	 * @return
+	 */
+	public long count() {
+		synchronized (lock) {
+			return values.size();
+		}
 	}
 
 	/**
@@ -101,6 +131,8 @@ public class CountingMap extends HashMap<String, Long> {
 	 * @return
 	 */
 	public Map<String, Long> getValues() {
-		return new HashMap<>(this);
+		synchronized (lock) {
+			return new HashMap<>(values);
+		}
 	}
 }

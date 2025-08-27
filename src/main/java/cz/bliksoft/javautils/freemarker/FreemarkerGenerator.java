@@ -292,7 +292,7 @@ public class FreemarkerGenerator {
 		}
 	}
 
-	private static Map<String, Object> globalExtensions = getDefaultGlobalExtensions();
+	public static final Map<String, Object> globalExtensions = getDefaultGlobalExtensions();
 
 	public static void addGlobalExtension(String key, Object ext) {
 		globalExtensions.put(key, ext);

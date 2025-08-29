@@ -110,6 +110,15 @@ public class FreemarkerGenerator {
 	}
 
 	/**
+	 * generování pomocí předkonfigurovaného nastavení
+	 * 
+	 * @param templateLoader
+	 */
+	public FreemarkerGenerator(Configuration config) {
+		this.cfg = config;
+	}
+
+	/**
 	 * generování pomocí TemplateLoaderu
 	 * 
 	 * @param templateLoader

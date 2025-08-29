@@ -3,7 +3,7 @@ package cz.bliksoft.javautils.math.statistics;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-public class RollingAverage implements IStatisticFilter {
+public class RollingAverageFilter implements IStatisticFilter {
 
 	Deque<Double> values;
 	Double sum = 0d;
@@ -12,7 +12,7 @@ public class RollingAverage implements IStatisticFilter {
 
 	int windowSize = 10;
 
-	public RollingAverage(int windowSize) {
+	public RollingAverageFilter(int windowSize) {
 		this.windowSize = windowSize;
 		values = new ArrayDeque<Double>(windowSize + 1);
 	}

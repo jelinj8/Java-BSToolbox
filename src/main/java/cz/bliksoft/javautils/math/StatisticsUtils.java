@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import cz.bliksoft.javautils.math.statistics.ApproximatedRollingAverage;
-import cz.bliksoft.javautils.math.statistics.Average;
+import cz.bliksoft.javautils.math.statistics.AverageFilter;
 import cz.bliksoft.javautils.math.statistics.IStatisticFilter;
-import cz.bliksoft.javautils.math.statistics.RollingAverage;
+import cz.bliksoft.javautils.math.statistics.RollingAverageFilter;
 
 /**
  * helper for processing values, by default sum/count (real average),
@@ -24,8 +24,8 @@ public class StatisticsUtils {
 	 * 
 	 * @param key
 	 * @param averager
-	 *            instance of specific implementation ({@link RollingAverage},
-	 *            {@link ApproximatedRollingAverage}, {@link Average}...)
+	 *            instance of specific implementation ({@link RollingAverageFilter},
+	 *            {@link ApproximatedRollingAverage}, {@link AverageFilter}...)
 	 */
 	public static void addFilter(Object key, IStatisticFilter averager) {
 		filters.put(key, averager);
@@ -41,7 +41,7 @@ public class StatisticsUtils {
 		synchronized (filters) {
 			IStatisticFilter val = filters.get(key);
 			if (val == null) {
-				Average a = new Average();
+				AverageFilter a = new AverageFilter();
 				a.addValue(value);
 				filters.put(key, a);
 			} else {

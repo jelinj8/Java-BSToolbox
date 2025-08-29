@@ -1,11 +1,11 @@
 package cz.bliksoft.javautils.math.statistics;
 
-public class Average implements IStatisticFilter {
+public class AverageFilter implements IStatisticFilter {
 
 	Double sum = 0d;
 	Long totalValCount = 0l;
 
-	public Average() {
+	public AverageFilter() {
 	}
 
 	public void addValue(Double value) {

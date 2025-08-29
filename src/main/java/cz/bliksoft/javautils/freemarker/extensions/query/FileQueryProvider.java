@@ -5,6 +5,7 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import cz.bliksoft.javautils.streams.replacer.ITokenResolver;
 import cz.bliksoft.javautils.streams.replacer.TokenReplacingReader;
@@ -18,8 +19,8 @@ public class FileQueryProvider implements IQueryProvider {
 
 	private final File basePath;
 
-	HashMap<String, String> sqlCache = null;
-	HashMap<String, List<Integer>> partypesCache = null;
+	Map<String, String> sqlCache = new HashMap<>();
+	Map<String, List<Integer>> partypesCache = new HashMap<>();
 
 	public FileQueryProvider(File basePath) {
 		this.basePath = basePath;

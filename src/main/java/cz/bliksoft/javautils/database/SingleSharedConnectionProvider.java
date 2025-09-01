@@ -102,9 +102,9 @@ public class SingleSharedConnectionProvider implements IDBConnectionProvider {
 	public Connection getConnection(Object lockObject, String reason) throws Exception {
 		if (connection == null && connectionProvider != null) {
 			if (providerName == null)
-				log.info("Creating DB connection");
+				log.fine("Creating DB connection");
 			else
-				log.info("Creating DB connection '" + providerName + "'");
+				log.fine("Creating DB connection '" + providerName + "'");
 			connection = connectionProvider.getConnection(reason);
 		}
 		if (connection == null)
@@ -137,9 +137,9 @@ public class SingleSharedConnectionProvider implements IDBConnectionProvider {
 	public void close() throws IOException {
 		if (connection != null) {
 			if (providerName == null)
-				log.info("Closing DB connection provider");
+				log.fine("Closing DB connection provider");
 			else
-				log.info("Closing DB connection provider '" + providerName + "'");
+				log.fine("Closing DB connection provider '" + providerName + "'");
 
 			try {
 				connection.close();

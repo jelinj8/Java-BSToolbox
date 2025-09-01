@@ -94,7 +94,7 @@ public class Query implements TemplateMethodModelEx {
 		public boolean hasNext() {
 			try {
 				if (rs.isLast()) {
-					log.log(Level.INFO,
+					log.log(Level.FINE,
 							MessageFormat.format(
 									"Fetched last record of {2}. Total count: {0}, fetched in {1,number,#}ms",
 									fetchedCount, System.currentTimeMillis() - timestamp, queryID));
@@ -284,11 +284,11 @@ public class Query implements TemplateMethodModelEx {
 								MessageFormat.format(
 										"Executing query \nvvv ''{0}'' vvv\n{1}\n----\n{2}\n^^^ QUERY ^^^\n", queryID,
 										query, paramsToPrint));
-					} else if (log.isLoggable(Level.INFO))
-						log.log(Level.INFO, MessageFormat.format("Executing query {0}", queryID));
+					} else if (log.isLoggable(Level.FINE))
+						log.log(Level.FINE, MessageFormat.format("Executing query {0}", queryID));
 					if (pstmnt.execute()) {
-						if (log.isLoggable(Level.INFO))
-							log.log(Level.INFO,
+						if (log.isLoggable(Level.FINE))
+							log.log(Level.FINE,
 									MessageFormat.format("Fetching result for query {0} after {1,number,#}ms", queryID,
 											System.currentTimeMillis() - timestamp));
 						timestamp = System.currentTimeMillis();
@@ -386,8 +386,8 @@ public class Query implements TemplateMethodModelEx {
 								rs.close();
 								pstmnt.close();
 
-								if (log.isLoggable(Level.INFO))
-									log.log(Level.INFO,
+								if (log.isLoggable(Level.FINE))
+									log.log(Level.FINE,
 											MessageFormat.format("{2} result count: {0}, fetched in {1,number,#}ms",
 													result.size(), System.currentTimeMillis() - timestamp, queryID));
 								if (!iterable)

@@ -17,6 +17,15 @@ public class AverageFilter implements IStatisticFilter {
 		addValue(value.doubleValue());
 	}
 
+	public void addValue(Double value, Long count) {
+		this.sum += value;
+		totalValCount += count;
+	}
+
+	public void addValue(Long value, Long count) {
+		addValue(value.doubleValue(), count);
+	}
+
 	public Long getLongValue() {
 		return Math.round(sum / totalValCount);
 	}

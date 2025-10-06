@@ -1,6 +1,7 @@
 package cz.bliksoft.javautils;
 
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -106,4 +107,9 @@ public class DateUtils {
 		working.set(year, month - 1, day, hh, mm, ss);
 		return working.getTime();
 	}
+
+	public static double toDecimalSeconds(Duration d) {
+		return d.getSeconds() + d.getNano() / 1_000_000_000.0;
+	}
+	
 }

@@ -112,4 +112,7 @@ public class DateUtils {
 		return d.getSeconds() + d.getNano() / 1_000_000_000.0;
 	}
 	
+	public static LocalDateTime truncateToMonths(LocalDateTime dt) {
+		return dt.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
+	}
 }

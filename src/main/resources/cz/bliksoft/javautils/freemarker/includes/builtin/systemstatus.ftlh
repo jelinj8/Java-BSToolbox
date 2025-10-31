@@ -42,7 +42,11 @@
 	</#list>
 		<tbody>
 			<tr><th colspan="2" class="center">tools</th></tr>
-			<tr><td colspan="2" class="right"><@html.inlineform><input type="text" size="10" name="reportname" placeholder="reportName" value="fromWeb"><@html.button 'save' 'save' 'true' /></@html.inlineform> <@html.inlineform><@html.button 'refresh' 'refresh' 'true' /></@html.inlineform><@html.inlineform><@html.button 'Run GC' 'collectGarbage' 'true' /></@html.inlineform></td></tr>
+			<tr><td colspan="2" class="right">
+			   <@html.inlineform><#if _csrf?? && _csrf.token??><@html.hiddenvalue _csrf.parameterName _csrf.token /></#if><input type="text" size="10" name="reportname" placeholder="reportName" value="fromWeb"><@html.button 'save' 'save' 'true' /></@html.inlineform>
+			   <@html.inlineform><#if _csrf?? && _csrf.token??><@html.hiddenvalue _csrf.parameterName _csrf.token /></#if><@html.button 'refresh' 'refresh' 'true' /></@html.inlineform>
+			   <@html.inlineform><#if _csrf?? && _csrf.token??><@html.hiddenvalue _csrf.parameterName _csrf.token /></#if><@html.button 'Run GC' 'collectGarbage' 'true' /></@html.inlineform>
+			</td></tr>
 		</tbody>
 	</table>
 	<table class="colortable" style="display:inline-block;">

@@ -88,11 +88,11 @@ public class ProxySelectorRegistry extends ProxySelector {
 
 	@Override
 	public List<Proxy> select(URI uri) {
-		log.fine("Searching proxy for URI " + uri.toString());
 		for (Entry<String, Proxy> p : registeredProxies.entrySet()) {
 			if (Pattern.matches(p.getKey(), uri.toString())) {
 				List<Proxy> list = new ArrayList<Proxy>();
 				list.add(p.getValue());
+				log.fine("Found proxy for " + uri.toString());
 				return list;
 			}
 		}
@@ -100,11 +100,12 @@ public class ProxySelectorRegistry extends ProxySelector {
 		if (defaultProxy != null) {
 			List<Proxy> list = new ArrayList<Proxy>();
 			list.add(defaultProxy);
+			log.fine("Using default proxy for " + uri.toString());
 			return list;
 		}
 
 		if (registeredProxies.size() > 0)
-			log.info(MessageFormat
+			log.fine(MessageFormat
 					.format("Proxy not found for {0} and no default was specified, using direct connection.", uri));
 
 		if (originalProxySelector != null)
@@ -175,11 +176,15 @@ public class ProxySelectorRegistry extends ProxySelector {
 	 * register a proxy configuration. If neither proxyTarget nor proxyMatch is
 	 * specified, sets a default proxy
 	 * 
-	 * @param proxyUrl    proxy url to be used
-	 * @param proxyPort   proxy port
-	 * @param proxyTarget specific URL or comma separated list of URLs to redirect
-	 *                    trough proxy
-	 * @param proxyMatch  regex or comma separated regex list to match against url
+	 * @param proxyUrl
+	 *            proxy url to be used
+	 * @param proxyPort
+	 *            proxy port
+	 * @param proxyTarget
+	 *            specific URL or comma separated list of URLs to redirect
+	 *            trough proxy
+	 * @param proxyMatch
+	 *            regex or comma separated regex list to match against url
 	 */
 	public static void addProxyConfiguration(String proxyUrl, Integer proxyPort, String proxyTarget,
 			String proxyMatch) {

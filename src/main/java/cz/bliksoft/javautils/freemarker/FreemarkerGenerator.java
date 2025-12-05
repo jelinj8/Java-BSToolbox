@@ -92,7 +92,7 @@ public class FreemarkerGenerator {
 		cfg = new Configuration(Configuration.VERSION_2_3_34);
 		cfg.setEncoding(Locale.getDefault(), "UTF8");
 		// setNumberFormat(NumberFormats.COMPUTER);
-
+		cfg.setBooleanFormat("c");
 		cfg.setObjectWrapper(ObjectWrapperRegister.getInstance(Configuration.VERSION_2_3_34));
 	}
 
@@ -302,7 +302,8 @@ public class FreemarkerGenerator {
 	}
 
 	/**
-	 * available to allow configuring foreign Freemarker generators, e.g. for Springboot as shared variables.
+	 * available to allow configuring foreign Freemarker generators, e.g. for
+	 * Springboot as shared variables.
 	 */
 	public static final Map<String, Object> globalExtensions = getDefaultGlobalExtensions();
 

@@ -30,7 +30,6 @@ import cz.bliksoft.javautils.TimestampedObject;
 import cz.bliksoft.javautils.binding.list.collections.LimitedList;
 import cz.bliksoft.javautils.streams.NoCloseOutputStream;
 import cz.bliksoft.javautils.xml.XmlUtils;
-//import jakarta.xml.bind.JAXBException;
 
 public class LogUtils {
 
@@ -193,7 +192,8 @@ public class LogUtils {
 	 */
 	public static String getFileName(String name, String extension) {
 		if (logDir == null) {
-			log.severe("Log dir not set!");
+			if (log != null)
+				log.severe("Log dir not set!");
 			return null;
 		}
 
@@ -204,7 +204,8 @@ public class LogUtils {
 		String timestamp = sdf.format(curdate);
 		String path = MessageFormat.format("{0}{1}_{2}.{3}", logDir + File.separatorChar, timestamp, name, extension);
 
-		log.fine("Log file: " + path);
+		if (log != null)
+			log.fine("Log file: " + path);
 		return path;
 	}
 
@@ -241,7 +242,8 @@ public class LogUtils {
 			try {
 				result = new FileOutputStream(fname);
 			} catch (FileNotFoundException e) {
-				log.severe("Error creating log output stream.");
+				if (log != null)
+					log.severe("Error creating log output stream.");
 				result = new NoCloseOutputStream(System.out);
 			}
 			return result;
@@ -266,7 +268,8 @@ public class LogUtils {
 		try (FileWriter fw = new FileWriter(f)) {
 			fw.write(message);
 		} catch (IOException e) {
-			log.log(Level.SEVERE, "Error logging to file " + f, e);
+			if (log != null)
+				log.log(Level.SEVERE, "Error logging to file " + f, e);
 			e.printStackTrace();
 		}
 		return f;
@@ -289,7 +292,8 @@ public class LogUtils {
 		try (FileOutputStream fos = new FileOutputStream(f)) {
 			fos.write(message);
 		} catch (IOException e) {
-			log.log(Level.SEVERE, "Error logging to file " + f, e);
+			if (log != null)
+				log.log(Level.SEVERE, "Error logging to file " + f, e);
 			e.printStackTrace();
 		}
 
@@ -314,7 +318,8 @@ public class LogUtils {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (Exception e) {
-			log.log(Level.SEVERE, "Error logging XMLObject file (Marshalling failed)", e);
+			if (log != null)
+				log.log(Level.SEVERE, "Error logging XMLObject file (Marshalling failed)", e);
 			e.printStackTrace();
 		}
 	}
@@ -376,8 +381,10 @@ public class LogUtils {
 	 * returns stack trace string representation
 	 * 
 	 * @param stack
-	 * @param skip     count of elements from top to skip
-	 * @param maxCount max printed elements count
+	 * @param skip
+	 *            count of elements from top to skip
+	 * @param maxCount
+	 *            max printed elements count
 	 * @return
 	 */
 	public static String traceToString(StackTraceElement[] stack, int skip, int maxCount) {
@@ -402,8 +409,10 @@ public class LogUtils {
 	 * returns stack trace string representation
 	 * 
 	 * @param stack
-	 * @param skip     class to skip on top of stack (find first other flass)
-	 * @param maxCount max printed elements count
+	 * @param skip
+	 *            class to skip on top of stack (find first other flass)
+	 * @param maxCount
+	 *            max printed elements count
 	 * @return
 	 */
 	public static String traceToString(StackTraceElement[] stack, String skip, int maxCount) {
@@ -457,8 +466,10 @@ public class LogUtils {
 	 * get current stack trace, skip the getting call + additional <code>skip</code>
 	 * levels.
 	 * 
-	 * @param maxCount maximal total length of result (0 for unlimited)
-	 * @param skip     additional levels to skip (0 for none)
+	 * @param maxCount
+	 *            maximal total length of result (0 for unlimited)
+	 * @param skip
+	 *            additional levels to skip (0 for none)
 	 * @return
 	 */
 	public static StackTraceElement[] getStackTrace(int maxCount, int skip) {
@@ -474,7 +485,8 @@ public class LogUtils {
 	 */
 	public static void warnIfNotEDT(String message) {
 		if (!SwingUtilities.isEventDispatchThread()) {
-			log.severe(message + "\n" + LogUtils.traceToString(LogUtils.getStackTrace(0, 1)));
+			if (log != null)
+				log.severe(message + "\n" + LogUtils.traceToString(LogUtils.getStackTrace(0, 1)));
 		}
 	}
 

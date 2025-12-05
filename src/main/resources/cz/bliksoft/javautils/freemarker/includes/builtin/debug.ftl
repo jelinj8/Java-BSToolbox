@@ -52,7 +52,7 @@
 			<#elseif object?is_macro>
 			"MACRO"
 			<#else>
-			"${object?trim?json_string}"
+			"${object?string?trim?json_string}"
 			</#if>
         </#if>
     </@compress>
@@ -151,7 +151,11 @@ ${pad}	"${object?string[dateTimeFormatString]}"
 			<#elseif object?is_time>
 ${pad}	"${object?string[timeFormatString]}"
 			<#else>
-${pad}	?"${object?trim?json_string}"?
+			<#attempt>
+${pad}	?"${object?string?trim?json_string}"?
+			<#recover>
+${pad}	?UNPRINTABLE?
+			</#attempt>
 			</#if>
         </#if>
     </#if>

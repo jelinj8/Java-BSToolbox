@@ -1,4 +1,4 @@
-package cz.bliksoft.javautils.binding.list.collections;
+package cz.bliksoft.javautils.collections;
 
 import java.util.AbstractCollection;
 import java.util.ArrayDeque;

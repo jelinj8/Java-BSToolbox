@@ -27,7 +27,7 @@ import javax.swing.SwingUtilities;
 import cz.bliksoft.javautils.EnvironmentUtils;
 import cz.bliksoft.javautils.PropertiesUtils;
 import cz.bliksoft.javautils.TimestampedObject;
-import cz.bliksoft.javautils.binding.list.collections.LimitedList;
+import cz.bliksoft.javautils.collections.LimitedList;
 import cz.bliksoft.javautils.streams.NoCloseOutputStream;
 import cz.bliksoft.javautils.xml.XmlUtils;
 

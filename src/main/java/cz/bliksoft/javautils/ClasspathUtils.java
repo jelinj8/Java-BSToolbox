@@ -1,9 +1,13 @@
 package cz.bliksoft.javautils;
 
+import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.JarURLConnection;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -12,9 +16,40 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 public final class ClasspathUtils {
+	private static final Logger log = Logger.getLogger(ClasspathUtils.class.getName());
+
+	private ClasspathUtils() {
+	}
+
+	public static void addPath(URI u) throws Exception {
+		URLClassLoader urlClassLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
+		Class<URLClassLoader> urlClass = URLClassLoader.class;
+		Method method = urlClass.getDeclaredMethod("addURL", new Class[] { URL.class });
+		method.setAccessible(true);
+		method.invoke(urlClassLoader, new Object[] { u.toURL() });
+		log.log(Level.INFO, "Added " + u + " to classpath.");
+	}
+
+	public static void addDirectory(File dir) {
+		if (dir.isDirectory()) {
+			for (String f : dir.list()) {
+				File file = new File(dir, f);
+				addDirectory(file);
+			}
+		} else {
+			try {
+				ClasspathUtils.addPath(dir.toURI());
+				log.log(Level.INFO, "Added " + dir + " to classpath");
+			} catch (Exception e) {
+				log.log(Level.SEVERE, "Failed to add " + dir + " to classpath", e);
+			}
+		}
+	}
 
 	public static List<String> list(String resourceDir) throws IOException {
 		String dir = resourceDir.startsWith("/") ? resourceDir.substring(1) : resourceDir;

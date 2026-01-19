@@ -130,7 +130,7 @@ public class LogUtils {
 
 			String configuredAppName = configuration.getProperty(PROP_LOG_APP_NAME);
 			if (configuredAppName != null) {
-				EnvironmentUtils.setEnvironmentPropertyIfInitialized(PROP_LOG_APP_NAME, configuredAppName);
+				EnvironmentUtils.setAppName(configuredAppName);
 			}
 
 			logProps = new File(configuration.getProperty("loggingProperties", "logging.properties"));
@@ -146,9 +146,9 @@ public class LogUtils {
 		} else {
 			logProps = new File("logging.properties");
 			if (EnvironmentUtils.isInitialized()) {
-				initLog4J(null);
-			} else {
 				initLog4J(null, EnvironmentUtils.getEnvironmentProperties());
+			} else {
+				initLog4J(null);
 			}
 		}
 
@@ -410,7 +410,7 @@ public class LogUtils {
 	 * 
 	 * @param stack
 	 * @param skip
-	 *            class to skip on top of stack (find first other flass)
+	 *            class to skip on top of stack (find first other class)
 	 * @param maxCount
 	 *            max printed elements count
 	 * @return

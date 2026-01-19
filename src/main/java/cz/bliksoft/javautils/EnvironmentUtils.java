@@ -21,7 +21,7 @@ public class EnvironmentUtils {
 	private static File globalConfigDir = null;
 	private static File environmentConfig = null;
 
-	private static String appName = "app";
+	private static String appName = null;
 
 	private static boolean initialized = false;
 
@@ -113,6 +113,9 @@ public class EnvironmentUtils {
 	 * @throws IOException
 	 */
 	public static void init(Properties props) throws IOException {
+		if (appName == null)
+			appName = props.getProperty(PROP_APPNAME);
+
 		if (environmentConfigDir == null)
 			environmentConfigDir = new File(StringUtils.hasTextDefault(System.getenv(PROP_ENVIRONMENT_CONFIG_DIR),
 					props.getProperty(PROP_ENVIRONMENT_CONFIG_DIR,
@@ -189,9 +192,10 @@ public class EnvironmentUtils {
 		environmentProperties.put(PROP_ENVIRONMENT_PROPERTIES_FILE, environmentConfig.getPath());
 		environmentProperties.put(PROP_TIMESTAMP, DateUtils.TimestampString());
 		environmentProperties.put(PROP_WORKDIR, new File(".").getAbsoluteFile().getParentFile().getAbsolutePath());
-		environmentProperties.put(PROP_APPNAME, appName);
+		environmentProperties.put(PROP_APPNAME, getAppName());
 
-		environmentProperties.put(PATH_APPUSERDIR, System.getProperty("user.home") + File.separator + "." + appName);
+		environmentProperties.put(PATH_APPUSERDIR,
+				System.getProperty("user.home") + File.separator + "." + getAppName());
 		environmentProperties.put(PATH_TEMPDIR, System.getProperty("java.io.tmpdir"));
 		environmentProperties.put(PATH_USERDIR, System.getProperty("user.home"));
 
@@ -343,15 +347,22 @@ public class EnvironmentUtils {
 	 * @param directory
 	 */
 	public static void setEnvironmentConfigDirectory(File directory) {
+		if (environmentConfigDir != null)
+			throw new InitializationException("Environment config directorz was alreadz set, can't change!");
 		environmentConfigDir = directory;
 	}
 
 	public static String getAppName() {
+		if (appName == null)
+			throw new InitializationException("App name was not set!");
 		return appName;
 	}
 
 	public static void setAppName(String name) {
+		if (appName != null)
+			throw new InitializationException("App name was already set!");
 		appName = name;
+		EnvironmentUtils.setEnvironmentPropertyIfInitialized(PROP_APPNAME, appName);
 	}
 
 	/**
@@ -379,7 +390,8 @@ public class EnvironmentUtils {
 		if (initialized) {
 			tokens.putAll(getEnvironmentProperties());
 		} else {
-			tokens.put(PATH_APPUSERDIR, System.getProperty("user.home") + File.separator + "." + appName);
+			tokens.put(PROP_APPNAME, getAppName());
+			tokens.put(PATH_APPUSERDIR, System.getProperty("user.home") + File.separator + "." + getAppName());
 			tokens.put(PATH_TEMPDIR, System.getProperty("java.io.tmpdir"));
 			tokens.put(PATH_USERDIR, System.getProperty("user.home"));
 		}

@@ -10,7 +10,11 @@ import java.security.SecureRandom;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
+
+import cz.bliksoft.javautils.streams.replacer.MapTokenResolver;
+import cz.bliksoft.javautils.streams.replacer.TokenReplacingReader;
 
 public class StringUtils {
 
@@ -90,10 +94,8 @@ public class StringUtils {
 	/**
 	 * pospojuje řetězce do seznamu s oddělovačem
 	 * 
-	 * @param separator
-	 *                  oddělovač, který bude vložen mezi spojované hodnoty
-	 * @param args
-	 *                  hodnoty pro spojení
+	 * @param separator oddělovač, který bude vložen mezi spojované hodnoty
+	 * @param args      hodnoty pro spojení
 	 * @return spojený řetězec
 	 */
 	public static String concatenateList(String separator, Object... args) {
@@ -112,12 +114,9 @@ public class StringUtils {
 	/**
 	 * poskládá řetězec z X opakování jedné hodnoty, oddělené oddělovačem
 	 * 
-	 * @param separator
-	 *                  oddělovač
-	 * @param value
-	 *                  opakovaná hodnota
-	 * @param count
-	 *                  počet opakování
+	 * @param separator oddělovač
+	 * @param value     opakovaná hodnota
+	 * @param count     počet opakování
 	 * @return sestavený řetězec
 	 */
 	public static String repeatToString(String separator, Object value, int count) {
@@ -137,12 +136,9 @@ public class StringUtils {
 	 * sestaví řetězec ze vstupních hodnot, oddělených oddělovačem a doplněných o
 	 * příponu (příklad: 'val1 = ?,val2 = ?,val3 = ?,val4 = ?,val5 = ?')
 	 * 
-	 * @param value
-	 *                  přípona k doplnění ke každé hodnotě
-	 * @param separator
-	 *                  oddělovač
-	 * @param args
-	 *                  hodnoty
+	 * @param value     přípona k doplnění ke každé hodnotě
+	 * @param separator oddělovač
+	 * @param args      hodnoty
 	 * @return sestavený řetězec
 	 */
 	public static String appendToEach(String value, String separator, Object... args) {
@@ -165,12 +161,9 @@ public class StringUtils {
 	 * sestaví řetězec ze vstupních hodnot, oddělených oddělovačem a doplněných o
 	 * příponu (příklad: 'val1 = ?,val2 = ?,val3 = ?,val4 = ?,val5 = ?')
 	 * 
-	 * @param value
-	 *                  přípona k doplnění ke každé hodnotě
-	 * @param separator
-	 *                  oddělovač
-	 * @param args
-	 *                  hodnoty
+	 * @param value     přípona k doplnění ke každé hodnotě
+	 * @param separator oddělovač
+	 * @param args      hodnoty
 	 * @return sestavený řetězec
 	 */
 	public static String appendToEach(String value, String separator, String... args) {
@@ -234,8 +227,7 @@ public class StringUtils {
 	/**
 	 * kontrola, zda je řetězec prázdný
 	 * 
-	 * @param txt
-	 *            hodnota ke kontrole
+	 * @param txt hodnota ke kontrole
 	 * @return true pokud je řetězec neprázdný (!=null &amp;&amp; length&gt;0)
 	 */
 	public static boolean hasText(String txt) {
@@ -300,12 +292,9 @@ public class StringUtils {
 	 * Pokud je návratový parametr řetězec a hodnota není prázdná, je tento řetězec
 	 * použit jako MessageFormat
 	 * 
-	 * @param txt
-	 *                        hodnota, která má být testována na obsah textu
-	 * @param hasTextResult
-	 *                        návratová hodnota nebo formátovací řetězec
-	 * @param hasntTextResult
-	 *                        návratová hodnota
+	 * @param txt             hodnota, která má být testována na obsah textu
+	 * @param hasTextResult   návratová hodnota nebo formátovací řetězec
+	 * @param hasntTextResult návratová hodnota
 	 * @return
 	 */
 	public static Object hasTextSelect(String txt, Object hasTextResult, Object hasntTextResult) {
@@ -420,12 +409,11 @@ public class StringUtils {
 	}
 
 	/**
-	 * [code borrowed from ant.jar]
-	 * Crack a command line.
+	 * [code borrowed from ant.jar] Crack a command line.
 	 * 
 	 * @param toProcess the command line to process.
-	 * @return the command line broken into strings.
-	 *         An empty or null toProcess parameter results in a zero sized array.
+	 * @return the command line broken into strings. An empty or null toProcess
+	 *         parameter results in a zero sized array.
 	 */
 	public static String[] splitIntoArgsArray(String toProcess) {
 		final List<String> result = splitIntoArgsList(toProcess);
@@ -433,12 +421,11 @@ public class StringUtils {
 	}
 
 	/**
-	 * [code borrowed from ant.jar]
-	 * Crack a command line.
+	 * [code borrowed from ant.jar] Crack a command line.
 	 * 
 	 * @param toProcess the command line to process.
-	 * @return the command line broken into strings.
-	 *         An empty or null toProcess parameter results in a zero sized list.
+	 * @return the command line broken into strings. An empty or null toProcess
+	 *         parameter results in a zero sized list.
 	 */
 	public static List<String> splitIntoArgsList(String toProcess) {
 		if (toProcess == null || toProcess.length() == 0) {
@@ -510,6 +497,24 @@ public class StringUtils {
 	 */
 	public static String makeFileNameSafe(String original) {
 		return original.replaceAll("[^\\p{IsAlphabetic}\\p{IsDigit}\\-\\._ ]", "_");
+	}
+
+	/**
+	 * replace all tokens in string bz values from map. Undefined tokens won't be
+	 * touched.
+	 * 
+	 * @param original
+	 * @param replacements
+	 * @return
+	 */
+	public static String replaceTokens(String original, Map<String, String> replacements) {
+		MapTokenResolver mtr = new MapTokenResolver(replacements);
+		try (TokenReplacingReader trp = new TokenReplacingReader(original, mtr)) {
+			return trp.readAsString();
+		} catch (IOException e1) {
+			// not expected as we already have the whole String
+			return "";
+		}
 	}
 
 }

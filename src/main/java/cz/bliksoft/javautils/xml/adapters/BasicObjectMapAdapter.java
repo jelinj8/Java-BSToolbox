@@ -21,7 +21,6 @@ import jakarta.xml.bind.annotation.adapters.XmlAdapter;
  * @param <K>
  * @param <V>
  */
-@SuppressWarnings("serial")
 public class BasicObjectMapAdapter extends XmlAdapter<BasicObjectMapAdapter.BasicObjectMapType, Map<String, Object>> {
 	@XmlAccessorType(XmlAccessType.NONE)
 	public static class BasicObjectMapType {

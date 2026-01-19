@@ -27,9 +27,8 @@ public class ElementWriter extends DelegatingXMLStreamWriter {
 			return "";
 		}
 
-		@SuppressWarnings("rawtypes")
 		@Override
-		public Iterator getPrefixes(String namespaceURI) {
+		public Iterator<String> getPrefixes(String namespaceURI) {
 			return null;
 		}
 

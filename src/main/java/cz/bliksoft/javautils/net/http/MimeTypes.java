@@ -3,7 +3,6 @@ package cz.bliksoft.javautils.net.http;
 import java.util.HashMap;
 import java.util.Locale;
 
-@SuppressWarnings("serial")
 public class MimeTypes {
 
 	private static final HashMap<String, String> mimeTypes;

@@ -20,8 +20,8 @@ import javax.tools.ToolProvider;
 
 /**
  * https://stackoverflow.com/questions/10882952/java-load-class-from-string
- * adapted to generic source
- * For repeated loading of the same class create a new instance of this classloader.
+ * adapted to generic source For repeated loading of the same class create a new
+ * instance of this classloader.
  */
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -58,8 +58,8 @@ public abstract class AbstractSourceClassLoader<T, U> extends ClassLoader {
 	 * @param className  e.g. test.MyClass
 	 * @param javaSource source content, type dependent on implementation (basically
 	 *                   content of .java file)
-	 * @return loaded {@code Class<?>}, e.g. to create instance and cast to known interface
-	 *         or to use reflection calls
+	 * @return loaded {@code Class<?>}, e.g. to create instance and cast to known
+	 *         interface or to use reflection calls
 	 * @throws Exception
 	 */
 	public Class<?> compileAndLoad(String className, T javaSource) throws Exception {
@@ -132,7 +132,7 @@ public abstract class AbstractSourceClassLoader<T, U> extends ClassLoader {
 		}
 
 		if (res != null) {
-			return (U) res.newInstance();
+			return (U) res.getDeclaredConstructor().newInstance();
 		} else {
 			return null;
 		}

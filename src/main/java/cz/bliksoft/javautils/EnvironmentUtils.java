@@ -21,6 +21,8 @@ public class EnvironmentUtils {
 	private static File globalConfigDir = null;
 	private static File environmentConfig = null;
 
+	private static String appName = "app";
+
 	private static boolean initialized = false;
 
 	/**
@@ -42,6 +44,12 @@ public class EnvironmentUtils {
 	public static final String PROP_TIMESTAMP = "timestamp";
 
 	public static final String PROP_WORKDIR = "workdir";
+
+	public static final String PROP_APPNAME = "appName";
+
+	public static final String PATH_APPUSERDIR = "USERDIRDIR";
+	public static final String PATH_USERDIR = "USERDIR";
+	public static final String PATH_TEMPDIR = "TEMPDIR";
 
 	/**
 	 * placeholder property for configured log directory
@@ -181,6 +189,11 @@ public class EnvironmentUtils {
 		environmentProperties.put(PROP_ENVIRONMENT_PROPERTIES_FILE, environmentConfig.getPath());
 		environmentProperties.put(PROP_TIMESTAMP, DateUtils.TimestampString());
 		environmentProperties.put(PROP_WORKDIR, new File(".").getAbsoluteFile().getParentFile().getAbsolutePath());
+		environmentProperties.put(PROP_APPNAME, appName);
+
+		environmentProperties.put(PATH_APPUSERDIR, System.getProperty("user.home") + File.separator + "." + appName);
+		environmentProperties.put(PATH_TEMPDIR, System.getProperty("java.io.tmpdir"));
+		environmentProperties.put(PATH_USERDIR, System.getProperty("user.home"));
 
 		if (environmentConfig.exists()) {
 			Properties envP = PropertiesUtils.loadFromFile(environmentConfig, environmentProperties);
@@ -333,4 +346,47 @@ public class EnvironmentUtils {
 		environmentConfigDir = directory;
 	}
 
+	public static String getAppName() {
+		return appName;
+	}
+
+	public static void setAppName(String name) {
+		appName = name;
+	}
+
+	/**
+	 * replace tokens with path definitions and environment variables
+	 * 
+	 * @param path
+	 * @return
+	 * @throws Exception
+	 */
+	public static String pathReplace(String path) {
+		return pathReplace(path, null);
+	}
+
+	/**
+	 * replace tokens with path definitions and environment variables
+	 * 
+	 * @param path
+	 * @param additionalTokens
+	 * @return
+	 * @throws Exception
+	 */
+	public static String pathReplace(String path, Map<String, String> additionalTokens) {
+		Map<String, String> tokens = new HashMap<>();
+
+		if (initialized) {
+			tokens.putAll(getEnvironmentProperties());
+		} else {
+			tokens.put(PATH_APPUSERDIR, System.getProperty("user.home") + File.separator + "." + appName);
+			tokens.put(PATH_TEMPDIR, System.getProperty("java.io.tmpdir"));
+			tokens.put(PATH_USERDIR, System.getProperty("user.home"));
+		}
+
+		if (additionalTokens != null)
+			tokens.putAll(additionalTokens);
+
+		return StringUtils.replaceTokens(path, tokens);
+	}
 }

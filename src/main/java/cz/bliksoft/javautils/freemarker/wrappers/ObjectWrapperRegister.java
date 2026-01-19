@@ -45,7 +45,7 @@ public class ObjectWrapperRegister extends DefaultObjectWrapper {
 					Class<?> zs = Class.forName("no.api.freemarker.java8.zone.ZoneStrategy");
 					Constructor<?> ctor = j8api.getConstructor(freemarker.template.Version.class, zs);
 					Class<?> zsc = Class.forName("no.api.freemarker.java8.zone.EnvironmentZoneStrategy");
-					Object strategy = zsc.newInstance();
+					Object strategy = zsc.getDeclaredConstructor().newInstance();
 					java8TimeAPIWrapper = ctor.newInstance(incompatibleImprovements, strategy);
 					log.fine("no.api.freemarker.java8.Java8ObjectWrapper loaded, registering ObjectWrapper");
 				}

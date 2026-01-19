@@ -2,6 +2,8 @@ package cz.bliksoft.javautils.net;
 
 import java.net.InetAddress;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.regex.Matcher;
@@ -27,9 +29,9 @@ public class IPUtils {
 		return matcher.matches();
 	}
 
-	public static boolean urlIsIPV4(String url) throws MalformedURLException {
+	public static boolean urlIsIPV4(String url) throws MalformedURLException, URISyntaxException {
 		URL u;
-		u = new URL(url);
+		u = new URI(url).toURL();
 		return isIPV4(u.getHost());
 	}
 

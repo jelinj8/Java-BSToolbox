@@ -15,7 +15,6 @@ import jakarta.xml.bind.annotation.adapters.XmlAdapter;
  * @param <K>
  * @param <V>
  */
-@SuppressWarnings("serial")
 public abstract class GenericMapAdapter<K, V> extends XmlAdapter<GenericMapAdapter.MapType<K, V>, Map<K, V>> {
 	public static class MapType<K, V> {
 		@XmlElement

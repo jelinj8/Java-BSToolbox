@@ -129,7 +129,7 @@ public class LogUtils {
 			}
 
 			String configuredAppName = configuration.getProperty(PROP_LOG_APP_NAME);
-			if (configuredAppName != null) {
+			if (configuredAppName != null && !EnvironmentUtils.isInitialized()) {
 				EnvironmentUtils.setAppName(configuredAppName);
 			}
 
@@ -381,10 +381,8 @@ public class LogUtils {
 	 * returns stack trace string representation
 	 * 
 	 * @param stack
-	 * @param skip
-	 *            count of elements from top to skip
-	 * @param maxCount
-	 *            max printed elements count
+	 * @param skip     count of elements from top to skip
+	 * @param maxCount max printed elements count
 	 * @return
 	 */
 	public static String traceToString(StackTraceElement[] stack, int skip, int maxCount) {
@@ -409,10 +407,8 @@ public class LogUtils {
 	 * returns stack trace string representation
 	 * 
 	 * @param stack
-	 * @param skip
-	 *            class to skip on top of stack (find first other class)
-	 * @param maxCount
-	 *            max printed elements count
+	 * @param skip     class to skip on top of stack (find first other class)
+	 * @param maxCount max printed elements count
 	 * @return
 	 */
 	public static String traceToString(StackTraceElement[] stack, String skip, int maxCount) {
@@ -466,10 +462,8 @@ public class LogUtils {
 	 * get current stack trace, skip the getting call + additional <code>skip</code>
 	 * levels.
 	 * 
-	 * @param maxCount
-	 *            maximal total length of result (0 for unlimited)
-	 * @param skip
-	 *            additional levels to skip (0 for none)
+	 * @param maxCount maximal total length of result (0 for unlimited)
+	 * @param skip     additional levels to skip (0 for none)
 	 * @return
 	 */
 	public static StackTraceElement[] getStackTrace(int maxCount, int skip) {

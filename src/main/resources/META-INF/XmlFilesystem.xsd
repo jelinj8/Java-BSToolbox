@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://bliksoft.cz/XmlFilesystem"
+	xmlns="http://bliksoft.cz/XmlFilesystem" elementFormDefault="qualified">
+	<xs:element name="root">
+		<xs:complexType>
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element ref="folder" />
+				<xs:element ref="file" />
+				<xs:element ref="import" />
+				<xs:element ref="require" />
+				<xs:element ref="include" />
+				<xs:element ref="classpath" />
+				<xs:element ref="symlink" />
+			</xs:choice>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="folder">
+		<xs:complexType>
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element ref="folder" />
+				<xs:element ref="file" />
+				<xs:element ref="attribute" />
+				<xs:element ref="symlink" />
+			</xs:choice>
+			<xs:attribute name="name" type="xs:string"
+				use="required" />
+			<xs:attribute name="position" type="xs:string" />
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="file">
+		<xs:complexType>
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element ref="attribute" />
+				<xs:element ref="import" />
+				<xs:element ref="require" />
+				<xs:element ref="include" />
+				<xs:element ref="classpath" />
+			</xs:choice>
+			<xs:attribute name="name" type="xs:string"
+				use="required" />
+			<xs:attribute name="position" type="xs:string" />
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="attribute">
+		<xs:complexType>
+			<xs:simpleContent>
+				<xs:extension base="xs:string">
+					<xs:attribute name="name" type="xs:string"
+						use="required" />
+					<xs:attribute name="value" type="xs:string" />
+				</xs:extension>
+			</xs:simpleContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="import">
+		<xs:complexType>
+			<xs:attribute name="path" type="xs:string"
+				use="required" />
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="require">
+		<xs:complexType>
+			<xs:attribute name="path" type="xs:string"
+				use="required" />
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="include">
+		<xs:complexType>
+			<xs:attribute name="path" type="xs:string"
+				use="required" />
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="classpath">
+		<xs:complexType>
+			<xs:attribute name="path" type="xs:string"
+				use="required" />
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="symlink">
+		<xs:complexType>
+			<xs:attribute name="path" type="xs:string"
+				use="required" />
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

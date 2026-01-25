@@ -51,6 +51,9 @@ public class Modules {
 		disabledModules.add(className);
 	}
 
+	/**
+	 * Find all defined BSApp modules by serviceLoader, import XmlFilesystem from enabled modules.
+	 */
 	public static void loadModules() {
 		log = LogManager.getLogger();
 		forceEnabledModules.add("cz.bliksoft.javautils.app.BaseAppModule");
@@ -116,6 +119,9 @@ public class Modules {
 		return modules;
 	}
 
+	/**
+	 * Initialize loaded modules
+	 */
 	public static void initModules() {
 		for (IModule pd : sortedModules) {
 			if (pd.isEnabled()) {
@@ -134,6 +140,9 @@ public class Modules {
 		}
 	}
 
+	/**
+	 * start modules main function (e.g. UI startup)
+	 */
 	public static void installModules() {
 		if (modules.isEmpty()) {
 			log.info(ModulesMessages.getString("Modules.NoModulesToStart")); //$NON-NLS-1$

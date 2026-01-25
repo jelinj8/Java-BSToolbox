@@ -28,12 +28,12 @@ public interface IVersionInfo {
 
 		sb.append(getArtifactId()).append(" ").append(getVersion());
 
-		if (getBranch() != null && !StringUtils.hasText(getBranch()) && getCommitIdAbbrev() != null
-				&& !StringUtils.hasText(getCommitIdAbbrev())) {
+		if (getBranch() != null && StringUtils.hasText(getBranch()) && getCommitIdAbbrev() != null
+				&& StringUtils.hasText(getCommitIdAbbrev())) {
 			sb.append(" [").append(getBranch()).append(":").append(getCommitIdAbbrev()).append("]");
 		}
 
-		if (getTags() != null && !StringUtils.hasText(getTags())) {
+		if (getTags() != null && StringUtils.hasText(getTags())) {
 			sb.append(" ").append(getTags());
 		}
 

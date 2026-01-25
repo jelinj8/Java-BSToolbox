@@ -93,7 +93,7 @@ public abstract class ModuleBase implements IModule {
 				// walk up from .../pkg/MyClass.class to .../ (classes root)
 				java.nio.file.Path classFile = java.nio.file.Paths.get(classUrl.toURI());
 				String pkg = anchor.getPackage().getName();
-				int depth = (pkg == null || StringUtils.hasText(pkg)) ? 0 : pkg.split("\\.").length;
+				int depth = (pkg == null || !StringUtils.hasText(pkg)) ? 0 : pkg.split("\\.").length;
 
 				java.nio.file.Path classesRoot = classFile.getParent();
 				for (int i = 0; i < depth; i++)
@@ -128,18 +128,18 @@ public abstract class ModuleBase implements IModule {
 		StringBuilder sb = new StringBuilder();
 		sb.append(version);
 
-		if (!StringUtils.hasText(closestTag)) {
+		if (StringUtils.hasText(closestTag)) {
 			sb.append(" (").append(closestTag);
-			if (!StringUtils.hasText(closestTagCommitCount))
+			if (StringUtils.hasText(closestTagCommitCount))
 				sb.append("+").append(closestTagCommitCount);
 			sb.append(")");
 		}
 
-		if (!StringUtils.hasText(branch) || !StringUtils.hasText(commitId)) {
+		if (StringUtils.hasText(branch) || !StringUtils.hasText(commitId)) {
 			sb.append(" [").append(branch).append(":").append(commitId).append("]");
 		}
 
-		if (!StringUtils.hasText(tags))
+		if (StringUtils.hasText(tags))
 			sb.append(" ").append(tags);
 
 		return sb.toString();

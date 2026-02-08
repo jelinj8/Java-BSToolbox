@@ -52,7 +52,8 @@ public class Modules {
 	}
 
 	/**
-	 * Find all defined BSApp modules by serviceLoader, import XmlFilesystem from enabled modules.
+	 * Find all defined BSApp modules by serviceLoader, import XmlFilesystem from
+	 * enabled modules.
 	 */
 	public static void loadModules() {
 		log = LogManager.getLogger();
@@ -123,12 +124,15 @@ public class Modules {
 	 * Initialize loaded modules
 	 */
 	public static void initModules() {
+		log.log(Level.INFO, ModulesMessages.getString("Modules.ModulesInitialionStart"));
 		for (IModule pd : sortedModules) {
 			if (pd.isEnabled()) {
 				try {
 					if (!ModuleBase.class.equals(pd.getClass().getMethod("init").getDeclaringClass())) { //$NON-NLS-1$
+						log.log(Level.DEBUG, ModulesMessages.getString("Modules.ModuleInitializationStart"),
+								pd.getModuleName());
 						pd.init();
-						log.log(Level.INFO, ModulesMessages.getString("Modules.ModuleInitialized"), pd.getModuleName()); //$NON-NLS-1$ //$NON-NLS-2$
+						log.log(Level.DEBUG, ModulesMessages.getString("Modules.ModuleInitializationCompleted"), pd.getModuleName()); //$NON-NLS-1$ //$NON-NLS-2$
 					} else {
 						log.debug(ModulesMessages.getString("Modules.ModuleNotProvidingInitMethod"), //$NON-NLS-1$
 								pd.getModuleName());
@@ -138,6 +142,7 @@ public class Modules {
 				}
 			}
 		}
+		log.log(Level.INFO, ModulesMessages.getString("Modules.ModulesInitialionCompleted"));
 	}
 
 	/**

@@ -34,6 +34,11 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.2.5</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
 				<version>3.3.1</version>
 			</plugin>
@@ -192,6 +197,20 @@
 			<optional>true</optional>
 		</dependency>
 
+		<dependency>
+			<groupId>cz.bliksoft.java</groupId>
+			<artifactId>dependency-management-junit</artifactId>
+			<type>pom</type>
+			<scope>test</scope>
+			<optional>true</optional>
+		</dependency>
+
+<!--		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<scope>test</scope>
+		</dependency>-->
+		
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>

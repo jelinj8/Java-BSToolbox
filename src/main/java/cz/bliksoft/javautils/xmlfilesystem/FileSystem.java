@@ -27,13 +27,6 @@ import org.xml.sax.SAXParseException;
 
 import cz.bliksoft.javautils.EnvironmentUtils;
 import cz.bliksoft.javautils.StringUtils;
-import cz.bliksoft.javautils.xml.XmlUtils;
-import cz.bliksoft.javautils.xmlfilesystem.model.XFile;
-import cz.bliksoft.javautils.xmlfilesystem.model.XFolder;
-import cz.bliksoft.javautils.xmlfilesystem.model.XImport;
-import cz.bliksoft.javautils.xmlfilesystem.model.XInclude;
-import cz.bliksoft.javautils.xmlfilesystem.model.XRequire;
-import jakarta.xml.bind.JAXBException;
 
 /**
  * základ FileSystému a práce s ním
@@ -99,9 +92,9 @@ public final class FileSystem {
 				Node n = nList.item(i);
 
 				switch (n.getNodeName()) {
-				case XImport.IMPORT_ELEMENT: {
+				case FileObject.IMPORT_ELEMENT: {
 					NamedNodeMap attribs = n.getAttributes();
-					Node path = attribs.getNamedItem(XImport.IMPORT_FILE_PATH);
+					Node path = attribs.getNamedItem(FileObject.IMPORT_FILE_PATH);
 					String pathString = path.getNodeValue();
 					// doc.getDocumentElement().removeChild(path);
 					InputStream stream = ClassLoader.getSystemResourceAsStream(pathString);
@@ -113,13 +106,13 @@ public final class FileSystem {
 					}
 					break;
 				}
-				case XInclude.INCLUDE_ELEMENT: // $NON-NLS-1$
-				case XRequire.REQUIRE_ELEMENT: // $NON-NLS-1$
+				case FileObject.INCLUDE_ELEMENT: // $NON-NLS-1$
+				case FileObject.REQUIRE_ELEMENT: // $NON-NLS-1$
 				{
 					NamedNodeMap attribs = n.getAttributes();
 					Node path = attribs
-							.getNamedItem(XRequire.REQUIRE_ELEMENT.equals(n.getNodeName()) ? XRequire.REQUIRE_FILE_PATH
-									: XInclude.INCLUDE_FILE_PATH);
+							.getNamedItem(FileObject.REQUIRE_ELEMENT.equals(n.getNodeName()) ? FileObject.REQUIRE_FILE_PATH
+									: FileObject.INCLUDE_FILE_PATH);
 					String pathString = path.getNodeValue();
 					pathString = EnvironmentUtils.pathReplace(pathString);
 
@@ -135,7 +128,7 @@ public final class FileSystem {
 							importXml(stream, pathString);
 						}
 					} else {
-						if (XRequire.REQUIRE_ELEMENT.equals(n.getNodeName())) {
+						if (FileObject.REQUIRE_ELEMENT.equals(n.getNodeName())) {
 							log.log(Level.ERROR,
 									StringUtils.format("Required file {0} not found ({1})!", pathString, resourceId));
 							throw new FileNotFoundException(pathString);
@@ -146,8 +139,8 @@ public final class FileSystem {
 					}
 					break;
 				}
-				case XFile.FILE_ELEMENT:
-				case XFolder.FOLDER_ELEMENT:
+				case FileObject.FILE_ELEMENT:
+				case FileObject.FOLDER_ELEMENT:
 					FileObject fo = new FileObject(n, null, resourceId);
 					try {
 						root.importFile(fo);
@@ -238,7 +231,4 @@ public final class FileSystem {
 		}
 	}
 
-	public static String dumpFilesystem() throws JAXBException {
-		return XmlUtils.marshal(FileSystem.getRoot());
-	}
 }

@@ -124,7 +124,7 @@ public class Modules {
 	 * Initialize loaded modules
 	 */
 	public static void initModules() {
-		log.log(Level.INFO, ModulesMessages.getString("Modules.ModulesInitialionStart"));
+		log.log(Level.DEBUG, ModulesMessages.getString("Modules.ModulesInitialionStart"));
 		for (IModule pd : sortedModules) {
 			if (pd.isEnabled()) {
 				try {
@@ -142,7 +142,7 @@ public class Modules {
 				}
 			}
 		}
-		log.log(Level.INFO, ModulesMessages.getString("Modules.ModulesInitialionCompleted"));
+		log.log(Level.DEBUG, ModulesMessages.getString("Modules.ModulesInitialionCompleted"));
 	}
 
 	/**
@@ -158,10 +158,10 @@ public class Modules {
 				if (md.isEnabled()) {
 					try {
 						if (!ModuleBase.class.equals(md.getClass().getMethod("install").getDeclaringClass())) { //$NON-NLS-1$
-							log.log(Level.INFO,
+							log.log(Level.DEBUG,
 									ModulesMessages.getString("Modules.ModuleInstalationStart", md.getModuleName())); //$NON-NLS-1$
 							md.install();
-							log.log(Level.INFO, ModulesMessages.getString("Modules.ModuleInstalationCompleted", //$NON-NLS-1$
+							log.log(Level.DEBUG, ModulesMessages.getString("Modules.ModuleInstalationCompleted", //$NON-NLS-1$
 									md.getModuleName()));
 						} else {
 							log.debug(ModulesMessages.getString("Modules.ModuleNotProvidingInstallMethod"), //$NON-NLS-1$

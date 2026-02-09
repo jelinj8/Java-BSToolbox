@@ -37,7 +37,7 @@ public final class FileSystem {
 
 	public static final String DEFAULT_TRANSLATION_ATTR_NAME = "default"; //$NON-NLS-1$
 	public static final String TRANSLATION_ROOT_NAME = "translations"; //$NON-NLS-1$
-	
+
 	private static HashMap<String, String> translations = new HashMap<>();
 	// private Document rootDoc;
 	private FileObject root;
@@ -110,8 +110,8 @@ public final class FileSystem {
 				case FileObject.REQUIRE_ELEMENT: // $NON-NLS-1$
 				{
 					NamedNodeMap attribs = n.getAttributes();
-					Node path = attribs
-							.getNamedItem(FileObject.REQUIRE_ELEMENT.equals(n.getNodeName()) ? FileObject.REQUIRE_FILE_PATH
+					Node path = attribs.getNamedItem(
+							FileObject.REQUIRE_ELEMENT.equals(n.getNodeName()) ? FileObject.REQUIRE_FILE_PATH
 									: FileObject.INCLUDE_FILE_PATH);
 					String pathString = path.getNodeValue();
 					pathString = EnvironmentUtils.pathReplace(pathString);
@@ -207,19 +207,15 @@ public final class FileSystem {
 		if (translationsFolder == null)
 			return;
 		if (translationsFolder.isDirectory())
-			if (translationsFolder.getChildren() != null) {
-				for (FileObject f : translationsFolder.getChildren()) {
-					importTranslationFile(f);
-				}
+			for (FileObject f : translationsFolder.getChildren()) {
+				importTranslationFile(f);
 			}
 	}
 
 	private static void importTranslationFile(FileObject trn) {
 		if (trn.isDirectory()) {
-			if (trn.getChildren() != null) {
-				for (FileObject f : trn.getChildren()) {
-					importTranslationFile(f);
-				}
+			for (FileObject f : trn.getChildren()) {
+				importTranslationFile(f);
 			}
 		} else {
 			String path = trn.getPath().substring(TRANSLATION_ROOT_NAME.length() + 1);

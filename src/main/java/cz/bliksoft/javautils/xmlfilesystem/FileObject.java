@@ -222,9 +222,9 @@ public class FileObject implements Comparable<Object> {
 	 */
 	public List<FileObject> getChildren() {
 		initChildren();
-		if (children == null)
-			return null;
 		ArrayList<FileObject> result = new ArrayList<>();
+		if (children == null)
+			return result;
 		for (FileObject f : this.children) {
 			if (!f.getName().startsWith(".")) { //$NON-NLS-1$
 				result.add(f);
@@ -238,9 +238,9 @@ public class FileObject implements Comparable<Object> {
 	 */
 	public List<FileObject> getChildFiles() {
 		initChildren();
-		if (children == null)
-			return null;
 		ArrayList<FileObject> result = new ArrayList<>();
+		if (children == null)
+			return result;
 		for (FileObject f : this.children) {
 			if (!f.getName().startsWith(".") && !f.isDirectory()) { //$NON-NLS-1$
 				result.add(f);
@@ -254,9 +254,9 @@ public class FileObject implements Comparable<Object> {
 	 */
 	public List<FileObject> getDirectories() {
 		initChildren();
-		if (children == null)
-			return null;
 		ArrayList<FileObject> result = new ArrayList<>();
+		if (children == null)
+			return result;
 		for (FileObject f : this.children) {
 			if ((f.isDirectory()) && (!f.getName().startsWith("."))) { //$NON-NLS-1$
 				result.add(f);
@@ -270,9 +270,9 @@ public class FileObject implements Comparable<Object> {
 	 */
 	public List<FileObject> getWithoutDirectories() {
 		initChildren();
-		if (children == null)
-			return null;
 		ArrayList<FileObject> result = new ArrayList<>();
+		if (children == null)
+			return result;
 		for (FileObject f : this.children) {
 			if ((!f.isDirectory()) && (!f.getName().startsWith("."))) { //$NON-NLS-1$
 				result.add(f);
@@ -647,6 +647,10 @@ public class FileObject implements Comparable<Object> {
 		return Boolean.parseBoolean(v);
 	}
 
+	public Boolean getBool(String key) {
+		return getBool(key, null);
+	}
+
 	public Boolean getBool(String key, Boolean def) {
 		String v = getAttribute(key, null);
 		if (v == null)
@@ -666,6 +670,10 @@ public class FileObject implements Comparable<Object> {
 		} catch (Exception e) {
 			return def;
 		}
+	}
+
+	public Integer getInteger(String key) {
+		return getInteger(key, null);
 	}
 
 	public Integer getInteger(String key, Integer def) {
@@ -690,6 +698,10 @@ public class FileObject implements Comparable<Object> {
 		}
 	}
 
+	public Double getDouble(String key) {
+		return getDouble(key, null);
+	}
+
 	public Double getDouble(String key, Double def) {
 		String v = getAttribute(key, null);
 		if (v == null)
@@ -699,6 +711,10 @@ public class FileObject implements Comparable<Object> {
 		} catch (Exception e) {
 			return def;
 		}
+	}
+
+	public String getAttribute(String key) {
+		return getAttribute(key, null);
 	}
 
 	public String dump() {

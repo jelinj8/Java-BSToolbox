@@ -5,41 +5,35 @@
 	<xs:element name="root">
 		<xs:complexType>
 			<xs:choice minOccurs="0" maxOccurs="unbounded">
-				<xs:element ref="folder" />
 				<xs:element ref="file" />
-				<xs:element ref="import" />
 				<xs:element ref="require" />
 				<xs:element ref="include" />
 				<xs:element ref="classpath" />
-				<xs:element ref="symlink" />
-			</xs:choice>
-		</xs:complexType>
-	</xs:element>
-	<xs:element name="folder">
-		<xs:complexType>
-			<xs:choice minOccurs="0" maxOccurs="unbounded">
-				<xs:element ref="folder" />
-				<xs:element ref="file" />
 				<xs:element ref="attribute" />
 				<xs:element ref="symlink" />
 			</xs:choice>
-			<xs:attribute name="name" type="xs:string"
-				use="required" />
-			<xs:attribute name="position" type="xs:string" />
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="file">
 		<xs:complexType>
 			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element ref="symlink" />
+				<xs:element ref="file" />
 				<xs:element ref="attribute" />
-				<xs:element ref="import" />
 				<xs:element ref="require" />
 				<xs:element ref="include" />
 				<xs:element ref="classpath" />
 			</xs:choice>
+
 			<xs:attribute name="name" type="xs:string"
 				use="required" />
-			<xs:attribute name="position" type="xs:string" />
+			<xs:attribute name="position" type="xs:integer" />
+			<xs:attribute name="sorted" type="xs:boolean" />
+			<xs:attribute name="remove" type="xs:boolean" />
+			<xs:attribute name="replace" type="xs:boolean" />
+			<xs:attribute name="locked" type="xs:boolean" />
+			<xs:attribute name="translation" type="xs:string" />
+			<xs:attribute name="mark" type="xs:string" />
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="attribute">
@@ -49,14 +43,9 @@
 					<xs:attribute name="name" type="xs:string"
 						use="required" />
 					<xs:attribute name="value" type="xs:string" />
+					<xs:attribute name="translation" type="xs:string" />
 				</xs:extension>
 			</xs:simpleContent>
-		</xs:complexType>
-	</xs:element>
-	<xs:element name="import">
-		<xs:complexType>
-			<xs:attribute name="path" type="xs:string"
-				use="required" />
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="require">
@@ -79,6 +68,8 @@
 	</xs:element>
 	<xs:element name="symlink">
 		<xs:complexType>
+			<xs:attribute name="name" type="xs:string"
+				use="required" />
 			<xs:attribute name="path" type="xs:string"
 				use="required" />
 		</xs:complexType>

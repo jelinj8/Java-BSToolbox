@@ -10,8 +10,11 @@ public class FileSymlink extends FileObject {
 	private String targetPath;
 	private FileObject targetFile = null;
 
+	private boolean targetInitialized = false;
+
 	public FileObject getTarget() {
-		if (targetFile == null) {
+		if (!targetInitialized) {
+			targetInitialized = true;
 			targetFile = getFile(targetPath);
 		}
 		return targetFile;
@@ -25,10 +28,21 @@ public class FileSymlink extends FileObject {
 		if (initializedChildren)
 			return;
 		initializedChildren = true;
-		this.children = targetFile.children;
+		getTarget();
+		if (targetFile != null)
+			this.children = targetFile.children;
 	}
 
 	private boolean initializedAttributes = false;
+
+	@Override
+	public Boolean getLocked() {
+		getTarget();
+		if (targetFile != null)
+			return targetFile.getLocked();
+		else
+			return true;
+	}
 
 	@Override
 	protected void initAttributes() {
@@ -36,14 +50,14 @@ public class FileSymlink extends FileObject {
 		if (initializedAttributes)
 			return;
 		initializedAttributes = true;
-		
+
 		getTarget();
-		if (targetFile.getAttributes() != null) {
+		if (targetFile != null && targetFile.getAttributes() != null) {
 			if (attributes == null) {
-				attributes = new HashMap<String, String>();
+				attributes = new HashMap<String, FileObject.FileAttribute>();
 				attributes.putAll(targetFile.getAttributes());
 			} else {
-				Map<String, String> attNew = new HashMap<>(targetFile.getAttributes());
+				Map<String, FileObject.FileAttribute> attNew = new HashMap<>(targetFile.getAttributes());
 				attNew.putAll(attributes);
 				attributes = attNew;
 			}
@@ -52,12 +66,16 @@ public class FileSymlink extends FileObject {
 
 	public FileSymlink(Node xmlDefinition, FileObject parent, String resourceId) {
 		super(xmlDefinition, parent, resourceId);
-		targetPath = attributes.get(targetPath);
+		Node targetNode = xmlDefinition.getAttributes().getNamedItem(FileObject.SYMLINK_FILE_PATH);
+		targetPath = targetNode.getTextContent();
 	}
 
 	@Override
 	public String toString() {
-		return "LNK:" + this.name + " (" + this.resourceId + ") -> " + getTarget().toString(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		if (getTarget() != null)
+			return "LINK:" + this.name + " (" + this.resourceId + ") -> " + getTarget().getFullPath(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		else
+			return "BROKEN LINK:" + this.name + " (" + this.resourceId + ") -> !" + targetPath; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 }

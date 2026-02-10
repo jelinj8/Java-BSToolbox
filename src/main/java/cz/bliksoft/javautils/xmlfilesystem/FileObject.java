@@ -19,13 +19,13 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import cz.bliksoft.javautils.StringUtils;
+import cz.bliksoft.javautils.exceptions.InitializationException;
 import cz.bliksoft.javautils.streams.xml.adapters.StringMapAdapter;
 import cz.bliksoft.javautils.xml.XmlUtils;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlElementWrapper;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
@@ -34,21 +34,56 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 public class FileObject implements Comparable<Object> {
 	private static final Logger log = LogManager.getLogger();
 
+	class FileAttribute {
+		public String value;
+		public String translationID;
+	}
+
 	/**
-	 * XML element uzlu
+	 * XML element souboru
 	 */
 	public static final String FILE_ELEMENT = "file"; // $NON-NLS-1$
-	public static final String FOLDER_ELEMENT = "folder"; //$NON-NLS-1$
 
 	/**
-	 * pořadí uzlu
+	 * pořadí souboru
 	 */
-	public static final String ATTRIBUTE_ORDER = "position"; // $NON-NLS-1$
+	public static final String ATTRIBUTE_FILE_POSITION = "position"; // $NON-NLS-1$
 
 	/**
-	 * název uzlu
+	 * název souboru
 	 */
-	public static final String ATTR_FILE_NAME = "name"; // $NON-NLS-1$
+	public static final String ATTRIBUTE_FILE_NAME = "name"; // $NON-NLS-1$
+
+	/**
+	 * atribut specifikující třídění souborů, pokud není definované pořadí nebo je
+	 * "order" hodnota stejná (true třídit podle jména, false zachovat pořadí)
+	 */
+	public static final String ATTRIBUTE_FILE_SORTED = "sorted"; // $NON-NLS-1$
+
+	/**
+	 * při importu odebere existující soubor, potomky ignoruje
+	 */
+	public static final String ATTRIBUTE_FILE_REMOVE = "remove"; // $NON-NLS-1$
+
+	/**
+	 * při importu odebere existující soubor, potomky ignoruje
+	 */
+	public static final String ATTRIBUTE_FILE_REPLACE = "replace"; // $NON-NLS-1$
+
+	/**
+	 * na uzamčený soubor nejde v dalším importu sahat (jinak než s odemčením)
+	 */
+	public static final String ATTRIBUTE_FILE_LOCKED = "locked"; // $NON-NLS-1$
+
+	/**
+	 * dodatečný řetězec k libovolnému použití
+	 */
+	public static final String ATTRIBUTE_FILE_MARK = "mark"; // $NON-NLS-1$
+
+	/**
+	 * název atributu pro specifikaci klíče pro překlad názvu souboru
+	 */
+	public static final String ATTRIBUTE_FILE_TRANSLATION = "translation"; // $NON-NLS-1$
 
 	/**
 	 * název XML elementu atributu
@@ -58,7 +93,7 @@ public class FileObject implements Comparable<Object> {
 	/**
 	 * XML názvový atribut atributového elementu
 	 */
-	public static final String ATTRIBUTE_NAME = "name"; // $NON-NLS-1$
+	public static final String ATTRIBUTE_NAME = ATTRIBUTE_FILE_NAME; // $NON-NLS-1$
 
 	/**
 	 * XML hodnotový atribut atributového elementu
@@ -66,17 +101,15 @@ public class FileObject implements Comparable<Object> {
 	public static final String ATTRIBUTE_VALUE = "value"; // $NON-NLS-1$
 
 	/**
-	 * import z classpath
+	 * název atributu pro specifikaci klíče pro překlad hodnoty atributu
 	 */
-	public static final String CLASSPATH_ELEMENT = "classpath";
+	public static final String ATTRIBUTE_TRANSLATION = ATTRIBUTE_FILE_TRANSLATION; // $NON-NLS-1$
 
 	/**
-	 * classpath cesta
+	 * import z classpath
 	 */
-	public static final String ATTR_CLASSPATH_PATH = "path";
-
-	public static final String IMPORT_ELEMENT = "import"; //$NON-NLS-1$
-	public static final String IMPORT_FILE_PATH = "path"; //$NON-NLS-1$
+	public static final String CLASSPATH_ELEMENT = "classpath"; //$NON-NLS-1$
+	public static final String CLASSPATH_PATH = "path"; //$NON-NLS-1$
 
 	public static final String INCLUDE_ELEMENT = "include"; //$NON-NLS-1$
 	public static final String INCLUDE_FILE_PATH = "path"; //$NON-NLS-1$
@@ -93,21 +126,15 @@ public class FileObject implements Comparable<Object> {
 	// public static final String ATTRIBUTE_LARGE_ICON = "large_icon"; //
 	// $NON-NLS-1$
 
-	/**
-	 * atribut specifikující třídění souborů, pokud není definované pořadí nebo je
-	 * "order" hodnota stejná (true třídit podle jména, false zachovat pořadí)
-	 */
-	public static final String ATTRIBUTE_SORTED = "sorted"; // $NON-NLS-1$
+//	public static final String ATTRIBUTE_SORTED = "sorted"; // $NON-NLS-1$
 
-	/**
-	 * název atributu pro specifikaci klíče pro překlad názvu souboru
-	 */
-	public static final String ATTRIBUTE_TRANSLATION_ID = "translation_id"; // $NON-NLS-1$
+//	public static final String ATTRIBUTE_TRANSLATION_ID = "translation_id"; // $NON-NLS-1$
 
 	@XmlJavaTypeAdapter(StringMapAdapter.class)
 	@XmlElement(name = ATTRIBUTE_NODE)
-	Map<String, String> attributes = null;
+	protected Map<String, FileAttribute> attributes = new HashMap<>();
 
+	@XmlAttribute
 	String name;
 
 	@XmlAttribute
@@ -123,9 +150,25 @@ public class FileObject implements Comparable<Object> {
 	 */
 	String resourceId;
 
-	@XmlElementWrapper(name = "children") // $NON-NLS-1$
+	@XmlAttribute
+	boolean sorted = true;
+
+	@XmlAttribute
+	private Boolean locked = null;
+
+	public Boolean getLocked() {
+		return locked;
+	}
+
+	boolean remove = false;
+
+	boolean replace = false;
+
+	@XmlAttribute
+	String translation = null;
+
 	@XmlElement(name = FILE_ELEMENT)
-	protected List<FileObject> children = null;
+	protected List<FileObject> children = new ArrayList<>();
 
 	/**
 	 * call before first work with existing children
@@ -147,58 +190,97 @@ public class FileObject implements Comparable<Object> {
 
 	public FileObject(Node xmlDefinition, FileObject parent, String resourceId) {
 		assert ((xmlDefinition.getNodeName().equalsIgnoreCase(FILE_ELEMENT))
-				|| (xmlDefinition.getNodeName().equalsIgnoreCase(FOLDER_ELEMENT)));
+				|| (xmlDefinition.getNodeName().equalsIgnoreCase(SYMLINK_ELEMENT)));
+
 		this.parent = parent;
 		this.resourceId = resourceId;
 
-		this.folder = xmlDefinition.getNodeName().equalsIgnoreCase(FOLDER_ELEMENT);
+		this.folder = false;
 		NamedNodeMap attribs = xmlDefinition.getAttributes();
 		this.name = attribs.getNamedItem(ATTRIBUTE_NAME).getNodeValue();
-		Node orderNode = attribs.getNamedItem(ATTRIBUTE_ORDER);
+
+		Node orderNode = attribs.getNamedItem(ATTRIBUTE_FILE_POSITION);
 		if (orderNode != null) {
 			this.order = Integer.parseInt(orderNode.getNodeValue());
 		}
-		NodeList nList = xmlDefinition.getChildNodes();
-		for (int i = 0; i < nList.getLength(); i++) {
-			Node fNode = nList.item(i);
-			if (fNode.getNodeType() != Node.ELEMENT_NODE) {
-				continue;
-			} else if (fNode.getNodeName().equalsIgnoreCase(ATTRIBUTE_NODE)) {
-				NamedNodeMap attrlist = fNode.getAttributes();
-				Node attrNameAttr = attrlist.getNamedItem(ATTRIBUTE_NAME);
-				if (attrNameAttr == null) {
-					log.log(Level.WARN, StringUtils.format("FileAttribute without name!\n{0}", //$NON-NLS-1$
-							XmlUtils.outerXml(xmlDefinition)));
-					continue;
-				}
-				Node attrValAttr = attrlist.getNamedItem(ATTRIBUTE_VALUE);
-				if (attrValAttr != null) {
-					this.putAttribute(
-							// this.attributes.put(
-							attrNameAttr.getNodeValue(), (attrValAttr != null ? attrValAttr.getNodeValue() : null));
-				} else {
-					putAttribute(attrNameAttr.getNodeValue(), fNode.getTextContent());
-				}
-			} else if ((fNode.getNodeName().equalsIgnoreCase(FILE_ELEMENT))
-					| (fNode.getNodeName().equalsIgnoreCase(FOLDER_ELEMENT))) {
-				FileObject fo = new FileObject(fNode, this, this.resourceId);
-				addChild(fo);
-			}
+
+		Node sortedNode = attribs.getNamedItem(ATTRIBUTE_FILE_SORTED);
+		if (sortedNode != null) {
+			this.sorted = Boolean.parseBoolean(sortedNode.getNodeValue());
 		}
-		if (this.children != null)
-			Collections.sort(this.children);
+
+		Node removeNode = attribs.getNamedItem(ATTRIBUTE_FILE_REMOVE);
+		if (removeNode != null) {
+			this.remove = Boolean.parseBoolean(removeNode.getNodeValue());
+		}
+
+		Node replaceNode = attribs.getNamedItem(ATTRIBUTE_FILE_REPLACE);
+		if (replaceNode != null) {
+			this.replace = Boolean.parseBoolean(replaceNode.getNodeValue());
+		}
+
+		Node lockedNode = attribs.getNamedItem(ATTRIBUTE_FILE_LOCKED);
+		if (lockedNode != null) {
+			this.locked = Boolean.parseBoolean(lockedNode.getNodeValue());
+		}
+
+		// only if not removing from original file and not symlink
+		if (!remove && xmlDefinition.getNodeName().equalsIgnoreCase(FILE_ELEMENT)) {
+
+			Node translationNode = attribs.getNamedItem(ATTRIBUTE_FILE_TRANSLATION);
+			if (translationNode != null) {
+				this.translation = translationNode.getNodeValue();
+			}
+
+			NodeList nList = xmlDefinition.getChildNodes();
+			for (int i = 0; i < nList.getLength(); i++) {
+				Node fNode = nList.item(i);
+				if (fNode.getNodeType() != Node.ELEMENT_NODE) {
+					continue;
+				} else if (fNode.getNodeName().equalsIgnoreCase(ATTRIBUTE_NODE)) {
+					NamedNodeMap attrlist = fNode.getAttributes();
+					Node attrNameAttr = attrlist.getNamedItem(ATTRIBUTE_NAME);
+					if (attrNameAttr == null) {
+						log.log(Level.WARN, StringUtils.format("FileAttribute without name!\n{0}", //$NON-NLS-1$
+								XmlUtils.outerXml(xmlDefinition)));
+						continue;
+					}
+					Node attrTranslationIdAttr = attrlist.getNamedItem(ATTRIBUTE_TRANSLATION);
+
+					Node attrValAttr = attrlist.getNamedItem(ATTRIBUTE_VALUE);
+					if (attrValAttr != null) {
+						this.putAttribute(
+								// this.attributes.put(
+								attrNameAttr.getNodeValue(), attrValAttr.getNodeValue(),
+								(attrTranslationIdAttr != null ? attrTranslationIdAttr.getNodeValue() : null));
+					} else {
+						putAttribute(attrNameAttr.getNodeValue(), fNode.getTextContent(),
+								(attrTranslationIdAttr != null ? attrTranslationIdAttr.getNodeValue() : null));
+					}
+				} else if ((fNode.getNodeName().equalsIgnoreCase(FILE_ELEMENT))) {
+					this.folder = true;
+					FileObject fo = new FileObject(fNode, this, this.resourceId);
+					addChild(fo);
+				} else if ((fNode.getNodeName().equalsIgnoreCase(SYMLINK_ELEMENT))) {
+					this.folder = true;
+					FileSymlink fo = new FileSymlink(fNode, this, this.resourceId);
+					addChild(fo);
+				}
+			}
+			if (this.children != null)
+				Collections.sort(this.children);
+		}
 	}
 
 	private void addChild(FileObject ch) {
-		if (children == null)
-			children = new ArrayList<>();
 		children.add(ch);
 	}
 
-	private void putAttribute(String key, String value) {
-		if (this.attributes == null)
-			this.attributes = new HashMap<>();
-		this.attributes.put(key, value);
+	private void putAttribute(String key, String value, String translationId) {
+		FileAttribute a = new FileAttribute();
+		a.value = value;
+		a.translationID = translationId;
+		this.attributes.put(key, a);
 	}
 
 	/**
@@ -300,7 +382,7 @@ public class FileObject implements Comparable<Object> {
 		if (this.attributes == null)
 			return def;
 		if (this.attributes.containsKey(name))
-			return this.attributes.get(name);
+			return this.attributes.get(name).value;
 		else
 			return def;
 	}
@@ -318,12 +400,16 @@ public class FileObject implements Comparable<Object> {
 		if (this.attributes == null)
 			return def;
 		if (this.attributes.containsKey(name)) {
-			String key = this.attributes.get(name);
-			String res = FileSystem.getTranslation(key);
-			if (res == null)
-				return key;
-			else
-				return res;
+			FileAttribute a = this.attributes.get(name);
+			if (a.translationID == null)
+				return a.value;
+			else {
+				String res = FileSystem.getTranslation(a.translationID);
+				if (res == null)
+					return a.value;
+				else
+					return res;
+			}
 		} else {
 			return def;
 		}
@@ -337,7 +423,7 @@ public class FileObject implements Comparable<Object> {
 				return -1;
 			if (this.order > fo.order)
 				return 1;
-			if (this.getAttribute(ATTRIBUTE_SORTED, "false").equals("true"))
+			if (this.sorted)
 				return this.name.compareTo(fo.name);
 			else
 				return 0;
@@ -365,10 +451,12 @@ public class FileObject implements Comparable<Object> {
 	 * @return
 	 */
 	public FileObject getFile(String fileName) {
-		initChildren();
+//		if (skip == this)
+//			return null;
 		File f = new File(fileName);
 		File parentFile = f.getParentFile();
 		if (parentFile == null) {
+			initChildren();
 			if (this.children != null)
 				for (FileObject ch : this.children) {
 					if (f.getName().startsWith("*") && ch.name.endsWith(f.getName().substring(1))) //$NON-NLS-1$
@@ -401,11 +489,15 @@ public class FileObject implements Comparable<Object> {
 	/**
 	 * vyhledá objekt podle cesty složené z názvů v hierarchii
 	 * 
-	 * @param fileNname
+	 * @param fileName
 	 * @return
 	 */
-	public FileObject getFile(String fileNname, String... subpaths) {
-		StringBuilder path = new StringBuilder(fileNname);
+	public FileObject getFile(String fileName, String... subpaths) {
+		StringBuilder path = new StringBuilder("/".equals(fileName) ? "" : fileName);
+		
+		if (subpaths == null || subpaths.length < 1)
+			return getFile(fileName);
+		
 		for (String sp : subpaths) {
 			path.append("/");
 			path.append(sp);
@@ -416,10 +508,30 @@ public class FileObject implements Comparable<Object> {
 	protected void importFile(FileObject fo) {
 		FileObject existing = this.getFile(fo.name);
 		if (existing != null) {
-			if (existing.getFullPath().equals(fo.getFullPath())) {
-				log.warn("File object {} duplicated.", fo.getFullPath());
+			if (Boolean.TRUE.equals(existing.locked)) {
+				if (fo.locked == null) {
+					// overwriting without unlocking or override
+					throw new InitializationException(
+							MessageFormat.format("Overwriting a locked file {0} with {1} without unlocking",
+									existing.getFullPath(), fo.getFullPath()));
+				} else {
+					existing.locked = fo.locked;
+				}
 			}
-			if (existing.isDirectory()) {
+
+			if (fo.remove) {
+				children.remove(existing);
+				existing.parent = null;
+			} else if (replace) {
+				children.remove(existing);
+				existing.parent = null;
+				addChild(fo);
+				fo.parent = this;
+				Collections.sort(this.children);
+			} else { // merge
+				if (existing.getFullPath().equals(fo.getFullPath())) {
+					log.warn("File object {} duplicated in the same resource.", fo.getFullPath());
+				}
 				if (fo.order != 0) {
 					existing.order = fo.order;
 				}
@@ -433,31 +545,22 @@ public class FileObject implements Comparable<Object> {
 					}
 				if (this.children != null)
 					Collections.sort(this.children);
-			} else {
-				if (fo.isDirectory()) {
-					// pokus o přepsání souboru adresářem
-				} else {
-					// úprava atributů souboru
-					if (existing.attributes == null && fo.attributes != null)
-						existing.attributes = new HashMap<>();
-					if (fo.attributes != null)
-						existing.attributes.putAll(fo.attributes);
-					if ((fo.order != 0) && (fo.order != existing.order)) {
-						existing.order = fo.order;
-						// Collections.sort(children);
-					}
-				}
 			}
 		} else {
-			addChild(fo);
-			fo.parent = this;
-			Collections.sort(this.children);
+			if (!fo.remove) {
+				addChild(fo);
+				fo.parent = this;
+				Collections.sort(this.children);
+			}
 		}
 	}
 
 	@Override
 	public String toString() {
-		return this.name + " (" + this.resourceId + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+		if (Boolean.TRUE.equals(locked))
+			return this.name + " (" + this.resourceId + ") [LCK]"; //$NON-NLS-1$ //$NON-NLS-2$
+		else
+			return this.name + " (" + this.resourceId + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	@XmlAttribute
@@ -501,19 +604,18 @@ public class FileObject implements Comparable<Object> {
 	 * @return
 	 */
 	public String getLocalizedName() {
-		String id = this.getAttribute(ATTRIBUTE_TRANSLATION_ID, ""); //$NON-NLS-1$
-		if (!StringUtils.hasText(id))
+		if (!StringUtils.hasText(translation))
 			return this.name;
 		else {
-			String res = FileSystem.getTranslation(id);
+			String res = FileSystem.getTranslation(translation);
 			if (StringUtils.hasText(res))
 				return res;
 			else
-				return "<$" + id + "$>"; //$NON-NLS-1$ //$NON-NLS-2$
+				return "<$" + translation + "$>"; //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
-	public Map<String, String> getAttributes() {
+	public Map<String, FileAttribute> getAttributes() {
 		initAttributes();
 		return this.attributes;
 	}
@@ -726,10 +828,12 @@ public class FileObject implements Comparable<Object> {
 	public void dump(StringBuilder sb, String prefix) {
 		sb.append(MessageFormat.format("{0}{1}\n", prefix, this));
 		String currentPrefix = prefix + "\t";
+		initAttributes();
 		if (attributes != null) {
 			attributes.entrySet().stream().sorted(Entry.comparingByKey()).forEach(
 					a -> sb.append(MessageFormat.format("{0}[{1}]={2}\n", currentPrefix, a.getKey(), a.getValue())));
 		}
+		initChildren();
 		if (children != null)
 			for (FileObject f : children) {
 				f.dump(sb, currentPrefix);

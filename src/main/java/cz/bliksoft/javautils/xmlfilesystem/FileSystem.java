@@ -27,6 +27,7 @@ import org.xml.sax.SAXParseException;
 
 import cz.bliksoft.javautils.EnvironmentUtils;
 import cz.bliksoft.javautils.StringUtils;
+import cz.bliksoft.javautils.exceptions.InitializationException;
 
 /**
  * základ FileSystému a práce s ním
@@ -92,12 +93,11 @@ public final class FileSystem {
 				Node n = nList.item(i);
 
 				switch (n.getNodeName()) {
-				case FileObject.IMPORT_ELEMENT: {
+				case FileObject.CLASSPATH_ELEMENT: {
 					NamedNodeMap attribs = n.getAttributes();
-					Node path = attribs.getNamedItem(FileObject.IMPORT_FILE_PATH);
+					Node path = attribs.getNamedItem(FileObject.CLASSPATH_PATH);
 					String pathString = path.getNodeValue();
-					// doc.getDocumentElement().removeChild(path);
-					InputStream stream = ClassLoader.getSystemResourceAsStream(pathString);
+					InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(pathString);
 					if (stream != null) {
 						importXml(stream, pathString);
 					} else {
@@ -139,15 +139,29 @@ public final class FileSystem {
 					}
 					break;
 				}
-				case FileObject.FILE_ELEMENT:
-				case FileObject.FOLDER_ELEMENT:
+				case FileObject.FILE_ELEMENT: {
 					FileObject fo = new FileObject(n, null, resourceId);
 					try {
 						root.importFile(fo);
 					} catch (Exception e) {
-						log.error("Importing file object " + fo.getFullPath(), e);
+						throw new InitializationException("Importing file object " + fo.getFullPath(), e);
 					}
+				}
 					break;
+				case FileObject.SYMLINK_ELEMENT: {
+					FileSymlink fo = new FileSymlink(n, null, resourceId);
+					try {
+						root.importFile(fo);
+					} catch (Exception e) {
+						throw new InitializationException("Creating symlink " + fo.getFullPath(), e);
+					}
+				}
+					break;
+				case "#text":
+				case "#comment":
+					break;
+				default:
+					log.error("Importing unknown element type " + n.getNodeName());
 				}
 			}
 		} catch (ParserConfigurationException | SAXException | IOException | DOMException ex) {

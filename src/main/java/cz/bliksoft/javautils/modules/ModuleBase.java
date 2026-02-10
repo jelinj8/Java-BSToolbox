@@ -17,7 +17,7 @@ public abstract class ModuleBase implements IModule {
 	@Override
 	public InputStream getFilesystemXml() {
 		String path = getClass().getPackage().getName().replace('.', '/');
-		return ClassLoader.getSystemResourceAsStream(path + "/" + getClass().getSimpleName() + ".xml"); //$NON-NLS-1$
+		return Thread.currentThread().getContextClassLoader().getResourceAsStream(path + "/" + getClass().getSimpleName() + ".xml"); //$NON-NLS-1$
 	}
 
 	@Override

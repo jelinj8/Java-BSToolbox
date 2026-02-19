@@ -163,7 +163,7 @@ public class TokenReplacingReader extends Reader {
 
 	public String readAsString() throws IOException {
 		try (BufferedReader buffer = new BufferedReader(this)) {
-			return buffer.lines().map(line -> line + "\n").collect(Collectors.joining());
+			return buffer.lines().collect(Collectors.joining("\n"));
 		}
 	}
 

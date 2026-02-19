@@ -2,14 +2,20 @@ package cz.bliksoft.javautils.xmlfilesystem;
 
 import java.io.File;
 import java.text.MessageFormat;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -53,6 +59,22 @@ public class FileObject implements Comparable<Object> {
 	 * název souboru
 	 */
 	public static final String ATTRIBUTE_FILE_NAME = "name"; // $NON-NLS-1$
+
+	/**
+	 * typ souboru
+	 */
+	public static final String ATTRIBUTE_FILE_TYPE = "type"; // $NON-NLS-1$
+
+	/**
+	 * ID souboru, musí být jedinečné
+	 */
+	public static final String ATTRIBUTE_FILE_ID = "id"; // $NON-NLS-1$
+
+	/**
+	 * cíl pro import souboru (importuje do registrovaného ID souboru bez ohledu
+	 * jeho aktuální cestu)
+	 */
+	public static final String ATTRIBUTE_FILE_TARGET = "target"; // $NON-NLS-1$
 
 	/**
 	 * atribut specifikující třídění souborů, pokud není definované pořadí nebo je
@@ -138,6 +160,15 @@ public class FileObject implements Comparable<Object> {
 	String name;
 
 	@XmlAttribute
+	String type;
+
+	@XmlAttribute
+	String id;
+
+	@XmlAttribute
+	String target;
+
+	@XmlAttribute
 	int order;
 
 	boolean folder;
@@ -151,7 +182,7 @@ public class FileObject implements Comparable<Object> {
 	String resourceId;
 
 	@XmlAttribute
-	boolean sorted = true;
+	boolean sorted = false;
 
 	@XmlAttribute
 	private Boolean locked = null;
@@ -185,6 +216,7 @@ public class FileObject implements Comparable<Object> {
 	public FileObject() {
 		this.folder = true;
 		this.name = null;
+		this.type = null;
 		this.resourceId = "root"; //$NON-NLS-1$
 	}
 
@@ -198,6 +230,27 @@ public class FileObject implements Comparable<Object> {
 		this.folder = false;
 		NamedNodeMap attribs = xmlDefinition.getAttributes();
 		this.name = attribs.getNamedItem(ATTRIBUTE_NAME).getNodeValue();
+
+		Node typeNode = attribs.getNamedItem(ATTRIBUTE_FILE_TYPE);
+		if (typeNode != null) {
+			String typeString = typeNode.getNodeValue();
+			if (StringUtils.hasLength(typeString))
+				this.type = typeString;
+		}
+
+		Node idNode = attribs.getNamedItem(ATTRIBUTE_FILE_ID);
+		if (idNode != null) {
+			String typeString = idNode.getNodeValue();
+			if (StringUtils.hasLength(typeString))
+				this.id = typeString;
+		}
+
+		Node targetNode = attribs.getNamedItem(ATTRIBUTE_FILE_TARGET);
+		if (targetNode != null) {
+			String typeString = targetNode.getNodeValue();
+			if (StringUtils.hasLength(typeString))
+				this.target = typeString;
+		}
 
 		Node orderNode = attribs.getNamedItem(ATTRIBUTE_FILE_POSITION);
 		if (orderNode != null) {
@@ -260,6 +313,7 @@ public class FileObject implements Comparable<Object> {
 				} else if ((fNode.getNodeName().equalsIgnoreCase(FILE_ELEMENT))) {
 					this.folder = true;
 					FileObject fo = new FileObject(fNode, this, this.resourceId);
+//					if (!fo.remove)
 					addChild(fo);
 				} else if ((fNode.getNodeName().equalsIgnoreCase(SYMLINK_ELEMENT))) {
 					this.folder = true;
@@ -423,7 +477,7 @@ public class FileObject implements Comparable<Object> {
 				return -1;
 			if (this.order > fo.order)
 				return 1;
-			if (this.sorted)
+			if (this.parent != null && this.parent.sorted)
 				return this.name.compareTo(fo.name);
 			else
 				return 0;
@@ -494,10 +548,10 @@ public class FileObject implements Comparable<Object> {
 	 */
 	public FileObject getFile(String fileName, String... subpaths) {
 		StringBuilder path = new StringBuilder("/".equals(fileName) ? "" : fileName);
-		
+
 		if (subpaths == null || subpaths.length < 1)
 			return getFile(fileName);
-		
+
 		for (String sp : subpaths) {
 			path.append("/");
 			path.append(sp);
@@ -505,8 +559,27 @@ public class FileObject implements Comparable<Object> {
 		return getFile(path.toString());
 	}
 
+	private static HashMap<String, FileObject> namedFiles = new HashMap<>();
+
+	public static FileObject getFileByID(String id) {
+		return namedFiles.get(id);
+	}
+
 	protected void importFile(FileObject fo) {
-		FileObject existing = this.getFile(fo.name);
+		FileObject existing = null;
+		if (fo.target != null) {
+			existing = getFileByID(fo.target);
+			if (existing == null)
+				throw new InitializationException(
+						"Target FileObject with ID=" + fo.target + " not yet seen, unable to import.");
+
+			if (fo.parent != null)
+				fo.parent.children.remove(fo);
+			fo.parent = existing.parent;
+
+		} else {
+			existing = this.getFile(fo.name);
+		}
 		if (existing != null) {
 			if (Boolean.TRUE.equals(existing.locked)) {
 				if (fo.locked == null) {
@@ -521,11 +594,16 @@ public class FileObject implements Comparable<Object> {
 
 			if (fo.remove) {
 				children.remove(existing);
+				if (fo.id != null)
+					namedFiles.remove(fo.id);
 				existing.parent = null;
 			} else if (replace) {
 				children.remove(existing);
 				existing.parent = null;
 				addChild(fo);
+				if (fo.id != null)
+					namedFiles.put(fo.id, fo);
+
 				fo.parent = this;
 				Collections.sort(this.children);
 			} else { // merge
@@ -548,6 +626,19 @@ public class FileObject implements Comparable<Object> {
 			}
 		} else {
 			if (!fo.remove) {
+				fo.streamDFAllChildren(true).forEach(fo2 -> {
+					if (fo2.id != null) {
+						if (namedFiles.containsKey(fo2.id) && !fo.replace)
+							throw new InitializationException("File with ID=" + fo2.id
+									+ " already registered and not force-replacing it by " + fo2);
+
+						namedFiles.put(fo2.id, fo2);
+					}
+
+					if (fo2.target != null) {
+						fo.importFile(fo2);
+					}
+				});
 				addChild(fo);
 				fo.parent = this;
 				Collections.sort(this.children);
@@ -557,10 +648,8 @@ public class FileObject implements Comparable<Object> {
 
 	@Override
 	public String toString() {
-		if (Boolean.TRUE.equals(locked))
-			return this.name + " (" + this.resourceId + ") [LCK]"; //$NON-NLS-1$ //$NON-NLS-2$
-		else
-			return this.name + " (" + this.resourceId + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+		return MessageFormat.format("{0} ({1}){2}{3}", this.name, this.resourceId,
+				Boolean.TRUE.equals(locked) ? " [LCK]" : "", this.id != null ? " {" + this.id + "}" : "");
 	}
 
 	@XmlAttribute
@@ -630,11 +719,8 @@ public class FileObject implements Comparable<Object> {
 	/**
 	 * @return poslední část názvu oddělená tečkou
 	 */
-	public String getExtension() {
-		String[] parts = this.getName().split("\\."); //$NON-NLS-1$
-		if (parts.length == 0)
-			return null;
-		return parts[parts.length - 1];
+	public String getType() {
+		return type;
 	}
 
 	public FileObject searchByName(String search) {
@@ -826,17 +912,90 @@ public class FileObject implements Comparable<Object> {
 	}
 
 	public void dump(StringBuilder sb, String prefix) {
-		sb.append(MessageFormat.format("{0}{1}\n", prefix, this));
+		sb.append(MessageFormat.format("{0}{1}{2}{3}{4}{5}{6}\n", prefix, this, type != null ? " [" + type + "]" : "",
+				this.order != 0 ? (" order: " + this.order) : "",
+				this.locked != null ? (this.locked ? " [R/O]" : " [R/W]") : "", this.sorted ? " [sorted]" : "",
+				this.translation != null ? ("Translation: " + this.translation) : ""));
 		String currentPrefix = prefix + "\t";
 		initAttributes();
 		if (attributes != null) {
-			attributes.entrySet().stream().sorted(Entry.comparingByKey()).forEach(
-					a -> sb.append(MessageFormat.format("{0}[{1}]={2}\n", currentPrefix, a.getKey(), a.getValue())));
+			attributes.entrySet().stream().sorted(Entry.comparingByKey()).forEach(a -> sb
+					.append(MessageFormat.format("{0}[{1}]={2}\n", currentPrefix, a.getKey(), a.getValue().value)));
 		}
 		initChildren();
 		if (children != null)
 			for (FileObject f : children) {
 				f.dump(sb, currentPrefix);
 			}
+	}
+
+	/**
+	 * Streams whole FileObject subtree (depth first)
+	 * 
+	 * @return
+	 */
+	public Stream<FileObject> streamDFAllChildren(boolean includeSelf) {
+		Deque<FileObject> stack = new ArrayDeque<>();
+		if (includeSelf)
+			stack.push(this);
+		else {
+			List<? extends FileObject> ch = getAllChildren();
+			for (int i = ch.size() - 1; i >= 0; i--)
+				stack.push(ch.get(i));
+		}
+
+		Iterator<FileObject> it = new Iterator<FileObject>() {
+			@Override
+			public boolean hasNext() {
+				return !stack.isEmpty();
+			}
+
+			@Override
+			public FileObject next() {
+				FileObject n = stack.pop();
+
+				List<? extends FileObject> ch = n.getAllChildren();
+				for (int i = ch.size() - 1; i >= 0; i--)
+					stack.push(ch.get(i));
+
+				return n;
+			}
+		};
+
+		return StreamSupport.stream(Spliterators.spliteratorUnknownSize(it, Spliterator.ORDERED | Spliterator.NONNULL),
+				false);
+	}
+
+	/**
+	 * Streams whole FileObject subtree (breadth first)
+	 */
+	public Stream<FileObject> streamBFAllChildren(boolean includeSelf) {
+		Deque<FileObject> queue = new ArrayDeque<>();
+		if (includeSelf)
+			queue.add(this);
+		else {
+			List<? extends FileObject> ch = getAllChildren();
+			queue.addAll(ch);
+		}
+
+		Iterator<FileObject> it = new Iterator<FileObject>() {
+			@Override
+			public boolean hasNext() {
+				return !queue.isEmpty();
+			}
+
+			@Override
+			public FileObject next() {
+				FileObject n = queue.remove();
+
+				List<? extends FileObject> ch = n.getAllChildren();
+				queue.addAll(ch);
+
+				return n;
+			}
+		};
+
+		return StreamSupport.stream(Spliterators.spliteratorUnknownSize(it, Spliterator.ORDERED | Spliterator.NONNULL),
+				false);
 	}
 }

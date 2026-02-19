@@ -1,19 +1,23 @@
 package cz.bliksoft.javautils.xmlfilesystem.singletons;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import cz.bliksoft.javautils.xmlfilesystem.FileLoader;
 import cz.bliksoft.javautils.xmlfilesystem.FileObject;
 import cz.bliksoft.javautils.xmlfilesystem.FileSystem;
-import cz.bliksoft.javautils.xmlfilesystem.IFileObjectInitializator;
+import cz.bliksoft.javautils.xmlfilesystem.IInitializeWithFileObject;
 
 public class Singletons {
 	private static final Logger log = LogManager.getLogger();
@@ -21,12 +25,7 @@ public class Singletons {
 	private Singletons() {
 	}
 
-	public static final String DEFAULT_PATH = "/services";
-	
-	/**
-	 * registr poskytovatelů rozhraní/implementací
-	 */
-	private static Map<Class<?>, SingletonContainer> serviceProviders = new HashMap<>();
+	public static final String DEFAULT_PATH = "/singletons";
 
 	/**
 	 * registr singleton objektů vytvořených z FileSystému
@@ -50,8 +49,8 @@ public class Singletons {
 					Class<?> singletonCalss = Class.forName(fo.getName());
 					result = singletonCalss.getDeclaredConstructor().newInstance();
 					singletonObjects.put(fo, new SingletonContainer(result, fo));
-					if (result instanceof IFileObjectInitializator) {
-						((IFileObjectInitializator) result).setFileObject(fo);
+					if (result instanceof IInitializeWithFileObject) {
+						((IInitializeWithFileObject) result).initializeWithFileObject(fo);
 					}
 				} catch (ClassNotFoundException e) {
 					log.log(Level.ERROR, "Singleton class {0} not found for {1}", fo.getResourceId(), //$NON-NLS-1$
@@ -73,18 +72,18 @@ public class Singletons {
 	}
 
 	/**
-	 * vyhledání a vytvoření všech singletonů poskytujících dané rozhraní
+	 * vyhledání a vytvoření všech singletonů poskytujících dané rozhraní/třídu
 	 * 
 	 * @param cls              požadované rozhraní
 	 * @param alternative_path cesta ve FS, na které má být vyhledáváno
-	 *                         (default="/services")
+	 *                         (default="/singletons")
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> List<T> lookupAllSingletons(Class<? extends T> cls, String alternative_path) {
 		List<T> result = new ArrayList<>();
 		if (alternative_path == null) {
-			alternative_path = DEFAULT_PATH;//$NON-NLS-1$
+			alternative_path = DEFAULT_PATH;// $NON-NLS-1$
 		}
 		FileObject servicesRoot = FileSystem.getFile(alternative_path);
 		if (servicesRoot != null) {
@@ -103,16 +102,14 @@ public class Singletons {
 	 * vyhledání a vytvoření singletonu poskytujícího dané rozhraní
 	 * 
 	 * @param cls              požadované rozhraní
-	 * @param alternative_path cesta pro vyhledávání, default="/services"
+	 * @param alternative_path cesta pro vyhledávání, default="/singletons"
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T lookupSingleton(Class<? extends T> cls, String alternative_path) {
-		if (serviceProviders.containsKey(cls))
-			return (T) serviceProviders.get(cls).getValue();
 
 		if (alternative_path == null) {
-			alternative_path = DEFAULT_PATH;//$NON-NLS-1$
+			alternative_path = DEFAULT_PATH;// $NON-NLS-1$
 		}
 		FileObject servicesRoot = FileSystem.getFile(alternative_path);
 		if (servicesRoot != null) {
@@ -120,12 +117,52 @@ public class Singletons {
 				if (implementorFile.getFile(cls.getName()) != null) {
 					Object result = getSingletonObject(implementorFile);
 					if (cls.isInstance(result)) {
-						serviceProviders.put(cls, new SingletonContainer(result, implementorFile));
 						return (T) result;
 					}
 				}
 			}
 		}
 		return null;
+	}
+
+	private static Map<FileObject, Object> services = new HashMap<>();
+
+	/**
+	 * Load all objects loadable from /services by registered loaders and store them
+	 * in a Map<> to prevent GC. To be used for registering app-lifetime service
+	 * objects.
+	 */
+	public static void loadServices() {
+		FileObject fo = FileSystem.getFile("services");
+		if (fo != null) {
+			fo.streamDFAllChildren(false).forEach(f -> {
+				Object o = FileLoader.loadFile(f);
+				if (o != null) {
+					services.put(f, o);
+				}
+			});
+		}
+	}
+
+	public static void cleanup() {
+		for (Entry<FileObject, Object> e : services.entrySet()) {
+			if (e.getValue() instanceof Closeable) {
+				try {
+					((Closeable) e.getValue()).close();
+				} catch (IOException ex) {
+					log.error("Closing service " + e.getKey(), ex);
+				}
+			}
+		}
+
+		for (Entry<FileObject, SingletonContainer> e : singletonObjects.entrySet()) {
+			if (e.getValue().getValue() instanceof Closeable) {
+				try {
+					((Closeable) e.getValue().getValue()).close();
+				} catch (IOException ex) {
+					log.error("Closing singleton " + e.getKey(), ex);
+				}
+			}
+		}
 	}
 }

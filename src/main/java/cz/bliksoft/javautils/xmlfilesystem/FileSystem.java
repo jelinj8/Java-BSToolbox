@@ -131,7 +131,7 @@ public final class FileSystem {
 						if (FileObject.REQUIRE_ELEMENT.equals(n.getNodeName())) {
 							log.log(Level.ERROR,
 									StringUtils.format("Required file {0} not found ({1})!", pathString, resourceId));
-							throw new FileNotFoundException(pathString);
+							throw new FileNotFoundException(incFile.getAbsolutePath());
 						} else {
 							log.log(Level.WARN, StringUtils.format("Included file {0} ({1}) not found, skipping.",
 									pathString, resourceId));

@@ -14,7 +14,7 @@ public abstract class FileLoader {
 
 	public abstract Object loadObject(FileObject file);
 
-	public abstract String getExtension();
+	public abstract String getSupportedType();
 
 	private static HashMap<String, FileLoader> loaders;
 
@@ -22,11 +22,17 @@ public abstract class FileLoader {
 	public static <T> T loadFile(FileObject file) {
 		if (file == null)
 			return null;
+
+		if(file.getType() == null) {
+			log.log(Level.WARN, "File type not specified for {}", file); //$NON-NLS-1$
+			return null;
+		}
+		
 		FileLoader fl = getLoader(file);
 		if (fl != null) {
 			return (T) fl.loadObject(file);
 		} else {
-			log.log(Level.ERROR, "File loader not found for extension {}", file.getExtension()); //$NON-NLS-1$
+			log.log(Level.ERROR, "File loader not found for {}", file); //$NON-NLS-1$
 			return null;
 		}
 	}
@@ -39,7 +45,7 @@ public abstract class FileLoader {
 	}
 
 	public static FileLoader getLoader(FileObject file) {
-		return getLoader(file.getExtension());
+		return getLoader(file.getType());
 	}
 
 	private static void loadFileLoaders() {
@@ -53,7 +59,7 @@ public abstract class FileLoader {
 			for (FileObject f : fileLoaderFolder.getChildFiles()) {
 				try {
 					FileLoader loader = fl.loadFile(f);
-					loaders.put(loader.getExtension(), loader);
+					loaders.put(loader.getSupportedType(), loader);
 				} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
 					log.error("Class doesn't seem to be a valid BSFramework FileLoader: {}", e.getMessage());
 				}
@@ -61,8 +67,8 @@ public abstract class FileLoader {
 		}
 	}
 
-	public static FileLoader getLoader(String extension) {
+	public static FileLoader getLoader(String fileType) {
 		loadFileLoaders();
-		return loaders.get(extension);
+		return loaders.get(fileType);
 	}
 }

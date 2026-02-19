@@ -316,28 +316,30 @@ public class Context {
 		isLevelContext = true;
 	}
 
-	private static Context globalContext = null;
+	private static Context rootContext = null;
 
-	public static Context getGlobal() {
-		if (globalContext == null)
-			globalContext = new Context("Global context root");
-		return globalContext;
+	public static Context getRoot() {
+		if (rootContext == null)
+			rootContext = new Context("Global context root");
+		return rootContext;
 	}
 
 	public static boolean isContextInitialized() {
-		return globalContext != null;
+		return rootContext != null;
 	}
 
-	private static SingleContextHolder switchableContext = null;
+	private static SingleContextHolder currentContext = null;
 
-	public static SingleContextHolder getSwitchedContext() {
-		if (switchableContext == null)
-			switchableContext = new SingleContextHolder("Switchable (current) context");
-		return switchableContext;
+	public static SingleContextHolder getCurrentContext() {
+		if (currentContext == null) {
+			currentContext = new SingleContextHolder("Switchable (current) context");
+			getRoot().addContext(currentContext);
+		}
+		return currentContext;
 	}
 
 	public static void setCurrentContext(Context ctx) {
-		getSwitchedContext().replaceContext(ctx);
+		getCurrentContext().replaceContext(ctx);
 	}
 
 	ArrayList<Object> listValues = new ArrayList<>();
@@ -486,6 +488,35 @@ public class Context {
 		} else {
 			String res = (StringUtils.hasText(o.toString()) ? o.toString() : o.getClass().toString());
 			return StringUtils.ellipsis(res, 100);
+		}
+	}
+
+	public String dump() {
+		StringBuilder sb = new StringBuilder();
+		dump(sb, "");
+		return sb.toString();
+	}
+
+	private void dump(StringBuilder sb, String prefix) {
+		String currentPrefix = prefix;
+		sb.append(currentPrefix);
+		sb.append(toString());
+		if (this == Context.getCurrentContext())
+			sb.append(" [CURRENT]");
+		sb.append("\n");
+		currentPrefix += "\t";
+		for (EventListener<?> l : eventListeners) {
+			sb.append(currentPrefix);
+			sb.append(l.toString());
+			sb.append("\n");
+		}
+		for (AbstractContextListener<?> l : contextListeners) {
+			sb.append(currentPrefix);
+			sb.append(l.toString());
+			sb.append("\n");
+		}
+		for (Context c : childContexts) {
+			c.dump(sb, currentPrefix);
 		}
 	}
 }

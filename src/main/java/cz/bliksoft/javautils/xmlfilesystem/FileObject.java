@@ -864,6 +864,21 @@ public class FileObject implements Comparable<Object> {
 		return getInteger(key, null);
 	}
 
+	public Long getLong(String key, Long def) {
+		String v = getAttribute(key, null);
+		if (v == null)
+			return def;
+		try {
+			return Long.parseLong(v.trim());
+		} catch (Exception e) {
+			return def;
+		}
+	}
+
+	public Long getLong(String key) {
+		return getLong(key, null);
+	}
+
 	public Integer getInteger(String key, Integer def) {
 		String v = getAttribute(key, null);
 		if (v == null)

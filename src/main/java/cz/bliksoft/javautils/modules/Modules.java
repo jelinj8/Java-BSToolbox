@@ -132,13 +132,17 @@ public class Modules {
 						log.log(Level.DEBUG, ModulesMessages.getString("Modules.ModuleInitializationStart"),
 								pd.getModuleName());
 						pd.init();
-						log.log(Level.DEBUG, ModulesMessages.getString("Modules.ModuleInitializationCompleted"), pd.getModuleName()); //$NON-NLS-1$ //$NON-NLS-2$
+						log.log(Level.DEBUG, ModulesMessages.getString("Modules.ModuleInitializationCompleted"), //$NON-NLS-1$
+								pd.getModuleName()); // $NON-NLS-2$
 					} else {
 						log.debug(ModulesMessages.getString("Modules.ModuleNotProvidingInitMethod"), //$NON-NLS-1$
 								pd.getModuleName());
 					}
 				} catch (NoSuchMethodException | SecurityException e) {
 					e.printStackTrace();
+				} catch (Exception e) {
+					log.error("Modules initialization crashed: " + pd.getModuleName(), e);
+					throw e;
 				}
 			}
 		}
@@ -169,6 +173,9 @@ public class Modules {
 						}
 					} catch (NoSuchMethodException | SecurityException e) {
 						e.printStackTrace();
+					} catch (Exception e) {
+						log.error("Modules installation crashed: " + md.getModuleName(), e);
+						throw e;
 					}
 				}
 			}
@@ -178,8 +185,14 @@ public class Modules {
 
 	public static void cleanup() {
 		for (IModule pd : modules.values()) {
-			if (pd.isEnabled())
-				pd.cleanup();
+			try {
+				if (pd.isEnabled()) {
+					log.info("Cleanup: " + pd.getModuleName());
+					pd.cleanup();
+				}
+			} catch (Exception e) {
+				log.error("Failed cleanup: " + pd.getModuleName(), e);
+			}
 		}
 	}
 }

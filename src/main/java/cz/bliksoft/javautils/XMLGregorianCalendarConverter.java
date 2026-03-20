@@ -63,34 +63,48 @@ public class XMLGregorianCalendarConverter {
 	public static XMLGregorianCalendar asXMLGregorianCalendar(String date) throws ParseException {
 		if (date == null) {
 			return null;
-		} else {
-			GregorianCalendar gc = new GregorianCalendar();
+		}
+
+		try {
+			if (date.length() == 8) {
+				return df.newXMLGregorianCalendarDate(Integer.parseInt(date.substring(0, 4)),
+						Integer.parseInt(date.substring(4, 6)), Integer.parseInt(date.substring(6, 8)), 60);
+			}
+
+			if (date.length() == 10) {
+				if (date.contains("-")) {
+					return df.newXMLGregorianCalendarDate(Integer.parseInt(date.substring(0, 4)),
+							Integer.parseInt(date.substring(5, 7)), Integer.parseInt(date.substring(8, 10)), 60);
+				} else if (date.contains("/")) {
+					return df.newXMLGregorianCalendarDate(Integer.parseInt(date.substring(0, 4)),
+							Integer.parseInt(date.substring(5, 7)), Integer.parseInt(date.substring(8, 10)), 60);
+				}
+			}
+
 			String format = null;
 			switch (date.length()) {
-			case 8:
-				format = "yyyyMMdd"; //$NON-NLS-1$
-				break;
-			case 10:
-				if (date.contains("-")) //$NON-NLS-1$
-					format = "yyyy-MM-dd"; //$NON-NLS-1$
-				else
-					format = "yyyy/MM/dd"; //$NON-NLS-1$
-				break;
 			case 15:
-				format = "yyyyMMdd_hhmmss"; //$NON-NLS-1$
+				format = "yyyyMMdd_HHmmss";
 				break;
 			case 19:
-				if (date.contains("-")) //$NON-NLS-1$
-					format = "yyyy-MM-dd_hh:mm:ss"; //$NON-NLS-1$
+				if (date.contains("-"))
+					format = "yyyy-MM-dd_HH:mm:ss";
 				else
-					format = "yyyy/MM/dd_hh:mm:ss"; //$NON-NLS-1$
+					format = "yyyy/MM/dd_HH:mm:ss";
 				break;
+			default:
+				throw new ParseException("Unsupported date format: " + date, 0);
 			}
-			DateFormat parser = new SimpleDateFormat(format);
 
-			Date res = parser.parse(date);
-			gc.setTimeInMillis(res.getTime());
+			DateFormat parser = new SimpleDateFormat(format);
+			parser.setLenient(false);
+
+			GregorianCalendar gc = new GregorianCalendar();
+			gc.setTime(parser.parse(date));
 			return df.newXMLGregorianCalendar(gc);
+
+		} catch (NumberFormatException e) {
+			throw new ParseException("Invalid date: " + date, 0);
 		}
 	}
 

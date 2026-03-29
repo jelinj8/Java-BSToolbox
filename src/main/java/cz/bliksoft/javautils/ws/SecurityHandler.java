@@ -1,14 +1,14 @@
 package cz.bliksoft.javautils.ws;
 
-import java.text.SimpleDateFormat;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
 
 import javax.xml.namespace.QName;
 
@@ -27,12 +27,8 @@ public class SecurityHandler implements SOAPHandler<SOAPMessageContext> {
 		NONE, BASIC, BINDING, SOAP
 	}
 
-	private static TimeZone utc = TimeZone.getTimeZone("UTC");
-	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-
-	static {
-		sdf.setTimeZone(utc);
-	}
+	private static DateTimeFormatter sdf = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+			.withZone(ZoneOffset.UTC);
 
 	public AuthTypes authType = AuthTypes.NONE;
 
@@ -81,9 +77,9 @@ public class SecurityHandler implements SOAPHandler<SOAPMessageContext> {
 
 				if (authType == AuthTypes.SOAP) {
 					// Create the timestamp
-					Date curdate = new Date();
+					ZonedDateTime curInstant = ZonedDateTime.now(ZoneOffset.UTC);
 
-					String timestamp = sdf.format(curdate);
+					String timestamp = sdf.format(curInstant);
 
 					// Generate a random nonce
 					byte[] nonceBytes = new byte[16];
@@ -101,11 +97,10 @@ public class SecurityHandler implements SOAPHandler<SOAPMessageContext> {
 					security.addNamespaceDeclaration("wsu",
 							"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd");
 
-					// FIXME dočasně vynecháno
 					SOAPElement soap_timestamp = security.addChildElement("Timestamp", "wsu");
 					soap_timestamp.addChildElement("Created", "wsu").addTextNode(timestamp);
 					soap_timestamp.addChildElement("Expires", "wsu")
-							.addTextNode(sdf.format(new Date(curdate.getTime() + 1000 * 30)));
+							.addTextNode(sdf.format(curInstant.plusSeconds(30)));
 					;
 
 					SOAPElement usernameToken = security.addChildElement("UsernameToken", "wsse");

@@ -365,7 +365,7 @@ public class SystemMonitor {
 				File messagesFile = LogUtils.getFile(messagesName, "txt");
 				try (FileWriter fw = new FileWriter(messagesFile)) {
 					for (TimestampedObject<Object> msg : messages) {
-						fw.write(MessageFormat.format("{0}|{1}\n", DateUtils.timestampFormat.format(msg.timestamp),
+						fw.write(MessageFormat.format("{0}|{1}\n", DateUtils.millisTimestampString(msg.timestamp),
 								msg.value));
 					}
 				} catch (IOException e) {

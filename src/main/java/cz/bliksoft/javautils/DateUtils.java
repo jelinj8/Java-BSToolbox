@@ -1,8 +1,9 @@
 package cz.bliksoft.javautils;
 
-import java.text.SimpleDateFormat;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
@@ -12,9 +13,9 @@ import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 public class DateUtils {
-	public static SimpleDateFormat timestampFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-SSS"); //$NON-NLS-1$
-	public static SimpleDateFormat ISO8824TimestampFormat = new SimpleDateFormat("yyyyMMddHHmmss"); //$NON-NLS-1$
-	
+	public static DateTimeFormatter timestampFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss-SSS"); //$NON-NLS-1$
+	public static DateTimeFormatter ISO8824TimestampFormat = DateTimeFormatter.ofPattern("yyyyMMddHHmmss"); //$NON-NLS-1$
+
 	public static DateTimeFormatter JSONTimestampFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
 
 	public static DateTimeFormatter dTF = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"); //$NON-NLS-1$
@@ -28,7 +29,7 @@ public class DateUtils {
 	}
 
 	public static String TimestampString() {
-		return timestampFormat.format(new Date());
+		return LocalDateTime.now().format(timestampFormat);
 	}
 
 	public static String XMLTimestampString() {
@@ -50,6 +51,7 @@ public class DateUtils {
 	 * dd.MM.yyyy
 	 * 
 	 * @param value
+	 * 
 	 * @return
 	 */
 	/*
@@ -58,7 +60,7 @@ public class DateUtils {
 	 */
 
 	public static String ISO8824Timestamp() {
-		return ISO8824TimestampFormat.format(new Date());
+		return LocalDateTime.now().format(ISO8824TimestampFormat);
 	}
 
 	public static long millis() {
@@ -66,7 +68,7 @@ public class DateUtils {
 	}
 
 	public static String millisTimestampString(long millis) {
-		return timestampFormat.format(new Date(millis));
+		return LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneId.systemDefault()).format(timestampFormat);
 	}
 
 	public static String millisIntervalString(long millis) {
@@ -111,7 +113,7 @@ public class DateUtils {
 	public static double toDecimalSeconds(Duration d) {
 		return d.getSeconds() + d.getNano() / 1_000_000_000.0;
 	}
-	
+
 	public static LocalDateTime truncateToMonths(LocalDateTime dt) {
 		return dt.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
 	}

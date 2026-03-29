@@ -11,10 +11,10 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.AbstractCollection;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
@@ -36,7 +36,7 @@ public class LogUtils {
 	private static Logger log;
 	private static Logger messageLog;
 
-	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-SSS");
+	private static DateTimeFormatter sdf = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss-SSS");
 
 	// private static Properties props;
 	private static String logDir = null;
@@ -200,8 +200,7 @@ public class LogUtils {
 		if (extension == null)
 			extension = ".log";
 
-		Date curdate = new Date();
-		String timestamp = sdf.format(curdate);
+		String timestamp = LocalDateTime.now().format(sdf);
 		String path = MessageFormat.format("{0}{1}_{2}.{3}", logDir + File.separatorChar, timestamp, name, extension);
 
 		if (log != null)

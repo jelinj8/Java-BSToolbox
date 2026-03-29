@@ -3,6 +3,8 @@ package cz.bliksoft.javautils;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
@@ -160,10 +162,10 @@ public class XMLGregorianCalendarConverter {
 		}
 	}
 
-	public static DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy"); //$NON-NLS-1$
-	public static DateFormat dateTimeFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss"); //$NON-NLS-1$
+	public static DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy"); //$NON-NLS-1$
+	public static DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"); //$NON-NLS-1$
 
-	public static String asString(XMLGregorianCalendar xgc, DateFormat df) {
+	public static String asString(XMLGregorianCalendar xgc, DateTimeFormatter df) {
 		if (xgc == null) {
 			return null;
 		} else {
@@ -173,8 +175,7 @@ public class XMLGregorianCalendarConverter {
 			else
 				gc = xgc.toGregorianCalendar(tzUtc, loc, null);
 
-			Date datum = new Date(gc.getTimeInMillis());
-			return df.format(datum);
+			return new Date(gc.getTimeInMillis()).toInstant().atZone(ZoneId.systemDefault()).format(df);
 		}
 	}
 

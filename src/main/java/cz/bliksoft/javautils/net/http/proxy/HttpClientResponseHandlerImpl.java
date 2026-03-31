@@ -21,6 +21,7 @@ import com.sun.net.httpserver.HttpExchange;
 
 import cz.bliksoft.javautils.net.http.BasicHTTPHandler;
 
+@SuppressWarnings("restriction")
 public class HttpClientResponseHandlerImpl implements HttpClientResponseHandler<HttpExchange> {
 	HttpExchange httpExchange;
 

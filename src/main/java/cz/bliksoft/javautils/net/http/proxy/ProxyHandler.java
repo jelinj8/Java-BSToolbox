@@ -14,11 +14,13 @@ import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.classic.methods.HttpPut;
 import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.InputStreamEntity;
+import org.apache.hc.core5.util.Timeout;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
@@ -44,9 +46,9 @@ public class ProxyHandler extends BasicHTTPHandler {
 	 * Create proxy with defined max. response/receive times
 	 * 
 	 * @param respondTimeout
-	 *                           ms until the target should start sending response
+	 *            ms until the target should start sending response
 	 * @param receiveTimeout
-	 *                           ms until the whole message is received
+	 *            ms until the whole message is received
 	 */
 	public ProxyHandler(long respondTimeout, long receiveTimeout) {
 		this.respondTimeout = respondTimeout;
@@ -198,23 +200,13 @@ public class ProxyHandler extends BasicHTTPHandler {
 				req.setEntity(entity);
 			}
 
+			req.setConfig(RequestConfig.custom().setConnectTimeout(Timeout.ofMilliseconds(respondTimeout))
+					.setResponseTimeout(Timeout.ofMilliseconds(receiveTimeout)).build());
+
 			final HttpClientResponseHandlerImpl rh = new HttpClientResponseHandlerImpl(httpExchange);
 
-			try (CloseableHttpClient client = HttpClients.createDefault()
-			//					HttpClients.custom().addRequestInterceptorFirst(new ContentLengthHeaderRemover()).build() // to fix 500: Content-Length already sent
-			) {
+			try (CloseableHttpClient client = HttpClients.createDefault()) {
 				client.execute(req, rh);
-				synchronized (rh) {
-					wait(respondTimeout);
-				}
-
-				if (rh.isReceiving()) {
-					synchronized (rh) {
-						wait(receiveTimeout);
-					}
-				} else {
-					sendERR(httpExchange, "Proxy sending timeout", HTTPErrorCodes.SERVER_GATEWAY_TIMEOUT.getValue());
-				}
 			}
 		} catch (Exception e) {
 			sendERR(httpExchange, e.getMessage(), HTTPErrorCodes.SERVER_INTERNAL_SERVER_ERROR.getValue());

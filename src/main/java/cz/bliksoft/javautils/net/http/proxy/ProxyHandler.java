@@ -209,6 +209,7 @@ public class ProxyHandler extends BasicHTTPHandler {
 				client.execute(req, rh);
 			}
 		} catch (Exception e) {
+			log.severe("Proxy error: " + e);
 			sendERR(httpExchange, e.getMessage(), HTTPErrorCodes.SERVER_INTERNAL_SERVER_ERROR.getValue());
 		} finally {
 			if (entity != null)

@@ -18,6 +18,7 @@ import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.InputStreamEntity;
@@ -201,12 +202,16 @@ public class ProxyHandler extends BasicHTTPHandler {
 				req.setEntity(entity);
 			}
 
-			req.setConfig(RequestConfig.custom().setConnectTimeout(Timeout.ofMilliseconds(respondTimeout))
-					.setResponseTimeout(Timeout.ofMilliseconds(receiveTimeout)).build());
+			req.setConfig(RequestConfig.custom().setResponseTimeout(Timeout.ofMilliseconds(receiveTimeout)).build());
 
 			final HttpClientResponseHandlerImpl rh = new HttpClientResponseHandlerImpl(httpExchange);
 
-			try (CloseableHttpClient client = HttpClients.createDefault()) {
+			ConnectionConfig connectionConfig = ConnectionConfig.custom()
+					.setConnectTimeout(Timeout.ofMilliseconds(respondTimeout)).build();
+			try (CloseableHttpClient client = HttpClients.custom()
+					.setConnectionManager(PoolingHttpClientConnectionManagerBuilder.create()
+							.setDefaultConnectionConfig(connectionConfig).build())
+					.build()) {
 				client.execute(req, rh);
 			}
 		} catch (Exception e) {

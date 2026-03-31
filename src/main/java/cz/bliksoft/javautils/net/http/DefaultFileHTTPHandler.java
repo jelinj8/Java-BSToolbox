@@ -54,9 +54,10 @@ public class DefaultFileHTTPHandler extends BasicHTTPHandler implements Closeabl
 				}
 				current = current.getParentFile();
 			}
-
-			sendERR(context.httpExchange, "Path runout!", HTTPErrorCodes.CLIENT_UNAUTHORIZED);
-			return true;
+			if (current == null) {
+				sendERR(context.httpExchange, "Path runout!", HTTPErrorCodes.CLIENT_UNAUTHORIZED);
+				return true;
+			}
 		}
 		log.fine("Serve " + pageFile);
 		if (download)

@@ -56,8 +56,9 @@ public class CryptUtils {
 	}
 
 	public static String decrypt(String string, SecretKeySpec key) throws GeneralSecurityException {
-		String iv = string.split(":")[0]; //$NON-NLS-1$
-		String property = string.split(":")[1]; //$NON-NLS-1$
+		String[] s = string.split(":"); // $NON-NLS-1$
+		String iv = s[0]; 
+		String property = s[1];
 		Cipher pbeCipher = Cipher.getInstance(cypherSpec);
 		pbeCipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(Base64Utils.base64Decode(iv)));
 		return new String(pbeCipher.doFinal(Base64Utils.base64Decode(property)), StandardCharsets.UTF_8);
@@ -258,19 +259,23 @@ public class CryptUtils {
 		crc32.update(bytes, 0, bytes.length);
 		return crc32.getValue();
 	}
-	
-	public static RSAPrivateKey privateKeyFromString(String data) throws InvalidKeySpecException, NoSuchAlgorithmException {
-		String privateKeyContent = data.replaceAll("\\R", "").replace("-----BEGIN PRIVATE KEY-----", "").replace("-----END PRIVATE KEY-----", "");
+
+	public static RSAPrivateKey privateKeyFromString(String data)
+			throws InvalidKeySpecException, NoSuchAlgorithmException {
+		String privateKeyContent = data.replaceAll("\\R", "").replace("-----BEGIN PRIVATE KEY-----", "")
+				.replace("-----END PRIVATE KEY-----", "");
 		KeyFactory kf = KeyFactory.getInstance("RSA");
 		PKCS8EncodedKeySpec keySpecPKCS8 = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKeyContent));
-        return (RSAPrivateKey) kf.generatePrivate(keySpecPKCS8);
+		return (RSAPrivateKey) kf.generatePrivate(keySpecPKCS8);
 	}
-	
-	public static RSAPublicKey publicKeyFromString(String data) throws InvalidKeySpecException, NoSuchAlgorithmException {
-		String publicKeyContent = data.replaceAll("\\R", "").replaceAll("\\n", "").replace("-----BEGIN PUBLIC KEY-----", "").replace("-----END PUBLIC KEY-----", "");
+
+	public static RSAPublicKey publicKeyFromString(String data)
+			throws InvalidKeySpecException, NoSuchAlgorithmException {
+		String publicKeyContent = data.replaceAll("\\R", "").replaceAll("\\n", "")
+				.replace("-----BEGIN PUBLIC KEY-----", "").replace("-----END PUBLIC KEY-----", "");
 		KeyFactory kf = KeyFactory.getInstance("RSA");
 		X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(Base64.getDecoder().decode(publicKeyContent));
-        return (RSAPublicKey) kf.generatePublic(keySpecX509);
+		return (RSAPublicKey) kf.generatePublic(keySpecX509);
 	}
-	
+
 }

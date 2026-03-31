@@ -253,8 +253,21 @@ public class XmlUtils {
 		JAXBContext jaxbContext = JAXBContext.newInstance(classes);
 		Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 		XMLInputFactory factory = XMLInputFactory.newInstance();
-		XMLEventReader someSource = factory.createXMLEventReader(new FileReader(xml));
-		return jaxbUnmarshaller.unmarshal(someSource, cls).getValue();
+		XMLEventReader someSource = null;
+		FileReader rdr = null;
+		try {
+			rdr = new FileReader(xml);
+			someSource = factory.createXMLEventReader(rdr);
+			return jaxbUnmarshaller.unmarshal(someSource, cls).getValue();
+		} finally {
+			if (someSource != null)
+				someSource.close();
+			if (rdr != null)
+				try {
+					rdr.close();
+				} catch (IOException e) {
+				}
+		}
 	}
 
 	public static Object unmarshal(InputStream xml, Class<?> cls)
@@ -540,18 +553,25 @@ public class XmlUtils {
 				throw new NullPointerException("The XPath function name cannot be null.");
 			String selector = fname.getLocalPart();
 			XPathFunction res = null;
+			Map<String, XPathFunction> reg;
 
 			if (StringUtils.hasLength(fname.getPrefix())) {
-				res = functions.get(fname.getPrefix()).get(selector + ":" + arity);
+				reg = functions.get(fname.getPrefix());
+				if (reg == null)
+					return null;
+				res = reg.get(selector + ":" + arity);
 				if (res != null)
 					return res;
-				res = functions.get(fname.getPrefix()).get(selector);
+				res = reg.get(selector);
 				if (res != null)
 					return res;
 				log.severe(MessageFormat.format("Failed to get function {0}:{1} with arity {2}", fname.getPrefix(),
 						selector, arity));
 			} else {
-				res = functions.get(ctx.getPrefix(fname.getNamespaceURI())).get(selector + ":" + arity);
+				reg = functions.get(ctx.getPrefix(fname.getNamespaceURI()));
+				if (reg == null)
+					return null;
+				res = reg.get(selector + ":" + arity);
 				if (res != null)
 					return res;
 				res = functions.get(ctx.getPrefix(fname.getNamespaceURI())).get(selector);

@@ -14,6 +14,7 @@ import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.classic.methods.HttpPut;
 import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -45,10 +46,8 @@ public class ProxyHandler extends BasicHTTPHandler {
 	/**
 	 * Create proxy with defined max. response/receive times
 	 * 
-	 * @param respondTimeout
-	 *            ms until the target should start sending response
-	 * @param receiveTimeout
-	 *            ms until the whole message is received
+	 * @param respondTimeout ms until the target should start sending response
+	 * @param receiveTimeout ms until the whole message is received
 	 */
 	public ProxyHandler(long respondTimeout, long receiveTimeout) {
 		this.respondTimeout = respondTimeout;
@@ -113,13 +112,15 @@ public class ProxyHandler extends BasicHTTPHandler {
 	private String query = null;
 	private String fragment = null;
 
-	//	private static class ContentLengthHeaderRemover implements HttpRequestInterceptor {
-	//		@Override
-	//		public void process(HttpRequest request, EntityDetails entity, HttpContext context)
-	//				throws HttpException, IOException {
-	//			request.removeHeaders(BasicHTTPHandler.HEADER_CONTENT_LENGTH);
-	//		}
-	//	}
+	// private static class ContentLengthHeaderRemover implements
+	// HttpRequestInterceptor {
+	// @Override
+	// public void process(HttpRequest request, EntityDetails entity, HttpContext
+	// context)
+	// throws HttpException, IOException {
+	// request.removeHeaders(BasicHTTPHandler.HEADER_CONTENT_LENGTH);
+	// }
+	// }
 
 	@Override
 	public void handle(HttpExchange httpExchange) throws IOException {
@@ -219,8 +220,8 @@ public class ProxyHandler extends BasicHTTPHandler {
 
 	@Override
 	public boolean handle(BSHttpContext context) throws IOException {
-		//		handle(context.httpExchange);
-		//		return true;
+		// handle(context.httpExchange);
+		// return true;
 		throw new RuntimeException("Unused method - should not be called!");
 		// this method is not used in proxy handler
 	}

@@ -121,11 +121,11 @@ public final class FileSystem {
 						log.log(Level.INFO,
 								StringUtils.format("Importing XML file {0} for {1}", pathString, resourceId));
 						// doc.getDocumentElement().removeChild(path);
-						InputStream stream = new FileInputStream(incFile);
-
-						// ClassLoader.getSystemResourceAsStream(pathString);
-						if (stream != null) {
-							importXml(stream, pathString);
+						try (InputStream stream = new FileInputStream(incFile)) {
+							// ClassLoader.getSystemResourceAsStream(pathString);
+							if (stream != null) {
+								importXml(stream, pathString);
+							}
 						}
 					} else {
 						if (FileObject.REQUIRE_ELEMENT.equals(n.getNodeName())) {
@@ -205,7 +205,7 @@ public final class FileSystem {
 	}
 
 	public static void addTranslations(Map<String, String> translations) {
-		translations.putAll(translations);
+		FileSystem.translations.putAll(translations);
 	}
 
 	public static void addTranslation(String key, String value) {

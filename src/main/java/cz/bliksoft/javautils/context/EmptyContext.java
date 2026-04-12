@@ -11,7 +11,7 @@ public class EmptyContext extends Context {
 	public EmptyContext(String comment) {
 		super(comment);
 	}
-	
+
 	@Override
 	public String toString() {
 		if (StringUtils.hasText(this.comment))

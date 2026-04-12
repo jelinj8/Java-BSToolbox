@@ -450,13 +450,14 @@ public class Context {
 				throw new RuntimeException("Events should be fired on EDT!");
 		}
 
-		boolean consumed = false;
 		List<EventListener<?>> currentListeners = new ArrayList<>(eventListeners);
 		for (EventListener<?> lstnr : currentListeners) {
-			consumed |= lstnr.fire(event);
+			if (lstnr.fire(event))
+				return; // event consumed
 		}
 
-		if (consumed || event instanceof ILevelEvent)
+		// level boundary
+		if (isLevelContext && event instanceof ILevelEvent)
 			return;
 
 		for (Context parent : this.parentContexts) {
@@ -515,8 +516,22 @@ public class Context {
 			sb.append(l.toString());
 			sb.append("\n");
 		}
+		dumpValues(sb, currentPrefix);
 		for (Context c : childContexts) {
 			c.dump(sb, currentPrefix);
+		}
+	}
+
+	protected void dumpValues(StringBuilder sb, String prefix) {
+		if (listValues != null) {
+			listValues.forEach(o -> {
+				sb.append(String.format("%s+V: %s\n", prefix, o));
+			});
+		}
+		if (mapValues != null) {
+			mapValues.forEach((k, v) -> {
+				sb.append(String.format("%s+V: [%s]:%s\n", prefix, k, v));
+			});
 		}
 	}
 }

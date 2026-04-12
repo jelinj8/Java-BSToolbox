@@ -151,4 +151,14 @@ public class SingleContext<T> extends Context {
 		else
 			return (isLevelContext ? "L" : "") + "SingleCTX";
 	}
+
+	@Override
+	protected void dumpValues(StringBuilder sb, String prefix) {
+		if (value != null) {
+			sb.append(String.format("%s+SV: %s\n", prefix, value));
+		} else {
+			sb.append(String.format("%s+SV: <null>\n", prefix));
+		}
+		super.dumpValues(sb, prefix);
+	}
 }

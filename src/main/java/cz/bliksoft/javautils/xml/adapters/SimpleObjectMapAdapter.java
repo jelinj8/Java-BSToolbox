@@ -30,12 +30,13 @@ public class SimpleObjectMapAdapter extends XmlAdapter<SimpleObjectMapAdapter.Si
 				@XmlElementRef(type = NamedStringObject.class), @XmlElementRef(type = NamedBooleanObject.class),
 				@XmlElementRef(type = NamedFloatObject.class), @XmlElementRef(type = NamedLocalDateObject.class),
 				@XmlElementRef(type = NamedLocalDateTimeObject.class),
-				@XmlElementRef(type = NamedLocalTimeObject.class) })
+				@XmlElementRef(type = NamedLocalTimeObject.class), @XmlElementRef(type = NamedMapObject.class) })
 		public List<NamedObject> entries = new ArrayList<>();
 	}
 
 	@XmlSeeAlso({ NamedIntegerObject.class, NamedStringObject.class, NamedBooleanObject.class, NamedFloatObject.class,
-			NamedLocalDateObject.class, NamedLocalDateTimeObject.class, NamedLocalTimeObject.class })
+			NamedLocalDateObject.class, NamedLocalDateTimeObject.class, NamedLocalTimeObject.class,
+			NamedMapObject.class })
 	@XmlAccessorType(XmlAccessType.NONE)
 	public abstract static class NamedObject {
 		@XmlAttribute
@@ -128,6 +129,25 @@ public class SimpleObjectMapAdapter extends XmlAdapter<SimpleObjectMapAdapter.Si
 		}
 	}
 
+	@XmlRootElement(name = "map")
+	@XmlAccessorType(XmlAccessType.NONE)
+	public static class NamedMapObject extends NamedObject {
+		@XmlElementRefs({ @XmlElementRef(type = NamedIntegerObject.class),
+				@XmlElementRef(type = NamedStringObject.class), @XmlElementRef(type = NamedBooleanObject.class),
+				@XmlElementRef(type = NamedFloatObject.class), @XmlElementRef(type = NamedLocalDateObject.class),
+				@XmlElementRef(type = NamedLocalDateTimeObject.class),
+				@XmlElementRef(type = NamedLocalTimeObject.class), @XmlElementRef(type = NamedMapObject.class) })
+		public List<NamedObject> entries = new ArrayList<>();
+
+		@Override
+		public Object getValue() {
+			Map<String, Object> map = new LinkedHashMap<>();
+			for (NamedObject o : entries)
+				map.put(o.name, o.getValue());
+			return map;
+		}
+	}
+
 	@Override
 	public Map<String, Object> unmarshal(SimpleMapType v) throws Exception {
 		if (v == null || v.entries.isEmpty())
@@ -178,6 +198,12 @@ public class SimpleObjectMapAdapter extends XmlAdapter<SimpleObjectMapAdapter.Si
 			NamedLocalTimeObject o = new NamedLocalTimeObject();
 			o.name = name;
 			o.value = value.toString();
+			return o;
+		} else if (value instanceof Map) {
+			NamedMapObject o = new NamedMapObject();
+			o.name = name;
+			for (Map.Entry<?, ?> e : ((Map<?, ?>) value).entrySet())
+				o.entries.add(wrap(String.valueOf(e.getKey()), e.getValue()));
 			return o;
 		}
 		NamedStringObject o = new NamedStringObject();

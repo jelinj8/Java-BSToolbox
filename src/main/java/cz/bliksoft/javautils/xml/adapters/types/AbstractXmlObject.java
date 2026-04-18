@@ -3,6 +3,7 @@ package cz.bliksoft.javautils.xml.adapters.types;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Map;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
@@ -12,7 +13,7 @@ import jakarta.xml.bind.annotation.XmlSeeAlso;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlSeeAlso({ NullObject.class, StringObject.class, IntegerObject.class, BooleanObject.class, FloatObject.class,
-		LocalDateObject.class, LocalDateTimeObject.class, LocalTimeObject.class })
+		LocalDateObject.class, LocalDateTimeObject.class, LocalTimeObject.class, MapObject.class })
 public abstract class AbstractXmlObject {
 	public abstract Object getValue();
 
@@ -35,6 +36,8 @@ public abstract class AbstractXmlObject {
 			return new LocalDateTimeObject().wrap(o);
 		} else if (o instanceof LocalTime) {
 			return new LocalTimeObject().wrap(o);
+		} else if (o instanceof Map) {
+			return new MapObject().wrap(o);
 		}
 		return new StringObject().wrap(o.toString());
 

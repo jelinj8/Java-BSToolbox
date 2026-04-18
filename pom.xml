@@ -12,17 +12,6 @@
 		<java.version>8</java.version>
 	</properties>
 
-	<distributionManagement>
-		<repository>
-			<id>bliksoft-private</id>
-			<url>https://mvn.bliksoft.cz/private</url>
-		</repository>
-		<snapshotRepository>
-			<id>bliksoft-private-snapshots</id>
-			<url>https://mvn.bliksoft.cz/private-snapshots</url>
-		</snapshotRepository>
-	</distributionManagement>
-
 	<build>
 		<plugins>
 			<plugin>

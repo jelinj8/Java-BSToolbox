@@ -8,7 +8,8 @@ import java.util.Properties;
 import cz.bliksoft.javautils.StringUtils;
 
 /**
- *
+ * Basic module implementation to allow implementing just needed methods, with
+ * reasonable defaults.
  */
 public abstract class ModuleBase implements IModule {
 
@@ -17,19 +18,33 @@ public abstract class ModuleBase implements IModule {
 	@Override
 	public InputStream getFilesystemXml() {
 		String path = getClass().getPackage().getName().replace('.', '/');
-		return Thread.currentThread().getContextClassLoader().getResourceAsStream(path + "/" + getClass().getSimpleName() + ".xml"); //$NON-NLS-1$
+		return Thread.currentThread().getContextClassLoader()
+				.getResourceAsStream(path + "/" + getClass().getSimpleName() + ".xml"); //$NON-NLS-1$
 	}
 
+	/**
+	 * Module initialization - environment is not yet fully loaded, for initializing
+	 * module itself (other modules might not be available yet). Does not need to be
+	 * called in subclass
+	 */
 	@Override
 	public void init() {
 		// throw new UnsupportedOperationException("Not supported yet.");
 	}
 
+	/**
+	 * module cleanup before application shutdown, clean up resources. Does not need
+	 * to be called in subclass
+	 */
 	@Override
 	public void cleanup() {
 		// throw new UnsupportedOperationException("Not supported yet.");
 	}
 
+	/**
+	 * Module installation - environment is already fully loaded. Does not need to
+	 * be called in subclass
+	 */
 	@Override
 	public void install() {
 		// throw new UnsupportedOperationException("Not supported yet.");

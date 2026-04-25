@@ -1,6 +1,7 @@
 package cz.bliksoft.javautils.modules;
 
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -25,6 +26,7 @@ public class Modules {
 
 	static Logger log; // init in loadModules (called after log4j is initialized)
 
+	private static Set<Class<? extends IModule>> autoloadedModules = new HashSet<>();
 	private static Set<String> forceEnabledModules = new HashSet<>();
 	private static Set<String> enabledModules = new HashSet<>();
 	private static Set<String> disabledModules = new HashSet<>();
@@ -34,6 +36,10 @@ public class Modules {
 	 */
 	protected static Map<String, IModule> modules = new HashMap<>();
 	protected static List<IModule> sortedModules = null;
+
+	public static void autoloadModule(Class<? extends IModule> module) {
+		autoloadedModules.add(module);
+	}
 
 	public static void forceEnableModule(String className) {
 		forceEnabledModules.add(className);
@@ -65,26 +71,30 @@ public class Modules {
 
 		sortedModules = new ArrayList<>();
 
+		Set<Class<? extends IModule>> localAutoloadedModules = new HashSet<>(autoloadedModules);
+
 		Iterator<IModule> modulesIterator = loader.iterator();
 		while (modulesIterator.hasNext()) {
 			try {
 				IModule pd = modulesIterator.next();
-				boolean enabled = allEnabled;
-				if (enabled && disabledModules.contains(pd.getClass().getName())) {
-					enabled = false;
-				}
-				if (!enabled && (enabledModules.contains(pd.getClass().getName()))
-						|| (forceEnabledModules.contains(pd.getClass().getName()))) {
-					enabled = true;
-				}
-
-				pd.setEnabled(enabled);
-
-				sortedModules.add(pd);
+				// remove from special loading cycle to prevent duplicities
+				localAutoloadedModules.remove(pd.getClass());
+				registerModule(pd, allEnabled);
 			} catch (ServiceConfigurationError e) {
 				log.error(ModulesMessages.getString("Modules.ClassNotAModule"), e.getMessage()); //$NON-NLS-1$
 			}
 		}
+
+		localAutoloadedModules.forEach(mc -> {
+			try {
+				IModule pd = mc.getDeclaredConstructor().newInstance();
+				registerModule(pd, allEnabled);
+			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+					| InvocationTargetException | NoSuchMethodException | SecurityException e) {
+				log.error(ModulesMessages.getString("Modules.ClassNotAModule"), e.getMessage()); //$NON-NLS-1$
+			}
+		});
+
 		Collections.sort(sortedModules,
 				(IModule m1, IModule m2) -> Integer.compare(m1.getModuleLoadingOrder(), m2.getModuleLoadingOrder()));
 
@@ -114,6 +124,21 @@ public class Modules {
 		}
 
 		FileSystem.loadTranslations();
+	}
+
+	private static void registerModule(IModule pd, boolean forceEnabled) {
+		boolean enabled = forceEnabled;
+		if (enabled && disabledModules.contains(pd.getClass().getName())) {
+			enabled = false;
+		}
+		if (!enabled && (enabledModules.contains(pd.getClass().getName()))
+				|| (forceEnabledModules.contains(pd.getClass().getName()))) {
+			enabled = true;
+		}
+
+		pd.setEnabled(enabled);
+
+		sortedModules.add(pd);
 	}
 
 	public static Map<String, IModule> getModules() {

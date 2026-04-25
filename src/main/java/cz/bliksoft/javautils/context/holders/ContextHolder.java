@@ -19,27 +19,19 @@ public class ContextHolder extends Context {
 		if (childContexts.isEmpty())
 			return new ContextSearchResult(this, key, null);
 		Context ctx = childContexts.get(0);
-		//
-		////		if (ctx instanceof KeyedContext) {
-		////			return ((KeyedContext) ctx).getValue(key);
-		////		} else if (ctx instanceof ListContext) {
-		////			return ((ListContext) ctx).getValue(key);
-		////		} else 
-		//		if (ctx instanceof ContextWithValues) {
-		//			return ((ContextWithValues) ctx).getValue(key);
-		//		} else if (ctx instanceof SingleContextHolder) {
-		//			return ((SingleContextHolder) ctx).getValue(key);
-		//		} else {			
-		//			log.error("ContextHolder can't search values in " + ctx.getClass().getName());
-		//			return null;
-		//		}
 		return ctx.getValue(key);
 	}
 
+	@Override
+	public void addValue(Object value) {
+		put(null, value);
+	}
+
+	@Override
 	/*
 	 * add value into child context (key is optional for lists)
 	 */
-	public void putValue(Object key, Object value) {
+	public void put(Object key, Object value) {
 		if (childContexts.isEmpty()) {
 			log.error("Can't put value into empty SingleContextContainer ({})", comment);
 			return;
@@ -47,10 +39,6 @@ public class ContextHolder extends Context {
 
 		Context ctx = childContexts.get(0);
 
-		//		if (ctx instanceof KeyedContext) {
-		//			((KeyedContext) ctx).put(key, value);
-		//		} else if (ctx instanceof ListContext) {
-		//			((ListContext) ctx).addValue(value);
 		if (key != null)
 			((Context) ctx).put(key, value);
 		else

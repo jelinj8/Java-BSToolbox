@@ -5,7 +5,7 @@
 
 	<groupId>cz.bliksoft.java</groupId>
 	<artifactId>common-java-utils</artifactId>
-	<version>0.6</version>
+	<version>0.7-SNAPSHOT</version>
 	<name>BSToolbox</name>
 	<description>Universal Java utility library: context/event framework, module/plugin system, XML virtual filesystem, and Freemarker templating utilities.</description>
 	<url>https://github.com/jelinj8/Java-BSToolbox</url>

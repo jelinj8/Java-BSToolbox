@@ -56,7 +56,17 @@ public interface IModule {
 	 */
 	public void setEnabled(boolean enabled);
 
+	/**
+	 * informace o verzi modulu
+	 * 
+	 * @return
+	 */
 	public String getVersionInfo();
 
+	/**
+	 * hodnota určující pořadí načítání modulů
+	 * 
+	 * @return
+	 */
 	public int getModuleLoadingOrder();
 }

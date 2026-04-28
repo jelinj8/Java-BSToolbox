@@ -11,9 +11,18 @@ import java.util.logging.Logger;
 
 import cz.bliksoft.javautils.DateUtils;
 
+/**
+ * Single-threaded scheduler that executes {@link Task} instances at configured
+ * times. Tasks are ordered by their next-run timestamp. Supports pause/resume
+ * (preserving elapsed time) and stop/restart (resetting to initial delays).
+ */
 public class TaskScheduler {
 	private Logger log;
 
+	/**
+	 * Creates a named scheduler. The scheduler does not start automatically; call
+	 * {@link #start()}.
+	 */
 	public TaskScheduler(String name) {
 		this.name = name;
 		log = Logger.getLogger(TaskScheduler.class.getSimpleName() + "[" + name + "]");
@@ -23,12 +32,17 @@ public class TaskScheduler {
 
 	private String name;
 
+	/**
+	 * Returns the scheduler name, falling back to {@link #toString()} if no name
+	 * was set.
+	 */
 	public String getName() {
 		if (name == null)
 			return toString();
 		return name;
 	}
 
+	/** Lifecycle states of the scheduler. */
 	public enum SCHEDULER_STATUS {
 		NEW, RUNNING, PAUSED, STOPPED;
 
@@ -63,8 +77,8 @@ public class TaskScheduler {
 			else if (o1.nextRun == o2.nextRun) {
 				if (o1 == o2)
 					return 0;
-				// v případě, že je čas nastaven stejně, ale nejedná se o stejnou úlohu, máme tu
-				// nejednoznačnost.
+				// if the time is the same but it's not the same task instance, we have an
+				// ambiguity.
 				/*
 				 * else if (o1 < o2) return -1; else return 1;
 				 */
@@ -75,6 +89,7 @@ public class TaskScheduler {
 
 	private SCHEDULER_STATUS status = SCHEDULER_STATUS.NEW;
 
+	/** Returns the current lifecycle status of the scheduler. */
 	public SCHEDULER_STATUS getStatus() {
 		return status;
 	}
@@ -86,25 +101,37 @@ public class TaskScheduler {
 	private long startedTS = 0;
 	private long stoppedTS = 0;
 
+	/**
+	 * Returns the epoch-millisecond timestamp when the scheduler was last stopped,
+	 * or 0 if never stopped.
+	 */
 	public long getStoppedTSMillis() {
 		return stoppedTS;
 	}
 
+	/**
+	 * Returns the epoch-millisecond timestamp when the scheduler was last started,
+	 * or 0 if never started.
+	 */
 	public long getStartedTSMillis() {
 		return startedTS;
 	}
 
+	/**
+	 * Returns the epoch-millisecond timestamp when the scheduler was last paused,
+	 * or 0 if never paused.
+	 */
 	public long getPausedTSMillis() {
 		return pausedTS;
 	}
 
 	/**
-	 * podle aktuální nejbližší úlohy upraví příští úlohu musí se volat v
-	 * synchronized (tasks) { }
+	 * Updates the next scheduled task based on the current head of the queue. Must
+	 * be called inside {@code synchronized (tasks) {}}.
 	 */
 	private void checkHead() {
 		Task nextSchedule = (status == SCHEDULER_STATUS.RUNNING ? (tasks.isEmpty() ? null : tasks.first()) : null);
-		// změna přítomnosti plánu, jeho identity nebo načasování
+		// change in schedule presence, identity or timing
 
 		if (((nextSchedule == null) != (nextTask == null))) {
 			setNextSchedule(nextSchedule);
@@ -116,9 +143,9 @@ public class TaskScheduler {
 	}
 
 	/**
-	 * zavolá se, pokud dojde ke změně následující události
-	 * 
-	 * @param task úloha
+	 * Called when the next scheduled event changes.
+	 *
+	 * @param task the new next task, or {@code null} if no task is scheduled
 	 */
 	private void setNextSchedule(Task task) {
 		if (task != null) {
@@ -128,7 +155,7 @@ public class TaskScheduler {
 					+ " (in " + DateUtils.millisIntervalString(task.nextRun - DateUtils.millis()) + ")");
 
 			if (!waitSemaphore.tryAcquire())
-				waitSemaphore.release(); // dochází ke změně plánů a není to bezprostředně po spuštění úlohy
+				waitSemaphore.release(); // schedule is changing and it's not immediately after task start
 		} else {
 			log.fine("No scheduled task.");
 			nextRun = 0;
@@ -137,9 +164,11 @@ public class TaskScheduler {
 	}
 
 	/**
-	 * naplánuje spuštění úlohy
-	 * 
-	 * @param task úloha
+	 * Schedules a task for execution using its configured
+	 * {@link Task#getInitialDelay()}. If the task is already scheduled it is
+	 * rescheduled.
+	 *
+	 * @param task the task to schedule
 	 */
 	public void schedule(Task task) {
 		synchronized (tasks) {
@@ -154,10 +183,10 @@ public class TaskScheduler {
 	}
 
 	/**
-	 * naplánuje spuštění úlohy po intervalu (ms)
-	 * 
-	 * @param task  úloha
-	 * @param delay zpoždění (ms)
+	 * Schedules a task to run after a fixed delay in milliseconds.
+	 *
+	 * @param task  the task to schedule
+	 * @param delay delay from now in milliseconds
 	 */
 	public void scheduleIn(Task task, long delay) {
 		synchronized (tasks) {
@@ -170,19 +199,23 @@ public class TaskScheduler {
 	}
 
 	// /**
-	// * naplánuje první spuštění úlohy po intervalu
+	// * Schedules the first execution of a task after an interval.
 	// *
 	// * @param task
-	// * @param initialDelay
-	// * odložit spuštění o ms
-	// * @param repeatInterval
-	// * nastavení opakovacího intervalu úlohy
+	// * @param initialDelay delay execution by ms
+	// * @param repeatInterval task repeat interval setting
 	// */
 	// public void schedule(Task task, long repeatInterval) {
 	// task.setRepeatInterval(repeatInterval);
 	// schedule(task);
 	// }
 
+	/**
+	 * Removes a task from the schedule. Has no effect if the task was not
+	 * scheduled.
+	 *
+	 * @param task the task to remove
+	 */
 	public void unschedule(Task task) {
 		synchronized (tasks) {
 			if (tasks.remove(task))
@@ -193,6 +226,10 @@ public class TaskScheduler {
 		}
 	}
 
+	/**
+	 * Starts the scheduler thread. Resumes from pause (shifting scheduled times) or
+	 * restarts after stop. Has no effect if already running.
+	 */
 	public void start() {
 		if (status == SCHEDULER_STATUS.RUNNING)
 			return;
@@ -230,7 +267,7 @@ public class TaskScheduler {
 			public void run() {
 				while (status == SCHEDULER_STATUS.RUNNING) {
 					try {
-						// pokud máme plán a je spuštěno, počkáme na něj
+						// if we have a scheduled task and the scheduler is running, wait for it
 						if ((nextTask != null) && (status == SCHEDULER_STATUS.RUNNING)) {
 							if (waitSemaphore.tryAcquire(nextRun - DateUtils.millis(), TimeUnit.MILLISECONDS)) {
 								log.fine("Wait for task interrupted");
@@ -239,7 +276,7 @@ public class TaskScheduler {
 										(nextTask == null ? " (NO TASK)" : ""));
 							}
 						} else {
-							// nemáme plán, čekáme na změnu
+							// no scheduled task — waiting for a change
 							log.fine("Waiting for a change of plans" + ((nextTask == null) ? " (no tasks)" : "")
 									+ ((status == SCHEDULER_STATUS.RUNNING) ? "" : " " + status));
 							waitSemaphore.acquire();
@@ -289,9 +326,9 @@ public class TaskScheduler {
 	}
 
 	/**
-	 * pozastaví provádění naplánovaných úloh - po znovuspustění budou úlohy
-	 * pokračovat jako by mezitím neběžel čas (posune se čas spuštění o dobu, kdy
-	 * byl plánovač pozastaven)
+	 * Pauses execution of scheduled tasks. When resumed via {@link #start()}, tasks
+	 * continue as if no time had passed — their scheduled times are shifted forward
+	 * by the pause duration.
 	 */
 	public void pause() {
 		status = SCHEDULER_STATUS.PAUSED;
@@ -304,8 +341,9 @@ public class TaskScheduler {
 	}
 
 	/**
-	 * zastaví plánovač. Po znovuspuštění budou úlohy znovu naplánovány podle jejich
-	 * initialDelay
+	 * Stops the scheduler and its thread. After a subsequent {@link #start()} call,
+	 * all tasks are rescheduled from scratch using their
+	 * {@link Task#getInitialDelay()}.
 	 */
 	public void stop() {
 		status = SCHEDULER_STATUS.STOPPED;
@@ -325,6 +363,10 @@ public class TaskScheduler {
 		log.fine("Stopped.");
 	}
 
+	/**
+	 * Returns the default shared scheduler instance, creating and starting it on
+	 * first call.
+	 */
 	public static TaskScheduler getDefault() {
 		if (instance == null) {
 			instance = new TaskScheduler("default");
@@ -334,6 +376,7 @@ public class TaskScheduler {
 		return instance;
 	}
 
+	/** Returns {@code true} if no tasks are currently scheduled. */
 	public boolean isEmpty() {
 		synchronized (tasks) {
 			return tasks.isEmpty();

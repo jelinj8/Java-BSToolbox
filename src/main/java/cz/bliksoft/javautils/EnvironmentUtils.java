@@ -370,7 +370,6 @@ public class EnvironmentUtils {
 	 * 
 	 * @param path
 	 * @return
-	 * @throws Exception
 	 */
 	public static String pathReplace(String path) {
 		return pathReplace(path, null);
@@ -382,7 +381,6 @@ public class EnvironmentUtils {
 	 * @param path
 	 * @param additionalTokens
 	 * @return
-	 * @throws Exception
 	 */
 	public static String pathReplace(String path, Map<String, String> additionalTokens) {
 		Map<String, String> tokens = new HashMap<>();

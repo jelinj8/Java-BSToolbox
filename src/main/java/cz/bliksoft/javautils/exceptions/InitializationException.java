@@ -1,5 +1,6 @@
 package cz.bliksoft.javautils.exceptions;
 
+/** Unchecked exception thrown when a component fails to initialise. */
 public class InitializationException extends RuntimeException {
 	/**
 	 * 

@@ -7,7 +7,8 @@ import java.io.IOException;
 
 /**
  * for reloading use a new instance of ReloadingClassLoader each time
- * @author jjelinek
+ * 
+ * @author jelinj8
  *
  */
 public class FolderClassLoader extends ClassLoader {

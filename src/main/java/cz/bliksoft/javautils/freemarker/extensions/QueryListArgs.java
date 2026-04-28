@@ -12,7 +12,7 @@ import freemarker.template.TemplateModelException;
  * Call a SQL query. Sets LastQuery hashmap with. [columns, columnTypes, SQL,
  * parameters, resultCount]
  * 
- * @author jakub
+ * @author jelinj8
  *
  */
 public class QueryListArgs extends Query {

@@ -16,10 +16,8 @@ import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 /**
  * To be overriden with specific data types and use with @XmlJavaTypeAdapter
  * 
- * @author jjelinek
+ * @author jelinj8
  *
- * @param <K>
- * @param <V>
  */
 public class BasicObjectMapAdapter extends XmlAdapter<BasicObjectMapAdapter.BasicObjectMapType, Map<String, Object>> {
 	@XmlAccessorType(XmlAccessType.NONE)

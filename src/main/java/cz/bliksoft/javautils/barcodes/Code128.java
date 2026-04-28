@@ -22,7 +22,7 @@ import javax.swing.JLabel;
  * 
  * fixed charcodes for attached repaired font
  * 
- * @author Jakub Jelínek
+ * @author jelinj8
  *
  */
 public class Code128 {

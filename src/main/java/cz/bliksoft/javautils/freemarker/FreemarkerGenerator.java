@@ -52,7 +52,7 @@ import freemarker.template.TemplateException;
 
 /**
  *
- * @author hroch
+ * @author jelinj8
  */
 public class FreemarkerGenerator {
 	static Logger log = Logger.getLogger(FreemarkerGenerator.class.getName());
@@ -112,7 +112,7 @@ public class FreemarkerGenerator {
 	/**
 	 * generování pomocí předkonfigurovaného nastavení
 	 * 
-	 * @param templateLoader
+	 * @param config
 	 */
 	public FreemarkerGenerator(Configuration config) {
 		this.cfg = config;

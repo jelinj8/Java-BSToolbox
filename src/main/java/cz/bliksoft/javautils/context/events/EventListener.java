@@ -56,7 +56,6 @@ public abstract class EventListener<T> {
 	 * process event listener
 	 * 
 	 * @param event
-	 * @return event consumed (stop parent level notifications)
 	 */
 	public abstract void fired(T event);
 
@@ -100,6 +99,7 @@ public abstract class EventListener<T> {
 
 	/**
 	 * soft check if called from optionally configured EventDispatching thread.
+	 * 
 	 * @return
 	 */
 	public static boolean isEdt() {
@@ -109,7 +109,8 @@ public abstract class EventListener<T> {
 	}
 
 	/**
-	 * hard check for call from EDT. Throws runtime exceptions if called from other thread or the EDT is not configured.
+	 * hard check for call from EDT. Throws runtime exceptions if called from other
+	 * thread or the EDT is not configured.
 	 */
 	public static void eforceEdt() {
 		if (edt == null)

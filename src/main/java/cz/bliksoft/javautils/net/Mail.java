@@ -25,7 +25,7 @@ import jakarta.mail.internet.MimeMessage;
  * 
  * to MVN dependencies.
  * 
- * @author jakub
+ * @author jelinj8
  *
  */
 public class Mail {

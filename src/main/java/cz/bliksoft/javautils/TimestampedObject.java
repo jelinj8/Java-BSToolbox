@@ -5,7 +5,7 @@ import java.util.Date;
 /**
  * objekt, který má přiřazenou časovou značku
  * 
- * @author jjelinek
+ * @author jelinj8
  *
  * @param <T>
  */

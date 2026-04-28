@@ -10,7 +10,8 @@ import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
  * To be overriden with specific data types and use with @XmlJavaTypeAdapter
- * @author jjelinek
+ * 
+ * @author jelinj8
  *
  * @param <K>
  * @param <V>
@@ -23,7 +24,7 @@ public abstract class GenericMapAdapter<K, V> extends XmlAdapter<GenericMapAdapt
 		public static class MapTypeEntry<K, V> {
 			@XmlElement
 			protected K key;
-			
+
 			@XmlElement
 			protected V value;
 

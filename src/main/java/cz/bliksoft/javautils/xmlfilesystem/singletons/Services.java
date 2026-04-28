@@ -23,8 +23,8 @@ public class Services {
 
 	/**
 	 * Load all objects loadable from /services by registered loaders and store them
-	 * in a Map<> to prevent GC. To be used for registering app-lifetime service
-	 * objects.
+	 * in a Map&lt;&gt; to prevent GC. To be used for registering app-lifetime
+	 * service objects.
 	 */
 	public static void loadServices() {
 		FileObject fo = FileSystem.getFile("services");

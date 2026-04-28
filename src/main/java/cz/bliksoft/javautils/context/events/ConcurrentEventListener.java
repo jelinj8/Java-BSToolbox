@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Event listener processed again only after previous run finishes
  * 
- * @author jjelinek
+ * @author jelinj8
  *
  * @param <T>
  */

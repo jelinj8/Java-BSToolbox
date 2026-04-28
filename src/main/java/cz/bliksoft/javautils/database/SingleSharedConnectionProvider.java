@@ -53,6 +53,7 @@ public class SingleSharedConnectionProvider implements IDBConnectionProvider {
 	 * create lazily fetched connection
 	 * 
 	 * @param connectionProvider
+	 * @param name
 	 */
 	public SingleSharedConnectionProvider(IDBConnectionFactory connectionProvider, String name) {
 		this.connectionProvider = connectionProvider;
@@ -62,7 +63,7 @@ public class SingleSharedConnectionProvider implements IDBConnectionProvider {
 	/**
 	 * create lazily fetched connection
 	 * 
-	 * @param connectionProvider
+	 * @param connectionFactory
 	 */
 	public SingleSharedConnectionProvider(Supplier<Connection> connectionFactory) {
 		this.connectionProvider = new IDBConnectionFactory() {
@@ -81,7 +82,7 @@ public class SingleSharedConnectionProvider implements IDBConnectionProvider {
 	/**
 	 * create lazily fetched connection
 	 * 
-	 * @param connectionProvider
+	 * @param connectionFactory
 	 */
 	public SingleSharedConnectionProvider(Supplier<Connection> connectionFactory, String name) {
 		this.connectionProvider = new IDBConnectionFactory() {

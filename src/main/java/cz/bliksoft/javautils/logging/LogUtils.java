@@ -65,7 +65,6 @@ public class LogUtils {
 	 * backwards compatibility for {@link LogUtils#initLog4J(File, Map) optional
 	 * variable replacement version}
 	 * 
-	 * @param configPath
 	 */
 	public static void initLog4J() {
 		initLog4J(null, null);

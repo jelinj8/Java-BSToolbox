@@ -89,7 +89,7 @@ import jakarta.xml.bind.Unmarshaller;
  * Car car = root.getValue();}
  * </ul>
  * 
- * @author jjelinek
+ * @author jelinj8
  *
  */
 public class XmlUtils {
@@ -522,7 +522,7 @@ public class XmlUtils {
 	/**
 	 * XPath custom functionsregister
 	 * 
-	 * @author jjelinek
+	 * @author jelinj8
 	 *
 	 */
 	public static class BasicFunctionResolver implements XPathFunctionResolver {

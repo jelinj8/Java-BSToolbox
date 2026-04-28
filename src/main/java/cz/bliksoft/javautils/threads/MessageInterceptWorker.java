@@ -4,6 +4,12 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
+/**
+ * Thread that intercepts a two-phase message exchange: a "prepare" phase where
+ * the worker produces a record, and a "sign/modify" phase where the caller can
+ * modify it before the worker proceeds. Synchronisation is handled via
+ * semaphores.
+ */
 public abstract class MessageInterceptWorker extends Thread {
 
 	public MessageInterceptWorker(String threadName) {
@@ -29,21 +35,24 @@ public abstract class MessageInterceptWorker extends Thread {
 	private String modifiedRecord;
 
 	/**
-	 * výjimka, ke které dojde během zpracovávání - pro pozdější
-	 * vyhodnocení/logování
+	 * Exception thrown during processing, stored for later evaluation or logging.
 	 */
 	protected Exception callException = null;
 
 	/**
-	 * getter na výjimku zpracování
-	 * 
+	 * Returns the exception thrown during processing, or {@code null} if no
+	 * exception occurred.
+	 *
 	 * @see #callException
-	 * @return
 	 */
 	public Exception getException() {
 		return callException;
 	}
 
+	/**
+	 * Blocks until the worker signals the prepare phase is complete, with a
+	 * 5-minute timeout.
+	 */
 	public boolean waitForPrepare() throws Exception {
 		if (prepareLock.tryAcquire(5, TimeUnit.MINUTES)) {
 			prepareLock.release();

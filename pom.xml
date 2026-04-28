@@ -7,6 +7,31 @@
 	<artifactId>common-java-utils</artifactId>
 	<version>0.6-SNAPSHOT</version>
 	<name>BSToolbox</name>
+	<description>Universal Java utility library: context/event framework, module/plugin system, XML virtual filesystem, and Freemarker templating utilities.</description>
+	<url>https://github.com/jelinj8/Java-BSToolbox</url>
+
+	<licenses>
+		<license>
+			<name>GNU Lesser General Public License v2.1</name>
+			<url>https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<id>jelinj8</id>
+			<name>Jakub Jelínek</name>
+			<email>jakub.jelinek@gmail.com</email>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:https://github.com/jelinj8/Java-BSToolbox.git</connection>
+		<developerConnection>scm:git:https://github.com/jelinj8/Java-BSToolbox.git</developerConnection>
+		<url>https://github.com/jelinj8/Java-BSToolbox</url>
+	</scm>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>8</java.version>
@@ -118,21 +143,21 @@
 					</includeOnlyProperties>
 				</configuration>
 			</plugin>
-			<!-- <plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>3.7.0</version>
 				<executions>
 					<execution>
 						<goals>
-							<goal>javadoc</goal>
+							<goal>jar</goal>
 						</goals>
 						<id>execution1</id>
 						<phase>package</phase>
 					</execution>
 				</executions>
-			</plugin> -->
-			<!-- <plugin>
+			</plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
 				<version>3.3.1</version>
@@ -145,7 +170,7 @@
 						<phase>package</phase>
 					</execution>
 				</executions>
-			</plugin> -->
+			</plugin>
 		</plugins>
 	</build>
 
@@ -241,4 +266,38 @@
 			<optional>true</optional>
 		</dependency>
 	</dependencies>
+
+	<profiles>
+		<profile>
+			<id>release</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>3.2.4</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.sonatype.central</groupId>
+						<artifactId>central-publishing-maven-plugin</artifactId>
+						<version>0.7.0</version>
+						<extensions>true</extensions>
+						<configuration>
+							<publishingServerId>central</publishingServerId>
+							<autoPublish>true</autoPublish>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>

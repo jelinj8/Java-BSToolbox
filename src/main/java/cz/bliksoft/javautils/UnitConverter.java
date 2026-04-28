@@ -47,8 +47,8 @@ public class UnitConverter {
 	/**
 	 * Converts millimeters (mm) to pixels (px)
 	 * 
-	 * @param mm         the value in mm
-	 * @param resolution the resolution in dpi (dots per inch)
+	 * @param mm  the value in mm
+	 * @param dpi the resolution in dpi (dots per inch)
 	 * @return the value in pixels
 	 */
 	public static int mm2px(double mm, int dpi) {
@@ -58,8 +58,8 @@ public class UnitConverter {
 	/**
 	 * Converts pixels (px) to millimeters (mm)
 	 * 
-	 * @param px         dimension in px
-	 * @param resolution dpi (dotsPerInch)
+	 * @param px  dimension in px
+	 * @param dpi dpi (dotsPerInch)
 	 * @return size in mm
 	 */
 	public static double px2mm(double px, int dpi) {

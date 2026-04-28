@@ -12,7 +12,6 @@ import java.io.InputStreamReader;
 import java.io.PushbackReader;
 import java.io.Reader;
 import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -23,7 +22,7 @@ import java.util.stream.Collectors;
 /**
  * http://tutorials.jenkov.com/java-howto/replace-strings-in-streams-arrays-files.html
  * 
- * @author Jakob Jenkov, Jakub Jelínek
+ * @author Jakob Jenkov, jelinj8
  * 
  */
 public class TokenReplacingReader extends Reader {
@@ -38,7 +37,6 @@ public class TokenReplacingReader extends Reader {
 	 * 
 	 * @param source
 	 * @param resolver
-	 * @throws UnsupportedEncodingException
 	 */
 	public TokenReplacingReader(InputStream source, ITokenResolver resolver) {
 		this(new InputStreamReader(source, StandardCharsets.UTF_8), resolver);
@@ -50,7 +48,6 @@ public class TokenReplacingReader extends Reader {
 	 * @param source
 	 * @param charset
 	 * @param resolver
-	 * @throws UnsupportedEncodingException
 	 */
 	public TokenReplacingReader(InputStream source, Charset charset, ITokenResolver resolver) {
 		this(new InputStreamReader(source, charset), resolver);

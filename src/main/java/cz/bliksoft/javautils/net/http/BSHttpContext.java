@@ -99,7 +99,6 @@ public class BSHttpContext extends HashMap<String, Object> {
 	 * 
 	 * @param contextName
 	 * @param cookiePath
-	 * @return
 	 */
 	public void initSession(String contextName, String cookiePath) {
 		final String sessionKey = contextName + "_";

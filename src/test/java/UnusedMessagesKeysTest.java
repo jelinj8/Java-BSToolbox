@@ -108,21 +108,21 @@ public class UnusedMessagesKeysTest {
 				report.append("\n=== ").append(className).append(" (").append(bundlePath).append(") ===\n");
 
 				if (!unused.isEmpty()) {
-					report.append("UNUSED keys (existují v bundle, ale nenašly se v kódu/FXML; mimo whitelist):\n");
+					report.append("UNUSED keys (present in bundle but not found in code/FXML; excluding whitelist):\n");
 					for (String k : unused) {
 						report.append("  - ").append(k).append("\n");
 					}
 				}
 
 				if (!missing.isEmpty()) {
-					report.append("MISSING keys (použité v kódu/FXML, ale chybí v bundle):\n");
+					report.append("MISSING keys (used in code/FXML but absent from bundle):\n");
 					for (String k : missing) {
 						report.append("  + ").append(k).append("\n");
 					}
 				}
 
 				if (!staleWhitelist.isEmpty()) {
-					report.append("STALE whitelist entries (ve whitelistu, ale už nejsou v bundle – můžeš uklidit):\n");
+					report.append("STALE whitelist entries (in whitelist but no longer in bundle — can be removed):\n");
 					for (String k : staleWhitelist) {
 						report.append("  * ").append(k).append("\n");
 					}

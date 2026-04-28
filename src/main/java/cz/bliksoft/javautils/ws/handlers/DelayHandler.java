@@ -11,7 +11,7 @@ import jakarta.xml.ws.handler.soap.SOAPMessageContext;
 /**
  * delay processing of SOAP message in one/both directions
  * 
- * @author jjelinek
+ * @author jelinj8
  *
  */
 public class DelayHandler implements SOAPHandler<SOAPMessageContext> {

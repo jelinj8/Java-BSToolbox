@@ -17,7 +17,7 @@ import cz.bliksoft.javautils.xmlfilesystem.IInitializeWithFileObject;
 /**
  * kontejner pro uchovávání singletonu a jeho definičního záznamu ve filesystému
  * 
- * @author hroch
+ * @author jelinj8
  */
 public class SingletonContainer {
 	Logger log = LogManager.getLogger();

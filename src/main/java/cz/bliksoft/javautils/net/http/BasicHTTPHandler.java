@@ -80,8 +80,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	 * </pre>
 	 * 
 	 * @param httpExchange
-	 * @param path
-	 *                         URI, starts with '/'
+	 * @param path         URI, starts with '/'
 	 * @param params
 	 * @throws IOException
 	 */
@@ -89,8 +88,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	/**
 	 * main request handling method
 	 * 
-	 * @param context
-	 *                    preparsed request
+	 * @param context preparsed request
 	 * @return true for finished processing (do not try next handlers/steps), can
 	 *         return false for specific handlers that will continue with following
 	 *         steps (e.g. authentification prehandler). Basically return true if
@@ -142,7 +140,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	private static String runCookiePrefix = UUID.randomUUID().toString();
 	String _sessionCookiePrefix = null;
 	String _sessionCookiePath = "/";
-	
+
 	/**
 	 * set handler to process session setup with default cookie prefix
 	 */
@@ -153,11 +151,9 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	/**
 	 * set handler to process session setup
 	 * 
-	 * @param sessionContextName
-	 *                               cookie name prefix to use, random value
-	 *                               generated on startup
-	 * @param path
-	 *                               http path to be set, null for /
+	 * @param sessionContextName cookie name prefix to use, random value generated
+	 *                           on startup
+	 * @param path               http path to be set, null for /
 	 */
 	public void makeSessionAware(String sessionContextName, String path) {
 		_sessionCookiePrefix = (StringUtils.hasLength(sessionContextName) ? sessionContextName : runCookiePrefix);
@@ -210,7 +206,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	/**
 	 * add HTTP method supported by this handler
 	 * 
-	 * @param method
+	 * @param methods
 	 */
 	public void addSupportedMethods(Collection<HttpMethod> methods) {
 		supportedMethods.addAll(methods);
@@ -691,56 +687,64 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 		httpExchange.getResponseHeaders().put(header, hVal);
 	}
 
-	//	/**
-	//	 * set cookie
-	//	 * 
-	//	 * @param httpExchange
-	//	 * @param name
-	//	 * @param value
-	//	 * @param validity
-	//	 */
-	//	protected static void addCookie(HttpExchange httpExchange, String name, String value, int validity) {
-	//		addHeader(httpExchange, HEADER_SET_COOKIE,
-	//				MessageFormat.format("{0}={1}; SameSite=Lax; Max-Age={2,number,#}", name, value, validity));
-	//	}
+	// /**
+	// * set cookie
+	// *
+	// * @param httpExchange
+	// * @param name
+	// * @param value
+	// * @param validity
+	// */
+	// protected static void addCookie(HttpExchange httpExchange, String name,
+	// String value, int validity) {
+	// addHeader(httpExchange, HEADER_SET_COOKIE,
+	// MessageFormat.format("{0}={1}; SameSite=Lax; Max-Age={2,number,#}", name,
+	// value, validity));
+	// }
 	//
-	//	/**
-	//	 * set cookie
-	//	 * 
-	//	 * @param httpExchange
-	//	 * @param name
-	//	 * @param value
-	//	 */
-	//	protected static void addCookie(HttpExchange httpExchange, String name, String value) {
-	//		addHeader(httpExchange, HEADER_SET_COOKIE, MessageFormat.format("{0}={1}; SameSite=Lax", name, value));
-	//	}
+	// /**
+	// * set cookie
+	// *
+	// * @param httpExchange
+	// * @param name
+	// * @param value
+	// */
+	// protected static void addCookie(HttpExchange httpExchange, String name,
+	// String value) {
+	// addHeader(httpExchange, HEADER_SET_COOKIE, MessageFormat.format("{0}={1};
+	// SameSite=Lax", name, value));
+	// }
 	//
-	//	/**
-	//	 * set cookie
-	//	 * 
-	//	 * @param httpExchange
-	//	 * @param name
-	//	 * @param value
-	//	 * @param attribs
-	//	 */
-	//	protected static void addCookie(HttpExchange httpExchange, String name, String value, String attribs) {
-	//		addHeader(httpExchange, HEADER_SET_COOKIE, MessageFormat.format("{0}={1}; {2}", name, value, attribs));
-	//	}
+	// /**
+	// * set cookie
+	// *
+	// * @param httpExchange
+	// * @param name
+	// * @param value
+	// * @param attribs
+	// */
+	// protected static void addCookie(HttpExchange httpExchange, String name,
+	// String value, String attribs) {
+	// addHeader(httpExchange, HEADER_SET_COOKIE, MessageFormat.format("{0}={1};
+	// {2}", name, value, attribs));
+	// }
 	//
-	//	/**
-	//	 * set cookie
-	//	 * 
-	//	 * @param httpExchange
-	//	 * @param name
-	//	 * @param value
-	//	 * @param validity
-	//	 * @param attribs
-	//	 */
-	//	protected static void addCookie(HttpExchange httpExchange, String name, String value, int validity,
-	//			String attribs) {
-	//		addHeader(httpExchange, HEADER_SET_COOKIE, MessageFormat
-	//				.format("{0}={1}; SameSite=Lax; Max-Age={2,number,#}; {3}", name, value, validity, attribs));
-	//	}
+	// /**
+	// * set cookie
+	// *
+	// * @param httpExchange
+	// * @param name
+	// * @param value
+	// * @param validity
+	// * @param attribs
+	// */
+	// protected static void addCookie(HttpExchange httpExchange, String name,
+	// String value, int validity,
+	// String attribs) {
+	// addHeader(httpExchange, HEADER_SET_COOKIE, MessageFormat
+	// .format("{0}={1}; SameSite=Lax; Max-Age={2,number,#}; {3}", name, value,
+	// validity, attribs));
+	// }
 
 	/**
 	 * set cookie

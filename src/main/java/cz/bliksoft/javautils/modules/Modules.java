@@ -166,7 +166,7 @@ public class Modules {
 				} catch (NoSuchMethodException | SecurityException e) {
 					e.printStackTrace();
 				} catch (Exception e) {
-					log.error("Modules initialization crashed: " + pd.getModuleName(), e);
+					log.error(ModulesMessages.getString("Modules.ModuleInitializationCrashed"), pd.getModuleName(), e); //$NON-NLS-1$
 					throw e;
 				}
 			}
@@ -182,7 +182,7 @@ public class Modules {
 			log.info(ModulesMessages.getString("Modules.NoModulesToStart")); //$NON-NLS-1$
 		} else {
 			log.info(ModulesMessages.getString("Modules.ModulesStartup")); //$NON-NLS-1$
-			// instalace modulů
+			// install modules
 			for (IModule md : sortedModules) {
 				if (md.isEnabled()) {
 					try {
@@ -199,7 +199,8 @@ public class Modules {
 					} catch (NoSuchMethodException | SecurityException e) {
 						e.printStackTrace();
 					} catch (Exception e) {
-						log.error("Modules installation crashed: " + md.getModuleName(), e);
+						log.error(ModulesMessages.getString("Modules.ModuleInstallationCrashed"), md.getModuleName(), //$NON-NLS-1$
+								e);
 						throw e;
 					}
 				}
@@ -212,11 +213,11 @@ public class Modules {
 		for (IModule pd : modules.values()) {
 			try {
 				if (pd.isEnabled()) {
-					log.info("Cleanup: " + pd.getModuleName());
+					log.info(ModulesMessages.getString("Modules.Cleanup"), pd.getModuleName()); //$NON-NLS-1$
 					pd.cleanup();
 				}
 			} catch (Exception e) {
-				log.error("Failed cleanup: " + pd.getModuleName(), e);
+				log.error(ModulesMessages.getString("Modules.CleanupFailed"), pd.getModuleName(), e); //$NON-NLS-1$
 			}
 		}
 	}

@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 
 import org.apache.commons.io.input.CloseShieldInputStream;
 
+import cz.bliksoft.javautils.Messages;
 import cz.bliksoft.javautils.StringUtils;
 import freemarker.template.SimpleSequence;
 import freemarker.template.TemplateMethodModelEx;
@@ -35,7 +36,7 @@ public class CMDPrompt implements TemplateMethodModelEx {
 						System.out.print(" [" + defaultResult + "]");
 					System.out.print(">");
 				} else {
-					System.out.print("Please enter value:");
+					System.out.print(Messages.getString("CMDPrompt.EnterValue")); //$NON-NLS-1$
 					if (defaultResult != null)
 						System.out.print(" [" + defaultResult + "]");
 					System.out.print(">");
@@ -78,7 +79,7 @@ public class CMDPrompt implements TemplateMethodModelEx {
 					if (StringUtils.hasLength(prompt)) {
 						System.out.println(prompt);
 					} else {
-						System.out.println("Please select an option:");
+						System.out.println(Messages.getString("CMDPrompt.SelectOption")); //$NON-NLS-1$
 					}
 					for (Map<Integer, Object> opt : options) {
 						System.out.print(String.format(" %1$" + maxOptLen + "s", opt.get(ID_KEY)));

@@ -2,8 +2,11 @@ package cz.bliksoft.javautils.ws.handlers;
 
 import java.util.Iterator;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
+
+import cz.bliksoft.javautils.Messages;
 
 import jakarta.xml.soap.Node;
 import jakarta.xml.soap.SOAPBody;
@@ -19,6 +22,8 @@ import jakarta.xml.ws.handler.soap.SOAPMessageContext;
 import jakarta.xml.ws.soap.SOAPFaultException;
 
 public abstract class MacAddressValidationHandlerBase implements SOAPHandler<SOAPMessageContext> {
+
+	private static final Logger log = Logger.getLogger(MacAddressValidationHandlerBase.class.getName());
 
 	@SuppressWarnings("rawtypes")
 	@Override
@@ -37,7 +42,7 @@ public abstract class MacAddressValidationHandlerBase implements SOAPHandler<SOA
 				if (soapHeader == null) {
 					soapHeader = soapEnv.addHeader();
 					// throw exception
-					generateSOAPErrMessage(soapMsg, "No SOAP header.");
+					generateSOAPErrMessage(soapMsg, Messages.getString("MacAddressValidation.NoSOAPHeader")); //$NON-NLS-1$
 				}
 
 				// Get client mac address from SOAP header
@@ -45,7 +50,7 @@ public abstract class MacAddressValidationHandlerBase implements SOAPHandler<SOA
 
 				// if no header block for next actor found? throw exception
 				if (it == null || !it.hasNext()) {
-					generateSOAPErrMessage(soapMsg, "No header block for next actor.");
+					generateSOAPErrMessage(soapMsg, Messages.getString("MacAddressValidation.NoHeaderBlock")); //$NON-NLS-1$
 				}
 
 				// if no mac address found? throw exception
@@ -53,16 +58,16 @@ public abstract class MacAddressValidationHandlerBase implements SOAPHandler<SOA
 				String macValue = (macNode == null) ? null : macNode.getValue();
 
 				if (macValue == null) {
-					generateSOAPErrMessage(soapMsg, "No mac address in header block.");
+					generateSOAPErrMessage(soapMsg, Messages.getString("MacAddressValidation.NoMacAddress")); //$NON-NLS-1$
 				}
 
 				// if mac address is not match, throw exception
 				if (!canAccess(macValue)) {
-					generateSOAPErrMessage(soapMsg, "Invalid mac address, access is denied.");
+					generateSOAPErrMessage(soapMsg, Messages.getString("MacAddressValidation.InvalidMacAddress")); //$NON-NLS-1$
 				}
 
 			} catch (SOAPException e) {
-				System.err.println(e);
+				log.severe(e.toString());
 			}
 
 		}

@@ -14,9 +14,9 @@ public abstract class RandomUUIDCreator {
 
 	/**
 	 * Returns a random-based UUID.
-	 * 
+	 *
 	 * It uses a thread local {@link SecureRandom}.
-	 * 
+	 *
 	 * @return a random-based UUID
 	 */
 	public static UUID getRandomUuid() {
@@ -25,9 +25,9 @@ public abstract class RandomUUIDCreator {
 
 	/**
 	 * Returns a random-based UUID.
-	 * 
+	 *
 	 * It uses any instance of {@link Random}.
-	 * 
+	 *
 	 * @return a random-based UUID
 	 */
 	public static UUID getRandomUuid(Random random) {

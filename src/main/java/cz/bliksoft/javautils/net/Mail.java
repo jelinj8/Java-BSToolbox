@@ -12,7 +12,7 @@ import jakarta.mail.internet.MimeMessage;
 
 /**
  * To uise please add
- * 
+ *
  * <pre>
  * {@code
  * <dependency>
@@ -22,9 +22,9 @@ import jakarta.mail.internet.MimeMessage;
  * </dependency>
  * }
  * </pre>
- * 
+ *
  * to MVN dependencies.
- * 
+ *
  * @author jelinj8
  *
  */

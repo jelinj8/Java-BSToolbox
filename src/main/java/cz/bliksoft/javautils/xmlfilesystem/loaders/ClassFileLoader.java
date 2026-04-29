@@ -7,7 +7,8 @@ import cz.bliksoft.javautils.xmlfilesystem.IInitializeWithFileObject;
 
 /**
  * loads an object, if it has a constructor accepting {@link FileObject}, it is
- * used. Otherwise a no-args constructor is required. THen it can implement {@link IInitializeWithFileObject}.
+ * used. Otherwise a no-args constructor is required. THen it can implement
+ * {@link IInitializeWithFileObject}.
  */
 public class ClassFileLoader extends FileLoader {
 	@Override

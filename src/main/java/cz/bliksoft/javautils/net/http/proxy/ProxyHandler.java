@@ -46,7 +46,7 @@ public class ProxyHandler extends BasicHTTPHandler {
 
 	/**
 	 * Create proxy with defined max. response/receive times
-	 * 
+	 *
 	 * @param respondTimeout ms until the target should start sending response
 	 * @param receiveTimeout ms until the whole message is received
 	 */
@@ -60,7 +60,7 @@ public class ProxyHandler extends BasicHTTPHandler {
 
 	/**
 	 * function for URI transformation (overrides path prefix)
-	 * 
+	 *
 	 * @param function
 	 */
 	public void setRewriteUri(Function<URI, URI> function) {

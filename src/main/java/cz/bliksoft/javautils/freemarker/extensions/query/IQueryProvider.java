@@ -10,6 +10,7 @@ public interface IQueryProvider {
 
 	/**
 	 * return true if query creation was succesful
+	 *
 	 * @param name
 	 * @return
 	 * @throws Exception
@@ -18,6 +19,7 @@ public interface IQueryProvider {
 
 	/**
 	 * return SQL text
+	 *
 	 * @param name
 	 * @return
 	 */
@@ -25,6 +27,7 @@ public interface IQueryProvider {
 
 	/**
 	 * return SQLTypes list for binding
+	 *
 	 * @param name
 	 * @return
 	 */

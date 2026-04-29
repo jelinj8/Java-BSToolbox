@@ -8,7 +8,7 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "boolean")
 @XmlAccessorType(XmlAccessType.NONE)
 public class BooleanObject extends AbstractXmlObject {
-	
+
 	@XmlAttribute
 	public Boolean value;
 
@@ -23,6 +23,5 @@ public class BooleanObject extends AbstractXmlObject {
 		res.value = (Boolean) o;
 		return res;
 	}
-	
-	
+
 }

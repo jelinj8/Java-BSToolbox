@@ -426,7 +426,7 @@ public class FileObject implements Comparable<Object> {
 
 	/**
 	 * vyhledá atribut podle jména
-	 * 
+	 *
 	 * @param name
 	 * @param def
 	 * @return
@@ -444,7 +444,7 @@ public class FileObject implements Comparable<Object> {
 	/**
 	 * vyhledá atribut podle jména, vrátí překlad pokud existuje, pokud ne, vrátí
 	 * default, pokud ani to ne, vrátí identifikátor
-	 * 
+	 *
 	 * @param name
 	 * @param def
 	 * @return
@@ -500,7 +500,7 @@ public class FileObject implements Comparable<Object> {
 
 	/**
 	 * vyhledá objekt podle cesty složené z názvů v hierarchii
-	 * 
+	 *
 	 * @param fileName
 	 * @return
 	 */
@@ -542,7 +542,7 @@ public class FileObject implements Comparable<Object> {
 
 	/**
 	 * vyhledá objekt podle cesty složené z názvů v hierarchii
-	 * 
+	 *
 	 * @param fileName
 	 * @return
 	 */
@@ -655,7 +655,7 @@ public class FileObject implements Comparable<Object> {
 	@XmlAttribute
 	/**
 	 * vrátí název objektu
-	 * 
+	 *
 	 * @return
 	 */
 	public String getName() {
@@ -689,7 +689,7 @@ public class FileObject implements Comparable<Object> {
 
 	/**
 	 * vrátí název objektu lokalizovaný podle registrovaného překladového klíče
-	 * 
+	 *
 	 * @return
 	 */
 	public String getLocalizedName() {
@@ -946,7 +946,7 @@ public class FileObject implements Comparable<Object> {
 
 	/**
 	 * Streams whole FileObject subtree (depth first)
-	 * 
+	 *
 	 * @return
 	 */
 	public Stream<FileObject> streamDFAllChildren(boolean includeSelf) {

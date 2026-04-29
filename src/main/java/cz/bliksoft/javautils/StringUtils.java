@@ -26,7 +26,7 @@ public class StringUtils {
 
 	/**
 	 * náhodná změť znaků
-	 * 
+	 *
 	 * @return
 	 */
 	public static String randomString() {
@@ -37,7 +37,7 @@ public class StringUtils {
 
 	/**
 	 * je řetězec prázdný?
-	 * 
+	 *
 	 * @param value
 	 * @return
 	 */
@@ -47,7 +47,7 @@ public class StringUtils {
 
 	/**
 	 * je řetězec neprázdný?
-	 * 
+	 *
 	 * @param value
 	 * @return
 	 */
@@ -57,7 +57,7 @@ public class StringUtils {
 
 	/**
 	 * trim ošetřený na NULL vstup (vrátí zase null)
-	 * 
+	 *
 	 * @param val
 	 * @return
 	 */
@@ -93,7 +93,7 @@ public class StringUtils {
 
 	/**
 	 * pospojuje řetězce do seznamu s oddělovačem
-	 * 
+	 *
 	 * @param separator oddělovač, který bude vložen mezi spojované hodnoty
 	 * @param args      hodnoty pro spojení
 	 * @return spojený řetězec
@@ -113,7 +113,7 @@ public class StringUtils {
 
 	/**
 	 * poskládá řetězec z X opakování jedné hodnoty, oddělené oddělovačem
-	 * 
+	 *
 	 * @param separator oddělovač
 	 * @param value     opakovaná hodnota
 	 * @param count     počet opakování
@@ -135,7 +135,7 @@ public class StringUtils {
 	/**
 	 * sestaví řetězec ze vstupních hodnot, oddělených oddělovačem a doplněných o
 	 * příponu (příklad: 'val1 = ?,val2 = ?,val3 = ?,val4 = ?,val5 = ?')
-	 * 
+	 *
 	 * @param value     přípona k doplnění ke každé hodnotě
 	 * @param separator oddělovač
 	 * @param args      hodnoty
@@ -160,7 +160,7 @@ public class StringUtils {
 	/**
 	 * sestaví řetězec ze vstupních hodnot, oddělených oddělovačem a doplněných o
 	 * příponu (příklad: 'val1 = ?,val2 = ?,val3 = ?,val4 = ?,val5 = ?')
-	 * 
+	 *
 	 * @param value     přípona k doplnění ke každé hodnotě
 	 * @param separator oddělovač
 	 * @param args      hodnoty
@@ -226,7 +226,7 @@ public class StringUtils {
 
 	/**
 	 * kontrola, zda je řetězec prázdný
-	 * 
+	 *
 	 * @param txt hodnota ke kontrole
 	 * @return true pokud je řetězec neprázdný (!=null &amp;&amp; length&gt;0)
 	 */
@@ -274,7 +274,7 @@ public class StringUtils {
 
 	/**
 	 * vrátí řetězec pokud obsahuje text, jinak default hodnotu
-	 * 
+	 *
 	 * @param txt
 	 * @param defaultResult
 	 * @return txt nebo defaultResult
@@ -291,7 +291,7 @@ public class StringUtils {
 	 * otestuje hodnotu řetězce, zda obsahuje text a vrátí jeden ze dvou parametrů.
 	 * Pokud je návratový parametr řetězec a hodnota není prázdná, je tento řetězec
 	 * použit jako MessageFormat
-	 * 
+	 *
 	 * @param txt             hodnota, která má být testována na obsah textu
 	 * @param hasTextResult   návratová hodnota nebo formátovací řetězec
 	 * @param hasntTextResult návratová hodnota
@@ -410,7 +410,7 @@ public class StringUtils {
 
 	/**
 	 * [code borrowed from ant.jar] Crack a command line.
-	 * 
+	 *
 	 * @param toProcess the command line to process.
 	 * @return the command line broken into strings. An empty or null toProcess
 	 *         parameter results in a zero sized array.
@@ -422,7 +422,7 @@ public class StringUtils {
 
 	/**
 	 * [code borrowed from ant.jar] Crack a command line.
-	 * 
+	 *
 	 * @param toProcess the command line to process.
 	 * @return the command line broken into strings. An empty or null toProcess
 	 *         parameter results in a zero sized list.
@@ -491,7 +491,7 @@ public class StringUtils {
 	/**
 	 * replace characters not safe for file name usage with underscore (allows
 	 * alphanumeric characters, hyphen, dot, space and underscore
-	 * 
+	 *
 	 * @param original
 	 * @return
 	 */
@@ -502,7 +502,7 @@ public class StringUtils {
 	/**
 	 * replace all tokens in string bz values from map. Undefined tokens won't be
 	 * touched.
-	 * 
+	 *
 	 * @param original
 	 * @param replacements
 	 * @return

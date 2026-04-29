@@ -98,7 +98,7 @@ public class FreemarkerGenerator {
 
 	/**
 	 * generování pomocí předkonfigurovaného TemplateLoaderu
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public FreemarkerGenerator() throws Exception {
@@ -111,7 +111,7 @@ public class FreemarkerGenerator {
 
 	/**
 	 * generování pomocí předkonfigurovaného nastavení
-	 * 
+	 *
 	 * @param config
 	 */
 	public FreemarkerGenerator(Configuration config) {
@@ -120,7 +120,7 @@ public class FreemarkerGenerator {
 
 	/**
 	 * generování pomocí TemplateLoaderu
-	 * 
+	 *
 	 * @param templateLoader
 	 */
 	public FreemarkerGenerator(TemplateLoader templateLoader) {
@@ -130,7 +130,7 @@ public class FreemarkerGenerator {
 
 	/**
 	 * generování pomocí TemplateLoaderu
-	 * 
+	 *
 	 * @param templateLoaders
 	 */
 	public FreemarkerGenerator(TemplateLoader... templateLoaders) {
@@ -140,7 +140,7 @@ public class FreemarkerGenerator {
 
 	/**
 	 * generování pomocí šablon z filesystému
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public FreemarkerGenerator(File basePath) throws Exception {
@@ -151,7 +151,7 @@ public class FreemarkerGenerator {
 
 	/**
 	 * generování pomocí šablon z classpath
-	 * 
+	 *
 	 * @param templateLoaderClass
 	 */
 	public FreemarkerGenerator(Class<?> templateLoaderClass) {
@@ -161,7 +161,7 @@ public class FreemarkerGenerator {
 
 	/**
 	 * generování pomocí šablon z filesystému a z classpath
-	 * 
+	 *
 	 * @param templateLoaderClass
 	 * @throws IOException
 	 */

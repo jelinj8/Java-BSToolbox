@@ -18,7 +18,7 @@ import cz.bliksoft.javautils.context.holders.SingleContextHolder;
 
 /**
  * základní třída pro aplikační kontext
- * 
+ *
  */
 public class Context {
 	private static final Logger log = LogManager.getLogger();
@@ -57,7 +57,7 @@ public class Context {
 
 	/**
 	 * konstruktor
-	 * 
+	 *
 	 * @param comment komentář pro debugging
 	 */
 	public Context(String comment) {
@@ -74,7 +74,7 @@ public class Context {
 
 	/**
 	 * copy of child contexts list (changes won't be reflected)
-	 * 
+	 *
 	 * @return
 	 */
 	public List<Context> getChildContexts() {
@@ -83,7 +83,7 @@ public class Context {
 
 	/**
 	 * zaregistruje jiný kontext jako svůj podřazený
-	 * 
+	 *
 	 * @param context
 	 */
 	public void addContext(Context context) {
@@ -101,7 +101,7 @@ public class Context {
 
 	/**
 	 * odregistruje podřazený kontext
-	 * 
+	 *
 	 * @param context
 	 */
 	public void removeContext(Context context) {
@@ -135,9 +135,9 @@ public class Context {
 
 	/**
 	 * upozorní všechny kontexty v hierarchii nahoru na odebrání všech svých položek
-	 * 
+	 *
 	 * Pozor na práci s kolekcemi - notifikace může způsobit změny
-	 * 
+	 *
 	 * @param lowestLevel úroveň, od které má dojít k upozorňování
 	 */
 	protected void notifyContextAllRemoved(Context lowestLevel) {
@@ -158,9 +158,9 @@ public class Context {
 
 	/**
 	 * upozorní všechny kontexty v hierarchii nahoru na přidání všech svých položek
-	 * 
+	 *
 	 * Pozor na práci s kolekcemi - notifikace může způsobit změny
-	 * 
+	 *
 	 * @param lowestLevel úroveň, od které má dojít k upozorňování
 	 */
 	protected void notifyContextAllAdded(Context lowestLevel) {
@@ -183,7 +183,7 @@ public class Context {
 	/**
 	 * upozorní na změnu hodnoty obsažené v kontextu. Pokud listener vrátí false, je
 	 * šíření upozornění do vyšších úrovní zastaveno
-	 * 
+	 *
 	 * @param value
 	 */
 	public void notifyListeners(ContextSearchResult value) {
@@ -222,7 +222,7 @@ public class Context {
 	 * vrací aktuální výsledek vyhledávání v kontextu a v podřízených kontextech
 	 * podle zadaného klíče. Pokud je klíčem Class, jsou výsledkem i objekty,
 	 * jejichž klíč je od daného typu odvozený, jinak podle .equals
-	 * 
+	 *
 	 * @param key vyhledávací klíč
 	 * @return
 	 */
@@ -261,7 +261,7 @@ public class Context {
 
 	/**
 	 * přidá hlídáček na kontext
-	 * 
+	 *
 	 * @param listener
 	 * @param initialize pro true spustí hlídáček s aktuální hodnotou
 	 */
@@ -280,7 +280,7 @@ public class Context {
 
 	/**
 	 * přidá hlídáček na kontext
-	 * 
+	 *
 	 * @param listener
 	 */
 	public void addContextListener(AbstractContextListener<?> listener) {
@@ -289,7 +289,7 @@ public class Context {
 
 	/**
 	 * odebere z kontextu hlídáček
-	 * 
+	 *
 	 * @param listener
 	 */
 	public void removeContextListener(AbstractContextListener<?> listener) {
@@ -302,7 +302,7 @@ public class Context {
 
 	/**
 	 * jedná se o základní kontext levelu?
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean isLevelContext() {
@@ -346,7 +346,7 @@ public class Context {
 
 	/**
 	 * copy of listValues (modifications won't be reflected in context)
-	 * 
+	 *
 	 * @return
 	 */
 	public List<Object> getListValues() {
@@ -357,7 +357,7 @@ public class Context {
 
 	/**
 	 * copy of mapValues (modifications won't be reflected in context)
-	 * 
+	 *
 	 * @return
 	 */
 	public Map<Object, Object> getMapValues() {
@@ -425,7 +425,7 @@ public class Context {
 
 	/**
 	 * fire event that can be processed on current thread
-	 * 
+	 *
 	 * @param event
 	 */
 	public void fireEvent(Object event) {
@@ -435,7 +435,7 @@ public class Context {
 	/**
 	 * fire event that should be processed on EDT, runtime exception if EDT is bound
 	 * and called from other thread
-	 * 
+	 *
 	 * @param event
 	 */
 	public void fireGUIEvent(Object event) {

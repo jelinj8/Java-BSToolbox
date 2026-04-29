@@ -15,14 +15,14 @@ public class ByteUtils {
 	 * Returns the index within this byte-array of the first occurrence of the
 	 * specified(search bytes) byte array.<br>
 	 * Starting the search at the specified index, and end at the specified index.
-	 * 
+	 *
 	 * borrowed from
 	 * https://github.com/riversun/finbin/blob/master/src/main/java/org/riversun/finbin/BinarySearcher.java
 	 *
-	 * @param srcBytes search in
+	 * @param srcBytes    search in
 	 * @param searchBytes searched data
-	 * @param startIndex start index (zero based)
-	 * @param endIndex end index
+	 * @param startIndex  start index (zero based)
+	 * @param endIndex    end index
 	 * @return zero based index of found data or -1
 	 */
 	public static int indexOf(byte[] srcBytes, byte[] searchBytes, int startIndex, int endIndex) {
@@ -58,14 +58,14 @@ public class ByteUtils {
 	/**
 	 * Search bytes in byte array returns indexes within this byte-array of all
 	 * occurrences of the specified(search bytes) byte array in the specified range
-	 * 
+	 *
 	 * borrowed from
 	 * https://github.com/riversun/finbin/blob/master/src/main/java/org/riversun/finbin/BinarySearcher.java
 	 *
-	 * @param srcBytes search in
-	 * @param searchBytes searched data
+	 * @param srcBytes         search in
+	 * @param searchBytes      searched data
 	 * @param searchStartIndex zero based start index
-	 * @param searchEndIndex end index
+	 * @param searchEndIndex   end index
 	 * @return result index list
 	 */
 	public static List<Integer> searchBytes(byte[] srcBytes, byte[] searchBytes, int searchStartIndex,
@@ -87,6 +87,7 @@ public class ByteUtils {
 
 	/**
 	 * read input stream as binary data
+	 *
 	 * @param requestStream source input stream to be read
 	 * @return array of bytes
 	 */

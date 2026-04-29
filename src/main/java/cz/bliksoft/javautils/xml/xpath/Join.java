@@ -34,7 +34,7 @@ public class Join implements XPathFunction {
 							firstValue = false;
 						else
 							sb.append(separator);
-						
+
 						sb.append(val);
 					}
 				} catch (XPathException e) {

@@ -11,8 +11,8 @@ import cz.bliksoft.javautils.StringUtils;
 import cz.bliksoft.javautils.xml.XmlUtils;
 
 /**
- * log(message+return_value) log(message, return_value) log(logger, message|null,
- * return_value)
+ * log(message+return_value) log(message, return_value) log(logger,
+ * message|null, return_value)
  */
 public class LogFunction implements XPathFunction {
 
@@ -29,7 +29,7 @@ public class LogFunction implements XPathFunction {
 					msg = XmlUtils.getResultText(args.get(1));
 				} catch (XPathException e) {
 				}
-				
+
 				if (!StringUtils.hasLength(msg) && args.size() > 2) {
 					msg = XmlUtils.getResultText(args.get(2));
 				}

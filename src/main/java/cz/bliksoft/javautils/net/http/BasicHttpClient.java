@@ -35,7 +35,7 @@ public class BasicHttpClient<T> {
 			Map<String, String> getParameters, Map<String, String> postParameters, ContentType ct, String data,
 			AbstractHttpClientResponseHandler<T> responseHandler) throws IOException, URISyntaxException {
 		try (CloseableHttpClient client = HttpClients.createDefault()) {
-			
+
 			URIBuilder builder = new URIBuilder((url == null ? baseURI : url));
 			if (path != null)
 				builder.setPath(path);

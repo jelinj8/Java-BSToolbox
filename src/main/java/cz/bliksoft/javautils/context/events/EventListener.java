@@ -27,7 +27,7 @@ public abstract class EventListener<T> {
 	@SuppressWarnings("unchecked")
 	/**
 	 * notify listener if applicable
-	 * 
+	 *
 	 * @param event
 	 * @return event consumed (stop further notifications)
 	 */
@@ -54,14 +54,14 @@ public abstract class EventListener<T> {
 
 	/**
 	 * process event listener
-	 * 
+	 *
 	 * @param event
 	 */
 	public abstract void fired(T event);
 
 	/**
 	 * called before main processing part.
-	 * 
+	 *
 	 * @param event
 	 * @return return false to skip rest of processing
 	 */
@@ -71,7 +71,7 @@ public abstract class EventListener<T> {
 
 	/**
 	 * called after main event processing
-	 * 
+	 *
 	 * @param processed set to false if processing was skipped, null if it was
 	 *                  interrupted by an exception, true if processed.
 	 * @param event
@@ -99,7 +99,7 @@ public abstract class EventListener<T> {
 
 	/**
 	 * soft check if called from optionally configured EventDispatching thread.
-	 * 
+	 *
 	 * @return
 	 */
 	public static boolean isEdt() {

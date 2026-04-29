@@ -9,8 +9,8 @@ import cz.bliksoft.javautils.math.statistics.IStatisticFilter;
 import cz.bliksoft.javautils.math.statistics.RollingAverageFilter;
 
 /**
- * helper for processing values, by default sum/count (real average),
- * supports registering other implementations/filters
+ * helper for processing values, by default sum/count (real average), supports
+ * registering other implementations/filters
  */
 public class StatisticsUtils {
 
@@ -21,11 +21,11 @@ public class StatisticsUtils {
 
 	/**
 	 * register {@link IStatisticFilter} (instance of specific implementation)
-	 * 
+	 *
 	 * @param key
-	 * @param averager
-	 *            instance of specific implementation ({@link RollingAverageFilter},
-	 *            {@link ApproximatedRollingAverage}, {@link AverageFilter}...)
+	 * @param averager instance of specific implementation
+	 *                 ({@link RollingAverageFilter},
+	 *                 {@link ApproximatedRollingAverage}, {@link AverageFilter}...)
 	 */
 	public static void addFilter(Object key, IStatisticFilter averager) {
 		filters.put(key, averager);
@@ -33,7 +33,7 @@ public class StatisticsUtils {
 
 	/**
 	 * add new record to keyed filter
-	 * 
+	 *
 	 * @param key
 	 * @param value
 	 */
@@ -53,7 +53,7 @@ public class StatisticsUtils {
 	/**
 	 * get current keyed filter value, swallows potential
 	 * {@link ArithmeticException} (e.g. division by zero)
-	 * 
+	 *
 	 * @param key
 	 * @return
 	 */
@@ -74,7 +74,7 @@ public class StatisticsUtils {
 
 	/**
 	 * get recorded value count for a key
-	 * 
+	 *
 	 * @param key
 	 * @return
 	 */

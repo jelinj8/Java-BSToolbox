@@ -23,7 +23,7 @@ public class SingleSharedConnectionProvider implements IDBConnectionProvider {
 
 	/**
 	 * create instance with ready connection
-	 * 
+	 *
 	 * @param connection
 	 */
 	public SingleSharedConnectionProvider(Connection connection) {
@@ -32,7 +32,7 @@ public class SingleSharedConnectionProvider implements IDBConnectionProvider {
 
 	/**
 	 * create instance with ready connection
-	 * 
+	 *
 	 * @param connection
 	 */
 	public SingleSharedConnectionProvider(Connection connection, String name) {
@@ -42,7 +42,7 @@ public class SingleSharedConnectionProvider implements IDBConnectionProvider {
 
 	/**
 	 * create lazily fetched connection
-	 * 
+	 *
 	 * @param connectionProvider
 	 */
 	public SingleSharedConnectionProvider(IDBConnectionFactory connectionProvider) {
@@ -51,7 +51,7 @@ public class SingleSharedConnectionProvider implements IDBConnectionProvider {
 
 	/**
 	 * create lazily fetched connection
-	 * 
+	 *
 	 * @param connectionProvider
 	 * @param name
 	 */
@@ -62,7 +62,7 @@ public class SingleSharedConnectionProvider implements IDBConnectionProvider {
 
 	/**
 	 * create lazily fetched connection
-	 * 
+	 *
 	 * @param connectionFactory
 	 */
 	public SingleSharedConnectionProvider(Supplier<Connection> connectionFactory) {
@@ -81,7 +81,7 @@ public class SingleSharedConnectionProvider implements IDBConnectionProvider {
 
 	/**
 	 * create lazily fetched connection
-	 * 
+	 *
 	 * @param connectionFactory
 	 */
 	public SingleSharedConnectionProvider(Supplier<Connection> connectionFactory, String name) {

@@ -29,7 +29,7 @@ import cz.bliksoft.javautils.net.http.MultiPart.PartType;
 public class BSHttpContext extends HashMap<String, Object> {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -4992117986351783992L;
 
@@ -87,7 +87,7 @@ public class BSHttpContext extends HashMap<String, Object> {
 
 	/**
 	 * get current session data
-	 * 
+	 *
 	 * @return
 	 */
 	public Map<String, Object> getSession() {
@@ -96,7 +96,7 @@ public class BSHttpContext extends HashMap<String, Object> {
 
 	/**
 	 * initialize session context
-	 * 
+	 *
 	 * @param contextName
 	 * @param cookiePath
 	 */
@@ -137,7 +137,7 @@ public class BSHttpContext extends HashMap<String, Object> {
 
 	/**
 	 * get POST data
-	 * 
+	 *
 	 * @param httpExchange
 	 * @return
 	 * @throws IOException
@@ -251,7 +251,7 @@ public class BSHttpContext extends HashMap<String, Object> {
 	/**
 	 * process all received cookies, mimic other servers - first occurrence of each
 	 * received value is returned
-	 * 
+	 *
 	 * @param httpExchange
 	 * @return
 	 */
@@ -275,7 +275,7 @@ public class BSHttpContext extends HashMap<String, Object> {
 
 	/**
 	 * build a context from request
-	 * 
+	 *
 	 * @param pathPrefix
 	 * @param httpExchange
 	 * @param path
@@ -330,7 +330,7 @@ public class BSHttpContext extends HashMap<String, Object> {
 
 	/**
 	 * check if request was already handled
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean isHandled() {

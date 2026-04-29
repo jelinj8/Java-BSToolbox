@@ -7,7 +7,7 @@ public class OKHTTPHandler extends BasicHTTPHandler {
 	public OKHTTPHandler() {
 		addSupportedGETPOST();
 	}
-	
+
 	@Override
 	public boolean handle(BSHttpContext context) throws IOException {
 		sendOK(context.httpExchange);

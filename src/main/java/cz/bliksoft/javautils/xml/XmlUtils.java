@@ -83,12 +83,12 @@ import jakarta.xml.bind.Unmarshaller;
  * <li>zabalení do root objektu:
  * {@code qName = new QName("com.codenotfound.jaxb.model", "car");
  * JAXBElement<Car> root = new JAXBElement<>(qName, Car.class, car);}
- * 
+ *
  * <li>Rozbalení:
  * {@code JAXBElement<Car> root = jaxbUnmarshaller.unmarshal(new StreamSource(file), Car.class);
  * Car car = root.getValue();}
  * </ul>
- * 
+ *
  * @author jelinj8
  *
  */
@@ -521,7 +521,7 @@ public class XmlUtils {
 
 	/**
 	 * XPath custom functionsregister
-	 * 
+	 *
 	 * @author jelinj8
 	 *
 	 */
@@ -532,7 +532,7 @@ public class XmlUtils {
 
 		/**
 		 * register a function
-		 * 
+		 *
 		 * @param prefix       namespace prefix
 		 * @param fName        function name, for specific arity add e.g. "fname:3"
 		 *                     (attempt for specific first, non-specific if not found)
@@ -610,7 +610,7 @@ public class XmlUtils {
 
 	/**
 	 * return text representation of object
-	 * 
+	 *
 	 * @param xRes
 	 * @return
 	 * @throws XPathException when input is an empty node list (e.g. XPath query
@@ -638,7 +638,7 @@ public class XmlUtils {
 
 	/**
 	 * Returns first node
-	 * 
+	 *
 	 * @param xRes
 	 * @return
 	 * @throws XPathException if source is an empty NodeList
@@ -671,7 +671,7 @@ public class XmlUtils {
 	/**
 	 * register XPath extensions with custom namespace prefix, using default global
 	 * namespace context implementation
-	 * 
+	 *
 	 * @param nsPrefix
 	 */
 	public static void registerXPathExtensions(String nsPrefix) {
@@ -681,7 +681,7 @@ public class XmlUtils {
 	/**
 	 * register XPath extensions with custom namespace prefix and provided namespace
 	 * context implementation
-	 * 
+	 *
 	 * @param ctx
 	 * @param nsPrefix
 	 */
@@ -760,7 +760,7 @@ public class XmlUtils {
 
 	/**
 	 * set XSLT url for next "marshall" operation, cleared afterwards (single use).
-	 * 
+	 *
 	 * @param url
 	 */
 	public static void setXslUrlOnce(String url) {
@@ -769,7 +769,7 @@ public class XmlUtils {
 
 	/**
 	 * set XSLT url for "marshall" operations, set to null to clear.
-	 * 
+	 *
 	 * @param url
 	 */
 	public static void setXslUrl(String url) {
@@ -799,7 +799,7 @@ public class XmlUtils {
 
 	/**
 	 * get child node by name
-	 * 
+	 *
 	 * @param node
 	 * @param name
 	 * @return

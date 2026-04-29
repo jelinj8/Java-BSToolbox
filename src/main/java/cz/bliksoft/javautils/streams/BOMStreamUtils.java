@@ -22,7 +22,7 @@ public class BOMStreamUtils {
 	/**
 	 * wrapper for {@link #getReader(InputStream, Charset) getReader(InputStream,
 	 * Charset) with default or detected charset}
-	 * 
+	 *
 	 * @param source
 	 * @return
 	 * @throws IOException
@@ -35,7 +35,7 @@ public class BOMStreamUtils {
 	/**
 	 * wrapper for {@link #getReader(InputStream, Charset) getReader(InputStream,
 	 * Charset)}
-	 * 
+	 *
 	 * @param source
 	 * @param chs
 	 * @return
@@ -49,7 +49,7 @@ public class BOMStreamUtils {
 	/**
 	 * wrapper for {@link #getReader(InputStream, Charset) getReader(InputStream,
 	 * Charset) with default or detected charset}
-	 * 
+	 *
 	 * @param source
 	 * @return
 	 * @throws IOException
@@ -60,11 +60,10 @@ public class BOMStreamUtils {
 
 	/**
 	 * get BufferedReader, skipping UTF8 BOM if present.
-	 * 
+	 *
 	 * @param source
-	 * @param chs
-	 *            optional specific charset, default used if null and no UTF8 BOM
-	 *            present, UTF8 if null and UTF8 BOM is present
+	 * @param chs    optional specific charset, default used if null and no UTF8 BOM
+	 *               present, UTF8 if null and UTF8 BOM is present
 	 * @return
 	 * @throws IOException
 	 */
@@ -78,6 +77,7 @@ public class BOMStreamUtils {
 
 	/**
 	 * wrapps InputStream to skip UTF8 BOM if present
+	 *
 	 * @param source
 	 * @return
 	 * @throws IOException
@@ -85,10 +85,10 @@ public class BOMStreamUtils {
 	public static InputStream wrap(InputStream source) throws IOException {
 		return BOMInputStream.builder().setInputStream(source).get();
 	}
-	
+
 	/**
 	 * Checks type of BOM in file
-	 * 
+	 *
 	 * @param source
 	 * @return
 	 * @throws IOException
@@ -101,7 +101,7 @@ public class BOMStreamUtils {
 
 	/**
 	 * checks BOM in input stream, not closing the source stream
-	 * 
+	 *
 	 * @param source
 	 * @return
 	 * @throws IOException

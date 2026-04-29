@@ -41,7 +41,7 @@ public class ElementWriter extends DelegatingXMLStreamWriter {
 
 	@Override
 	public void writeNamespace(String prefix, String uri) throws XMLStreamException {
-//		super.writeNamespace(prefix, uri);	  
+//		super.writeNamespace(prefix, uri);
 	}
 
 	public static XMLStreamWriter filter(Writer writer) throws XMLStreamException {

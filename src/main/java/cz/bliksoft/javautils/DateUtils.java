@@ -38,7 +38,7 @@ public class DateUtils {
 
 	/**
 	 * dd.MM.yyyy HH:mm:ss
-	 * 
+	 *
 	 * @param value
 	 * @return
 	 */
@@ -49,9 +49,9 @@ public class DateUtils {
 
 	/*
 	 * dd.MM.yyyy
-	 * 
+	 *
 	 * @param value
-	 * 
+	 *
 	 * @return
 	 */
 	/*

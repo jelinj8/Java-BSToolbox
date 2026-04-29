@@ -43,7 +43,7 @@ public class ImageUtils {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param inputImage
 	 * @param scale      (percent)
 	 * @return

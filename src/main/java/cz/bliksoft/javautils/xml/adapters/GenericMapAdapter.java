@@ -10,7 +10,7 @@ import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
  * To be overriden with specific data types and use with @XmlJavaTypeAdapter
- * 
+ *
  * @author jelinj8
  *
  * @param <K>

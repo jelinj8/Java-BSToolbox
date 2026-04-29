@@ -57,7 +57,7 @@ public class CryptUtils {
 
 	public static String decrypt(String string, SecretKeySpec key) throws GeneralSecurityException {
 		String[] s = string.split(":"); // $NON-NLS-1$
-		String iv = s[0]; 
+		String iv = s[0];
 		String property = s[1];
 		Cipher pbeCipher = Cipher.getInstance(cypherSpec);
 		pbeCipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(Base64Utils.base64Decode(iv)));
@@ -81,7 +81,7 @@ public class CryptUtils {
 
 	/**
 	 * rozšifruje řetězec výchozím heslem
-	 * 
+	 *
 	 * @param base64data
 	 * @param salt
 	 * @return
@@ -98,7 +98,7 @@ public class CryptUtils {
 
 	/**
 	 * rozšifruje řetězec zadaným heslem
-	 * 
+	 *
 	 * @param base64data
 	 * @param salt
 	 * @return
@@ -114,7 +114,7 @@ public class CryptUtils {
 
 	/**
 	 * zašifruje řetězec výchozím heslem
-	 * 
+	 *
 	 * @param content
 	 * @param salt
 	 * @return
@@ -130,7 +130,7 @@ public class CryptUtils {
 
 	/**
 	 * zašifruje řetězec zadaným heslem
-	 * 
+	 *
 	 * @param content
 	 * @param salt
 	 * @return
@@ -153,7 +153,7 @@ public class CryptUtils {
 
 	/**
 	 * vezme heslo, pokud není šifrované zašifruje a nastaví lastPwdModified na true
-	 * 
+	 *
 	 * @param props
 	 * @param propName
 	 * @return
@@ -165,7 +165,7 @@ public class CryptUtils {
 
 	/**
 	 * vezme heslo, pokud není šifrované zašifruje a nastaví lastPwdModified na true
-	 * 
+	 *
 	 * @param props
 	 * @param propName
 	 * @param defaultPwd - hodnota, pokud v properties dané heslo není
@@ -179,7 +179,7 @@ public class CryptUtils {
 
 	/**
 	 * vezme heslo, pokud není šifrované zašifruje a nastaví lastPwdModified na true
-	 * 
+	 *
 	 * @param props
 	 * @param propName
 	 * @param password   šifrovací heslo

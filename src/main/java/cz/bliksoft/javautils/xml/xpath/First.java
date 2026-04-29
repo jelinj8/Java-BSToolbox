@@ -12,7 +12,8 @@ import cz.bliksoft.javautils.StringUtils;
 import cz.bliksoft.javautils.xml.XmlUtils;
 
 /**
- * returns text representation of first available input (first found node or text in first non-empty argument)
+ * returns text representation of first available input (first found node or
+ * text in first non-empty argument)
  */
 public class First implements XPathFunction {
 

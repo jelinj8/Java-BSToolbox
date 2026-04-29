@@ -10,7 +10,7 @@ import freemarker.template.TemplateModelException;
  * used to register variables for next runs of current Freemarker generator
  * (e.g. for SQL Query templates). Not accessible in current context, for that
  * use 'assign'.
- * 
+ *
  * @author jelinj8
  *
  */

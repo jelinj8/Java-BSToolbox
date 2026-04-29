@@ -62,11 +62,10 @@ public class PropertiesUtils {
 
 	/**
 	 * checks if named property equals true, ignoring case.
-	 * 
+	 *
 	 * @param properties
 	 * @param propertyName
-	 * @param defaultResult
-	 *            default property value if not contained in properties
+	 * @param defaultResult default property value if not contained in properties
 	 * @return property value (or optional default) equals 'true'. If default is
 	 *         null and property is not specified, returns null.
 	 */

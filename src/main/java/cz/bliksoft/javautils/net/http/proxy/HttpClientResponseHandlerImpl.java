@@ -47,7 +47,8 @@ public class HttpClientResponseHandlerImpl implements HttpClientResponseHandler<
 		Iterator<Header> it = response.headerIterator();
 
 		Long dataLength = 0l;
-		// copy response headers, except hop-by-hop and Content-Length (set by sendResponseHeaders)
+		// copy response headers, except hop-by-hop and Content-Length (set by
+		// sendResponseHeaders)
 		while (it.hasNext()) {
 			Header h = it.next();
 			String nameLower = h.getName().toLowerCase();

@@ -80,7 +80,7 @@ public class EnvironmentUtils {
 	 * <li>global "configDir" from environment variable, or preload
 	 * <li>"environmentConfig" file from environment variable, or preload
 	 * </ul>
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	public static void init() throws IOException {
@@ -108,7 +108,7 @@ public class EnvironmentUtils {
 	 * </ul>
 	 * Same as {@link EnvironmentUtils#init() init()}, just with another defaults
 	 * level
-	 * 
+	 *
 	 * @param props defaults between environment variables and preload values
 	 * @throws IOException
 	 */
@@ -136,7 +136,7 @@ public class EnvironmentUtils {
 	 * preload values directly, to be overridden by those loaded in proper init
 	 * (environment variables, then optional properties, then preloaded values, last
 	 * resort default files
-	 * 
+	 *
 	 * @param props values to be preloaded as replacable values
 	 * @throws IOException
 	 */
@@ -234,7 +234,7 @@ public class EnvironmentUtils {
 
 	/**
 	 * common configuration directory
-	 * 
+	 *
 	 * @return
 	 */
 	public static File getConfigDir() {
@@ -244,7 +244,7 @@ public class EnvironmentUtils {
 
 	/**
 	 * a file in common configuration directory
-	 * 
+	 *
 	 * @param subfile
 	 * @return
 	 */
@@ -256,7 +256,7 @@ public class EnvironmentUtils {
 	/**
 	 * current switchable environment configuration directory, defaults to global
 	 * config dir if it doesn't exist
-	 * 
+	 *
 	 * @return
 	 */
 	public static File getEnvironmentConfigDir() {
@@ -269,7 +269,7 @@ public class EnvironmentUtils {
 
 	/**
 	 * a file in current switchable environment configuration directory
-	 * 
+	 *
 	 * @param subfile
 	 * @return
 	 */
@@ -287,7 +287,7 @@ public class EnvironmentUtils {
 	/**
 	 * returns all properties, including those marked with dot on beginning (hidden
 	 * properties)
-	 * 
+	 *
 	 * @return
 	 */
 	public static Map<String, String> getAllEnvironmentProperties() {
@@ -296,7 +296,7 @@ public class EnvironmentUtils {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public static Map<String, String> tryGetAllEnvironmentProperties() {
@@ -309,7 +309,7 @@ public class EnvironmentUtils {
 	/**
 	 * returns properties except those starting with a dot (hidden properties),
 	 * fails with InitializationException if not properly initialized.
-	 * 
+	 *
 	 * @return
 	 */
 	public static Map<String, String> getEnvironmentProperties() {
@@ -320,7 +320,7 @@ public class EnvironmentUtils {
 	/**
 	 * returns properties except those starting with a dot (hidden properties),
 	 * returns empty map if not properly initialized.
-	 * 
+	 *
 	 * @return
 	 */
 	public static Map<String, String> tryGetEnvironmentProperties() {
@@ -332,7 +332,7 @@ public class EnvironmentUtils {
 
 	/**
 	 * checks if the toolset was properly initialized
-	 * 
+	 *
 	 * @return
 	 */
 	public static boolean isInitialized() {
@@ -343,7 +343,7 @@ public class EnvironmentUtils {
 	 * Set a directory to be used as an environment config. Can be done only once,
 	 * before initialization of EnvironmentUtils (if not called before,
 	 * initialization will perform its logic)
-	 * 
+	 *
 	 * @param directory
 	 */
 	public static void setEnvironmentConfigDirectory(File directory) {
@@ -367,7 +367,7 @@ public class EnvironmentUtils {
 
 	/**
 	 * replace tokens with path definitions and environment variables
-	 * 
+	 *
 	 * @param path
 	 * @return
 	 */
@@ -377,7 +377,7 @@ public class EnvironmentUtils {
 
 	/**
 	 * replace tokens with path definitions and environment variables
-	 * 
+	 *
 	 * @param path
 	 * @param additionalTokens
 	 * @return

@@ -18,7 +18,7 @@ import cz.bliksoft.javautils.files.DeleteOnCloseFile;
  * since last access. Timeouted objects removed by {@link #cleanup()} can be
  * processed by setting {@link #cleanupMethod}. To be used e.g. as a cache with
  * {@link DeleteOnCloseFile}
- * 
+ *
  * @param <K>
  * @param <V>
  */
@@ -35,7 +35,7 @@ public class TimestampedHashMap<K, V> implements Map<K, V> {
 	 * Record validity in milliseconds. Negative means get-once and remove, zero is
 	 * unlimited. Expired values are cleared only by explicit calls to
 	 * {@link #cleanup()}.
-	 * 
+	 *
 	 * @param validity
 	 */
 	public TimestampedHashMap(long validity) {
@@ -46,7 +46,7 @@ public class TimestampedHashMap<K, V> implements Map<K, V> {
 	 * Record validity in milliseconds. Negative means get-once and remove, zero is
 	 * unlimited. Expired values are cleared only by explicit calls to
 	 * {@link #cleanup()}.
-	 * 
+	 *
 	 * @param validity
 	 * @param cleanupMethod
 	 */
@@ -125,7 +125,7 @@ public class TimestampedHashMap<K, V> implements Map<K, V> {
 
 	/**
 	 * like get, but updating object timestamp
-	 * 
+	 *
 	 * @param key
 	 * @return
 	 */

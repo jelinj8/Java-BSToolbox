@@ -23,11 +23,11 @@ public abstract class FileLoader {
 		if (file == null)
 			return null;
 
-		if(file.getType() == null) {
+		if (file.getType() == null) {
 			log.log(Level.WARN, "File type not specified for {}", file); //$NON-NLS-1$
 			return null;
 		}
-		
+
 		FileLoader fl = getLoader(file);
 		if (fl != null) {
 			return (T) fl.loadObject(file);

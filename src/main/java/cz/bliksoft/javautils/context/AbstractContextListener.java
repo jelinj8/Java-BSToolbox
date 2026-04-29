@@ -50,7 +50,7 @@ public abstract class AbstractContextListener<T> extends EventListener<ContextCh
 	/**
 	 * určuje, zda má být hlídáček spuštěn pro hodnotu pod předaným klíčem -> zda
 	 * vlastnímu vyhledávacímu klíči vyhovuje předaná hodnota
-	 * 
+	 *
 	 * @param resultKey hodnota klíče, která má být ověřena proti klíči listeneru
 	 * @return
 	 */
@@ -79,7 +79,7 @@ public abstract class AbstractContextListener<T> extends EventListener<ContextCh
 
 	/**
 	 * upozorní na změnu ve sledované hodnotě
-	 * 
+	 *
 	 * @param contextSearchResult
 	 * @return
 	 */
@@ -142,7 +142,7 @@ public abstract class AbstractContextListener<T> extends EventListener<ContextCh
 
 	/**
 	 * aktivuje a deaktivuje hlídáček
-	 * 
+	 *
 	 * @param newValue
 	 */
 	public void setActive(boolean newValue) {

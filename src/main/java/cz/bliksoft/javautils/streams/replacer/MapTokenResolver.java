@@ -6,7 +6,7 @@ import java.util.function.Function;
 
 /**
  * http://tutorials.jenkov.com/java-howto/replace-strings-in-streams-arrays-files.html
- * 
+ *
  * @author Jakob Jenkov
  *
  */

@@ -13,6 +13,7 @@ public abstract class ImageLoader {
 	public abstract List<String> getSupportedExtensions();
 
 	public abstract Image getImage(String name, String... args) throws Exception;
+
 	public abstract Image getImage(byte[] data, String... args) throws Exception;
 
 	private static Map<String, ImageLoader> imageLoaders = new HashMap<>();
@@ -39,22 +40,20 @@ public abstract class ImageLoader {
 	 * @param img The Image to be converted
 	 * @return The converted BufferedImage
 	 */
-	public static BufferedImage toBufferedImage(Image img)
-	{
-	    if (img instanceof BufferedImage)
-	    {
-	        return (BufferedImage) img;
-	    }
+	public static BufferedImage toBufferedImage(Image img) {
+		if (img instanceof BufferedImage) {
+			return (BufferedImage) img;
+		}
 
-	    // Create a buffered image with transparency
-	    BufferedImage bimage = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+		// Create a buffered image with transparency
+		BufferedImage bimage = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
 
-	    // Draw the image on to the buffered image
-	    Graphics2D bGr = bimage.createGraphics();
-	    bGr.drawImage(img, 0, 0, null);
-	    bGr.dispose();
+		// Draw the image on to the buffered image
+		Graphics2D bGr = bimage.createGraphics();
+		bGr.drawImage(img, 0, 0, null);
+		bGr.dispose();
 
-	    // Return the buffered image
-	    return bimage;
+		// Return the buffered image
+		return bimage;
 	}
 }

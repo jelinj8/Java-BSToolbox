@@ -15,7 +15,7 @@ public class HtmlImageRenderer {
 			jep.setSize(width, height);
 
 		jep.validate();
-		
+
 		BufferedImage image = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
 				.getDefaultConfiguration().createCompatibleImage(jep.getWidth(), jep.getHeight());
 

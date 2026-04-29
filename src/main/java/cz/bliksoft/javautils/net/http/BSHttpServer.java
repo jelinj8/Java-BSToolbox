@@ -87,7 +87,7 @@ public class BSHttpServer {
 
 	/**
 	 * basic HTTP server.
-	 * 
+	 *
 	 * @param port
 	 */
 	public BSHttpServer(int port) {
@@ -97,7 +97,7 @@ public class BSHttpServer {
 
 	/**
 	 * HTTPS variant of the server, requires additional httpsConfigurator.
-	 * 
+	 *
 	 * @param port
 	 * @param httpsConfigurator
 	 */
@@ -200,7 +200,7 @@ public class BSHttpServer {
 
 	/**
 	 * can block stopping of web server
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean beforeStop() {

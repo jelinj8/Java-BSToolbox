@@ -8,7 +8,7 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * třída pro uchovávání výsledku vyhledávání v kontextu
- * 
+ *
  */
 public class ContextSearchResult {
 	private static final Logger log = LogManager.getLogger();
@@ -20,7 +20,7 @@ public class ContextSearchResult {
 
 	/**
 	 * kontext, ze kterého pochází výsledek
-	 * 
+	 *
 	 * @return
 	 */
 	public Context getContext() {
@@ -29,12 +29,12 @@ public class ContextSearchResult {
 
 	/**
 	 * vrátí výsledek vyhledávání
-	 * 
+	 *
 	 * @return
 	 */
 	public Object getResult() {
 		if (!isValid()) {
-			//throw new InvalidObjectException("Empty value!");
+			// throw new InvalidObjectException("Empty value!");
 			log.log(Level.ERROR, "Reading invalid value!"); //$NON-NLS-1$
 		}
 		return result;
@@ -47,7 +47,7 @@ public class ContextSearchResult {
 
 	/**
 	 * vrací klíč, pro který bylo vyhledávání provedeno
-	 * 
+	 *
 	 * @return
 	 */
 	public Object getKey() {
@@ -56,7 +56,7 @@ public class ContextSearchResult {
 
 	/**
 	 * vrací platnost výsledku
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean isValid() {
@@ -65,7 +65,7 @@ public class ContextSearchResult {
 
 	/**
 	 * factory na neplatné výsledky (náhrada null)
-	 * 
+	 *
 	 * @param key
 	 * @return
 	 */
@@ -83,7 +83,7 @@ public class ContextSearchResult {
 
 	/**
 	 * sestaví nový výsledek pro předání
-	 * 
+	 *
 	 * @param key
 	 * @param value
 	 */

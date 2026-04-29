@@ -124,7 +124,7 @@ public class ProxySelectorRegistry extends ProxySelector {
 
 	/**
 	 * load proxy config from properties file
-	 * 
+	 *
 	 * @param propertiesF
 	 * @throws IOException
 	 */
@@ -134,7 +134,7 @@ public class ProxySelectorRegistry extends ProxySelector {
 
 	/**
 	 * load proxy config from loaded properties
-	 * 
+	 *
 	 * @param properties
 	 */
 	public static void addProxyConfiguration(Properties properties) {
@@ -144,7 +144,7 @@ public class ProxySelectorRegistry extends ProxySelector {
 	/**
 	 * load proxy config from loaded properties, use specified prefix for property
 	 * names
-	 * 
+	 *
 	 * @param properties
 	 * @param configPrefix
 	 */
@@ -175,16 +175,12 @@ public class ProxySelectorRegistry extends ProxySelector {
 	/**
 	 * register a proxy configuration. If neither proxyTarget nor proxyMatch is
 	 * specified, sets a default proxy
-	 * 
-	 * @param proxyUrl
-	 *            proxy url to be used
-	 * @param proxyPort
-	 *            proxy port
-	 * @param proxyTarget
-	 *            specific URL or comma separated list of URLs to redirect
-	 *            trough proxy
-	 * @param proxyMatch
-	 *            regex or comma separated regex list to match against url
+	 *
+	 * @param proxyUrl    proxy url to be used
+	 * @param proxyPort   proxy port
+	 * @param proxyTarget specific URL or comma separated list of URLs to redirect
+	 *                    trough proxy
+	 * @param proxyMatch  regex or comma separated regex list to match against url
 	 */
 	public static void addProxyConfiguration(String proxyUrl, Integer proxyPort, String proxyTarget,
 			String proxyMatch) {

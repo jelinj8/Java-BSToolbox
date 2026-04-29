@@ -70,7 +70,7 @@ public class DefaultFreemarkerHTTPHandler extends BasicHTTPHandler implements Cl
 
 	/**
 	 * set default index report
-	 * 
+	 *
 	 * @param indexName
 	 */
 	public void setIndexFileName(String indexName) {
@@ -79,7 +79,7 @@ public class DefaultFreemarkerHTTPHandler extends BasicHTTPHandler implements Cl
 
 	/**
 	 * get default index report
-	 * 
+	 *
 	 * @return
 	 */
 	public String getIndexFileName() {

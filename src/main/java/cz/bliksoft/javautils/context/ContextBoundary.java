@@ -3,7 +3,7 @@ package cz.bliksoft.javautils.context;
 /**
  * jednoduchý hlídáček kontextu, který zastaví šíření události do nadřazených
  * kontextů
- * 
+ *
  */
 public class ContextBoundary extends AbstractContextListener<Object> {
 

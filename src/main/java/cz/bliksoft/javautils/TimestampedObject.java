@@ -4,7 +4,7 @@ import java.util.Date;
 
 /**
  * objekt, který má přiřazenou časovou značku
- * 
+ *
  * @author jelinj8
  *
  * @param <T>
@@ -15,7 +15,7 @@ public class TimestampedObject<T> {
 	long timestamp;
 
 	/**
-	 * 
+	 *
 	 * @param value vlastní hodnota
 	 */
 	public TimestampedObject(T value) {
@@ -32,7 +32,7 @@ public class TimestampedObject<T> {
 
 	/**
 	 * získání objektu
-	 * 
+	 *
 	 * @return
 	 */
 	public T getValue() {

@@ -30,23 +30,17 @@ public class CsvUtils {
 
 	/**
 	 * load CSV with map key
-	 * 
-	 * @param source
-	 *            reader
-	 * @param separator
-	 *            separator regex (Regexp.quote)
-	 * @param hasHeader
-	 *            true to use first line (or skip if colNames provided)
-	 * @param columnNames
-	 *            col names (overrides header)
-	 * @param keyName
-	 *            used column for map key, if not present, first column will be used
-	 * @param keyConverter
-	 *            converter for key value, defaults to String
-	 * @param valueConverter
-	 *            converter to be used, input is column index and string value,
-	 *            output has to be castable to V type, defaults to original String
-	 *            value
+	 *
+	 * @param source         reader
+	 * @param separator      separator regex (Regexp.quote)
+	 * @param hasHeader      true to use first line (or skip if colNames provided)
+	 * @param columnNames    col names (overrides header)
+	 * @param keyName        used column for map key, if not present, first column
+	 *                       will be used
+	 * @param keyConverter   converter for key value, defaults to String
+	 * @param valueConverter converter to be used, input is column index and string
+	 *                       value, output has to be castable to V type, defaults to
+	 *                       original String value
 	 * @return
 	 * @throws IOException
 	 */
@@ -122,28 +116,18 @@ public class CsvUtils {
 
 	/**
 	 * loads CSV as key/value map
-	 * 
-	 * @param <K>
-	 *            type of value
-	 * @param <V>
-	 *            type of key
-	 * @param source
-	 *            reader
-	 * @param separator
-	 *            column separator
-	 * @param hasHeader
-	 *            is first line a header line?
-	 * @param columnNames
-	 *            list of columnNames (overrides header, if none specified, columns
-	 *            will be numbered
-	 * @param keyName
-	 *            key column (first if not specified)
-	 * @param valueName
-	 *            value column (key+1 if not specified)
-	 * @param keyConverter
-	 *            optional key type converter
-	 * @param valueConverter
-	 *            optional value type converter
+	 *
+	 * @param <K>            type of value
+	 * @param <V>            type of key
+	 * @param source         reader
+	 * @param separator      column separator
+	 * @param hasHeader      is first line a header line?
+	 * @param columnNames    list of columnNames (overrides header, if none
+	 *                       specified, columns will be numbered
+	 * @param keyName        key column (first if not specified)
+	 * @param valueName      value column (key+1 if not specified)
+	 * @param keyConverter   optional key type converter
+	 * @param valueConverter optional value type converter
 	 * @return
 	 * @throws IOException
 	 */
@@ -206,18 +190,13 @@ public class CsvUtils {
 
 	/**
 	 * load CSV as list of Maps
-	 * 
-	 * @param source
-	 *            reader
-	 * @param separator
-	 *            separator regex (Regexp.quote)
-	 * @param hasHeader
-	 *            true to use first line (or skip if colNames provided)
-	 * @param columnNames
-	 *            col names (overrides header)
-	 * @param converter
-	 *            converter to be used, input is column index and string value,
-	 *            output should fit generic type
+	 *
+	 * @param source      reader
+	 * @param separator   separator regex (Regexp.quote)
+	 * @param hasHeader   true to use first line (or skip if colNames provided)
+	 * @param columnNames col names (overrides header)
+	 * @param converter   converter to be used, input is column index and string
+	 *                    value, output should fit generic type
 	 * @return
 	 * @throws IOException
 	 */
@@ -283,15 +262,11 @@ public class CsvUtils {
 
 	/**
 	 * load CSV with map key
-	 * 
-	 * @param source
-	 *            reader
-	 * @param separator
-	 *            separator regex (Regexp.quote)
-	 * @param hasHeader
-	 *            true to use first line (or skip if colNames provided)
-	 * @param keyName
-	 *            used column for map key
+	 *
+	 * @param source    reader
+	 * @param separator separator regex (Regexp.quote)
+	 * @param hasHeader true to use first line (or skip if colNames provided)
+	 * @param keyName   used column for map key
 	 * @return
 	 * @throws IOException
 	 */
@@ -302,17 +277,12 @@ public class CsvUtils {
 
 	/**
 	 * load CSV with map key
-	 * 
-	 * @param source
-	 *            reader
-	 * @param separator
-	 *            separator regex (Regexp.quote)
-	 * @param hasHeader
-	 *            true to use first line (or skip if colNames provided)
-	 * @param colNames
-	 *            col names (overrides header)
-	 * @param keyName
-	 *            used column for map key
+	 *
+	 * @param source    reader
+	 * @param separator separator regex (Regexp.quote)
+	 * @param hasHeader true to use first line (or skip if colNames provided)
+	 * @param colNames  col names (overrides header)
+	 * @param keyName   used column for map key
 	 * @return
 	 * @throws IOException
 	 */
@@ -323,13 +293,10 @@ public class CsvUtils {
 
 	/**
 	 * load CSV as list of Maps
-	 * 
-	 * @param source
-	 *            reader
-	 * @param separator
-	 *            separator regex (Regexp.quote)
-	 * @param hasHeader
-	 *            true to use first line (or skip if colNames provided)
+	 *
+	 * @param source    reader
+	 * @param separator separator regex (Regexp.quote)
+	 * @param hasHeader true to use first line (or skip if colNames provided)
 	 * @return
 	 * @throws IOException
 	 */
@@ -342,15 +309,11 @@ public class CsvUtils {
 
 	/**
 	 * load CSV as list of Maps
-	 * 
-	 * @param source
-	 *            reader
-	 * @param separator
-	 *            separator regex (Regexp.quote)
-	 * @param hasHeader
-	 *            true to use first line (or skip if colNames provided)
-	 * @param colNames
-	 *            col names (overrides header)
+	 *
+	 * @param source    reader
+	 * @param separator separator regex (Regexp.quote)
+	 * @param hasHeader true to use first line (or skip if colNames provided)
+	 * @param colNames  col names (overrides header)
 	 * @return
 	 * @throws IOException
 	 */
@@ -364,7 +327,7 @@ public class CsvUtils {
 	/**
 	 * split a line using given separator into a map, use list as keys or use
 	 * numbers as keys if none provided
-	 * 
+	 *
 	 * @param line
 	 * @param separator
 	 * @param columnNames

@@ -103,7 +103,7 @@ public class SSLUtils {
 	public static void traceHandshake() {
 		System.setProperty("javax.net.debug", "ssl:handshake");
 	}
-	
+
 	public static KeyStore loadKeystore(File propFile, String propPrefix) throws GeneralSecurityException, IOException {
 		if (propFile.exists()) {
 			Properties prop = PropertiesUtils.loadFromFile(propFile, EnvironmentUtils.getAllEnvironmentProperties());
@@ -138,7 +138,7 @@ public class SSLUtils {
 
 	/**
 	 * merge configured truststore into the default one
-	 * 
+	 *
 	 * @param propFile
 	 * @throws IOException
 	 * @throws GeneralSecurityException

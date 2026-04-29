@@ -6,7 +6,7 @@ package cz.bliksoft.javautils;
 public class UnitConverter {
 	/**
 	 * Converts millimeters (mm) to points (pt)
-	 * 
+	 *
 	 * @param mm the value in mm
 	 * @return the value in pt
 	 */
@@ -16,7 +16,7 @@ public class UnitConverter {
 
 	/**
 	 * Converts points (pt) to millimeters (mm)
-	 * 
+	 *
 	 * @param pt the value in pt
 	 * @return the value in mm
 	 */
@@ -26,7 +26,7 @@ public class UnitConverter {
 
 	/**
 	 * Converts millimeters (mm) to inches (in)
-	 * 
+	 *
 	 * @param mm the value in mm
 	 * @return the value in inches
 	 */
@@ -36,7 +36,7 @@ public class UnitConverter {
 
 	/**
 	 * Converts inches (in) to millimeters (mm)
-	 * 
+	 *
 	 * @param in the value in inches
 	 * @return the value in mm
 	 */
@@ -46,7 +46,7 @@ public class UnitConverter {
 
 	/**
 	 * Converts millimeters (mm) to pixels (px)
-	 * 
+	 *
 	 * @param mm  the value in mm
 	 * @param dpi the resolution in dpi (dots per inch)
 	 * @return the value in pixels
@@ -57,7 +57,7 @@ public class UnitConverter {
 
 	/**
 	 * Converts pixels (px) to millimeters (mm)
-	 * 
+	 *
 	 * @param px  dimension in px
 	 * @param dpi dpi (dotsPerInch)
 	 * @return size in mm

@@ -60,7 +60,7 @@ public abstract class AbstractDBConnection implements IDBConnectionFactory {
 	/**
 	 * Don't fordet to call super! A place to load JDBC driver on first call, with
 	 * optional config steps.
-	 * 
+	 *
 	 * @throws ClassNotFoundException
 	 * @throws GeneralSecurityException
 	 * @throws IOException
@@ -73,7 +73,7 @@ public abstract class AbstractDBConnection implements IDBConnectionFactory {
 
 	/**
 	 * Load a JDBC driver by classname from {@link #getDriverName()}.
-	 * 
+	 *
 	 * @return
 	 * @throws ClassNotFoundException
 	 */
@@ -91,7 +91,7 @@ public abstract class AbstractDBConnection implements IDBConnectionFactory {
 
 	/**
 	 * default options loading. Called from {@link #init()}.
-	 * 
+	 *
 	 * @throws GeneralSecurityException
 	 */
 	protected void processOptions() throws GeneralSecurityException {
@@ -108,7 +108,7 @@ public abstract class AbstractDBConnection implements IDBConnectionFactory {
 	/**
 	 * common processes after loading options (called after processOptions from
 	 * {@link #init()})
-	 * 
+	 *
 	 * @throws GeneralSecurityException
 	 * @throws IOException
 	 */
@@ -139,7 +139,7 @@ public abstract class AbstractDBConnection implements IDBConnectionFactory {
 		if (log.isLoggable(Level.INFO))
 			log.info(MessageFormat.format("Connecting to {0} as {1} ({2})", serverString, dbUserName, reason));
 		Connection c = DriverManager.getConnection(serverString, dbUserName, dbPassword);
-		
+
 		if (autoCommit != null)
 			c.setAutoCommit(autoCommit);
 
@@ -148,9 +148,9 @@ public abstract class AbstractDBConnection implements IDBConnectionFactory {
 	}
 
 	/**
-	 * implement session setup (set timezone if specified + optionally other), called for each new
-	 * connection.
-	 * 
+	 * implement session setup (set timezone if specified + optionally other),
+	 * called for each new connection.
+	 *
 	 * @param c
 	 * @throws SQLException
 	 */
@@ -158,7 +158,7 @@ public abstract class AbstractDBConnection implements IDBConnectionFactory {
 
 	/**
 	 * override to construct JDBC connection string
-	 * 
+	 *
 	 * @return
 	 */
 	protected abstract String getServerString();

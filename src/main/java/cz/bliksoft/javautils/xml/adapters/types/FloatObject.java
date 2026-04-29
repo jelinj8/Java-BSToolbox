@@ -8,10 +8,10 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "float")
 @XmlAccessorType(XmlAccessType.NONE)
 public class FloatObject extends AbstractXmlObject {
-	
+
 	@XmlAttribute
 	Float value;
-	
+
 	@Override
 	public Object getValue() {
 		return value;

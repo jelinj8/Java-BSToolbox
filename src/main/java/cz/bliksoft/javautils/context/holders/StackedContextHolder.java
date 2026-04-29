@@ -12,36 +12,36 @@ public class StackedContextHolder extends SingleContextHolder {
 	}
 
 	Stack<Context> stack = new Stack<>();
-	
+
 	public Context peekRoot() {
 		return stack.firstElement();
 	}
-	
+
 	public Context peek() {
-		if(stack.isEmpty())
+		if (stack.isEmpty())
 			return null;
 		return stack.peek();
 	}
-	
+
 	public Context pop() {
 		Context result = stack.pop();
-		if(result == null)
+		if (result == null)
 			return null;
 		Context newTop = peek();
-		if(newTop != null)
+		if (newTop != null)
 			newTop.removeContext(result);
 		replaceContext(newTop);
 		return result;
 	}
-	
+
 	public void push(Context context) {
 		Context top = peek();
-		stack.push(context);			
+		stack.push(context);
 		replaceContext(context);
-		if(top != null)
+		if (top != null)
 			top.addContext(context);
 	}
-	
+
 	@Override
 	public String toString() {
 		if (StringUtils.hasText(this.comment))

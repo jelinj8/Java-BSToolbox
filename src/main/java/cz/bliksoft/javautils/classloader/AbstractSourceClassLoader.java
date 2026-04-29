@@ -37,15 +37,16 @@ public abstract class AbstractSourceClassLoader<T, U> extends ClassLoader {
 
 	/**
 	 * e.g. for String loader:
-	 * 
+	 *
 	 * <pre>{@code
-	 * return new SimpleJavaFileObject(URI.create("file:///" + className.replace('.', '/') + ".java"), Kind.SOURCE) { @Override
+	 * return new SimpleJavaFileObject(URI.create("file:///" + className.replace('.', '/') + ".java"), Kind.SOURCE) {
+	 * 	@Override
 	 * 	public CharSequence getCharContent(boolean ignoreEncErrors) {
 	 * 		return javaSource;
 	 * 	}
 	 * };
 	 * }</pre>
-	 * 
+	 *
 	 * @param className
 	 * @param src
 	 * @return
@@ -54,7 +55,7 @@ public abstract class AbstractSourceClassLoader<T, U> extends ClassLoader {
 
 	/**
 	 * Load class from source
-	 * 
+	 *
 	 * @param className  e.g. test.MyClass
 	 * @param javaSource source content, type dependent on implementation (basically
 	 *                   content of .java file)
@@ -104,7 +105,7 @@ public abstract class AbstractSourceClassLoader<T, U> extends ClassLoader {
 
 	/**
 	 * Creates object instance, optionally loading Class from source
-	 * 
+	 *
 	 * @param className class name to be created (cache key)
 	 * @param input     source code (if null, no loading attempt will be performed,
 	 *                  calling Class.forName instead if not already cached and no

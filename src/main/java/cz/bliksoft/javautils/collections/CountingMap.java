@@ -8,7 +8,7 @@ import java.util.Map;
  */
 public class CountingMap extends HashMap<String, Long> {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -1238326355476731803L;
 
@@ -24,7 +24,7 @@ public class CountingMap extends HashMap<String, Long> {
 
 	/**
 	 * get keyed value or specified default
-	 * 
+	 *
 	 * @param key
 	 * @param defaultValue
 	 * @return
@@ -35,7 +35,7 @@ public class CountingMap extends HashMap<String, Long> {
 
 	/**
 	 * increment keyed value, initial value as specified in constructor or 0
-	 * 
+	 *
 	 * @param key
 	 * @return
 	 */
@@ -47,7 +47,7 @@ public class CountingMap extends HashMap<String, Long> {
 
 	/**
 	 * increment a value by step
-	 * 
+	 *
 	 * @param key
 	 * @param step
 	 * @return
@@ -61,7 +61,7 @@ public class CountingMap extends HashMap<String, Long> {
 
 	/**
 	 * decrement keyed value, initial value as specified in constructor or 0
-	 * 
+	 *
 	 * @param key
 	 * @return
 	 */
@@ -73,7 +73,7 @@ public class CountingMap extends HashMap<String, Long> {
 
 	/**
 	 * decrement a value by step
-	 * 
+	 *
 	 * @param key
 	 * @param step
 	 * @return
@@ -87,7 +87,7 @@ public class CountingMap extends HashMap<String, Long> {
 
 	/**
 	 * get a copy of values map
-	 * 
+	 *
 	 * @return
 	 */
 	public Map<String, Long> getValues() {

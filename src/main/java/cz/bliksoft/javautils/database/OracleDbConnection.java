@@ -127,7 +127,7 @@ public class OracleDbConnection extends AbstractDBConnection {
 
 	/**
 	 * execute SQL while capturing DBMS_OUTPUT
-	 * 
+	 *
 	 * @param connection
 	 * @param sql
 	 * @return

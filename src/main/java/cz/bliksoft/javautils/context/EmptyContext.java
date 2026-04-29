@@ -4,7 +4,7 @@ import cz.bliksoft.javautils.StringUtils;
 
 /**
  * implementace kontextu pro připojování vnořených kontextů
- * 
+ *
  */
 public class EmptyContext extends Context {
 

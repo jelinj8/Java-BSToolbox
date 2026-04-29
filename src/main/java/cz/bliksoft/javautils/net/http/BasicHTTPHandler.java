@@ -65,11 +65,11 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	 * addSupportedMethods(HttpMethod ... method) or e.g. addSupported*()
 	 *
 	 * setPathPrefix(String) to be removed from required string
-	 * 
+	 *
 	 * setDefaultRequired(String) to replace null or '/' required string
-	 * 
+	 *
 	 * makeSessionAware() to load session in context
-	 * 
+	 *
 	 * switch (path) {
 	 * case "/test":
 	 * 	sendOK(t, testRequest(path, params));
@@ -78,7 +78,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	 * 	sendERR(t, "Unknown path: " + path);
 	 * }
 	 * </pre>
-	 * 
+	 *
 	 * @param httpExchange
 	 * @param path         URI, starts with '/'
 	 * @param params
@@ -87,7 +87,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * main request handling method
-	 * 
+	 *
 	 * @param context preparsed request
 	 * @return true for finished processing (do not try next handlers/steps), can
 	 *         return false for specific handlers that will continue with following
@@ -150,7 +150,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * set handler to process session setup
-	 * 
+	 *
 	 * @param sessionContextName cookie name prefix to use, random value generated
 	 *                           on startup
 	 * @param path               http path to be set, null for /
@@ -162,7 +162,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * check if session setup should be performed
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean isSessionAware() {
@@ -195,7 +195,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * add HTTP method supported by this handler
-	 * 
+	 *
 	 * @param method
 	 */
 	public void addSupportedMethods(HttpMethod... method) {
@@ -205,7 +205,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * add HTTP method supported by this handler
-	 * 
+	 *
 	 * @param methods
 	 */
 	public void addSupportedMethods(Collection<HttpMethod> methods) {
@@ -214,7 +214,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * add supported methods by string list
-	 * 
+	 *
 	 * @param methodList
 	 */
 	public void addSupportedMethods(String methodList) {
@@ -237,7 +237,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * HTTP methods supported by this handler
-	 * 
+	 *
 	 * @return
 	 */
 	public Set<HttpMethod> getSupportedMethods() {
@@ -257,7 +257,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 	/**
 	 * path fragment (regex), that will be removed in request URI (only it's first
 	 * occurence)
-	 * 
+	 *
 	 * @return
 	 */
 	public String getPathPrefix() {
@@ -268,7 +268,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * override empty requested path with a default value
-	 * 
+	 *
 	 * @param defaultReq
 	 */
 	public void setDefautlRequired(String defaultReq) {
@@ -277,7 +277,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * get default value for empty requested path
-	 * 
+	 *
 	 * @return
 	 */
 	public String getDefaultRequired() {
@@ -330,7 +330,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * get request body
-	 * 
+	 *
 	 * @param httpExchange
 	 * @return
 	 * @throws IOException
@@ -341,7 +341,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * check if request is multipart
-	 * 
+	 *
 	 * @param httpExchange
 	 * @return
 	 */
@@ -353,7 +353,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * get request parameters
-	 * 
+	 *
 	 * @param query
 	 * @return
 	 * @throws IOException
@@ -364,7 +364,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * send "OK" as OK text response
-	 * 
+	 *
 	 * @param httpExchange
 	 * @throws IOException
 	 */
@@ -374,7 +374,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * semd OK text message
-	 * 
+	 *
 	 * @param httpExchange
 	 * @param message
 	 * @throws IOException
@@ -385,7 +385,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * send OK response with contentType
-	 * 
+	 *
 	 * @param httpExchange
 	 * @param message
 	 * @param contentType
@@ -407,7 +407,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * access to response stream
-	 * 
+	 *
 	 * @param httpExchange
 	 * @return
 	 */
@@ -417,7 +417,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * Send string as file with name and (optionally) specified mimeType
-	 * 
+	 *
 	 * @param httpExchange
 	 * @param message
 	 * @param fileName
@@ -446,7 +446,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * return File as OK data
-	 * 
+	 *
 	 * @param httpExchange
 	 * @param document
 	 * @throws IOException
@@ -471,7 +471,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * return resource as OK data
-	 * 
+	 *
 	 * @param httpExchange
 	 * @param loader
 	 * @param path
@@ -499,7 +499,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * send prepared headers with result code (default OK)
-	 * 
+	 *
 	 * @param httpExchange
 	 * @param code
 	 * @param length
@@ -512,7 +512,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * send text message with specified result code
-	 * 
+	 *
 	 * @param httpExchange
 	 * @param message
 	 * @param code
@@ -524,7 +524,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * send text message with specified result code
-	 * 
+	 *
 	 * @param httpExchange
 	 * @param message
 	 * @param code
@@ -536,7 +536,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * send response with specified code and MimeType
-	 * 
+	 *
 	 * @param httpExchange
 	 * @param message
 	 * @param contentType
@@ -550,7 +550,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * send response with specified code and MimeType
-	 * 
+	 *
 	 * @param httpExchange
 	 * @param message
 	 * @param contentType
@@ -582,7 +582,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * send binary data
-	 * 
+	 *
 	 * @param httpExchange
 	 * @param data
 	 * @param contentType
@@ -609,7 +609,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * send resource as data
-	 * 
+	 *
 	 * @param httpExchange
 	 * @param loader
 	 * @param path
@@ -638,7 +638,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * send file as data
-	 * 
+	 *
 	 * @param httpExchange
 	 * @param file
 	 * @throws IOException
@@ -663,7 +663,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * basic header set (content type + origin=ANY)
-	 * 
+	 *
 	 * @param httpExchange
 	 * @param contentType
 	 */
@@ -674,7 +674,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * add header
-	 * 
+	 *
 	 * @param httpExchange
 	 * @param header
 	 * @param value
@@ -748,7 +748,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * set cookie
-	 * 
+	 *
 	 * @param httpExchange
 	 * @param cookie
 	 */
@@ -771,7 +771,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * opportunity to stop closing of server by returning "false"
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean canClose() {
@@ -780,7 +780,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * check if a mandatory parameter is present in request
-	 * 
+	 *
 	 * @param parameters
 	 * @param paramName
 	 * @return
@@ -791,7 +791,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * get first value of request parameter
-	 * 
+	 *
 	 * @param parameters
 	 * @param paramName
 	 * @return
@@ -808,7 +808,7 @@ public abstract class BasicHTTPHandler implements HttpHandler, Closeable {
 
 	/**
 	 * get all values of a parameter from request
-	 * 
+	 *
 	 * @param parameters
 	 * @param paramName
 	 * @return

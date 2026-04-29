@@ -239,7 +239,7 @@ public class SystemMonitor {
 
 	/**
 	 * return copy of current threadInfo list
-	 * 
+	 *
 	 * @return
 	 */
 	public static List<ThreadInfo> getThreadInfo() {

@@ -3,10 +3,10 @@ package cz.bliksoft.javautils.math.statistics;
 public class CountFilter implements IStatisticFilter {
 
 	private long count;
-	
+
 	@Override
 	public void addValue(Double value) {
-		count ++;
+		count++;
 	}
 
 	@Override

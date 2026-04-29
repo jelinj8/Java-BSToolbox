@@ -2,7 +2,7 @@ package cz.bliksoft.javautils.exceptions;
 
 public class ProcessingException extends RuntimeException {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 59530808317039051L;
 

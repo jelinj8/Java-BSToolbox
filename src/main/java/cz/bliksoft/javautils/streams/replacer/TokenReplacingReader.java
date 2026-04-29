@@ -21,9 +21,9 @@ import java.util.stream.Collectors;
 
 /**
  * http://tutorials.jenkov.com/java-howto/replace-strings-in-streams-arrays-files.html
- * 
+ *
  * @author Jakob Jenkov, jelinj8
- * 
+ *
  */
 public class TokenReplacingReader extends Reader {
 	protected PushbackReader pushbackReader = null;
@@ -34,7 +34,7 @@ public class TokenReplacingReader extends Reader {
 
 	/**
 	 * use UTF-8 as default
-	 * 
+	 *
 	 * @param source
 	 * @param resolver
 	 */
@@ -44,7 +44,7 @@ public class TokenReplacingReader extends Reader {
 
 	/**
 	 * specify input charset
-	 * 
+	 *
 	 * @param source
 	 * @param charset
 	 * @param resolver

@@ -15,7 +15,7 @@ public interface IModule {
 
 	/**
 	 * kořenové XML virtuálního filesystému
-	 * 
+	 *
 	 * @return
 	 */
 	public InputStream getFilesystemXml();
@@ -37,7 +37,7 @@ public interface IModule {
 
 	/**
 	 * mapa jazykových překladů
-	 * 
+	 *
 	 * @return
 	 */
 	public Map<String, String> getTranslations();
@@ -46,7 +46,7 @@ public interface IModule {
 
 	/**
 	 * povolení či zakázání modulu pomocí konfigurace
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean isEnabled();
@@ -58,14 +58,14 @@ public interface IModule {
 
 	/**
 	 * informace o verzi modulu
-	 * 
+	 *
 	 * @return
 	 */
 	public String getVersionInfo();
 
 	/**
 	 * hodnota určující pořadí načítání modulů
-	 * 
+	 *
 	 * @return
 	 */
 	public int getModuleLoadingOrder();

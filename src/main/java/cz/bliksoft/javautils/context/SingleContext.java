@@ -14,7 +14,7 @@ import cz.bliksoft.javautils.StringUtils;
 
 /**
  * implementace kontextu pro uchovávání jedné hodnoty
- * 
+ *
  */
 public class SingleContext<T> extends Context {
 //	private static final Logger log = LogManager.getLogger();

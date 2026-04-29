@@ -31,10 +31,8 @@ public class ObjectUtils {
 	 * for any object that implements Serializable. If the original is {@code null},
 	 * this method just returns {@code null}.
 	 *
-	 * @param <T>
-	 *                 the type of the object to be cloned
-	 * @param original
-	 *                 the object to copied, may be {@code null}
+	 * @param <T>      the type of the object to be cloned
+	 * @param original the object to copied, may be {@code null}
 	 * @return the copied object
 	 *
 	 * @since 1.1.1
@@ -69,10 +67,8 @@ public class ObjectUtils {
 	 * Objects.equals("Hi", "Ho") == false
 	 * </pre>
 	 *
-	 * @param o1
-	 *           the first object to compare
-	 * @param o2
-	 *           the second object to compare
+	 * @param o1 the first object to compare
+	 * @param o2 the second object to compare
 	 * @return boolean {@code true} if and only if both objects are {@code null} or
 	 *         equal according to {@link Object#equals(Object) equals} invoked on
 	 *         the first object
@@ -83,7 +79,7 @@ public class ObjectUtils {
 
 	/**
 	 * checks if both objects are not null and identic or equal
-	 * 
+	 *
 	 * @param o1
 	 * @param o2
 	 * @return
@@ -223,5 +219,5 @@ public class ObjectUtils {
 			return ois.readObject();
 		}
 	}
-	
+
 }

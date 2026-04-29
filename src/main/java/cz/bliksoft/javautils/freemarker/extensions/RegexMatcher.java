@@ -22,13 +22,13 @@ public class RegexMatcher implements TemplateMethodModelEx {
 	public RegexMatcher(String regex) {
 		regexPattern = Pattern.compile(regex);
 	}
-	
+
 	public void addGroup(String name, int index) {
-		if(namedGroups == null)
+		if (namedGroups == null)
 			namedGroups = new HashMap<>();
 		namedGroups.put(name, index);
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	@Override
 	public Object exec(List arguments) throws TemplateModelException {

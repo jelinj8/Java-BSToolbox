@@ -21,7 +21,7 @@ public class HTTPHandlerChain extends BasicHTTPHandler {
 				this.handlers.add(h);
 				if (h.isSessionAware() && !isSessionAware())
 					makeSessionAware();
-				
+
 				for (HttpMethod m : h.getSupportedMethods()) {
 					addSupportedMethods(m);
 				}

@@ -15,13 +15,13 @@ import javax.swing.JLabel;
 /**
  * https://grandzebu.net/informatique/codbar-en/code128.htm Jean-Luc BLOECHLE:
  * https://grandzebu.net/informatique/codbar/code128_java2.asc
- * 
+ *
  * fixed compression for multiple consecutive numbers (one char shorter in some
  * cases, e.g. Hi12345 -startC H i 1 switchB 23 45 check STOP- instead of
  * -startC H i switchB 12 34 switchC 5 check STOP- )
- * 
+ *
  * fixed charcodes for attached repaired font
- * 
+ *
  * @author jelinj8
  *
  */

@@ -25,8 +25,9 @@ public class TemplatedQueryProvider implements IQueryProvider {
 
 	/**
 	 * Query builder using a FreemarkerGeneartor
+	 *
 	 * @param generator Preconfigured FreemarkerGenerator
-	 * @param cache don't reevaluate the query (stable queries)
+	 * @param cache     don't reevaluate the query (stable queries)
 	 */
 	public TemplatedQueryProvider(FreemarkerGenerator generator, boolean cache) {
 		this(generator, null, cache);
@@ -34,9 +35,10 @@ public class TemplatedQueryProvider implements IQueryProvider {
 
 	/**
 	 * Query builder using a FreemarkerGeneartor
+	 *
 	 * @param generator Preconfigured FreemarkerGenerator
-	 * @param basePath template path prefix (e.g. 'sql/')
-	 * @param cache don't reevaluate the query (stable queries)
+	 * @param basePath  template path prefix (e.g. 'sql/')
+	 * @param cache     don't reevaluate the query (stable queries)
 	 */
 	public TemplatedQueryProvider(FreemarkerGenerator generator, String basePath, boolean cache) {
 		this.basePath = basePath;

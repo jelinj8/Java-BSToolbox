@@ -64,7 +64,7 @@ public class LogUtils {
 	/**
 	 * backwards compatibility for {@link LogUtils#initLog4J(File, Map) optional
 	 * variable replacement version}
-	 * 
+	 *
 	 */
 	public static void initLog4J() {
 		initLog4J(null, null);
@@ -73,7 +73,7 @@ public class LogUtils {
 	/**
 	 * backwards compatibility for {@link LogUtils#initLog4J(File, Map) optional
 	 * variable replacement version}
-	 * 
+	 *
 	 * @param configFile
 	 */
 	public static void initLog4J(File configFile) {
@@ -82,7 +82,7 @@ public class LogUtils {
 
 	/**
 	 * initialize Log4J2 system by a (default) config file
-	 * 
+	 *
 	 * @param configPath
 	 */
 	public static void initLog4J(File configPath, Map<String, String> replacementValues) {
@@ -94,7 +94,7 @@ public class LogUtils {
 
 	/**
 	 * initialize LogUtils with properties
-	 * 
+	 *
 	 * @param configuration
 	 */
 	public static void init(Properties configuration) {
@@ -184,7 +184,7 @@ public class LogUtils {
 
 	/**
 	 * get logging file name
-	 * 
+	 *
 	 * @param name
 	 * @param extension
 	 * @return
@@ -209,7 +209,7 @@ public class LogUtils {
 
 	/**
 	 * get logging file
-	 * 
+	 *
 	 * @param name
 	 * @param extension
 	 * @return
@@ -225,7 +225,7 @@ public class LogUtils {
 
 	/**
 	 * opens an outputStream to be used for logging
-	 * 
+	 *
 	 * @param name
 	 * @param extension
 	 * @return
@@ -250,7 +250,7 @@ public class LogUtils {
 
 	/**
 	 * writes a text to log file
-	 * 
+	 *
 	 * @param message
 	 * @param name
 	 * @param extension
@@ -275,7 +275,7 @@ public class LogUtils {
 
 	/**
 	 * logs binary data to a file
-	 * 
+	 *
 	 * @param message
 	 * @param name
 	 * @param extension
@@ -300,7 +300,7 @@ public class LogUtils {
 
 	/**
 	 * logs a XML annotated object as a XML file
-	 * 
+	 *
 	 * @param annotatedObject
 	 * @param name
 	 * @param extension
@@ -350,7 +350,7 @@ public class LogUtils {
 
 	/**
 	 * returns string content of Throwable's stack trace
-	 * 
+	 *
 	 * @param throwable
 	 * @return
 	 */
@@ -362,7 +362,7 @@ public class LogUtils {
 
 	/**
 	 * formats stack trace to a string
-	 * 
+	 *
 	 * @param stack
 	 * @return
 	 */
@@ -377,7 +377,7 @@ public class LogUtils {
 
 	/**
 	 * returns stack trace string representation
-	 * 
+	 *
 	 * @param stack
 	 * @param skip     count of elements from top to skip
 	 * @param maxCount max printed elements count
@@ -403,7 +403,7 @@ public class LogUtils {
 
 	/**
 	 * returns stack trace string representation
-	 * 
+	 *
 	 * @param stack
 	 * @param skip     class to skip on top of stack (find first other class)
 	 * @param maxCount max printed elements count
@@ -429,7 +429,7 @@ public class LogUtils {
 	/**
 	 * generic coonversion of object to string (more descriptive than Java
 	 * .toString)
-	 * 
+	 *
 	 * @param o
 	 * @return
 	 */
@@ -459,7 +459,7 @@ public class LogUtils {
 	/**
 	 * get current stack trace, skip the getting call + additional <code>skip</code>
 	 * levels.
-	 * 
+	 *
 	 * @param maxCount maximal total length of result (0 for unlimited)
 	 * @param skip     additional levels to skip (0 for none)
 	 * @return
@@ -472,7 +472,7 @@ public class LogUtils {
 
 	/**
 	 * helper tool to log warning if not on EDThread
-	 * 
+	 *
 	 * @param message
 	 */
 	public static void warnIfNotEDT(String message) {
@@ -485,7 +485,7 @@ public class LogUtils {
 	/**
 	 * set count of messages to remember, if smaller than previous, excess messages
 	 * will be thrown away. Default 100 messages.
-	 * 
+	 *
 	 * @param limit
 	 */
 	public static void setMessageHistoryLength(int limit) {
@@ -496,7 +496,7 @@ public class LogUtils {
 
 	/**
 	 * log message to limited string history
-	 * 
+	 *
 	 * @param message
 	 */
 	public static void addMessage(Object message) {
@@ -509,7 +509,7 @@ public class LogUtils {
 
 	/**
 	 * get limited string message history
-	 * 
+	 *
 	 * @return
 	 */
 	public static AbstractCollection<TimestampedObject<Object>> getMessages() {
@@ -518,7 +518,7 @@ public class LogUtils {
 
 	/**
 	 * set a variable to be shown in status report
-	 * 
+	 *
 	 * @param name
 	 * @param value
 	 */
@@ -531,7 +531,7 @@ public class LogUtils {
 
 	/**
 	 * get a value registered for system report
-	 * 
+	 *
 	 * @param name
 	 * @return
 	 */
@@ -548,7 +548,7 @@ public class LogUtils {
 
 	/**
 	 * get all system report variables
-	 * 
+	 *
 	 * @return
 	 */
 	public static Map<String, Object> getPublishedVariables() {

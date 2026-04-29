@@ -31,7 +31,7 @@ import cz.bliksoft.javautils.exceptions.InitializationException;
 
 /**
  * základ FileSystému a práce s ním
- * 
+ *
  */
 public final class FileSystem {
 	private static final Logger log = LogManager.getLogger();

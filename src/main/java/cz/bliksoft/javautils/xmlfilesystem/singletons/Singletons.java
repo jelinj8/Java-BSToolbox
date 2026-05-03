@@ -83,14 +83,15 @@ public class Singletons {
 	}
 
 	public static void cleanup() {
-		for (Entry<FileObject, SingletonContainer> e : singletonObjects.entrySet()) {
-			if (e.getValue().getValue() instanceof Closeable) {
-				try {
-					((Closeable) e.getValue().getValue()).close();
-				} catch (IOException ex) {
-					log.error("Closing singleton " + e.getKey(), ex);
+		if (singletonObjects != null)
+			for (Entry<FileObject, SingletonContainer> e : singletonObjects.entrySet()) {
+				if (e.getValue().getValue() instanceof Closeable) {
+					try {
+						((Closeable) e.getValue().getValue()).close();
+					} catch (IOException ex) {
+						log.error("Closing singleton " + e.getKey(), ex);
+					}
 				}
 			}
-		}
 	}
 }

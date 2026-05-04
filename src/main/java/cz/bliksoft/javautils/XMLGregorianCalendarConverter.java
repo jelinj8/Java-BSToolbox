@@ -11,6 +11,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
@@ -48,7 +49,8 @@ public class XMLGregorianCalendarConverter {
 		} else {
 			GregorianCalendar gc = new GregorianCalendar();
 			gc.setTimeInMillis(date.getTime());
-			return df.newXMLGregorianCalendar(gc);
+			return df.newXMLGregorianCalendarDate(gc.get(GregorianCalendar.YEAR), gc.get(GregorianCalendar.MONTH) + 1,
+					gc.get(GregorianCalendar.DAY_OF_MONTH), DatatypeConstants.FIELD_UNDEFINED);
 		}
 	}
 
@@ -58,7 +60,8 @@ public class XMLGregorianCalendarConverter {
 		} else {
 			GregorianCalendar gc = new GregorianCalendar();
 			gc.setTimeInMillis(millis);
-			return df.newXMLGregorianCalendar(gc);
+			return df.newXMLGregorianCalendarDate(gc.get(GregorianCalendar.YEAR), gc.get(GregorianCalendar.MONTH) + 1,
+					gc.get(GregorianCalendar.DAY_OF_MONTH), DatatypeConstants.FIELD_UNDEFINED);
 		}
 	}
 
@@ -70,16 +73,19 @@ public class XMLGregorianCalendarConverter {
 		try {
 			if (date.length() == 8) {
 				return df.newXMLGregorianCalendarDate(Integer.parseInt(date.substring(0, 4)),
-						Integer.parseInt(date.substring(4, 6)), Integer.parseInt(date.substring(6, 8)), 60);
+						Integer.parseInt(date.substring(4, 6)), Integer.parseInt(date.substring(6, 8)),
+						DatatypeConstants.FIELD_UNDEFINED);
 			}
 
 			if (date.length() == 10) {
 				if (date.contains("-")) {
 					return df.newXMLGregorianCalendarDate(Integer.parseInt(date.substring(0, 4)),
-							Integer.parseInt(date.substring(5, 7)), Integer.parseInt(date.substring(8, 10)), 60);
+							Integer.parseInt(date.substring(5, 7)), Integer.parseInt(date.substring(8, 10)),
+							DatatypeConstants.FIELD_UNDEFINED);
 				} else if (date.contains("/")) {
 					return df.newXMLGregorianCalendarDate(Integer.parseInt(date.substring(0, 4)),
-							Integer.parseInt(date.substring(5, 7)), Integer.parseInt(date.substring(8, 10)), 60);
+							Integer.parseInt(date.substring(5, 7)), Integer.parseInt(date.substring(8, 10)),
+							DatatypeConstants.FIELD_UNDEFINED);
 				}
 			}
 

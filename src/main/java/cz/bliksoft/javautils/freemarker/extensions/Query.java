@@ -80,6 +80,8 @@ public class Query implements TemplateMethodModelEx {
 		long fetchedCount = 0l;
 		long timestamp = System.currentTimeMillis();
 		String queryID;
+		private Boolean nextAvailable = null; // null=not peeked, true/false=result of peek
+		private boolean closed = false;
 
 		IterableQueryResult(PreparedStatement pstmnt, ResultSet rs, ResultSetMetaData md, List<String> colNames,
 				String queryID) {
@@ -92,8 +94,14 @@ public class Query implements TemplateMethodModelEx {
 
 		@Override
 		public boolean hasNext() {
-			try {
-				if (rs.isLast()) {
+			if (nextAvailable == null) {
+				try {
+					nextAvailable = rs.next();
+				} catch (SQLException e) {
+					log.log(Level.SEVERE, "Failed to advance ResultSet", e);
+					nextAvailable = false;
+				}
+				if (!nextAvailable) {
 					log.log(Level.FINE,
 							MessageFormat.format(
 									"Fetched last record of {2}. Total count: {0}, fetched in {1,number,#}ms",
@@ -102,41 +110,37 @@ public class Query implements TemplateMethodModelEx {
 						close();
 					} catch (IOException e) {
 						log.log(Level.SEVERE, "Failed to close iterable query result resources", e);
-						e.printStackTrace();
 					}
-					return false;
-				} else {
-					return true;
 				}
-			} catch (SQLException e) {
-				log.log(Level.SEVERE, "Failed to check rs.next", e);
-				return false;
 			}
+			return nextAvailable;
 		}
 
 		@Override
 		public Map<String, Object> next() {
+			if (!hasNext()) {
+				return null;
+			}
+			nextAvailable = null; // consume the peeked row; cursor already positioned by hasNext()
 			try {
-				if (rs.next()) {
-					fetchedCount++;
-					HashMap<String, Object> row = new HashMap<>();
-					for (int cID = 1; cID <= md.getColumnCount(); cID++) {
-						Object val = getColumnData(rs, md, cID);
-						String name = colNames.get(cID - 1);
-						row.put(name, val);
-					}
-					return row;
-				} else {
-					return null;
+				fetchedCount++;
+				HashMap<String, Object> row = new HashMap<>();
+				for (int cID = 1; cID <= md.getColumnCount(); cID++) {
+					Object val = getColumnData(rs, md, cID);
+					String name = colNames.get(cID - 1);
+					row.put(name, val);
 				}
+				return row;
 			} catch (SQLException | TemplateModelException e) {
-				log.log(Level.SEVERE, "Failed to get rs.next", e);
+				log.log(Level.SEVERE, "Failed to read row from ResultSet", e);
 				return null;
 			}
 		}
 
 		@Override
 		public void close() throws IOException {
+			if (closed) return;
+			closed = true;
 			try {
 				rs.close();
 				pstmnt.close();

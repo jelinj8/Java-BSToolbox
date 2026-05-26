@@ -23,19 +23,26 @@ import cz.bliksoft.javautils.context.holders.SingleContextHolder;
 public class Context {
 	private static final Logger log = LogManager.getLogger();
 
-//	public static class Constants {
-//		private Constants() {
-//		}
-//
-//		public static final String CONTEXT_IDENTITY_KEY = "ContextIdentityKey";
-//		public static final String CONTEXT_APP_LOCK = "ContextAppLock";
-//	}
-
 	private static WeakIdentityHashMap<IContextProvider, Context> contextProviderContexts = new WeakIdentityHashMap<>();
 
 	public static Context getContextProviderContext(IContextProvider key) {
 		return contextProviderContexts.computeIfAbsent(key,
 				k -> new EmptyContext("Default context for " + getAbbrevDescription(key)));
+	}
+
+	/**
+	 * Wrap a provided context in a level context with comment
+	 * 
+	 * @param content
+	 * @param comment
+	 * @return
+	 */
+	public static Context wrapAsLevelContext(Context content, String comment) {
+		Context ctx = new Context(comment);
+		ctx.setLevelContext();
+		if (content != null)
+			ctx.addContext(content);
+		return ctx;
 	}
 
 	/**

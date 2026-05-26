@@ -43,6 +43,13 @@ public class StackedContextHolder extends SingleContextHolder {
 	}
 
 	@Override
+	protected void dumpValues(StringBuilder sb, String prefix) {
+		super.dumpValues(sb, prefix);
+		for (int i = 0; i < stack.size() - 1; i++)
+			sb.append(prefix).append("[stack] ").append(stack.get(i)).append("\n");
+	}
+
+	@Override
 	public String toString() {
 		if (StringUtils.hasText(this.comment))
 			return (isLevelContext ? "L" : "") + "StackedCTXHolder: " + this.comment;

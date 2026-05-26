@@ -25,7 +25,9 @@ Hierarchical, event-driven state management:
 - **`AbstractContextListener<T>`** — observes value changes in a context; tracks old/new values and level (how many levels up the value came from).
 - **`EventListener<T>`** — callback base with `beforeEvent()`, `fired()`, `afterEvent()`; handles EDT safety and consumable events (`IConsumableEvent`).
 - **`ContextChangedEvent<T>`** — event fired on value mutation; can block upward propagation.
-- **`SingleContextHolder`** / **`StackedContextHolder`** — manage the "current" context (switchable vs push/pop stack).
+- **`SingleContextHolder`** — holds at most one child context; replaces it atomically. Used as the global `currentContext`.
+- **`StackedContextHolder`** — extends `SingleContextHolder` with push/pop semantics; the top of the stack is always the active child. `dump()` shows inactive stack entries.
+- **`MapContextHolder<T, C>`** — extends `SingleContextHolder`; stores named contexts in a `LinkedHashMap<T, C>`; `select(T)` makes one the active child. Map manipulation: `put`, `get`, `removeKey`, `containsKey`, `keySet`, `values`, `asMap`, `deselect`, `getSelected`, `getSelectedKey`. `dump()` shows non-selected entries.
 
 ### Modules Framework (`cz.bliksoft.javautils.modules`)
 

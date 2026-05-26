@@ -5,24 +5,32 @@ import java.util.Stack;
 import cz.bliksoft.javautils.StringUtils;
 import cz.bliksoft.javautils.context.Context;
 
+/**
+ * Context holder that manages contexts as a push/pop stack; the top is always
+ * the active child.
+ */
 public class StackedContextHolder extends SingleContextHolder {
 
+	/** Creates a holder with the given debug label. */
 	public StackedContextHolder(String comment) {
 		super(comment);
 	}
 
 	Stack<Context> stack = new Stack<>();
 
+	/** Returns the bottom (oldest) context on the stack. */
 	public Context peekRoot() {
 		return stack.firstElement();
 	}
 
+	/** Returns the current top context, or null if the stack is empty. */
 	public Context peek() {
 		if (stack.isEmpty())
 			return null;
 		return stack.peek();
 	}
 
+	/** Removes and returns the top context, making the next one active. */
 	public Context pop() {
 		Context result = stack.pop();
 		if (result == null)
@@ -34,6 +42,7 @@ public class StackedContextHolder extends SingleContextHolder {
 		return result;
 	}
 
+	/** Pushes a context onto the stack, making it the new active child. */
 	public void push(Context context) {
 		Context top = peek();
 		stack.push(context);

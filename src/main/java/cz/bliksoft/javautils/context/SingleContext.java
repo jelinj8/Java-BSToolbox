@@ -13,8 +13,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import cz.bliksoft.javautils.StringUtils;
 
 /**
- * implementace kontextu pro uchovávání jedné hodnoty
- *
+ * Context that holds a single typed value, optionally bound to a Swing
+ * component selection.
  */
 public class SingleContext<T> extends Context {
 //	private static final Logger log = LogManager.getLogger();
@@ -35,6 +35,7 @@ public class SingleContext<T> extends Context {
 
 	T value = null;
 
+	/** Sets the held value and notifies listeners if it changed. */
 	public void setValue(T value) {
 		if (value == this.value)
 			return;
@@ -56,6 +57,7 @@ public class SingleContext<T> extends Context {
 		}
 	}
 
+	/** Returns the currently held value. */
 	public T getValue() {
 		return this.value;
 	}
@@ -89,6 +91,9 @@ public class SingleContext<T> extends Context {
 		return super.getValue(key);
 	}
 
+	/**
+	 * Binds this context to a JList selection; optionally restricts accepted types.
+	 */
 	public final SingleContext<T> bind(final JList<T> list, Class<?>... classes) {
 		// final SingleContext result = new SingleContext(list.getName() +
 		// " selection");
@@ -113,6 +118,9 @@ public class SingleContext<T> extends Context {
 		return result;
 	}
 
+	/**
+	 * Binds this context to a JTree selection; optionally restricts accepted types.
+	 */
 	public final SingleContext<T> bind(final JTree tree, Class<?>... classes) {
 		// final SingleContext result = new SingleContext(tree.getName() +
 		// " selection");

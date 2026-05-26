@@ -139,7 +139,8 @@ public class Query implements TemplateMethodModelEx {
 
 		@Override
 		public void close() throws IOException {
-			if (closed) return;
+			if (closed)
+				return;
 			closed = true;
 			try {
 				rs.close();

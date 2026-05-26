@@ -6,10 +6,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * třída pro uchovávání výsledku vyhledávání v kontextu
- *
- */
+/** Wraps the result of a key lookup in the context tree. */
 public class ContextSearchResult {
 	private static final Logger log = LogManager.getLogger();
 
@@ -27,11 +24,7 @@ public class ContextSearchResult {
 		return ctx;
 	}
 
-	/**
-	 * vrátí výsledek vyhledávání
-	 *
-	 * @return
-	 */
+	/** Returns the found value; logs an error if the result is invalid. */
 	public Object getResult() {
 		if (!isValid()) {
 			// throw new InvalidObjectException("Empty value!");
@@ -40,34 +33,22 @@ public class ContextSearchResult {
 		return result;
 	}
 
-	/**
-	 * obsahuje stav platnosti výsledku
-	 */
+	/** Whether the lookup found a matching value. */
 	Boolean valid;
 
-	/**
-	 * vrací klíč, pro který bylo vyhledávání provedeno
-	 *
-	 * @return
-	 */
+	/** Returns the key used for the lookup. */
 	public Object getKey() {
 		return key;
 	}
 
-	/**
-	 * vrací platnost výsledku
-	 *
-	 * @return
-	 */
+	/** Returns true if a value was found for the key. */
 	public boolean isValid() {
 		return valid;
 	}
 
 	/**
-	 * factory na neplatné výsledky (náhrada null)
-	 *
-	 * @param key
-	 * @return
+	 * Creates an invalid (not-found) result as a null-safe substitute for a missing
+	 * value.
 	 */
 	public static ContextSearchResult getInvalid(Context ctx, Object key) {
 		ContextSearchResult res = new ContextSearchResult(null, key, null);
@@ -81,12 +62,7 @@ public class ContextSearchResult {
 		this.key = key;
 	}
 
-	/**
-	 * sestaví nový výsledek pro předání
-	 *
-	 * @param key
-	 * @param value
-	 */
+	/** Creates a valid result containing the found value. */
 	public ContextSearchResult(Context _ctx, Object key, Object value) {
 		this.valid = true;
 		this.result = value;
@@ -96,10 +72,12 @@ public class ContextSearchResult {
 
 	private Integer LTL = 0;
 
+	/** Returns the number of level boundaries crossed to reach this result. */
 	public Integer getLevelsCrossed() {
 		return LTL;
 	}
 
+	/** Sets the number of level boundaries crossed. */
 	public void setLevelsCrossed(Integer levelsCrossed) {
 		LTL = levelsCrossed;
 	}

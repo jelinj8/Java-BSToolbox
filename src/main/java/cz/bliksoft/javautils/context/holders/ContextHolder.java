@@ -7,13 +7,21 @@ import cz.bliksoft.javautils.StringUtils;
 import cz.bliksoft.javautils.context.Context;
 import cz.bliksoft.javautils.context.ContextSearchResult;
 
+/**
+ * Abstract context that delegates value reads and writes to its first child
+ * context.
+ */
 public class ContextHolder extends Context {
 	private static final Logger log = LogManager.getLogger();
 
+	/** Creates a holder with the given debug label. */
 	public ContextHolder(String comment) {
 		super(comment);
 	}
 
+	/**
+	 * Delegates to the first child; returns an invalid result if no child is set.
+	 */
 	@Override
 	public ContextSearchResult getValue(Object key) {
 		if (childContexts.isEmpty())
@@ -22,15 +30,16 @@ public class ContextHolder extends Context {
 		return ctx.getValue(key);
 	}
 
+	/** Delegates to the first child via {@code put(null, value)}. */
 	@Override
 	public void addValue(Object value) {
 		put(null, value);
 	}
 
-	@Override
-	/*
-	 * add value into child context (key is optional for lists)
+	/**
+	 * Delegates to the first child; logs an error and no-ops if no child is set.
 	 */
+	@Override
 	public void put(Object key, Object value) {
 		if (childContexts.isEmpty()) {
 			log.error("Can't put value into empty SingleContextContainer ({})", comment);
@@ -45,6 +54,7 @@ public class ContextHolder extends Context {
 			((Context) ctx).addValue(value);
 	}
 
+	/** Returns true if a child context is currently attached. */
 	public boolean isSet() {
 		return !childContexts.isEmpty();
 	}

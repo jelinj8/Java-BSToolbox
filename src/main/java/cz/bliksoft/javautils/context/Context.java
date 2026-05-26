@@ -16,15 +16,13 @@ import cz.bliksoft.javautils.collections.WeakIdentityHashMap;
 import cz.bliksoft.javautils.context.events.EventListener;
 import cz.bliksoft.javautils.context.holders.SingleContextHolder;
 
-/**
- * základní třída pro aplikační kontext
- *
- */
+/** Base class for the application context tree. */
 public class Context {
 	private static final Logger log = LogManager.getLogger();
 
 	private static WeakIdentityHashMap<IContextProvider, Context> contextProviderContexts = new WeakIdentityHashMap<>();
 
+	/** Returns (or auto-creates) the context associated with the given provider. */
 	public static Context getContextProviderContext(IContextProvider key) {
 		return contextProviderContexts.computeIfAbsent(key,
 				k -> new EmptyContext("Default context for " + getAbbrevDescription(key)));
@@ -32,7 +30,7 @@ public class Context {
 
 	/**
 	 * Wrap a provided context in a level context with comment
-	 * 
+	 *
 	 * @param content
 	 * @param comment
 	 * @return
@@ -45,28 +43,16 @@ public class Context {
 		return ctx;
 	}
 
-	/**
-	 * zařazené kontexty
-	 */
+	/** Child contexts registered under this node. */
 	protected ArrayList<Context> childContexts = new ArrayList<>();
-	/**
-	 * rodičovské kontexty
-	 */
+	/** Parent contexts this node is registered under. */
 	protected ArrayList<Context> parentContexts = new ArrayList<>();
-	/**
-	 * listenery tohoto kontextu
-	 */
+	/** Listeners observing value changes in this context. */
 	protected ArrayList<AbstractContextListener<?>> contextListeners = new ArrayList<>();
-	/**
-	 * komentář ke kontextu - obvykle specifikace účelu
-	 */
+	/** Human-readable label used for debugging. */
 	protected String comment;
 
-	/**
-	 * konstruktor
-	 *
-	 * @param comment komentář pro debugging
-	 */
+	/** Creates a context node with the given debug label. */
 	public Context(String comment) {
 		this.comment = comment;
 	}
@@ -89,9 +75,8 @@ public class Context {
 	}
 
 	/**
-	 * zaregistruje jiný kontext jako svůj podřazený
-	 *
-	 * @param context
+	 * Registers a context as a child of this one; no-op if already registered or
+	 * null.
 	 */
 	public void addContext(Context context) {
 		if (context == null)
@@ -106,11 +91,7 @@ public class Context {
 		context.notifyContextAllAdded(this);
 	}
 
-	/**
-	 * odregistruje podřazený kontext
-	 *
-	 * @param context
-	 */
+	/** Removes a previously registered child context. */
 	public void removeContext(Context context) {
 		if (context == null)
 			return;
@@ -127,9 +108,7 @@ public class Context {
 		}
 	}
 
-	/**
-	 * odebere všechny vložené kontexty
-	 */
+	/** Removes all registered child contexts. */
 	public void removeAllContexts() {
 		StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
 		log.log(Level.TRACE, "{}:{}: Removing all contexts from ''{}''", stackTraceElements[2].getClassName(),
@@ -141,11 +120,8 @@ public class Context {
 	}
 
 	/**
-	 * upozorní všechny kontexty v hierarchii nahoru na odebrání všech svých položek
-	 *
-	 * Pozor na práci s kolekcemi - notifikace může způsobit změny
-	 *
-	 * @param lowestLevel úroveň, od které má dojít k upozorňování
+	 * Notifies listeners up the hierarchy that all values in this subtree have been
+	 * removed.
 	 */
 	protected void notifyContextAllRemoved(Context lowestLevel) {
 		for (Context cont : this.childContexts) {
@@ -164,11 +140,8 @@ public class Context {
 	}
 
 	/**
-	 * upozorní všechny kontexty v hierarchii nahoru na přidání všech svých položek
-	 *
-	 * Pozor na práci s kolekcemi - notifikace může způsobit změny
-	 *
-	 * @param lowestLevel úroveň, od které má dojít k upozorňování
+	 * Notifies listeners up the hierarchy that all values in this subtree have been
+	 * added.
 	 */
 	protected void notifyContextAllAdded(Context lowestLevel) {
 		for (Context cont : this.childContexts) {
@@ -188,10 +161,8 @@ public class Context {
 	}
 
 	/**
-	 * upozorní na změnu hodnoty obsažené v kontextu. Pokud listener vrátí false, je
-	 * šíření upozornění do vyšších úrovní zastaveno
-	 *
-	 * @param value
+	 * Fires a change notification for the given result, propagating up the parent
+	 * chain unless blocked.
 	 */
 	public void notifyListeners(ContextSearchResult value) {
 		boolean propagate = true;
@@ -226,12 +197,8 @@ public class Context {
 	}
 
 	/**
-	 * vrací aktuální výsledek vyhledávání v kontextu a v podřízených kontextech
-	 * podle zadaného klíče. Pokud je klíčem Class, jsou výsledkem i objekty,
-	 * jejichž klíč je od daného typu odvozený, jinak podle .equals
-	 *
-	 * @param key vyhledávací klíč
-	 * @return
+	 * Searches this node and its children for the given key; Class keys match by
+	 * assignability.
 	 */
 	public ContextSearchResult getValue(Object key) {
 		if (key instanceof Class) {
@@ -267,10 +234,8 @@ public class Context {
 	}
 
 	/**
-	 * přidá hlídáček na kontext
-	 *
-	 * @param listener
-	 * @param initialize pro true spustí hlídáček s aktuální hodnotou
+	 * Registers a context listener; if {@code initialize} is true, fires it
+	 * immediately with the current value.
 	 */
 	public void addContextListener(AbstractContextListener<?> listener, boolean initialize) {
 		if (!this.contextListeners.contains(listener)) {
@@ -281,24 +246,17 @@ public class Context {
 		}
 	}
 
+	/** Returns the context listeners attached to this node. */
 	public List<AbstractContextListener<?>> getContextListeners() {
 		return contextListeners;
 	}
 
-	/**
-	 * přidá hlídáček na kontext
-	 *
-	 * @param listener
-	 */
+	/** Registers a context listener without an initial notification. */
 	public void addContextListener(AbstractContextListener<?> listener) {
 		addContextListener(listener, false);
 	}
 
-	/**
-	 * odebere z kontextu hlídáček
-	 *
-	 * @param listener
-	 */
+	/** Removes a previously registered context listener. */
 	public void removeContextListener(AbstractContextListener<?> listener) {
 		this.contextListeners.remove(listener);
 	}
@@ -308,16 +266,15 @@ public class Context {
 	protected boolean isLevelContext = false;
 
 	/**
-	 * jedná se o základní kontext levelu?
-	 *
-	 * @return
+	 * Returns whether this context acts as a level boundary for event propagation.
 	 */
 	public boolean isLevelContext() {
 		return isLevelContext;
 	}
 
 	/**
-	 * označí kontext jako základní kontext levelu
+	 * Marks this context as a level boundary, stopping {@link ILevelEvent}
+	 * propagation.
 	 */
 	public void setLevelContext() {
 		isLevelContext = true;
@@ -325,18 +282,24 @@ public class Context {
 
 	private static Context rootContext = null;
 
+	/** Returns the global root context, creating it on first access. */
 	public static Context getRoot() {
 		if (rootContext == null)
 			rootContext = new Context("Global context root");
 		return rootContext;
 	}
 
+	/** Returns true if the global root context has been created. */
 	public static boolean isContextInitialized() {
 		return rootContext != null;
 	}
 
 	private static SingleContextHolder currentContext = null;
 
+	/**
+	 * Returns the global switchable current-context holder, creating it on first
+	 * access.
+	 */
 	public static SingleContextHolder getCurrentContext() {
 		if (currentContext == null) {
 			currentContext = new SingleContextHolder("Switchable (current) context");
@@ -345,6 +308,7 @@ public class Context {
 		return currentContext;
 	}
 
+	/** Replaces the active context in the global current-context holder. */
 	public static void setCurrentContext(Context ctx) {
 		getCurrentContext().replaceContext(ctx);
 	}
@@ -371,6 +335,7 @@ public class Context {
 		return new HashMap<>(mapValues);
 	}
 
+	/** Adds a value to the type-indexed list; notifies listeners. */
 	public void addValue(Object value) {
 		if (!this.listValues.contains(value)) {
 			this.listValues.add(value);
@@ -378,6 +343,7 @@ public class Context {
 		}
 	}
 
+	/** Removes a value from the type-indexed list; notifies listeners. */
 	public void removeValue(Object value) {
 		if (this.listValues.contains(value)) {
 			this.listValues.remove(value);
@@ -385,6 +351,10 @@ public class Context {
 		}
 	}
 
+	/**
+	 * Stores a key-value pair and notifies listeners; passing {@code null} as value
+	 * removes the key.
+	 */
 	public void put(Object key, Object value) {
 		if (value == null) {
 			this.remove(key);
@@ -405,6 +375,7 @@ public class Context {
 		}
 	}
 
+	/** Removes the value for the given key and notifies listeners. */
 	public void remove(Object key) {
 		if (key instanceof Class) {
 			Object keyToRemove = null;
@@ -426,6 +397,7 @@ public class Context {
 
 	private LinkedList<EventListener<?>> eventListeners = new LinkedList<>();
 
+	/** Returns the event listeners on this node. */
 	public List<EventListener<?>> getEventListeners() {
 		return eventListeners;
 	}
@@ -449,6 +421,10 @@ public class Context {
 		fireEvent(event, true);
 	}
 
+	/**
+	 * Fires an event, optionally enforcing EDT; propagates up unless consumed or
+	 * blocked at a level boundary.
+	 */
 	public void fireEvent(Object event, boolean enforceEDT) {
 		if (enforceEDT && !EventListener.isEdt()) {
 			if (event != null)
@@ -472,14 +448,20 @@ public class Context {
 		}
 	}
 
+	/** Prepends an event listener so it runs before previously added listeners. */
 	public void addEventListener(EventListener<?> listener) {
 		eventListeners.addFirst(listener);
 	}
 
+	/** Removes an event listener; returns true if it was present. */
 	public boolean removeEventListener(EventListener<?> listener) {
 		return eventListeners.remove(listener);
 	}
 
+	/**
+	 * Returns a short human-readable description of an object, suitable for log
+	 * messages.
+	 */
 	public static String getAbbrevDescription(Object o) {
 		if (o == null) {
 			return "<NULL>";
@@ -499,6 +481,7 @@ public class Context {
 		}
 	}
 
+	/** Returns a full recursive text dump of this context subtree for debugging. */
 	public String dump() {
 		StringBuilder sb = new StringBuilder();
 		dump(sb, "");
@@ -529,6 +512,10 @@ public class Context {
 		}
 	}
 
+	/**
+	 * Appends this node's own values to the dump output; override to add custom
+	 * entries.
+	 */
 	protected void dumpValues(StringBuilder sb, String prefix) {
 		if (listValues != null) {
 			listValues.forEach(o -> {

@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import cz.bliksoft.javautils.StringUtils;
 import cz.bliksoft.javautils.context.events.EventListener;
 
+/** Base for listeners that observe a specific key in the context hierarchy. */
 public abstract class AbstractContextListener<T> extends EventListener<ContextChangedEvent<T>> {
 
 //	@SuppressWarnings("unchecked")
@@ -27,20 +28,16 @@ public abstract class AbstractContextListener<T> extends EventListener<ContextCh
 
 	private static final Logger log = LogManager.getLogger();
 
-	/**
-	 * klíč, který je v kontextu sledován
-	 */
+	/** The context key this listener watches. */
 	Object key;
 
-	/**
-	 * @return vyhledávací klíč
-	 */
+	/** Returns the key this listener is watching. */
 	public Object getKey() {
 		return this.key;
 	}
 
 	/**
-	 * uložený předchozí výsledek
+	 * Previously observed value; used to detect changes and replay on reactivation.
 	 */
 	ContextSearchResult oldValue = new ContextSearchResult(null, null);
 	ContextSearchResult currentValue = new ContextSearchResult(null, null);
@@ -48,11 +45,8 @@ public abstract class AbstractContextListener<T> extends EventListener<ContextCh
 	private boolean wasModified = false;
 
 	/**
-	 * určuje, zda má být hlídáček spuštěn pro hodnotu pod předaným klíčem -> zda
-	 * vlastnímu vyhledávacímu klíči vyhovuje předaná hodnota
-	 *
-	 * @param resultKey hodnota klíče, která má být ověřena proti klíči listeneru
-	 * @return
+	 * Returns true if this listener should react to a change notification for the
+	 * given key.
 	 */
 	public boolean isInterrested(Object resultKey, Integer levelsCrossed) {
 		if ((maxLevelsCrossed > -1) && (levelsCrossed > maxLevelsCrossed)) {
@@ -67,9 +61,7 @@ public abstract class AbstractContextListener<T> extends EventListener<ContextCh
 		return false;
 	}
 
-	/**
-	 * spustí kontrolu hlídáčků
-	 */
+	/** Triggers a re-evaluation of the listener's current value. */
 	protected final void fireUpdate() {
 		if (!this.active) {
 			this.setActive(true);
@@ -78,10 +70,8 @@ public abstract class AbstractContextListener<T> extends EventListener<ContextCh
 	}
 
 	/**
-	 * upozorní na změnu ve sledované hodnotě
-	 *
-	 * @param contextSearchResult
-	 * @return
+	 * Notifies this listener that the watched value may have changed; fires it if
+	 * active.
 	 */
 	protected final Boolean fireContextChanged(ContextSearchResult contextSearchResult) {
 		if (this.active) {
@@ -133,17 +123,14 @@ public abstract class AbstractContextListener<T> extends EventListener<ContextCh
 	public static final String PROP_ACTIVE = "active"; //$NON-NLS-1$
 	private boolean active = true;
 
-	/**
-	 * @return zjistí stav zapnuto/vypnuto
-	 */
+	/** Returns whether this listener is currently active. */
 	public boolean getActive() {
 		return this.active;
 	}
 
 	/**
-	 * aktivuje a deaktivuje hlídáček
-	 *
-	 * @param newValue
+	 * Activates or deactivates the listener; on reactivation, replays any missed
+	 * changes.
 	 */
 	public void setActive(boolean newValue) {
 		boolean oldActive = active;
@@ -163,10 +150,15 @@ public abstract class AbstractContextListener<T> extends EventListener<ContextCh
 
 	protected Integer maxLevelsCrossed = -1;
 
+	/**
+	 * Limits how many level boundaries a change may cross to still trigger this
+	 * listener; -1 means unlimited.
+	 */
 	public void setMaxLevelsCrossed(Integer levelsCrossed) {
 		maxLevelsCrossed = levelsCrossed;
 	}
 
+	/** Returns the current maximum-levels-crossed limit (-1 means unlimited). */
 	public Integer getMaxLevelsCrossed() {
 		return maxLevelsCrossed;
 	}

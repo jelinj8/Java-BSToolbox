@@ -3,8 +3,7 @@ package cz.bliksoft.javautils.context;
 import cz.bliksoft.javautils.StringUtils;
 
 /**
- * implementace kontextu pro připojování vnořených kontextů
- *
+ * Context implementation used as a plain container for nested child contexts.
  */
 public class EmptyContext extends Context {
 

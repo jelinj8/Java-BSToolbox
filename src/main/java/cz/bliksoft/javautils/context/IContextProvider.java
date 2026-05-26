@@ -1,17 +1,12 @@
 package cz.bliksoft.javautils.context;
 
 /**
- * Objekt poskytující vlastní systémový kontext (obvykle komponenta)<BR>
- * Pokud nemá nějaké speciální požadavky na práci s kontextem, není nutno nic
- * implementovat - default implementace se postará...
- *
+ * Implemented by objects that own a dedicated context node (typically UI
+ * components). The default implementation auto-creates a context on first
+ * access.
  */
 public interface IContextProvider {
-	/**
-	 * vrátí kontext
-	 *
-	 * @return
-	 */
+	/** Returns the context associated with this provider. */
 	public default Context getItemContext() {
 		return Context.getContextProviderContext(this);
 	}

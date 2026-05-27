@@ -112,14 +112,17 @@ public class TimestampedHashMap<K, V> implements Map<K, V> {
 	public V get(Object key) {
 		synchronized (values) {
 			TimestampedObject<V> val = values.get(key);
+			if (val == null)
+				return null;
 			if (validity < 0) {
 				values.remove(key);
+			} else if (validity > 0 && val.getTimestamp() < new Date().getTime() - validity) {
+				values.remove(key);
+				if (cleanupMethod != null)
+					itemTimedOut((K) key, val);
+				return null;
 			}
-
-			if (val != null) {
-				return val.getValue();
-			}
-			return null;
+			return val.getValue();
 		}
 	}
 

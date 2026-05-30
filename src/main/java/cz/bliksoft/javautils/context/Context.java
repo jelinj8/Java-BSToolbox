@@ -25,7 +25,7 @@ public class Context {
 	/** Returns (or auto-creates) the context associated with the given provider. */
 	public static Context getContextProviderContext(IContextProvider key) {
 		return contextProviderContexts.computeIfAbsent(key,
-				k -> new EmptyContext("Default context for " + getAbbrevDescription(key)));
+				k -> new Context("Default context for " + getAbbrevDescription(key)));
 	}
 
 	/**

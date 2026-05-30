@@ -13,6 +13,7 @@ mvn clean compile -DskipTests   # compile only
 mvn test                         # run tests
 mvn package                      # build JAR (deps copied to target/lib/)
 mvn test -Dtest=ClassName        # run a single test class
+mvn formatter:format             # format Java sources (run after every code change)
 ```
 
 ## Architecture

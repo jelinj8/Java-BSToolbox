@@ -13,11 +13,12 @@ Singleton. Access via `FileSystem.getDefault()`.
 | Method | Description |
 |---|---|
 | `importXml(InputStream, String resourceId)` | Parse and merge an XML descriptor into the filesystem |
-| `getFile(String path)` | Retrieve a `FileObject` by absolute path (e.g. `"/config/logging"`) |
-| `getFile(String basePath, String fileName)` | Retrieve a child relative to a base path |
-| `loadTranslations()` | Load localised display names from `translations` sections |
-| `getTranslation(String translationId)` | Look up a translation by ID |
-| `setLocaleCode(String locale)` | Override the active locale |
+| `getFile(String path)` | Retrieve a `FileObject` by path (e.g. `"config/logging"`) |
+| `getFile(String basePath, String... subpaths)` | Retrieve a node by path segments |
+| `loadTranslations()` | Walk the `/translations` folder and populate the translation map; call once after all modules are loaded |
+| `getTranslation(String translationId)` | Look up a translation by ID; returns `null` if not found |
+| `addTranslation(String key, String value)` | Register a single translation entry programmatically; logs an error on duplicate keys |
+| `addTranslations(Map<String,String> translations)` | Register multiple translation entries at once |
 
 ### `FileObject`
 
@@ -46,8 +47,11 @@ Represents a file or folder node. JAXB-serialisable; maps to `<file>` in the XML
 | `boolean isDirectory()` | `true` when the node has children |
 | `FileObject getFile(String name)` | Get a direct child by name |
 | `List<FileObject> getChildFiles()` | All direct children |
-| `String getFullPath()` | Absolute path, e.g. `"/folder/file"` |
-| `Map<String,FileAttribute> getAttributes()` | Custom attribute map |
+| `String getPath()` | Path from root, e.g. `"config/logging"` |
+| `Map<String,FileAttribute> getAttributes()` | Raw attribute map (values and optional translation IDs) |
+| `String getAttribute(String name, String def)` | Raw attribute value, or `def` if absent |
+| `String getLocalizedAttribute(String name, String def)` | Translated attribute value; falls back to raw value then `def` |
+| `String getLocalizedName()` | Translated display name; falls back to `name`, or `<$translationId$>` if key is missing |
 | `void importFile(FileObject fo)` | Merge another `FileObject` into this node |
 
 **XML child elements:**
@@ -104,20 +108,104 @@ Marker interface. Classes that implement it receive their corresponding `FileObj
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<file name="root">
+<root xmlns="http://bliksoft.cz/XmlFilesystem">
+
   <file name="config" type="folder">
     <file name="database" type="dbConfig">
       <attribute name="url" value="${DB_URL}"/>
     </file>
-    <include path="/META-INF/optional-extra.xml"/>
-    <require path="/META-INF/mandatory.xml"/>
   </file>
 
-  <translations>
-    <translation id="menu.open" default="Open"/>
-  </translations>
+  <include path="/etc/optional-extra.xml"/>
+  <require path="/etc/mandatory.xml"/>
+
+  <!-- Translations: each child file's name becomes the translation ID.
+       Locale codes and the "default" fallback are <attribute> children. -->
+  <file name="translations">
+    <file name="menu.open">
+      <attribute name="default" value="Open"/>
+      <attribute name="en"      value="Open"/>
+      <attribute name="cs"      value="Otevřít"/>
+    </file>
+    <file name="menu.save">
+      <attribute name="default" value="Save"/>
+      <attribute name="cs"      value="Uložit"/>
+    </file>
+    <file name="config">
+      <file name="title">
+        <attribute name="default" value="Configuration"/>
+        <attribute name="cs"      value="Konfigurace"/>
+      </file>
+    </file>
+  </file>
+
+</root>
+```
+
+## Localization
+
+The localization system maps string translation IDs to locale-specific display strings. It is used for `FileObject` node names and attribute values.
+
+### Translation storage
+
+Translations are stored as a regular folder in the filesystem at the path `translations`. Each leaf node in that folder represents one translation entry. The translation ID is the node's path relative to `translations/`, with `/` as the separator. Folder nodes group related translations but have no translation value themselves.
+
+```
+translations/
+  menu.open        → ID "menu.open"
+  menu.save        → ID "menu.save"
+  config/
+    title          → ID "config/title"
+```
+
+The locale-specific string and the `default` fallback are stored as `<attribute>` child nodes of the translation file, named after the locale code (e.g. `en`, `cs`).
+
+```xml
+<file name="translations">
+  <file name="menu.open">
+    <attribute name="default" value="Open"/>
+    <attribute name="en"      value="Open"/>
+    <attribute name="cs"      value="Otevřít"/>
+  </file>
+  <file name="config">
+    <file name="title">
+      <attribute name="default" value="Configuration"/>
+      <attribute name="cs"      value="Konfigurace"/>
+    </file>
+  </file>
 </file>
 ```
+
+### Locale selection
+
+The active locale code defaults to `Locale.getDefault().getLanguage()` at class-load time (e.g. `"en"`, `"cs"`). It can be overridden by writing to `FileSystem.localeCode` before `loadTranslations()` is called.
+
+### Loading translations
+
+Call `FileSystem.loadTranslations()` once, after all module descriptors have been imported. It walks the `translations` folder and populates an internal map. Translations can also be registered programmatically with `addTranslation` / `addTranslations`, which is useful for test fixtures or dynamic entries.
+
+### Using translations on nodes
+
+Set the `translation` attribute on a `<file>` element to the translation ID for that node's display name:
+
+```xml
+<file name="openItem" type="menuItem" translation="menu.open">
+  <attribute name="tooltip" value="Open a file" translation="menu.open"/>
+</file>
+```
+
+- `getLocalizedName()` returns the translated string for the node's `translation` key. If no translation is found it returns the raw `name`; if the key is registered but has no matching string it returns `<$translationId$>`.
+- `getLocalizedAttribute(name, def)` resolves an attribute's `translation` key from the same map. If the key yields no result it falls back to the raw attribute value; if the attribute is absent it returns `def`.
+- `getAttribute(name, def)` always returns the raw value, ignoring any translation key.
+
+### `FileAttribute` structure
+
+Each entry in `getAttributes()` is a `FileAttribute` with two fields:
+
+| Field | Description |
+|---|---|
+| `value` | Raw string value from the `value` XML attribute or the element's text content |
+| `translationID` | Optional translation ID from the `translation` XML attribute; `null` for non-translatable attributes |
 
 ## Module integration
 

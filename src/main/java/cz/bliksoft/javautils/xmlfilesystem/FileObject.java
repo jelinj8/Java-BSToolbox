@@ -920,6 +920,32 @@ public class FileObject implements Comparable<Object> {
 		return getAttribute(key, null);
 	}
 
+	public String getTranslationKey() {
+		return translation;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public String getTargetId() {
+		return target;
+	}
+
+	public int getOrder() {
+		return order;
+	}
+
+	public boolean isSorted() {
+		return sorted;
+	}
+
+	public String getAttributeTranslationId(String key) {
+		initAttributes();
+		FileAttribute a = attributes != null ? attributes.get(key) : null;
+		return a != null ? a.translationID : null;
+	}
+
 	public String dump() {
 		StringBuilder sb = new StringBuilder();
 		dump(sb, "");

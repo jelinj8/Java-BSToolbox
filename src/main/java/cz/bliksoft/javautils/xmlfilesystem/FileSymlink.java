@@ -12,7 +12,7 @@ public class FileSymlink extends FileObject {
 
 	private boolean targetInitialized = false;
 
-	public FileObject getTarget() {
+	public FileObject getTargetFile() {
 		if (!targetInitialized) {
 			targetInitialized = true;
 			targetFile = getFile(targetPath);
@@ -28,7 +28,7 @@ public class FileSymlink extends FileObject {
 		if (initializedChildren)
 			return;
 		initializedChildren = true;
-		getTarget();
+		getTargetFile();
 		if (targetFile != null)
 			this.children = targetFile.children;
 	}
@@ -37,7 +37,7 @@ public class FileSymlink extends FileObject {
 
 	@Override
 	public Boolean getLocked() {
-		getTarget();
+		getTargetFile();
 		if (targetFile != null)
 			return targetFile.getLocked();
 		else
@@ -51,7 +51,7 @@ public class FileSymlink extends FileObject {
 			return;
 		initializedAttributes = true;
 
-		getTarget();
+		getTargetFile();
 		if (targetFile != null && targetFile.getAttributes() != null) {
 			if (attributes == null) {
 				attributes = new HashMap<String, FileObject.FileAttribute>();
@@ -72,8 +72,8 @@ public class FileSymlink extends FileObject {
 
 	@Override
 	public String toString() {
-		if (getTarget() != null)
-			return "LINK:" + this.name + " (" + this.resourceId + ") -> " + getTarget().getFullPath(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		if (getTargetFile() != null)
+			return "LINK:" + this.name + " (" + this.resourceId + ") -> " + getTargetFile().getFullPath(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		else
 			return "BROKEN LINK:" + this.name + " (" + this.resourceId + ") -> !" + targetPath; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}

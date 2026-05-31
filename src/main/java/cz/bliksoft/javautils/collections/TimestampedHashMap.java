@@ -108,6 +108,7 @@ public class TimestampedHashMap<K, V> implements Map<K, V> {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public V get(Object key) {
 		synchronized (values) {

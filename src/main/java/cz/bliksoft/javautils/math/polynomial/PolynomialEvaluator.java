@@ -206,8 +206,12 @@ public class PolynomialEvaluator {
 	 * @return the result as a {@code double}
 	 */
 	public static double eval(String expression) {
-		return new Parser(expression, globalFunctions(), globalVariables(), GLOBAL_DOLLAR_GETTER, GLOBAL_AT_GETTER)
-				.parse();
+		try {
+			return new Parser(expression, globalFunctions(), globalVariables(), GLOBAL_DOLLAR_GETTER, GLOBAL_AT_GETTER)
+					.parse();
+		} catch (IllegalArgumentException e) {
+			throw new IllegalArgumentException("Error evaluating '" + expression + "': " + e.getMessage(), e);
+		}
 	}
 
 	/**
@@ -221,7 +225,11 @@ public class PolynomialEvaluator {
 	 * @throws IllegalArgumentException if the expression contains an identifier
 	 */
 	public static double evalFast(String expression) {
-		return new Parser(expression, null, null, null, null).parse();
+		try {
+			return new Parser(expression, null, null, null, null).parse();
+		} catch (IllegalArgumentException e) {
+			throw new IllegalArgumentException("Error evaluating '" + expression + "': " + e.getMessage(), e);
+		}
 	}
 
 	/**
@@ -239,7 +247,11 @@ public class PolynomialEvaluator {
 		vars.putAll(localVariables);
 		ToDoubleFunction<String> dg = localDollarGetter != null ? localDollarGetter : GLOBAL_DOLLAR_GETTER;
 		ToDoubleFunction<String> ag = localAtGetter != null ? localAtGetter : GLOBAL_AT_GETTER;
-		return new Parser(expression, fns, vars, dg, ag).parse();
+		try {
+			return new Parser(expression, fns, vars, dg, ag).parse();
+		} catch (IllegalArgumentException e) {
+			throw new IllegalArgumentException("Error evaluating '" + expression + "': " + e.getMessage(), e);
+		}
 	}
 
 	private static class Parser {
@@ -371,6 +383,7 @@ public class PolynomialEvaluator {
 		private double parseIdentifierOrCall() {
 			if (functions == null && variables == null && dollarGetter == null && atGetter == null)
 				throw new IllegalArgumentException("Identifiers not supported in fast mode at position " + pos);
+			int nameStart = pos;
 			String name = parseIdentifier();
 			char first = name.charAt(0);
 
@@ -400,7 +413,8 @@ public class PolynomialEvaluator {
 					pos++;
 					PolynomialFunction fn = functions != null ? functions.get(name) : null;
 					if (fn == null)
-						throw new IllegalArgumentException("Unknown function: " + name);
+						throw new IllegalArgumentException(
+								"Unknown function: '" + name + "' at position " + nameStart + " in '" + input + "'");
 					double[] argArray = new double[args.size()];
 					for (int i = 0; i < args.size(); i++)
 						argArray[i] = args.get(i);
@@ -411,7 +425,8 @@ public class PolynomialEvaluator {
 			// Variable lookup — covers regular names and $ / @ when no getter registered
 			Double val = variables != null ? variables.get(name) : null;
 			if (val == null)
-				throw new IllegalArgumentException("Unknown variable: " + name);
+				throw new IllegalArgumentException(
+						"Unknown variable: '" + name + "' at position " + nameStart + " in '" + input + "'");
 			return val;
 		}
 

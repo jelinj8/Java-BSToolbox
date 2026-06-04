@@ -31,7 +31,7 @@ public class ValueDLG extends JPanel {
 		gridBagLayout.rowWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
 		setLayout(gridBagLayout);
 
-		lblCaptionLabel = new JLabel("New label");
+		lblCaptionLabel = new JLabel("");
 		GridBagConstraints gbc_lblCaptionLabel = new GridBagConstraints();
 		gbc_lblCaptionLabel.anchor = GridBagConstraints.WEST;
 		gbc_lblCaptionLabel.gridwidth = 2;

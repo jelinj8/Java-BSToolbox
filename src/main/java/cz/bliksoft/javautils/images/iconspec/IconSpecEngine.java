@@ -43,34 +43,117 @@ import cz.bliksoft.javautils.images.svg.SvgConverter;
 import cz.bliksoft.javautils.math.polynomial.PolynomialEvaluator;
 
 /**
- * Toolkit-agnostic icon-spec resolution engine, operating entirely on
- * {@link BufferedImage} (and the {@code int[] argb + width + height}
- * representation consumed by {@link PixelOps}). This is the portable core of
- * what was originally {@code cz.bliksoft.javautils.fx.tools.ImageUtils} in
- * BSToolbox-jfx — usable from Swing UIs and server-side template rendering
- * (Freemarker), not just JavaFX.
+ * Toolkit-agnostic icon-spec resolution engine: resolves a compact <em>icon
+ * spec string</em> to a single {@link BufferedImage}, working internally on the
+ * {@code int[] argb + width + height} representation provided by
+ * {@link PixelOps}. It has no JavaFX dependency and is usable directly from
+ * Swing UIs and server-side template rendering (e.g. the Freemarker
+ * {@code Base64IconSpec} extension), as well as from JavaFX —
+ * {@code cz.bliksoft.javautils.fx.tools.ImageUtils} (BSToolbox-jfx) wraps
+ * {@link #createImage(String)} and converts the resulting {@link BufferedImage}
+ * to {@link javafx.scene.image.Image} at the boundary.
  *
  * <p>
- * An <em>icon spec string</em> resolves to a single image, either directly
- * (file name, {@code EMPTY}, {@code QR}, inline SVG path, …) or via postfix
+ * An icon spec resolves either directly to a single image, or via postfix
  * composition — {@code #}-separated tokens where non-{@code *} tokens are
  * pushed onto a stack and {@code *}-prefixed tokens are commands operating on
- * the stack. See the original {@code ImageUtils} javadoc (BSToolbox-jfx) for
- * the full spec-language reference; the language is unchanged by this port,
- * with one exception: the JavaFX-specific {@code *JFXSTYLE|css} command is
- * generalized to a toolkit-agnostic {@code *META|key|value} metadata side
- * channel (with {@code *JFXSTYLE|css} retained as sugar for
- * {@code *META|jfxStyle|css}). Callers can read back per-resolution metadata
- * via {@link #getLastMetadata()}.
+ * the stack and a shared "mode" map (alignment, offsets, drawing colors, …).
+ * The result is the top of the stack.
+ *
+ * <h2>Single-image formats</h2>
+ * <ul>
+ * <li>{@code name.png} / {@code name.svg} / {@code name.ico} — resolved
+ * relative to the branding images root ({@link #setBrandingImagesRoot})</li>
+ * <li>{@code /absolute/path.png} — absolute classpath resource</li>
+ * <li>{@code [F]:/filesystem/path.png} — explicit file-system path (also
+ * supported for {@code .svg} / {@code .ico})</li>
+ * <li>{@code name.svg|w|h|scale|stroke|fill} — SVG rendered via
+ * {@link SvgConverter}, with optional size and color overrides; {@code w}/
+ * {@code h} default to the SVG's natural aspect ratio if omitted, and
+ * {@code stroke}/{@code fill} accept bare hex ({@code ff0000},
+ * {@code ff000080}), {@code 0xRRGGBB[AA]}, CSS named colors, or
+ * {@code rgb(...)}/{@code rgba(...)}</li>
+ * <li>{@code name.ico|w|h} — Windows icon, decoded and best-fit scaled via
+ * {@link IcoReader}</li>
+ * <li>{@code QR|ec|moduleSize|targetSize|data} — QR code rendered via
+ * {@link QRGenerator} ({@code ec}: error-correction level name {@code L}/
+ * {@code M}/{@code Q}/{@code H})</li>
+ * <li>{@code EMPTY|size} / {@code EMPTY|w|h} / {@code EMPTY|w|h|color} —
+ * synthetic transparent or solid-color canvas; useful as the base layer in
+ * overlay chains</li>
+ * <li>{@code [PI]:<pathData>|w|h|scale|style} — inline SVG path data,
+ * rasterized by wrapping it in a synthetic {@code <svg><path d="..."/></svg>}
+ * document and rendering it through {@link SvgConverter}</li>
+ * </ul>
  *
  * <p>
- * Token substitution (e.g. {@code ${scale}}) and outer-level result caching are
- * toolkit-specific concerns and are handled by callers (e.g. jfx
- * {@code ImageUtils} substitutes tokens before calling {@link #createImage},
- * then layers its own {@code Image}-keyed cache on top to avoid repeated
- * {@code BufferedImage → Image} conversions). The engine retains only the
- * spec-internal {@code *GET_CACHE}/{@code *PUT_CACHE}/{@code *CLEAR_CACHE}
- * cache, which is part of the spec language itself.
+ * {@code [P]:}/{@code [PS]:} (layoutable {@code SVGPath}/{@code Shape}
+ * scene-graph nodes) are JavaFX scene-graph concepts handled by the JavaFX
+ * adapter before delegating here; {@link #parsePathSpec} is exposed so that
+ * adapters can reuse the shared {@code <pathData>|w|h|scale|style} parsing for
+ * all three {@code [P]:}/{@code [PI]:}/{@code [PS]:} prefixes.
+ *
+ * <h2>Postfix composition commands</h2>
+ * <p>
+ * {@code #}-separated, e.g. a badge overlay at the bottom-right corner:
+ * {@code base.svg|24#badge.svg|12#*+}.
+ * <ul>
+ * <li>{@code *+|canvasMode} / {@code *-|canvasMode} — composite the top of the
+ * stack over / cut it out of (SRC_OVER / DST_OUT) the image below it;
+ * {@code canvasMode}: {@code C} = crop the result to the base size (default),
+ * {@code E} = extend the canvas to the union bounding box</li>
+ * <li>{@code *ANCHOR|position|offsetX|offsetY} — sets sticky alignment used by
+ * subsequent compose/{@code *TEXT}/{@code *DRAW} operations; positions:
+ * {@code TL}, {@code TR}, {@code BL}, {@code BR} (default), {@code C},
+ * {@code N} (standalone — no compositing)</li>
+ * <li>{@code *EMPTY|w|h|color}, {@code *QR|ec|moduleSize|targetSize|data} —
+ * push a synthetic canvas / QR code onto the stack</li>
+ * <li>{@code *META|key|value} — toolkit-agnostic sticky metadata side-channel:
+ * stashes a key/value pair for the current {@link #createImage} evaluation
+ * without affecting the pixels, readable back via {@link #getLastMetadata()};
+ * {@code *JFXSTYLE|css} is sugar for {@code *META|jfxStyle|css}, used by the
+ * JavaFX adapter to style the resulting {@code ImageView}</li>
+ * <li>{@code *COLOR|stroke|fill|width} — sets sticky drawing colors and stroke
+ * width consumed by {@code *TEXT}/{@code *DRAW} ({@code none} = no paint)</li>
+ * <li>{@code *TEXT|value|size|font|style} — renders text using the current
+ * {@code *COLOR} fill/stroke (style flags: {@code B}old, {@code I}talic,
+ * {@code U}nderline, {@code S}trikethrough, {@code O}utline; prefix a flag with
+ * {@code -} to remove it, a bare {@code -} clears all)</li>
+ * <li>{@code *DRAW|shape|...params...|t} — draws onto the top canvas using the
+ * current {@code *COLOR} fill/stroke ({@code t}, if present, overrides the
+ * stroke width for this call only); shapes: {@code line|x1|y1|x2|y2},
+ * {@code circle|cx|cy|r}, {@code square|x|y|side},
+ * {@code rectangle|x|y|w|h}</li>
+ * <li>{@code *PUSH}, {@code *SWAP}, {@code *COPY}, {@code *PASTE},
+ * {@code *POP}, {@code *RESET} — stack and clipboard manipulation;
+ * {@code *RESET} also clears the mode map (alignment reverts to
+ * {@code BR, 0, 0})</li>
+ * <li>{@code *GET_CACHE|key} / {@code *PUT_CACHE|key} /
+ * {@code *CLEAR_CACHE|key} — explicit, user-keyed cache for reusing composed
+ * sub-images across evaluations: {@code GET} pushes the cached image (if
+ * present) and skips to the matching {@code PUT_CACHE}, otherwise falls through
+ * so the following tokens rebuild it; {@code PUT} stores the stack top under
+ * the key</li>
+ * <li>{@code *NOCACHE} — marks this evaluation as one the caller should not
+ * store in its own outer cache (see {@link #wasNoCacheRequested()})</li>
+ * <li>{@code *FILTER|name|p1|p2|p3} — applies a pixel-level {@link ImageFilter}
+ * to the top of the stack in place; {@code **|name|p1|p2|p3} is equivalent to
+ * {@code *COPY # *FILTER|name|... # *- # *PASTE # *+} (apply the filter to a
+ * copy, cut its silhouette out of the base, then recompose the original top
+ * over the result — used by silhouette-expanding filters such as shadow/
+ * outline). See {@link ImageFilter} for the full filter reference (shadow,
+ * outline, rotate, shift, scale, resize, mask, monochrome, keymask,
+ * mirror)</li>
+ * <li>{@code *SET|name|value} — registers a numeric variable usable in
+ * polynomial size/position expressions via {@link PolynomialEvaluator}</li>
+ * </ul>
+ *
+ * <p>
+ * Token substitution (e.g. {@code ${scale}}) and outer-level result caching by
+ * resolved spec string are toolkit-specific concerns left to callers — the
+ * engine itself provides only the spec-internal {@code *GET_CACHE}/
+ * {@code *PUT_CACHE}/{@code *CLEAR_CACHE} cache described above, which is part
+ * of the spec language itself.
  */
 public final class IconSpecEngine {
 

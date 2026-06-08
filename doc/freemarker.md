@@ -81,6 +81,7 @@ Registered automatically in every `FreemarkerGenerator` instance. Available in a
 | `CMDWrite` | `CMDWrite` | Writes text to stdout |
 | `Base64File` | `Base64File` | Encodes a file's bytes as a Base64 string |
 | `Base64QR` | `Base64QR` | Generates a QR code image and returns it as Base64 (requires ZXing) |
+| `Base64IconSpec` | `Base64IconSpec` | Resolves an icon-spec string (see [`IconSpecEngine`](image-utils.md#iconspecengine)) to a PNG and returns it as Base64 — no JavaFX required |
 | `LogVariable` | `LogVariable` | Logs a variable's value |
 | `LogMessage` | `LogMessage` | Logs a literal message |
 | `SystemMessage` | `SystemMessage` | Shows a system message (log or dialog) |

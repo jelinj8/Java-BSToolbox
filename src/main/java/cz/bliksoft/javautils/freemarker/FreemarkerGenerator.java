@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 
 import cz.bliksoft.javautils.freemarker.extensions.TextReplacer;
 import cz.bliksoft.javautils.freemarker.extensions.global.Base64File;
+import cz.bliksoft.javautils.freemarker.extensions.global.Base64IconSpec;
 import cz.bliksoft.javautils.freemarker.extensions.global.Base64QR;
 import cz.bliksoft.javautils.freemarker.extensions.global.CMDPrompt;
 import cz.bliksoft.javautils.freemarker.extensions.global.CMDWrite;
@@ -264,6 +265,7 @@ public class FreemarkerGenerator {
 		res.put("CMDWrite", new CMDWrite()); //$NON-NLS-1$
 		res.put("Base64File", new Base64File()); //$NON-NLS-1$
 		res.put("Base64QR", new Base64QR()); //$NON-NLS-1$
+		res.put("Base64IconSpec", new Base64IconSpec()); //$NON-NLS-1$
 		res.put("LogVariable", new LogVariable()); //$NON-NLS-1$
 		res.put("LogMessage", new LogMessage()); //$NON-NLS-1$
 		res.put("SystemMessage", new SystemMessage()); //$NON-NLS-1$

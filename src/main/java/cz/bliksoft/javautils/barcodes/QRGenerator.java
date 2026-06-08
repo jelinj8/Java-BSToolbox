@@ -10,17 +10,25 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
+import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
+
+import cz.bliksoft.javautils.StringUtils;
 
 /**
  * Utility class for generating QR code images using ZXing. Requires
  * {@code com.google.zxing:core} on the classpath.
  */
 public class QRGenerator {
+
+	private static final Logger log = LogManager.getLogger();
 
 	/**
 	 * Encodes {@code contents} as a QR code bit matrix.
@@ -130,6 +138,66 @@ public class QRGenerator {
 		}
 
 		return image;
+	}
+
+	/**
+	 * Rasterizes a ZXing bit matrix into a black/white ARGB image with no quiet
+	 * zone, replicating each module into a {@code moduleSize}×{@code moduleSize}
+	 * pixel block.
+	 */
+	public static BufferedImage rasterize(BitMatrix matrix, int moduleSize) {
+		int modules = matrix.getWidth();
+		int mult = Math.max(1, moduleSize);
+		int pixelSize = modules * mult;
+
+		BufferedImage img = new BufferedImage(pixelSize, pixelSize, BufferedImage.TYPE_INT_ARGB);
+		int[] row = new int[pixelSize];
+
+		for (int y = 0; y < modules; y++) {
+			for (int x = 0; x < modules; x++) {
+				int argb = matrix.get(x, y) ? 0xFF000000 : 0xFFFFFFFF;
+				for (int dx = 0; dx < mult; dx++)
+					row[x * mult + dx] = argb;
+			}
+			for (int dy = 0; dy < mult; dy++)
+				img.setRGB(0, y * mult + dy, pixelSize, 1, row, 0, pixelSize);
+		}
+		return img;
+	}
+
+	/**
+	 * Encodes {@code data} as a QR code and rasterizes it for icon-spec use, with
+	 * no quiet zone. {@code errorCorrectionLevel} defaults to {@code M} (and falls
+	 * back to it with a warning if unrecognized). {@code moduleSize} defaults to 2
+	 * pixels per module; if {@code targetSize} is given, the per-module pixel size
+	 * is instead derived from the matrix's module count to best fit that overall
+	 * size, and {@code moduleSize} is ignored.
+	 */
+	public static BufferedImage render(String data, String errorCorrectionLevel, Integer moduleSize, Integer targetSize)
+			throws WriterException {
+		ErrorCorrectionLevel ec = ErrorCorrectionLevel.M;
+		if (StringUtils.hasLength(errorCorrectionLevel)) {
+			try {
+				ec = ErrorCorrectionLevel.valueOf(errorCorrectionLevel.trim().toUpperCase());
+			} catch (IllegalArgumentException e) {
+				log.warn("Unknown QR error-correction level '{}', defaulting to M", errorCorrectionLevel);
+			}
+		}
+
+		Map<EncodeHintType, Object> hints = new EnumMap<>(EncodeHintType.class);
+		hints.put(EncodeHintType.ERROR_CORRECTION, ec);
+		hints.put(EncodeHintType.MARGIN, 0);
+		BitMatrix matrix = new QRCodeWriter().encode(data, BarcodeFormat.QR_CODE, 0, 0, hints);
+
+		int moduleSz;
+		if (targetSize != null && targetSize > 0)
+			moduleSz = Math.max(1, targetSize / matrix.getWidth());
+		else if (moduleSize != null && moduleSize > 0)
+			moduleSz = moduleSize;
+		else
+			moduleSz = 2;
+
+		return rasterize(matrix, moduleSz);
 	}
 
 }

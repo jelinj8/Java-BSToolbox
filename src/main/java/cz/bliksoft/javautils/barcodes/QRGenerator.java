@@ -166,15 +166,29 @@ public class QRGenerator {
 	}
 
 	/**
-	 * Encodes {@code data} as a QR code and rasterizes it for icon-spec use, with
-	 * no quiet zone. {@code errorCorrectionLevel} defaults to {@code M} (and falls
-	 * back to it with a warning if unrecognized). {@code moduleSize} defaults to 2
-	 * pixels per module; if {@code targetSize} is given, the per-module pixel size
-	 * is instead derived from the matrix's module count to best fit that overall
-	 * size, and {@code moduleSize} is ignored.
+	 * Encodes {@code data} as a QR code and rasterizes it for icon-spec use, with a
+	 * 2-module quiet zone. {@code errorCorrectionLevel} defaults to {@code M} (and
+	 * falls back to it with a warning if unrecognized). {@code moduleSize} defaults
+	 * to 2 pixels per module; if {@code targetSize} is given, the per-module pixel
+	 * size is instead derived from the matrix's module count to best fit that
+	 * overall size, and {@code moduleSize} is ignored.
 	 */
 	public static BufferedImage render(String data, String errorCorrectionLevel, Integer moduleSize, Integer targetSize)
 			throws WriterException {
+		return render(data, errorCorrectionLevel, moduleSize, targetSize, null);
+	}
+
+	/**
+	 * Encodes {@code data} as a QR code and rasterizes it for icon-spec use.
+	 * {@code errorCorrectionLevel} defaults to {@code M} (and falls back to it with
+	 * a warning if unrecognized). {@code moduleSize} defaults to 2 pixels per
+	 * module; if {@code targetSize} is given, the per-module pixel size is instead
+	 * derived from the matrix's module count to best fit that overall size, and
+	 * {@code moduleSize} is ignored. {@code border} sets the quiet-zone thickness
+	 * in modules; {@code null} or {@code ≤ 0} defaults to 2.
+	 */
+	public static BufferedImage render(String data, String errorCorrectionLevel, Integer moduleSize, Integer targetSize,
+			Integer border) throws WriterException {
 		ErrorCorrectionLevel ec = ErrorCorrectionLevel.M;
 		if (StringUtils.hasLength(errorCorrectionLevel)) {
 			try {
@@ -184,9 +198,11 @@ public class QRGenerator {
 			}
 		}
 
+		int quietZone = (border != null && border > 0) ? border : 2;
+
 		Map<EncodeHintType, Object> hints = new EnumMap<>(EncodeHintType.class);
 		hints.put(EncodeHintType.ERROR_CORRECTION, ec);
-		hints.put(EncodeHintType.MARGIN, 0);
+		hints.put(EncodeHintType.MARGIN, quietZone);
 		BitMatrix matrix = new QRCodeWriter().encode(data, BarcodeFormat.QR_CODE, 0, 0, hints);
 
 		int moduleSz;

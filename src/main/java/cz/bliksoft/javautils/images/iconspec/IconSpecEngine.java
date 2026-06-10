@@ -106,8 +106,11 @@ import cz.bliksoft.javautils.math.polynomial.PolynomialEvaluator;
  * subsequent compose/{@code *TEXT}/{@code *DRAW} operations; positions:
  * {@code TL}, {@code TR}, {@code BL}, {@code BR} (default), {@code C},
  * {@code N} (standalone — no compositing)</li>
- * <li>{@code *EMPTY|w|h|color}, {@code *QR|ec|moduleSize|targetSize|data} —
- * push a synthetic canvas / QR code onto the stack</li>
+ * <li>{@code *EMPTY|w|h|color},
+ * {@code *QR|ec|moduleSize|targetSize|border|data} — push a synthetic canvas /
+ * QR code onto the stack; {@code border} is the quiet-zone thickness in modules
+ * (default 2); {@code data} starts at position 5 and excess {@code |} tokens
+ * are rejoined, so the payload may contain {@code |}</li>
  * <li>{@code *META|key|value} — toolkit-agnostic sticky metadata side-channel:
  * stashes a key/value pair for the current {@link #createImage} evaluation
  * without affecting the pixels, readable back via {@link #getLastMetadata()};
@@ -354,9 +357,12 @@ public final class IconSpecEngine {
 			}
 		}
 
-		// QR code: QR|ec|moduleSize|targetSize|data
+		// QR code: QR|ec|moduleSize|targetSize|border|data
+		// data starts at params[5]; excess tokens are rejoined with "|" to allow "|" in
+		// the payload
 		if (filePath.equals("QR")) { //$NON-NLS-1$
-			String data = params.length > 4 ? params[4] : ""; //$NON-NLS-1$
+			String data = params.length > 5 ? String.join("|", java.util.Arrays.copyOfRange(params, 5, params.length)) //$NON-NLS-1$
+					: ""; //$NON-NLS-1$
 			if (!StringUtils.hasLength(data)) {
 				log.warn("Invalid QR spec '{}': missing data", spec);
 				return null;
@@ -369,7 +375,10 @@ public final class IconSpecEngine {
 				Integer targetSize = (params.length > 3 && StringUtils.hasLength(params[3]))
 						? (int) Math.round(evalNum(params[3]))
 						: null;
-				return QRGenerator.render(data, ec, moduleSize, targetSize);
+				Integer border = (params.length > 4 && StringUtils.hasLength(params[4]))
+						? (int) Math.round(evalNum(params[4]))
+						: null;
+				return QRGenerator.render(data, ec, moduleSize, targetSize, border);
 			} catch (Exception e) {
 				log.warn("Failed to render QR code for spec '{}': {}", spec, e.getMessage());
 				return null;

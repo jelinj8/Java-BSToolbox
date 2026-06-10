@@ -347,6 +347,126 @@ public final class PixelOps {
 		return best;
 	}
 
+	/**
+	 * Finds the bounding box of the "foreground" object on a — possibly textured —
+	 * background, for autocrop purposes.
+	 *
+	 * <p>
+	 * The image is downscaled (longest side ≤ 200px, also acting as a smoothing
+	 * blur) so background texture noise is suppressed. Background color is then
+	 * modelled as a per-channel mean/stddev sampled from a border band of width
+	 * {@code borderFraction} of the image size. Pixels whose color deviates from
+	 * that distribution by more than {@code sigmaThreshold} standard deviations
+	 * (combined across channels) are marked as foreground; a 1px morphological
+	 * opening removes speckle noise. A row/column is considered part of the
+	 * foreground bounding box only if at least {@code minContentFraction} of its
+	 * pixels are foreground. The resulting box is scaled back to the original
+	 * resolution and expanded by {@code marginFraction} of the width/height.
+	 *
+	 * @return {@code {minX, minY, maxX, maxY}} (maxX/maxY exclusive) in the
+	 *         original image's coordinates, or {@code null} if no foreground was
+	 *         found.
+	 */
+	public static int[] foregroundBoundingBox(int[] argb, int w, int h, double sigmaThreshold,
+			double minContentFraction, double borderFraction, double marginFraction) {
+		if (w <= 0 || h <= 0)
+			return null;
+
+		final int maxDim = 200;
+		int dw = w, dh = h;
+		int[] work = argb;
+		if (Math.max(w, h) > maxDim) {
+			double s = (double) maxDim / Math.max(w, h);
+			dw = Math.max(1, (int) Math.round(w * s));
+			dh = Math.max(1, (int) Math.round(h * s));
+			work = scale(argb, w, h, dw, dh);
+		}
+
+		int bx = Math.max(1, (int) Math.round(dw * borderFraction));
+		int by = Math.max(1, (int) Math.round(dh * borderFraction));
+		double sumR = 0, sumG = 0, sumB = 0, sumR2 = 0, sumG2 = 0, sumB2 = 0;
+		int count = 0;
+		for (int y = 0; y < dh; y++) {
+			for (int x = 0; x < dw; x++) {
+				if (x >= bx && x < dw - bx && y >= by && y < dh - by)
+					continue;
+				int p = work[y * dw + x];
+				int r = (p >>> 16) & 0xFF, g = (p >>> 8) & 0xFF, b = p & 0xFF;
+				sumR += r;
+				sumG += g;
+				sumB += b;
+				sumR2 += (double) r * r;
+				sumG2 += (double) g * g;
+				sumB2 += (double) b * b;
+				count++;
+			}
+		}
+		if (count == 0)
+			return null;
+		double meanR = sumR / count, meanG = sumG / count, meanB = sumB / count;
+		final double stdFloor = 4.0;
+		double stdR = Math.max(stdFloor, Math.sqrt(Math.max(0, sumR2 / count - meanR * meanR)));
+		double stdG = Math.max(stdFloor, Math.sqrt(Math.max(0, sumG2 / count - meanG * meanG)));
+		double stdB = Math.max(stdFloor, Math.sqrt(Math.max(0, sumB2 / count - meanB * meanB)));
+
+		int[] mask = new int[dw * dh];
+		for (int i = 0; i < work.length; i++) {
+			int p = work[i];
+			double dr = ((p >>> 16) & 0xFF) - meanR;
+			double dg = ((p >>> 8) & 0xFF) - meanG;
+			double db = (p & 0xFF) - meanB;
+			double z = Math.sqrt((dr / stdR) * (dr / stdR) + (dg / stdG) * (dg / stdG) + (db / stdB) * (db / stdB));
+			mask[i] = (z > sigmaThreshold) ? 255 : 0;
+		}
+		mask = dilateAlpha(erodeAlpha(mask, dw, dh, 1), dw, dh, 1);
+
+		int minRowPixels = Math.max(1, (int) Math.ceil(dw * minContentFraction));
+		int minColPixels = Math.max(1, (int) Math.ceil(dh * minContentFraction));
+
+		int minX = -1, maxX = -1, minY = -1, maxY = -1;
+		for (int y = 0; y < dh; y++) {
+			int c = 0;
+			for (int x = 0; x < dw; x++)
+				if (mask[y * dw + x] != 0)
+					c++;
+			if (c >= minRowPixels) {
+				if (minY < 0)
+					minY = y;
+				maxY = y;
+			}
+		}
+		for (int x = 0; x < dw; x++) {
+			int c = 0;
+			for (int y = 0; y < dh; y++)
+				if (mask[y * dw + x] != 0)
+					c++;
+			if (c >= minColPixels) {
+				if (minX < 0)
+					minX = x;
+				maxX = x;
+			}
+		}
+		if (minX < 0 || minY < 0 || minX >= maxX || minY >= maxY)
+			return null;
+
+		double sx = (double) w / dw, sy = (double) h / dh;
+		int origMinX = (int) Math.floor(minX * sx);
+		int origMinY = (int) Math.floor(minY * sy);
+		int origMaxX = (int) Math.ceil((maxX + 1) * sx);
+		int origMaxY = (int) Math.ceil((maxY + 1) * sy);
+
+		int marginX = (int) Math.round(w * marginFraction);
+		int marginY = (int) Math.round(h * marginFraction);
+		origMinX = Math.max(0, origMinX - marginX);
+		origMinY = Math.max(0, origMinY - marginY);
+		origMaxX = Math.min(w, origMaxX + marginX);
+		origMaxY = Math.min(h, origMaxY + marginY);
+
+		if (origMinX >= origMaxX || origMinY >= origMaxY)
+			return null;
+		return new int[] { origMinX, origMinY, origMaxX, origMaxY };
+	}
+
 	private static int[] colorizeMaxAlpha(int[] alphaA, int[] alphaB, int argbColor) {
 		int r = (argbColor >>> 16) & 0xFF;
 		int g = (argbColor >>> 8) & 0xFF;
@@ -398,6 +518,34 @@ public final class PixelOps {
 					}
 				}
 				out[y * w + x] = maxA;
+			}
+		}
+		return out;
+	}
+
+	/**
+	 * Circular morphological erosion of an alpha channel by {@code radius} pixels.
+	 * Pixels outside the canvas are treated as 0 (background), so the foreground
+	 * shrinks away from the canvas edges too.
+	 */
+	public static int[] erodeAlpha(int[] alpha, int w, int h, int radius) {
+		int[] out = new int[w * h];
+		int r2 = radius * radius;
+		for (int y = 0; y < h; y++) {
+			for (int x = 0; x < w; x++) {
+				int minA = 255;
+				for (int dy = -radius; dy <= radius && minA > 0; dy++) {
+					int ny = y + dy;
+					for (int dx = -radius; dx <= radius && minA > 0; dx++) {
+						if (dx * dx + dy * dy > r2)
+							continue;
+						int nx = x + dx;
+						int a = (nx < 0 || nx >= w || ny < 0 || ny >= h) ? 0 : alpha[ny * w + nx];
+						if (a < minA)
+							minA = a;
+					}
+				}
+				out[y * w + x] = minA;
 			}
 		}
 		return out;

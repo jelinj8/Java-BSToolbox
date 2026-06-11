@@ -1,10 +1,12 @@
 package cz.bliksoft.javautils.net.http;
 
 import java.io.Closeable;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.security.KeyStore;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,9 +17,16 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpsConfigurator;
+import com.sun.net.httpserver.HttpsParameters;
 import com.sun.net.httpserver.HttpsServer;
 
 import cz.bliksoft.javautils.xmlfilesystem.FileObject;
@@ -111,11 +120,28 @@ public class BSHttpServer implements Closeable {
 	 */
 	public BSHttpServer(int port, HttpsConfigurator httpsConfigurator) {
 		this.httpPort = port;
+		httpHandlers = new HashMap<>();
 		this.httpsConfigurator = httpsConfigurator;
 	}
 
 	/**
-	 * Creates and starts a basic HTTP server from a {@link FileObject}
+	 * HTTPS server built from a pre-configured {@link SSLContext} (server key
+	 * managers, and for mutual TLS, client trust managers already initialized).
+	 *
+	 * @param port              TCP port to listen on
+	 * @param sslContext        SSLContext with server key managers and (optionally)
+	 *                          client-certificate trust managers
+	 * @param requireClientAuth if {@code true}, clients must present a certificate
+	 *                          trusted by {@code sslContext}'s trust managers
+	 */
+	public BSHttpServer(int port, SSLContext sslContext, boolean requireClientAuth) {
+		this.httpPort = port;
+		httpHandlers = new HashMap<>();
+		this.httpsConfigurator = createHttpsConfigurator(sslContext, requireClientAuth);
+	}
+
+	/**
+	 * Creates and starts a basic HTTP(S) server from a {@link FileObject}
 	 * configuration, allowing it to be registered as a {@code /singletons} entry
 	 * and reused via {@link #getSingleton()}.
 	 *
@@ -126,10 +152,29 @@ public class BSHttpServer implements Closeable {
 	 * <li>{@code address} (optional) - IP address/hostname to bind to, e.g. to
 	 * limit the server to {@code localhost}; if absent, listens on all
 	 * interfaces</li>
+	 * <li>{@code keystoreFile} (optional) - path to a keystore holding the server
+	 * certificate/private key; if present, the server is started in HTTPS mode</li>
+	 * <li>{@code keystorePassword} (mandatory if {@code keystoreFile} is set) -
+	 * password protecting the keystore (and used as the key password unless
+	 * {@code keyPassword} is also given)</li>
+	 * <li>{@code keystoreType} (optional, default {@code PKCS12}) - keystore
+	 * format, e.g. {@code JKS}</li>
+	 * <li>{@code keyPassword} (optional) - password for the private key entry, if
+	 * different from {@code keystorePassword}</li>
+	 * <li>{@code keyAlias} (optional) - alias of the key entry to use as the server
+	 * certificate; if absent, the {@link KeyManagerFactory} default (typically the
+	 * keystore's first/only key entry) is used. Required if the keystore holds
+	 * multiple key entries</li>
+	 * <li>{@code truststoreFile} (optional) - path to a truststore of CA
+	 * certificates; if present, the server requires clients to present a
+	 * certificate trusted by this truststore (mutual TLS)</li>
+	 * <li>{@code truststorePassword} (optional) - password protecting the
+	 * truststore, if required by its type</li>
+	 * <li>{@code truststoreType} (optional, default {@code PKCS12}) - truststore
+	 * format, e.g. {@code JKS}</li>
 	 * </ul>
 	 *
-	 * @param fo configuration node providing the {@code port}/{@code address}
-	 *           attributes
+	 * @param fo configuration node providing the attributes above
 	 */
 	public BSHttpServer(FileObject fo) {
 		String portAttr = fo.getAttribute("port", null);
@@ -147,11 +192,112 @@ public class BSHttpServer implements Closeable {
 			}
 		}
 
+		String keystoreFile = fo.getAttribute("keystoreFile", null);
+		if (keystoreFile != null) {
+			boolean requireClientAuth = fo.getAttribute("truststoreFile", null) != null;
+			this.httpsConfigurator = createHttpsConfigurator(createSSLContext(fo, keystoreFile), requireClientAuth);
+		}
+
 		try {
 			start();
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to start BSHttpServer on port " + httpPort, e);
 		}
+	}
+
+	/**
+	 * Builds a server-side {@link SSLContext} from the {@code keystoreFile} /
+	 * {@code keystorePassword} / {@code keystoreType} / {@code keyPassword}
+	 * attributes of {@code fo} (see {@link #BSHttpServer(FileObject)}).
+	 */
+	private static SSLContext createSSLContext(FileObject fo, String keystoreFile) {
+		String keystorePassword = fo.getAttribute("keystorePassword", null);
+		if (keystorePassword == null)
+			throw new IllegalArgumentException(
+					"BSHttpServer requires a 'keystorePassword' attribute when 'keystoreFile' is set");
+		String keystoreType = fo.getAttribute("keystoreType", "PKCS12");
+		String keyPassword = fo.getAttribute("keyPassword", keystorePassword);
+		String keyAlias = fo.getAttribute("keyAlias", null);
+
+		try (FileInputStream is = new FileInputStream(keystoreFile)) {
+			KeyStore keyStore = KeyStore.getInstance(keystoreType);
+			keyStore.load(is, keystorePassword.toCharArray());
+
+			if (keyAlias != null) {
+				keyStore = extractKeyEntry(keyStore, keyAlias, keyPassword);
+			}
+
+			KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+			kmf.init(keyStore, keyPassword.toCharArray());
+
+			TrustManager[] trustManagers = null;
+			String truststoreFile = fo.getAttribute("truststoreFile", null);
+			if (truststoreFile != null) {
+				String truststorePassword = fo.getAttribute("truststorePassword", null);
+				String truststoreType = fo.getAttribute("truststoreType", "PKCS12");
+				trustManagers = loadTrustManagers(truststoreFile, truststorePassword, truststoreType);
+			}
+
+			SSLContext sslContext = SSLContext.getInstance("TLS");
+			sslContext.init(kmf.getKeyManagers(), trustManagers, null);
+			return sslContext;
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to load BSHttpServer keystore " + keystoreFile, e);
+		}
+	}
+
+	/**
+	 * Loads CA certificates from {@code truststoreFile} and returns
+	 * {@link TrustManager}s for validating client certificates (mutual TLS).
+	 *
+	 * @param truststorePassword may be {@code null} for truststore types that don't
+	 *                           require one
+	 */
+	private static TrustManager[] loadTrustManagers(String truststoreFile, String truststorePassword,
+			String truststoreType) throws Exception {
+		try (FileInputStream is = new FileInputStream(truststoreFile)) {
+			KeyStore trustStore = KeyStore.getInstance(truststoreType);
+			trustStore.load(is, truststorePassword != null ? truststorePassword.toCharArray() : null);
+
+			TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+			tmf.init(trustStore);
+			return tmf.getTrustManagers();
+		}
+	}
+
+	/**
+	 * Wraps {@code sslContext} in an {@link HttpsConfigurator} that, when
+	 * {@code requireClientAuth} is {@code true}, requires clients to present a
+	 * certificate trusted by {@code sslContext}'s trust managers (mutual TLS).
+	 */
+	private static HttpsConfigurator createHttpsConfigurator(SSLContext sslContext, boolean requireClientAuth) {
+		return new HttpsConfigurator(sslContext) {
+			@Override
+			public void configure(HttpsParameters params) {
+				SSLParameters sslParams = getSSLContext().getDefaultSSLParameters();
+				sslParams.setNeedClientAuth(requireClientAuth);
+				params.setSSLParameters(sslParams);
+			}
+		};
+	}
+
+	/**
+	 * Returns a new in-memory keystore (same type as {@code keyStore}) containing
+	 * only the key entry {@code keyAlias}, so a {@link KeyManagerFactory}
+	 * initialized from it cannot pick a different entry from a multi-certificate
+	 * keystore.
+	 */
+	private static KeyStore extractKeyEntry(KeyStore keyStore, String keyAlias, String keyPassword) throws Exception {
+		if (!keyStore.isKeyEntry(keyAlias))
+			throw new IllegalArgumentException("Keystore has no key entry with alias '" + keyAlias + "'");
+
+		java.security.Key key = keyStore.getKey(keyAlias, keyPassword.toCharArray());
+		java.security.cert.Certificate[] chain = keyStore.getCertificateChain(keyAlias);
+
+		KeyStore result = KeyStore.getInstance(keyStore.getType());
+		result.load(null, null);
+		result.setKeyEntry(keyAlias, key, keyPassword.toCharArray(), chain);
+		return result;
 	}
 
 	/**

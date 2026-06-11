@@ -44,7 +44,12 @@ public class SingletonContainer {
 		}
 	}
 
-	public Object getValue() {
+	/**
+	 * Lazily instantiates and caches the singleton instance. Synchronized so
+	 * concurrent callers (e.g. via {@link Singletons#getSingletons(Class)}) cannot
+	 * construct two instances of the same singleton.
+	 */
+	public synchronized Object getValue() {
 		if (value == null) {
 			Constructor<?> c = null;
 			try {

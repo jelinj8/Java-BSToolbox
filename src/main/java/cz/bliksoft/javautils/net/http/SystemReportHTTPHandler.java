@@ -56,4 +56,8 @@ public class SystemReportHTTPHandler extends DefaultFreemarkerHTTPHandler {
 		server.createContext("/systeminfo", new SystemReportHTTPHandler());
 	}
 
+	public static void addEndpoint(BSHttpServer server) {
+		server.addHandler("/systeminfo", new SystemReportHTTPHandler());
+	}
+
 }

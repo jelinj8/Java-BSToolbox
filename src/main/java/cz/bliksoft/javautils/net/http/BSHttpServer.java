@@ -1,7 +1,10 @@
 package cz.bliksoft.javautils.net.http;
 
+import java.io.Closeable;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +20,10 @@ import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpsConfigurator;
 import com.sun.net.httpserver.HttpsServer;
 
-public class BSHttpServer {
+import cz.bliksoft.javautils.xmlfilesystem.FileObject;
+import cz.bliksoft.javautils.xmlfilesystem.singletons.Singletons;
+
+public class BSHttpServer implements Closeable {
 	private Logger log = Logger.getLogger(BSHttpServer.class.getName());
 
 	private boolean running = false;
@@ -85,10 +91,12 @@ public class BSHttpServer {
 
 	private HttpsConfigurator httpsConfigurator = null;
 
+	private InetAddress bindAddress = null;
+
 	/**
 	 * basic HTTP server.
 	 *
-	 * @param port
+	 * @param port TCP port to listen on
 	 */
 	public BSHttpServer(int port) {
 		this.httpPort = port;
@@ -98,14 +106,72 @@ public class BSHttpServer {
 	/**
 	 * HTTPS variant of the server, requires additional httpsConfigurator.
 	 *
-	 * @param port
-	 * @param httpsConfigurator
+	 * @param port              TCP port to listen on
+	 * @param httpsConfigurator TLS configuration for the server
 	 */
 	public BSHttpServer(int port, HttpsConfigurator httpsConfigurator) {
 		this.httpPort = port;
 		this.httpsConfigurator = httpsConfigurator;
 	}
 
+	/**
+	 * Creates and starts a basic HTTP server from a {@link FileObject}
+	 * configuration, allowing it to be registered as a {@code /singletons} entry
+	 * and reused via {@link #getSingleton()}.
+	 *
+	 * <p>
+	 * Supported attributes:
+	 * <ul>
+	 * <li>{@code port} (mandatory) - TCP port to listen on</li>
+	 * <li>{@code address} (optional) - IP address/hostname to bind to, e.g. to
+	 * limit the server to {@code localhost}; if absent, listens on all
+	 * interfaces</li>
+	 * </ul>
+	 *
+	 * @param fo configuration node providing the {@code port}/{@code address}
+	 *           attributes
+	 */
+	public BSHttpServer(FileObject fo) {
+		String portAttr = fo.getAttribute("port", null);
+		if (portAttr == null)
+			throw new IllegalArgumentException("BSHttpServer requires a 'port' attribute");
+		this.httpPort = Integer.parseInt(portAttr);
+		httpHandlers = new HashMap<>();
+
+		String address = fo.getAttribute("address", null);
+		if (address != null) {
+			try {
+				this.bindAddress = InetAddress.getByName(address);
+			} catch (UnknownHostException e) {
+				throw new RuntimeException("Invalid BSHttpServer address: " + address, e);
+			}
+		}
+
+		try {
+			start();
+		} catch (IOException e) {
+			throw new RuntimeException("Failed to start BSHttpServer on port " + httpPort, e);
+		}
+	}
+
+	/**
+	 * Returns the {@link BSHttpServer} registered as a {@code /singletons} entry,
+	 * if any.
+	 *
+	 * @return the shared server singleton, or {@code null} if none is registered
+	 */
+	public static BSHttpServer getSingleton() {
+		return Singletons.getSingleton(BSHttpServer.class);
+	}
+
+	/**
+	 * Registers a handler for {@code path}. If the server is already running (e.g.
+	 * a shared singleton looked up via {@link #getSingleton()}), the handler is
+	 * attached immediately; otherwise it is attached when {@link #start()} runs.
+	 *
+	 * @param path    context path, e.g. {@code "/upload"}
+	 * @param handler handler to invoke for requests under {@code path}
+	 */
 	public void addHandler(String path, HttpHandler handler) {
 		if (handler instanceof BasicHTTPHandler && ((BasicHTTPHandler) handler).getSupportedMethods().isEmpty())
 			throw new RuntimeException(MessageFormat.format("Handler {0} has no supported methods!", handler));
@@ -118,8 +184,18 @@ public class BSHttpServer {
 		}
 	}
 
+	/**
+	 * Unregisters the handler for {@code path}, if any. Idempotent and safe to call
+	 * regardless of run state — a no-op if {@code path} was never registered, or if
+	 * the server is already stopped (e.g. the shared {@link #getSingleton()
+	 * singleton} was already closed by {@link Singletons#cleanup()}).
+	 *
+	 * @param path context path previously passed to {@link #addHandler}
+	 */
 	public void removeHandler(String path) {
-		HttpHandler handler = httpHandlers.get(path);
+		HttpHandler handler = httpHandlers.remove(path);
+		if (handler == null)
+			return;
 		if (running) {
 			server.removeContext(path);
 			if (handler instanceof BasicHTTPHandler)
@@ -162,11 +238,14 @@ public class BSHttpServer {
 		log.info("Starting server on port " + httpPort);
 		running = true;
 
+		InetSocketAddress address = bindAddress != null ? new InetSocketAddress(bindAddress, httpPort)
+				: new InetSocketAddress(httpPort);
+
 		if (httpsConfigurator != null) {
-			server = HttpsServer.create(new InetSocketAddress(httpPort), 0);
+			server = HttpsServer.create(address, 0);
 			((HttpsServer) server).setHttpsConfigurator(httpsConfigurator);
 		} else {
-			server = HttpServer.create(new InetSocketAddress(httpPort), 0);
+			server = HttpServer.create(address, 0);
 		}
 		for (Entry<String, HttpHandler> handlers : httpHandlers.entrySet()) {
 			server.createContext(handlers.getKey(), handlers.getValue());
@@ -215,5 +294,19 @@ public class BSHttpServer {
 
 	public HttpServer getServer() {
 		return server;
+	}
+
+	/**
+	 * Stops the server, allowing {@link BSHttpServer} to be registered as a
+	 * {@code /singletons} entry and cleaned up via {@link Singletons#cleanup()}.
+	 * Safe to call multiple times / when not running.
+	 */
+	@Override
+	public void close() throws IOException {
+		try {
+			stop();
+		} catch (Exception e) {
+			throw new IOException(e);
+		}
 	}
 }

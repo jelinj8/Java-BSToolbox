@@ -51,7 +51,7 @@ import cz.bliksoft.javautils.math.polynomial.PolynomialEvaluator;
  * {@code Base64IconSpec} extension), as well as from JavaFX —
  * {@code cz.bliksoft.javautils.fx.tools.ImageUtils} (BSToolbox-jfx) wraps
  * {@link #createImage(String)} and converts the resulting {@link BufferedImage}
- * to {@link javafx.scene.image.Image} at the boundary.
+ * to {@code javafx.scene.image.Image} at the boundary.
  *
  * <p>
  * An icon spec resolves either directly to a single image, or via postfix

@@ -55,12 +55,28 @@
 		<xs:complexType>
 			<xs:attribute name="path" type="xs:string"
 				use="required" />
+			<xs:attribute name="mode" default="ro">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="ro" />
+						<xs:enumeration value="rw" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="include">
 		<xs:complexType>
 			<xs:attribute name="path" type="xs:string"
 				use="required" />
+			<xs:attribute name="mode" default="ro">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="ro" />
+						<xs:enumeration value="rw" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="classpath">

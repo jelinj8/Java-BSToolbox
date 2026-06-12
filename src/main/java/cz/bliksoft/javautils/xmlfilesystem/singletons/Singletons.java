@@ -23,7 +23,7 @@ public class Singletons {
 	public static final String DEFAULT_PATH = "/singletons";
 
 	/**
-	 * registr singleton objektů vytvořených z FileSystému
+	 * registry of singleton objects created from the FileSystem
 	 */
 	private static Map<FileObject, SingletonContainer> singletonObjects = null;
 

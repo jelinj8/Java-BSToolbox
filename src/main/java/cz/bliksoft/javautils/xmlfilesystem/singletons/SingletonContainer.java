@@ -15,7 +15,7 @@ import cz.bliksoft.javautils.xmlfilesystem.FileObject;
 import cz.bliksoft.javautils.xmlfilesystem.IInitializeWithFileObject;
 
 /**
- * kontejner pro uchovávání singletonu a jeho definičního záznamu ve filesystému
+ * container holding a singleton and its definition entry in the filesystem
  *
  * @author jelinj8
  */

@@ -1,6 +1,10 @@
 package cz.bliksoft.javautils.xmlfilesystem;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -24,6 +28,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import cz.bliksoft.javautils.EnvironmentUtils;
 import cz.bliksoft.javautils.StringUtils;
 import cz.bliksoft.javautils.exceptions.InitializationException;
 import cz.bliksoft.javautils.streams.xml.adapters.StringMapAdapter;
@@ -33,6 +38,7 @@ import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlTransient;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 @XmlRootElement(name = FileObject.FILE_ELEMENT)
@@ -46,89 +52,89 @@ public class FileObject implements Comparable<Object> {
 	}
 
 	/**
-	 * XML element souboru
+	 * XML element of a file
 	 */
 	public static final String FILE_ELEMENT = "file"; // $NON-NLS-1$
 
 	/**
-	 * pořadí souboru
+	 * file ordering position
 	 */
 	public static final String ATTRIBUTE_FILE_POSITION = "position"; // $NON-NLS-1$
 
 	/**
-	 * název souboru
+	 * file name
 	 */
 	public static final String ATTRIBUTE_FILE_NAME = "name"; // $NON-NLS-1$
 
 	/**
-	 * typ souboru
+	 * file type
 	 */
 	public static final String ATTRIBUTE_FILE_TYPE = "type"; // $NON-NLS-1$
 
 	/**
-	 * ID souboru, musí být jedinečné
+	 * file ID, must be unique
 	 */
 	public static final String ATTRIBUTE_FILE_ID = "id"; // $NON-NLS-1$
 
 	/**
-	 * cíl pro import souboru (importuje do registrovaného ID souboru bez ohledu
-	 * jeho aktuální cestu)
+	 * target for a file import (imports into the file registered under this ID,
+	 * regardless of its current path)
 	 */
 	public static final String ATTRIBUTE_FILE_TARGET = "target"; // $NON-NLS-1$
 
 	/**
-	 * atribut specifikující třídění souborů, pokud není definované pořadí nebo je
-	 * "order" hodnota stejná (true třídit podle jména, false zachovat pořadí)
+	 * attribute specifying file sorting when no order is defined or the "order"
+	 * values are the same (true = sort by name, false = keep order)
 	 */
 	public static final String ATTRIBUTE_FILE_SORTED = "sorted"; // $NON-NLS-1$
 
 	/**
-	 * při importu odebere existující soubor, potomky ignoruje
+	 * removes an existing file on import, ignoring its children
 	 */
 	public static final String ATTRIBUTE_FILE_REMOVE = "remove"; // $NON-NLS-1$
 
 	/**
-	 * při importu odebere existující soubor, potomky ignoruje
+	 * replaces an existing file on import, ignoring its children
 	 */
 	public static final String ATTRIBUTE_FILE_REPLACE = "replace"; // $NON-NLS-1$
 
 	/**
-	 * na uzamčený soubor nejde v dalším importu sahat (jinak než s odemčením)
+	 * a locked file cannot be touched by further imports (other than by unlocking)
 	 */
 	public static final String ATTRIBUTE_FILE_LOCKED = "locked"; // $NON-NLS-1$
 
 	/**
-	 * dodatečný řetězec k libovolnému použití
+	 * additional string for arbitrary use
 	 */
 	public static final String ATTRIBUTE_FILE_MARK = "mark"; // $NON-NLS-1$
 
 	/**
-	 * název atributu pro specifikaci klíče pro překlad názvu souboru
+	 * name of the attribute specifying the translation key for the file name
 	 */
 	public static final String ATTRIBUTE_FILE_TRANSLATION = "translation"; // $NON-NLS-1$
 
 	/**
-	 * název XML elementu atributu
+	 * name of the XML attribute element
 	 */
 	public static final String ATTRIBUTE_NODE = "attribute"; // $NON-NLS-1$
 
 	/**
-	 * XML názvový atribut atributového elementu
+	 * XML name attribute of the attribute element
 	 */
 	public static final String ATTRIBUTE_NAME = ATTRIBUTE_FILE_NAME; // $NON-NLS-1$
 
 	/**
-	 * XML hodnotový atribut atributového elementu
+	 * XML value attribute of the attribute element
 	 */
 	public static final String ATTRIBUTE_VALUE = "value"; // $NON-NLS-1$
 
 	/**
-	 * název atributu pro specifikaci klíče pro překlad hodnoty atributu
+	 * name of the attribute specifying the translation key for the attribute value
 	 */
 	public static final String ATTRIBUTE_TRANSLATION = ATTRIBUTE_FILE_TRANSLATION; // $NON-NLS-1$
 
 	/**
-	 * import z classpath
+	 * import from classpath
 	 */
 	public static final String CLASSPATH_ELEMENT = "classpath"; //$NON-NLS-1$
 	public static final String CLASSPATH_PATH = "path"; //$NON-NLS-1$
@@ -143,7 +149,14 @@ public class FileObject implements Comparable<Object> {
 	public static final String SYMLINK_FILE_PATH = "path"; //$NON-NLS-1$
 
 	/**
-	 * atribut specifikující velkou ikonu
+	 * mode attribute for require/include - "ro" (default) or "rw"
+	 */
+	public static final String ATTRIBUTE_MODE = "mode"; //$NON-NLS-1$
+	public static final String MODE_READONLY = "ro"; //$NON-NLS-1$
+	public static final String MODE_READWRITE = "rw"; //$NON-NLS-1$
+
+	/**
+	 * attribute specifying the large icon
 	 */
 	// public static final String ATTRIBUTE_LARGE_ICON = "large_icon"; //
 	// $NON-NLS-1$
@@ -155,6 +168,14 @@ public class FileObject implements Comparable<Object> {
 	@XmlJavaTypeAdapter(StringMapAdapter.class)
 	@XmlElement(name = ATTRIBUTE_NODE)
 	protected Map<String, FileAttribute> attributes = new HashMap<>();
+
+	/**
+	 * attributes "overridden" from another source (a foreign
+	 * {@code <require>}/{@code <include>} merge onto a writable node) - not
+	 * persisted, take precedence over {@link #attributes} when reading
+	 */
+	@XmlTransient
+	protected Map<String, FileAttribute> overrideAttributes;
 
 	@XmlAttribute
 	String name;
@@ -175,11 +196,23 @@ public class FileObject implements Comparable<Object> {
 
 	FileObject parent;
 
-	@XmlAttribute
+	@XmlTransient
 	/**
-	 * původ objektu
+	 * origin of the object
 	 */
 	String resourceId;
+
+	/**
+	 * is the object writable (can be modified and saved back to the source XML)?
+	 */
+	protected boolean writable = false;
+
+	/**
+	 * @return whether the object is writable
+	 */
+	public boolean isWritable() {
+		return writable;
+	}
 
 	@XmlAttribute
 	boolean sorted = false;
@@ -221,11 +254,24 @@ public class FileObject implements Comparable<Object> {
 	}
 
 	public FileObject(Node xmlDefinition, FileObject parent, String resourceId) {
+		this(xmlDefinition, parent, resourceId, false);
+	}
+
+	/**
+	 * @param xmlDefinition the file definition ({@code <file>} or
+	 *                      {@code <symlink>})
+	 * @param parent        the parent object
+	 * @param resourceId    origin of the object
+	 * @param writable      whether this object (and its children) should be created
+	 *                      as writable ({@link WritableFileObject})
+	 */
+	public FileObject(Node xmlDefinition, FileObject parent, String resourceId, boolean writable) {
 		assert ((xmlDefinition.getNodeName().equalsIgnoreCase(FILE_ELEMENT))
 				|| (xmlDefinition.getNodeName().equalsIgnoreCase(SYMLINK_ELEMENT)));
 
 		this.parent = parent;
 		this.resourceId = resourceId;
+		this.writable = writable;
 
 		this.folder = false;
 		NamedNodeMap attribs = xmlDefinition.getAttributes();
@@ -310,15 +356,18 @@ public class FileObject implements Comparable<Object> {
 						putAttribute(attrNameAttr.getNodeValue(), fNode.getTextContent(),
 								(attrTranslationIdAttr != null ? attrTranslationIdAttr.getNodeValue() : null));
 					}
-				} else if ((fNode.getNodeName().equalsIgnoreCase(FILE_ELEMENT))) {
+				} else if ((fNode.getNodeName().equalsIgnoreCase(FILE_ELEMENT))
+						|| (fNode.getNodeName().equalsIgnoreCase(SYMLINK_ELEMENT))) {
 					this.folder = true;
-					FileObject fo = new FileObject(fNode, this, this.resourceId);
-//					if (!fo.remove)
+					FileObject fo = createChild(fNode, this, this.resourceId, this.writable);
 					addChild(fo);
-				} else if ((fNode.getNodeName().equalsIgnoreCase(SYMLINK_ELEMENT))) {
+				} else if (fNode.getNodeName().equalsIgnoreCase(INCLUDE_ELEMENT)
+						|| fNode.getNodeName().equalsIgnoreCase(REQUIRE_ELEMENT)) {
 					this.folder = true;
-					FileSymlink fo = new FileSymlink(fNode, this, this.resourceId);
-					addChild(fo);
+					importNestedXml(fNode);
+				} else if (fNode.getNodeName().equalsIgnoreCase(CLASSPATH_ELEMENT)) {
+					this.folder = true;
+					importNestedClasspathXml(fNode);
 				}
 			}
 			if (this.children != null)
@@ -330,6 +379,81 @@ public class FileObject implements Comparable<Object> {
 		children.add(ch);
 	}
 
+	/**
+	 * processes an {@code <include>}/{@code <require>} element nested inside this
+	 * {@code <file>} - the content of the target document is imported as children
+	 * of this file (not the filesystem root)
+	 */
+	private void importNestedXml(Node n) {
+		if (this.writable) {
+			throw new InitializationException("<" + n.getNodeName() + "> nested inside a writable <file> ("
+					+ getFullPath() + ") is not supported.");
+		}
+
+		NamedNodeMap attribs = n.getAttributes();
+		boolean isRequire = n.getNodeName().equalsIgnoreCase(REQUIRE_ELEMENT);
+		Node path = attribs.getNamedItem(isRequire ? REQUIRE_FILE_PATH : INCLUDE_FILE_PATH);
+		String pathString = EnvironmentUtils.pathReplace(path.getNodeValue());
+
+		Node modeNode = attribs.getNamedItem(ATTRIBUTE_MODE);
+		boolean childWritable = modeNode != null && MODE_READWRITE.equalsIgnoreCase(modeNode.getNodeValue());
+
+		File incFile = new File(pathString);
+		if (incFile.exists()) {
+			log.log(Level.INFO, StringUtils.format("Importing XML file {0} for {1}", pathString, resourceId));
+			try (InputStream stream = new FileInputStream(incFile)) {
+				FileSystem.getDefault().importXml(stream, pathString, childWritable, this);
+			} catch (IOException e) {
+				throw new InitializationException("Importing " + pathString + " for " + getFullPath(), e);
+			}
+		} else if (isRequire) {
+			log.log(Level.ERROR, StringUtils.format("Required file {0} not found ({1})!", pathString, resourceId));
+			throw new InitializationException("Required file not found",
+					new FileNotFoundException(incFile.getAbsolutePath()));
+		} else {
+			log.log(Level.WARN,
+					StringUtils.format("Included file {0} ({1}) not found, skipping.", pathString, resourceId));
+		}
+	}
+
+	/**
+	 * processes a {@code <classpath>} element nested inside this {@code <file>} -
+	 * the content of the target classpath resource is imported as children of this
+	 * file
+	 */
+	private void importNestedClasspathXml(Node n) {
+		if (this.writable) {
+			throw new InitializationException("<" + n.getNodeName() + "> nested inside a writable <file> ("
+					+ getFullPath() + ") is not supported.");
+		}
+
+		NamedNodeMap attribs = n.getAttributes();
+		String pathString = attribs.getNamedItem(CLASSPATH_PATH).getNodeValue();
+		Node modeNode = attribs.getNamedItem(ATTRIBUTE_MODE);
+		if (modeNode != null && MODE_READWRITE.equalsIgnoreCase(modeNode.getNodeValue())) {
+			log.log(Level.WARN,
+					StringUtils.format("mode=\"rw\" is not supported for <classpath> includes ({0} for {1}), ignoring.",
+							pathString, resourceId));
+		}
+		InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(pathString);
+		if (stream != null) {
+			FileSystem.getDefault().importXml(stream, pathString, false, this);
+		} else {
+			log.log(Level.INFO, StringUtils.format("XML resource not found ({0} for {1})", pathString, resourceId));
+		}
+	}
+
+	/**
+	 * creates a child of the appropriate type based on the element and the
+	 * requested writability (symlinks always remain read-only)
+	 */
+	protected static FileObject createChild(Node fNode, FileObject parent, String resourceId, boolean writable) {
+		if (fNode.getNodeName().equalsIgnoreCase(SYMLINK_ELEMENT))
+			return new FileSymlink(fNode, parent, resourceId);
+		return writable ? new WritableFileObject(fNode, parent, resourceId, true)
+				: new FileObject(fNode, parent, resourceId, false);
+	}
+
 	private void putAttribute(String key, String value, String translationId) {
 		FileAttribute a = new FileAttribute();
 		a.value = value;
@@ -338,7 +462,7 @@ public class FileObject implements Comparable<Object> {
 	}
 
 	/**
-	 * @return je objekt složka?
+	 * @return whether the object is a directory
 	 */
 	public boolean isDirectory() {
 		initChildren();
@@ -346,7 +470,7 @@ public class FileObject implements Comparable<Object> {
 	}
 
 	/**
-	 * @return všichni potomci včetně skrytých (.*)
+	 * @return all children, including hidden ones (.*)
 	 */
 	public List<FileObject> getAllChildren() {
 		initChildren();
@@ -354,7 +478,7 @@ public class FileObject implements Comparable<Object> {
 	}
 
 	/**
-	 * @return potomci bez skrytých (.*)
+	 * @return children, without hidden ones (.*)
 	 */
 	public List<FileObject> getChildren() {
 		initChildren();
@@ -370,7 +494,7 @@ public class FileObject implements Comparable<Object> {
 	}
 
 	/**
-	 * @return potomci (jen soubory) bez skrytých (.*)
+	 * @return children (files only), without hidden ones (.*)
 	 */
 	public List<FileObject> getChildFiles() {
 		initChildren();
@@ -386,7 +510,7 @@ public class FileObject implements Comparable<Object> {
 	}
 
 	/**
-	 * @return seznam podsložek bez skrytých
+	 * @return list of subdirectories, without hidden ones
 	 */
 	public List<FileObject> getDirectories() {
 		initChildren();
@@ -402,7 +526,7 @@ public class FileObject implements Comparable<Object> {
 	}
 
 	/**
-	 * @return jen listy bez skrytých
+	 * @return leaves only, without hidden ones
 	 */
 	public List<FileObject> getWithoutDirectories() {
 		initChildren();
@@ -418,14 +542,14 @@ public class FileObject implements Comparable<Object> {
 	}
 
 	/**
-	 * @return nadřazený objekt
+	 * @return the parent object
 	 */
 	public FileObject getParent() {
 		return this.parent;
 	}
 
 	/**
-	 * vyhledá atribut podle jména
+	 * looks up an attribute by name
 	 *
 	 * @param name
 	 * @param def
@@ -433,6 +557,8 @@ public class FileObject implements Comparable<Object> {
 	 */
 	public String getAttribute(String name, String def) {
 		initAttributes();
+		if (this.overrideAttributes != null && this.overrideAttributes.containsKey(name))
+			return this.overrideAttributes.get(name).value;
 		if (this.attributes == null)
 			return def;
 		if (this.attributes.containsKey(name))
@@ -442,8 +568,8 @@ public class FileObject implements Comparable<Object> {
 	}
 
 	/**
-	 * vyhledá atribut podle jména, vrátí překlad pokud existuje, pokud ne, vrátí
-	 * default, pokud ani to ne, vrátí identifikátor
+	 * looks up an attribute by name, returns the translation if it exists,
+	 * otherwise the raw value, otherwise the default
 	 *
 	 * @param name
 	 * @param def
@@ -451,6 +577,15 @@ public class FileObject implements Comparable<Object> {
 	 */
 	public String getLocalizedAttribute(String name, String def) {
 		initAttributes();
+		if (this.overrideAttributes != null && this.overrideAttributes.containsKey(name)) {
+			FileAttribute a = this.overrideAttributes.get(name);
+			if (a.translationID == null)
+				return a.value;
+			else {
+				String res = FileSystem.getTranslation(a.translationID);
+				return res == null ? a.value : res;
+			}
+		}
 		if (this.attributes == null)
 			return def;
 		if (this.attributes.containsKey(name)) {
@@ -489,7 +624,7 @@ public class FileObject implements Comparable<Object> {
 	}
 
 	/**
-	 * @return vyhledá nejvýše nadřazený objekt
+	 * @return finds the top-most parent object
 	 */
 	public FileObject getRoot() {
 		if (this.parent == null)
@@ -499,7 +634,7 @@ public class FileObject implements Comparable<Object> {
 	}
 
 	/**
-	 * vyhledá objekt podle cesty složené z názvů v hierarchii
+	 * looks up an object by a path composed of names in the hierarchy
 	 *
 	 * @param fileName
 	 * @return
@@ -541,7 +676,7 @@ public class FileObject implements Comparable<Object> {
 	}
 
 	/**
-	 * vyhledá objekt podle cesty složené z názvů v hierarchii
+	 * looks up an object by a path composed of names in the hierarchy
 	 *
 	 * @param fileName
 	 * @return
@@ -581,6 +716,12 @@ public class FileObject implements Comparable<Object> {
 			existing = this.getFile(fo.name);
 		}
 		if (existing != null) {
+			if ((fo.remove || fo.replace) && existing instanceof WritableFileObject
+					&& !existing.getResourceId().equals(fo.getResourceId())) {
+				throw new InitializationException("Cannot remove/replace writable node " + existing.getFullPath()
+						+ " from a different source (" + fo.getFullPath() + ")");
+			}
+
 			if (Boolean.TRUE.equals(existing.locked)) {
 				if (fo.locked == null) {
 					// overwriting without unlocking or override
@@ -613,10 +754,19 @@ public class FileObject implements Comparable<Object> {
 				if (fo.order != 0) {
 					existing.order = fo.order;
 				}
-				if (existing.attributes == null && fo.attributes != null)
-					existing.attributes = new HashMap<>();
-				if (fo.attributes != null)
-					existing.attributes.putAll(fo.attributes);
+				if (fo.attributes != null && !fo.attributes.isEmpty()) {
+					if (existing instanceof WritableFileObject
+							&& !existing.getResourceId().equals(fo.getResourceId())) {
+						// foreign override onto a writable node: visible at runtime, never persisted
+						if (existing.overrideAttributes == null)
+							existing.overrideAttributes = new HashMap<>();
+						existing.overrideAttributes.putAll(fo.attributes);
+					} else {
+						if (existing.attributes == null)
+							existing.attributes = new HashMap<>();
+						existing.attributes.putAll(fo.attributes);
+					}
+				}
 				if (fo.children != null)
 					for (FileObject internal : fo.children) {
 						existing.importFile(internal);
@@ -628,7 +778,7 @@ public class FileObject implements Comparable<Object> {
 			if (!fo.remove) {
 				fo.streamDFAllChildren(true).forEach(fo2 -> {
 					if (fo2.id != null) {
-						if (namedFiles.containsKey(fo2.id) && !fo.replace)
+						if (namedFiles.containsKey(fo2.id) && namedFiles.get(fo2.id) != fo2 && !fo.replace)
 							throw new InitializationException("File with ID=" + fo2.id
 									+ " already registered and not force-replacing it by " + fo2);
 
@@ -654,9 +804,7 @@ public class FileObject implements Comparable<Object> {
 
 	@XmlAttribute
 	/**
-	 * vrátí název objektu
-	 *
-	 * @return
+	 * @return the name of the object
 	 */
 	public String getName() {
 		return this.name;
@@ -688,9 +836,8 @@ public class FileObject implements Comparable<Object> {
 	}
 
 	/**
-	 * vrátí název objektu lokalizovaný podle registrovaného překladového klíče
-	 *
-	 * @return
+	 * @return the name of the object localized according to the registered
+	 *         translation key
 	 */
 	public String getLocalizedName() {
 		if (!StringUtils.hasText(translation))
@@ -710,14 +857,14 @@ public class FileObject implements Comparable<Object> {
 	}
 
 	/**
-	 * @return původ objektu
+	 * @return origin of the object
 	 */
 	public String getResourceId() {
 		return this.resourceId;
 	}
 
 	/**
-	 * @return poslední část názvu oddělená tečkou
+	 * @return the object's type
 	 */
 	public String getType() {
 		return type;
@@ -942,6 +1089,8 @@ public class FileObject implements Comparable<Object> {
 
 	public String getAttributeTranslationId(String key) {
 		initAttributes();
+		if (overrideAttributes != null && overrideAttributes.containsKey(key))
+			return overrideAttributes.get(key).translationID;
 		FileAttribute a = attributes != null ? attributes.get(key) : null;
 		return a != null ? a.translationID : null;
 	}
@@ -953,9 +1102,10 @@ public class FileObject implements Comparable<Object> {
 	}
 
 	public void dump(StringBuilder sb, String prefix) {
-		sb.append(MessageFormat.format("{0}{1}{2}{3}{4}{5}{6}\n", prefix, this, type != null ? " [" + type + "]" : "",
-				this.order != 0 ? (" order: " + this.order) : "",
-				this.locked != null ? (this.locked ? " [R/O]" : " [R/W]") : "", this.sorted ? " [sorted]" : "",
+		sb.append(MessageFormat.format("{0}{1}{2}{3}{4}{5}{6}{7}\n", prefix, this,
+				type != null ? " [" + type + "]" : "", this.order != 0 ? (" order: " + this.order) : "",
+				this.locked != null ? (this.locked ? " [LOCKED]" : " [unlocked]") : "",
+				this.isWritable() ? " [R/W]" : "", this.sorted ? " [sorted]" : "",
 				this.translation != null ? ("Translation: " + this.translation) : ""));
 		String currentPrefix = prefix + "\t";
 		initAttributes();

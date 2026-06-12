@@ -12,6 +12,13 @@ public class FileSymlink extends FileObject {
 
 	private boolean targetInitialized = false;
 
+	/**
+	 * @return the unresolved path to the target file
+	 */
+	public String getTargetPath() {
+		return targetPath;
+	}
+
 	public FileObject getTargetFile() {
 		if (!targetInitialized) {
 			targetInitialized = true;

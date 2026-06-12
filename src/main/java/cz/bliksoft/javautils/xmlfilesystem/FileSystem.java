@@ -30,7 +30,7 @@ import cz.bliksoft.javautils.StringUtils;
 import cz.bliksoft.javautils.exceptions.InitializationException;
 
 /**
- * základ FileSystému a práce s ním
+ * core of the FileSystem and working with it
  *
  */
 public final class FileSystem {
@@ -58,8 +58,23 @@ public final class FileSystem {
 	// }
 
 	public void importXml(InputStream f, String resourceId) {
+		importXml(f, resourceId, false, null, root);
+	}
+
+	/**
+	 * imports the elements of the root document {@code f} into {@code target} (used
+	 * for {@code <include>}/{@code <require>}/{@code <classpath>} elements nested
+	 * inside a {@code <file>} - their content is imported into the given file, not
+	 * the filesystem root)
+	 */
+	void importXml(InputStream f, String resourceId, boolean writable, FileObject target) {
+		importXml(f, resourceId, writable, null, target);
+	}
+
+	private void importXml(InputStream f, String resourceId, boolean writable, WritableXmlFile owner,
+			FileObject target) {
 		if (f == null) {
-			log.log(Level.WARN, "Prázdný stream! ({})", resourceId);
+			log.log(Level.WARN, "Empty stream! ({})", resourceId);
 			return;
 		}
 		Document doc;
@@ -88,6 +103,11 @@ public final class FileSystem {
 			});
 			doc = dBuilder.parse(f);
 			doc.getDocumentElement().normalize();
+
+			if (writable && owner == null) {
+				owner = new WritableXmlFile(new File(resourceId), doc, new FileXmlStorage());
+			}
+
 			NodeList nList = doc.getDocumentElement().getChildNodes();// ElementsByTagName("include");
 			for (int i = 0; i < nList.getLength(); i++) {
 				Node n = nList.item(i);
@@ -97,9 +117,15 @@ public final class FileSystem {
 					NamedNodeMap attribs = n.getAttributes();
 					Node path = attribs.getNamedItem(FileObject.CLASSPATH_PATH);
 					String pathString = path.getNodeValue();
+					Node modeNode = attribs.getNamedItem(FileObject.ATTRIBUTE_MODE);
+					if (modeNode != null && FileObject.MODE_READWRITE.equalsIgnoreCase(modeNode.getNodeValue())) {
+						log.log(Level.WARN, StringUtils.format(
+								"mode=\"rw\" is not supported for <classpath> includes ({0} for {1}), ignoring.",
+								pathString, resourceId));
+					}
 					InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(pathString);
 					if (stream != null) {
-						importXml(stream, pathString);
+						importXml(stream, pathString, false, null, target);
 					} else {
 						log.log(Level.INFO,
 								StringUtils.format("XML resource not found ({0} for {1})", pathString, resourceId));
@@ -116,6 +142,10 @@ public final class FileSystem {
 					String pathString = path.getNodeValue();
 					pathString = EnvironmentUtils.pathReplace(pathString);
 
+					Node modeNode = attribs.getNamedItem(FileObject.ATTRIBUTE_MODE);
+					boolean childWritable = modeNode != null
+							&& FileObject.MODE_READWRITE.equalsIgnoreCase(modeNode.getNodeValue());
+
 					File incFile = new File(pathString);
 					if (incFile.exists()) {
 						log.log(Level.INFO,
@@ -124,7 +154,7 @@ public final class FileSystem {
 						try (InputStream stream = new FileInputStream(incFile)) {
 							// ClassLoader.getSystemResourceAsStream(pathString);
 							if (stream != null) {
-								importXml(stream, pathString);
+								importXml(stream, pathString, childWritable, null, target);
 							}
 						}
 					} else {
@@ -139,21 +169,22 @@ public final class FileSystem {
 					}
 					break;
 				}
-				case FileObject.FILE_ELEMENT: {
-					FileObject fo = new FileObject(n, null, resourceId);
+				case FileObject.FILE_ELEMENT:
+				case FileObject.SYMLINK_ELEMENT: {
+					FileObject fo = FileObject.createChild(n, null, resourceId, writable);
+					if (writable && (target.getFile(fo.getName()) != null
+							|| (fo.getTargetId() != null && FileObject.getFileByID(fo.getTargetId()) != null))) {
+						throw new InitializationException(StringUtils.format(
+								"<{0} mode=\"rw\"> root \"{1}\" collides with an existing node ({2})", n.getNodeName(),
+								fo.getName(), resourceId));
+					}
 					try {
-						root.importFile(fo);
+						target.importFile(fo);
 					} catch (Exception e) {
 						throw new InitializationException("Importing file object " + fo.getFullPath(), e);
 					}
-				}
-					break;
-				case FileObject.SYMLINK_ELEMENT: {
-					FileSymlink fo = new FileSymlink(n, null, resourceId);
-					try {
-						root.importFile(fo);
-					} catch (Exception e) {
-						throw new InitializationException("Creating symlink " + fo.getFullPath(), e);
+					if (writable && owner != null) {
+						owner.addRoot(fo);
 					}
 				}
 					break;

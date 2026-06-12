@@ -119,6 +119,38 @@ Modules can contribute an XML virtual filesystem descriptor via `getFilesystemXm
 
 ---
 
+## XML Virtual Filesystem (`cz.bliksoft.javautils.xmlfilesystem`)
+
+Modules contribute XML descriptors that are merged at runtime into a single virtual `FileSystem` of `FileObject` nodes — used for configuration, class wiring, and translations.
+
+```java
+FileSystem.getDefault().importXml(myModule.getFilesystemXml(), "MyModule");
+FileSystem.loadTranslations(); // once, after all modules are loaded
+
+FileObject config = FileSystem.getFile("config/database");
+String url = config.getAttribute("url", "jdbc:default");
+```
+
+Descriptors are plain XML (`META-INF/XmlFilesystem.xsd`):
+```xml
+<root xmlns="http://bliksoft.cz/XmlFilesystem">
+  <file name="config" type="folder">
+    <file name="database" type="dbConfig">
+      <attribute name="url" value="${DB_URL}"/>
+    </file>
+  </file>
+  <include path="/etc/optional-extra.xml"/>
+  <require path="/etc/mandatory.xml"/>
+  <symlink name="db" path="config/database"/>
+</root>
+```
+
+**Writable nodes:** adding `mode="rw"` to a top-level `<include>`/`<require>` loads its `<file>`/`<symlink>` roots as `WritableFileObject`s, which support `setAttribute`, `addChild`, `getCreateFile`, etc., and can be persisted back to their source file with `save()`.
+
+See [`doc/xml-filesystem.md`](doc/xml-filesystem.md) for the full reference, including localization and the writable-filesystem extension.
+
+---
+
 ## Freemarker Templating (`cz.bliksoft.javautils.freemarker`)
 
 `FreemarkerGenerator` wraps Apache Freemarker with a set of built-in extensions and a consistent API.

@@ -53,6 +53,7 @@ Represents a file or folder node. JAXB-serialisable; maps to `<file>` in the XML
 | `String getLocalizedAttribute(String name, String def)` | Translated attribute value; falls back to raw value then `def` |
 | `String getLocalizedName()` | Translated display name; falls back to `name`, or `<$translationId$>` if key is missing |
 | `void importFile(FileObject fo)` | Merge another `FileObject` into this node |
+| `boolean isWritable()` | `true` if this node is a `WritableFileObject`, i.e. was loaded from a `mode="rw"` `<include>`/`<require>` |
 
 **XML child elements:**
 
@@ -60,10 +61,10 @@ Represents a file or folder node. JAXB-serialisable; maps to `<file>` in the XML
 |---|---|
 | `<file name="..." type="...">` | Child node |
 | `<attribute name="..." value="...">` | Custom attribute (optionally translatable) |
-| `<include path="...">` | Include another descriptor from classpath; silently skipped if missing |
-| `<require path="...">` | Like `include` but throws if the path is not found |
-| `<classpath path="...">` | Import a descriptor from a classpath resource |
-| `<symlink path="...">` | Symbolic link — resolves lazily to another `FileObject` by path |
+| `<include path="..." mode="ro\|rw">` | Include another descriptor from classpath; silently skipped if missing |
+| `<require path="..." mode="ro\|rw">` | Like `include` but throws if the path is not found |
+| `<classpath path="...">` | Import a descriptor from a classpath resource (always read-only; `mode="rw"` is ignored with a warning) |
+| `<symlink name="..." path="...">` | Symbolic link — resolves lazily to another `FileObject` by path |
 
 ### `FileLoader`
 
@@ -95,6 +96,11 @@ Generic loader that instantiates Java classes referenced by `FileObject` nodes.
 ### `FileSymlink`
 
 A `FileObject` that acts as a symbolic link. The target is resolved lazily on first access. Children and attributes are transparently delegated to the target.
+
+| Method | Description |
+|---|---|
+| `String getTargetPath()` | The unresolved `path` from the `<symlink>` element |
+| `FileObject getTargetFile()` | Resolves and returns the target node, or `null` if it cannot be found |
 
 ### `IInitializeWithFileObject`
 
@@ -206,6 +212,55 @@ Each entry in `getAttributes()` is a `FileAttribute` with two fields:
 |---|---|
 | `value` | Raw string value from the `value` XML attribute or the element's text content |
 | `translationID` | Optional translation ID from the `translation` XML attribute; `null` for non-translatable attributes |
+
+## Writable XML files
+
+Normally, the filesystem is read-only: descriptors are merged in memory and never written back. Setting `mode="rw"` on a top-level `<include>` or `<require>` element loads that descriptor's `<file>`/`<symlink>` roots (and all their descendants) as `WritableFileObject`s, which can be modified and saved back to their source file.
+
+```xml
+<require path="/etc/user-config.xml" mode="rw"/>
+```
+
+`mode="rw"` is only valid on top-level `<include>`/`<require>` elements processed by `FileSystem.importXml`; it is rejected on `<include>`/`<require>`/`<classpath>` elements nested inside a `<file>` (an `InitializationException` is thrown), and ignored (with a warning) on `<classpath>`.
+
+### `WritableFileObject`
+
+A `FileObject` subclass whose `isWritable()` returns `true`. In addition to the read-only API it offers:
+
+| Method | Description |
+|---|---|
+| `setAttribute(String key, String value)` / `setAttribute(String key, String value, String translationId)` | Set or replace an attribute |
+| `removeAttribute(String key)` | Remove an attribute |
+| `addChild(WritableFileObject child)` | Add a child node and link it to the same source document |
+| `removeChild(FileObject child)` | Remove a child node |
+| `setName/setType/setOrder/setSorted/setTranslation(...)` | Modify the corresponding node properties |
+| `WritableFileObject getCreateFile(String path)` / `getCreateFile(String path, String... subpaths)` | Like `getFile`, but creates missing path segments (and the target node) as empty `WritableFileObject`s; throws `IllegalStateException` if the path passes through a non-writable node |
+| `WritableXmlFile getDocument()` | The source document this node belongs to |
+| `void save()` | Shortcut for `getDocument().save()` |
+
+Each mutating call marks the owning `WritableXmlFile` as dirty (`isDirty()`); call `save()` to persist.
+
+### `WritableXmlFile`
+
+Represents one source XML document and the `WritableFileObject` roots loaded from it.
+
+| Method | Description |
+|---|---|
+| `static WritableXmlFile load(File source)` | Load a document standalone, outside of `FileSystem` |
+| `List<FileObject> getRoots()` | Top-level nodes loaded from this document |
+| `File getSourceFile()` | The backing file |
+| `boolean isDirty()` / `void markDirty()` | Whether there are unsaved changes |
+| `void save()` | Rebuild the document from the current state of `getRoots()` and write it via the configured `IWritableXmlStorage`, preserving the original root element's namespace/attributes and any non-`<file>`/`<symlink>` content |
+
+### `IWritableXmlStorage` / `FileXmlStorage`
+
+`IWritableXmlStorage` is the storage strategy used by `WritableXmlFile.save()` — `write(Document document, File source)`. `FileXmlStorage` is the default implementation, writing to a plain `java.io.File`. Alternative implementations (e.g. backed by a database) can be passed to `WritableXmlFile`'s constructor or `load(...)`.
+
+### Merge semantics for writable nodes
+
+- A read-only `<include>`/`<require>` (from a different `resourceId`) can still merge attributes onto an existing writable node, but those attributes are kept separately as "override attributes": they are visible via `getAttribute`/`getLocalizedAttribute`/`getAttributeTranslationId`, take precedence over the node's own attributes, but are never written back by `save()`.
+- A foreign `remove`/`replace` of a writable node (i.e. from a different `resourceId`) is rejected with an `InitializationException` — only the document that owns a writable node may remove or replace it.
+- For `mode="rw"`, each top-level `<file>`/`<symlink>` root must not collide with an existing node of the same name (or `target` ID) — a collision throws `InitializationException`.
 
 ## Module integration
 

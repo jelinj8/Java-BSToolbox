@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
@@ -16,6 +17,8 @@ import java.util.Properties;
 import java.util.logging.Logger;
 
 import cz.bliksoft.javautils.freemarker.extensions.TextReplacer;
+import cz.bliksoft.javautils.freemarker.extensions.local.ApplyTemplateDefaults;
+import cz.bliksoft.javautils.freemarker.utils.TemplateParameterUtils;
 import cz.bliksoft.javautils.freemarker.extensions.global.Base64File;
 import cz.bliksoft.javautils.freemarker.extensions.global.Base64IconSpec;
 import cz.bliksoft.javautils.freemarker.extensions.global.Base64QR;
@@ -204,6 +207,8 @@ public class FreemarkerGenerator {
 
 	public String generate(String templateName, Object data) throws IOException, TemplateException {
 		Template temp = getTemplate(templateName);
+		if (resolveTemplateDefaults && !templateDefaultsApplied)
+			applyTemplateDefaults(templateName);
 		return generate(temp, data);
 	}
 
@@ -288,6 +293,7 @@ public class FreemarkerGenerator {
 		res.put("registerVariable", new VariableRegistrator(this));
 		res.put("anchorNumberer", new AnchorNumberer());
 		res.put("variableCache", new VariableCache());
+		res.put("applyTemplateDefaults", new ApplyTemplateDefaults(this));
 
 		return res;
 	}
@@ -368,6 +374,83 @@ public class FreemarkerGenerator {
 
 	public void clearVariables() {
 		variables.clear();
+	}
+
+	private boolean resolveTemplateDefaults = false;
+	private boolean templateDefaultsApplied = false;
+
+	/**
+	 * If set, {@link #generate(String, Object)} fills in default values for any
+	 * variable declared via {@code {var|...}} in the rendered template's source
+	 * that has not already been set via {@link #setVariable}.
+	 */
+	public void setResolveTemplateDefaults(boolean value) {
+		this.resolveTemplateDefaults = value;
+	}
+
+	/**
+	 * Whether template-declared defaults have already been applied for this
+	 * generator instance, either via {@link #setResolveTemplateDefaults} or via the
+	 * {@code applyTemplateDefaults()} template function.
+	 */
+	public boolean isTemplateDefaultsApplied() {
+		return templateDefaultsApplied;
+	}
+
+	/**
+	 * Marks template-declared defaults as applied, without actually applying them.
+	 */
+	public void markTemplateDefaultsApplied() {
+		templateDefaultsApplied = true;
+	}
+
+	/**
+	 * Reads the raw source of {@code templateName} via the configured
+	 * {@link TemplateLoader}, regardless of whether it is file-, classpath- or
+	 * multi-loader based. Returns {@code null} if the loader cannot resolve the
+	 * name.
+	 */
+	public String readTemplateSource(String templateName) throws IOException {
+		TemplateLoader loader = cfg.getTemplateLoader();
+		if (loader == null)
+			return null;
+		Object source = loader.findTemplateSource(templateName);
+		if (source == null)
+			return null;
+		try {
+			StringBuilder sb = new StringBuilder();
+			try (Reader reader = loader.getReader(source, cfg.getEncoding(Locale.getDefault()))) {
+				char[] buf = new char[4096];
+				int n;
+				while ((n = reader.read(buf)) != -1)
+					sb.append(buf, 0, n);
+			}
+			return sb.toString();
+		} finally {
+			loader.closeTemplateSource(source);
+		}
+	}
+
+	/**
+	 * Fills in default values for variables declared via {@code {var|...}} in
+	 * {@code templateName}'s source that are not already present in
+	 * {@link #variables}. Never throws - this is a best-effort opt-in feature.
+	 */
+	private void applyTemplateDefaults(String templateName) {
+		try {
+			String source = readTemplateSource(templateName);
+			if (source != null) {
+				Map<String, Object> defaults = TemplateParameterUtils.extractDefaultVariables(source);
+				for (Entry<String, Object> e : defaults.entrySet())
+					if (!variables.containsKey(e.getKey()))
+						setVariable(e.getKey(), e.getValue());
+			}
+		} catch (IOException e) {
+			log.warning(
+					"Failed to read template source for default resolution: " + templateName + ": " + e.getMessage());
+		} finally {
+			templateDefaultsApplied = true;
+		}
 	}
 
 	public void setNumberFormat(NumberFormats format) {

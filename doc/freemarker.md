@@ -58,6 +58,8 @@ These are available in every render alongside `data`.
 | `getConfiguration()` | Access the underlying `Configuration` |
 | `setNumberFormat(NumberFormats)` | Override the default number format |
 | `useJaxenXPathSupport()` | Enable Jaxen-based XPath in XML templates |
+| `setResolveTemplateDefaults(boolean)` | Before rendering, fill in `{var|...}`-declared defaults for any variable not already set (see [Template-declared parameter defaults](#template-declared-parameter-defaults)) |
+| `readTemplateSource(String templateName)` | Read a template's raw source via the configured `TemplateLoader` (file, classpath, or multi-loader) |
 
 ---
 
@@ -111,6 +113,7 @@ Registered per-instance. Available in every render of that instance.
 | `registerVariable` | `VariableRegistrator` | Registers a variable on the generator for *subsequent* renders (not the current one); useful in SQL query templates |
 | `anchorNumberer` | `AnchorNumberer` | Auto-incrementing counter for anchors or headings |
 | `variableCache` | `VariableCache` | Dynamic in-template storage: `set`, `get`, `add` (list append), `put` (map put), `remove`, `clear` |
+| `applyTemplateDefaults` | `ApplyTemplateDefaults` | `${applyTemplateDefaults()}` — fill in `{var|...}`-declared defaults for the current template (see below) |
 
 Add per-instance extensions:
 
@@ -118,6 +121,47 @@ Add per-instance extensions:
 gen.addExtension("myExt", new MyExtension());
 gen.addExtensions(myExtensionMap);
 ```
+
+---
+
+## Template-declared parameter defaults
+
+Templates may declare their parameters in a leading comment block, one declaration per line:
+
+```
+{var|type|name|title[|default[|parameters]]}
+```
+
+e.g.
+
+```ftl
+<#--
+{var|int|labelCount|Number of labels|1|1:100}
+{var|string|txt|Text||40}
+{var|boolean|debug|Debug|false}
+-->
+```
+
+`cz.bliksoft.javautils.freemarker.utils.TemplateParameterUtils` parses these declarations
+(`parseParameters`) and derives a `Map<String, Object>` of default values per declared
+variable (`extractDefaultVariables`), typed by their declared `type` (`INT` → `Integer`,
+`BOOLEAN` → `Boolean`, everything else → `String`). `INFO`, `COMMENT` and `CSVFILE`
+declarations are skipped — they have no usable scalar default.
+
+`FreemarkerGenerator` can apply these defaults automatically, filling in **only** variables
+that have not already been set — explicitly supplied values always win:
+
+- **Opt in from Java**: `gen.setResolveTemplateDefaults(true)`. Before the next
+  `generate(templateName, data)` call, the generator reads the target template's source
+  (via its configured `TemplateLoader`, so this works for file, classpath, or
+  multi-loaders) and fills in any missing variables with their declared defaults.
+- **Opt in from a template**: call `${applyTemplateDefaults()}` (e.g. from a shared
+  include such as `common.ftl`). It reads the *main* template's source and fills in
+  any variables not yet defined in the current environment.
+
+Both mechanisms share a single "applied" flag on the generator instance, so calling
+`${applyTemplateDefaults()}` is a no-op if `setResolveTemplateDefaults(true)` already
+applied the defaults for this render (and vice versa) — it is safe to use both at once.
 
 ---
 

@@ -98,7 +98,7 @@
 </tbody></table>
 <script>
 
-	var chrt = $('#memChart');
+	var chrt = document.getElementById('memChart');
 	var chartId = new Chart(chrt, {
 		type: 'pie',
 		data: {
@@ -131,7 +131,7 @@
 		},
 	});
 
-	var chrt2 = $('#memHistoryChart');
+	var chrt2 = document.getElementById('memHistoryChart');
       var chartId = new Chart(chrt2, {
          type: 'line',
          data: {
@@ -182,7 +182,7 @@
 		},
 	});
 
-	var chrt3 = $('#cpuHistoryChart');
+	var chrt3 = document.getElementById('cpuHistoryChart');
 	var chartId = new Chart(chrt3, {
 		type: 'line',
 		data: {

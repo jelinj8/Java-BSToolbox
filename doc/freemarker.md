@@ -53,7 +53,7 @@ These are available in every render alongside `data`.
 
 | Method | Description |
 |---|---|
-| `disableLocalizedTemplateLookup()` | Disable `.locale`-variant template resolution |
+| `setLocalizedTemplateLookup(boolean)` | Enable/disable `.locale`-variant template resolution (disabled by default) |
 | `storeEnvironment()` / `getLastEnvironment()` | Retain the Freemarker `Environment` after the last render for post-processing |
 | `getConfiguration()` | Access the underlying `Configuration` |
 | `setNumberFormat(NumberFormats)` | Override the default number format |

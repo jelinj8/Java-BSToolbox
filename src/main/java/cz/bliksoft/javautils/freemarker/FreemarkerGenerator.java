@@ -98,6 +98,10 @@ public class FreemarkerGenerator {
 		// setNumberFormat(NumberFormats.COMPUTER);
 		cfg.setBooleanFormat("c");
 		cfg.setObjectWrapper(ObjectWrapperRegister.getInstance(Configuration.VERSION_2_3_34));
+		// Templates are not split into locale-specific variants (_cs, _en, ...) by
+		// convention here, so disable FreeMarker's automatic localized lookup to avoid
+		// wasted TemplateLoader probes for non-existent _xx variants.
+		cfg.setLocalizedLookup(false);
 	}
 
 	/**
@@ -176,8 +180,14 @@ public class FreemarkerGenerator {
 		cfg.setTemplateLoader(mtl);
 	}
 
-	public void disableLocalizedTemplateLookup() {
-		cfg.setLocalizedLookup(false);
+	/**
+	 * Enables or disables FreeMarker's automatic localized template lookup (probing
+	 * for {@code name_<lang>_<COUNTRY>.ext} / {@code name_<lang>.ext} variants
+	 * before falling back to {@code name.ext}). Disabled by default since templates
+	 * here are not split into locale-specific variants.
+	 */
+	public void setLocalizedTemplateLookup(boolean enabled) {
+		cfg.setLocalizedLookup(enabled);
 	}
 
 	public String generate(Template tpl) throws IOException, TemplateException {

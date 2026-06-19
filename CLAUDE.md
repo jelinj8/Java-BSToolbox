@@ -100,7 +100,7 @@ Extensions are split into two maps:
 
 **`BuiltinTemplateLoader`** (includes): exposes built-in templates bundled in the library. Use `BuiltinTemplateLoader.getTemplateLoader(yourLoader)` to create a `MultiTemplateLoader` where your loader takes precedence; or pass `getBuiltinTemplateLoader()` directly.
 
-Other generator options: `disableLocalizedTemplateLookup()`, `storeEnvironment()` + `getLastEnvironment()` for post-render environment inspection, `setNumberFormat(NumberFormats)`, `useJaxenXPathSupport()` for XPath in XML templates.
+Other generator options: `setLocalizedTemplateLookup(boolean)` (locale-variant template resolution, disabled by default), `storeEnvironment()` + `getLastEnvironment()` for post-render environment inspection, `setNumberFormat(NumberFormats)`, `useJaxenXPathSupport()` for XPath in XML templates.
 
 ### Optional Feature Dependencies
 

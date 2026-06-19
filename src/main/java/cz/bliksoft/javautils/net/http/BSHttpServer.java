@@ -35,12 +35,17 @@ import cz.bliksoft.javautils.xmlfilesystem.singletons.Singletons;
 public class BSHttpServer implements Closeable {
 	private Logger log = Logger.getLogger(BSHttpServer.class.getName());
 
+	public static final String MDNS_SERVICE_HTTP = "_http._tcp.local.";
+	public static final String MDNS_SERVICE_HTTPS = "_https._tcp.local.";
+
 	private boolean running = false;
 
 	protected HttpServer server;
 	private Map<String, HttpHandler> httpHandlers;
 
 	private int httpPort;
+
+	private Object mdnsRegistrar = null;
 
 	// When a new request is submitted and fewer than CORE_POOL_SIZE threads are
 	// running, a new thread is created to handle the request,
@@ -203,6 +208,10 @@ public class BSHttpServer implements Closeable {
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to start BSHttpServer on port " + httpPort, e);
 		}
+
+		String mdnsName = fo.getAttribute("mdnsName", null);
+		if (mdnsName != null)
+			registerMdnsService(mdnsName);
 	}
 
 	/**
@@ -349,11 +358,57 @@ public class BSHttpServer implements Closeable {
 		}
 	}
 
+	public Object registerMdnsService(String name) {
+		return registerMdnsService(name, null);
+	}
+
+	public Object registerMdnsService(String name, String path) {
+		String type = httpsConfigurator != null ? MDNS_SERVICE_HTTPS : MDNS_SERVICE_HTTP;
+		return registerMdnsService(type, name, path);
+	}
+
+	public Object registerMdnsService(String serviceType, String name, String path) {
+		try {
+			MdnsRegistrar registrar = getOrCreateMdnsRegistrar();
+			return registrar.registerService(serviceType, name, httpPort, path);
+		} catch (NoClassDefFoundError e) {
+			log.warning("JmDNS not available on classpath, mDNS registration skipped");
+			return null;
+		} catch (IOException e) {
+			log.warning("Failed to register mDNS service: " + e.getMessage());
+			return null;
+		}
+	}
+
+	public void unregisterMdnsService(Object info) {
+		if (mdnsRegistrar != null && info != null)
+			((MdnsRegistrar) mdnsRegistrar).unregisterService(info);
+	}
+
+	public void unregisterAllMdnsServices() {
+		if (mdnsRegistrar != null) {
+			try {
+				((MdnsRegistrar) mdnsRegistrar).close();
+			} catch (IOException e) {
+				log.warning("Failed to close mDNS: " + e.getMessage());
+			}
+			mdnsRegistrar = null;
+		}
+	}
+
+	private MdnsRegistrar getOrCreateMdnsRegistrar() throws IOException {
+		if (mdnsRegistrar == null)
+			mdnsRegistrar = new MdnsRegistrar();
+		return (MdnsRegistrar) mdnsRegistrar;
+	}
+
 	public boolean stop() throws Exception {
 		if (!running)
 			return true;
 
 		log.info("Stopping server.");
+
+		unregisterAllMdnsServices();
 
 		if (!beforeStop())
 			return false;

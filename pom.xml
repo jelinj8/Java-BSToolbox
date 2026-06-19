@@ -283,6 +283,14 @@
 			<scope>provided</scope>
 			<optional>true</optional>
 		</dependency>
+
+		<dependency>
+			<groupId>org.jmdns</groupId>
+			<artifactId>jmdns</artifactId>
+			<version>3.6.0</version>
+			<scope>provided</scope>
+			<optional>true</optional>
+		</dependency>
 	</dependencies>
 
 	<profiles>

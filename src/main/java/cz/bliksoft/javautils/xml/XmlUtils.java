@@ -64,11 +64,14 @@ import cz.bliksoft.javautils.streams.xml.ElementWriter;
 import cz.bliksoft.javautils.xml.xpath.ChooseXPathFunction;
 import cz.bliksoft.javautils.xml.xpath.Default;
 import cz.bliksoft.javautils.xml.xpath.First;
+import cz.bliksoft.javautils.xml.xpath.FormatDateFunction;
+import cz.bliksoft.javautils.xml.xpath.FormatNumberFunction;
 import cz.bliksoft.javautils.xml.xpath.FormatXPathFunction;
 import cz.bliksoft.javautils.xml.xpath.IfElseIf;
 import cz.bliksoft.javautils.xml.xpath.Join;
 import cz.bliksoft.javautils.xml.xpath.LogFunction;
 import cz.bliksoft.javautils.xml.xpath.MapXPathFunction;
+import cz.bliksoft.javautils.xml.xpath.SprintfFunction;
 import cz.bliksoft.javautils.xml.xpath.UuidFunction;
 import cz.bliksoft.javautils.xml.xpath.XPathVarCache;
 import jakarta.xml.bind.JAXBContext;
@@ -605,6 +608,9 @@ public class XmlUtils {
 			functionResolver.addFunction(nsPrefix, "first", new First());
 			functionResolver.addFunction(nsPrefix, "join", new Join());
 			functionResolver.addFunction(nsPrefix, "uuid", new UuidFunction());
+			functionResolver.addFunction(nsPrefix, "formatDate:2", new FormatDateFunction());
+			functionResolver.addFunction(nsPrefix, "formatNumber:2", new FormatNumberFunction());
+			functionResolver.addFunction(nsPrefix, "sprintf", new SprintfFunction());
 		}
 	}
 

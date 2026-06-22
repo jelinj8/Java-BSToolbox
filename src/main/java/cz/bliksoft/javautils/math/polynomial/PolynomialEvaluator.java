@@ -4,15 +4,23 @@ import cz.bliksoft.javautils.math.polynomial.functions.AbsFunction;
 import cz.bliksoft.javautils.math.polynomial.functions.CeilFunction;
 import cz.bliksoft.javautils.math.polynomial.functions.ClampFunction;
 import cz.bliksoft.javautils.math.polynomial.functions.CosFunction;
+import cz.bliksoft.javautils.math.polynomial.functions.EqFunction;
 import cz.bliksoft.javautils.math.polynomial.functions.ExpFunction;
 import cz.bliksoft.javautils.math.polynomial.functions.FloorFunction;
+import cz.bliksoft.javautils.math.polynomial.functions.GtFunction;
+import cz.bliksoft.javautils.math.polynomial.functions.GteFunction;
 import cz.bliksoft.javautils.math.polynomial.functions.LerpFunction;
 import cz.bliksoft.javautils.math.polynomial.functions.LnFunction;
 import cz.bliksoft.javautils.math.polynomial.functions.Log2Function;
 import cz.bliksoft.javautils.math.polynomial.functions.LogFunction;
+import cz.bliksoft.javautils.math.polynomial.functions.LtFunction;
+import cz.bliksoft.javautils.math.polynomial.functions.LteFunction;
 import cz.bliksoft.javautils.math.polynomial.functions.MaxFunction;
 import cz.bliksoft.javautils.math.polynomial.functions.MeanFunction;
 import cz.bliksoft.javautils.math.polynomial.functions.MinFunction;
+import cz.bliksoft.javautils.math.polynomial.functions.NegativeFunction;
+import cz.bliksoft.javautils.math.polynomial.functions.NotFunction;
+import cz.bliksoft.javautils.math.polynomial.functions.PositiveFunction;
 import cz.bliksoft.javautils.math.polynomial.functions.PowFunction;
 import cz.bliksoft.javautils.math.polynomial.functions.RoundFunction;
 import cz.bliksoft.javautils.math.polynomial.functions.SignFunction;
@@ -91,6 +99,14 @@ public class PolynomialEvaluator {
 					m.put("sin", new SinFunction());
 					m.put("cos", new CosFunction());
 					m.put("tan", new TanFunction());
+					m.put("positive", new PositiveFunction());
+					m.put("negative", new NegativeFunction());
+					m.put("gt", new GtFunction());
+					m.put("gte", new GteFunction());
+					m.put("lt", new LtFunction());
+					m.put("lte", new LteFunction());
+					m.put("eq", new EqFunction());
+					m.put("not", new NotFunction());
 					GLOBAL_FUNCTIONS = m;
 				}
 			}

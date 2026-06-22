@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.BiFunction;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
@@ -24,6 +26,12 @@ import jakarta.xml.bind.annotation.adapters.XmlAdapter;
  */
 public class SimpleObjectMapAdapter extends XmlAdapter<SimpleObjectMapAdapter.SimpleMapType, Map<String, Object>> {
 
+	private static final List<TypeHandler<?>> TYPE_HANDLERS = new CopyOnWriteArrayList<>();
+
+	public static <T> void registerTypeHandler(Class<T> type, BiFunction<String, T, NamedObject> marshaller) {
+		TYPE_HANDLERS.add(new TypeHandler<>(type, marshaller));
+	}
+
 	@XmlAccessorType(XmlAccessType.NONE)
 	public static class SimpleMapType {
 		@XmlElementRefs({ @XmlElementRef(type = NamedIntegerObject.class),
@@ -31,6 +39,7 @@ public class SimpleObjectMapAdapter extends XmlAdapter<SimpleObjectMapAdapter.Si
 				@XmlElementRef(type = NamedFloatObject.class), @XmlElementRef(type = NamedLocalDateObject.class),
 				@XmlElementRef(type = NamedLocalDateTimeObject.class),
 				@XmlElementRef(type = NamedLocalTimeObject.class), @XmlElementRef(type = NamedMapObject.class) })
+		@jakarta.xml.bind.annotation.XmlAnyElement(lax = true)
 		public List<NamedObject> entries = new ArrayList<>();
 	}
 
@@ -206,9 +215,31 @@ public class SimpleObjectMapAdapter extends XmlAdapter<SimpleObjectMapAdapter.Si
 				o.entries.add(wrap(String.valueOf(e.getKey()), e.getValue()));
 			return o;
 		}
+		for (TypeHandler<?> handler : TYPE_HANDLERS) {
+			NamedObject result = handler.tryWrap(name, value);
+			if (result != null)
+				return result;
+		}
 		NamedStringObject o = new NamedStringObject();
 		o.name = name;
 		o.value = value != null ? value.toString() : null;
 		return o;
+	}
+
+	private static class TypeHandler<T> {
+		private final Class<T> type;
+		private final BiFunction<String, T, NamedObject> marshaller;
+
+		TypeHandler(Class<T> type, BiFunction<String, T, NamedObject> marshaller) {
+			this.type = type;
+			this.marshaller = marshaller;
+		}
+
+		@SuppressWarnings("unchecked")
+		NamedObject tryWrap(String name, Object value) {
+			if (type.isInstance(value))
+				return marshaller.apply(name, (T) value);
+			return null;
+		}
 	}
 }

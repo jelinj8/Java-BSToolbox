@@ -14,7 +14,7 @@ public class ThroughputFilter implements IStatisticFilter {
 
 	/** @param windowSeconds length of the sliding time window in seconds */
 	public ThroughputFilter(int windowSeconds) {
-		this.windowMs  = windowSeconds * 1000L;
+		this.windowMs = windowSeconds * 1000L;
 		this.startTime = System.currentTimeMillis();
 	}
 
@@ -40,16 +40,17 @@ public class ThroughputFilter implements IStatisticFilter {
 	}
 
 	/**
-	 * Per-second throughput over the configured window.
-	 * When the filter is younger than its window, the result is extrapolated
-	 * from elapsed time so the rate stabilises progressively.
+	 * Per-second throughput over the configured window. When the filter is younger
+	 * than its window, the result is extrapolated from elapsed time so the rate
+	 * stabilises progressively.
 	 */
 	@Override
 	public Double getValue() {
 		long now = System.currentTimeMillis();
 		evict(now - windowMs);
 		long effectiveWindowMs = Math.min(now - startTime, windowMs);
-		if (effectiveWindowMs == 0) return 0.0;
+		if (effectiveWindowMs == 0)
+			return 0.0;
 		return count * 1000.0 / effectiveWindowMs;
 	}
 

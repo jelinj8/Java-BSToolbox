@@ -42,6 +42,9 @@ public class FormatDateFunction implements XPathFunction {
 			return (TemporalAccessor) raw;
 		if (raw instanceof Date)
 			return ((Date) raw).toInstant().atZone(ZoneId.systemDefault());
+		// a numeric value (e.g. now(), or a Long extracted in a flow) is epoch millis
+		if (raw instanceof Number)
+			return Instant.ofEpochMilli(((Number) raw).longValue()).atZone(ZoneId.systemDefault());
 		String s = raw instanceof String ? (String) raw : XmlUtils.getResultText(raw);
 		if (s == null || s.isEmpty())
 			return null;

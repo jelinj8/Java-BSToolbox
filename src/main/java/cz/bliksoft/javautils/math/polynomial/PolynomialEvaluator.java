@@ -22,6 +22,7 @@ import cz.bliksoft.javautils.math.polynomial.functions.NegativeFunction;
 import cz.bliksoft.javautils.math.polynomial.functions.NotFunction;
 import cz.bliksoft.javautils.math.polynomial.functions.PositiveFunction;
 import cz.bliksoft.javautils.math.polynomial.functions.PowFunction;
+import cz.bliksoft.javautils.math.polynomial.functions.RandomFunction;
 import cz.bliksoft.javautils.math.polynomial.functions.RoundFunction;
 import cz.bliksoft.javautils.math.polynomial.functions.SignFunction;
 import cz.bliksoft.javautils.math.polynomial.functions.SinFunction;
@@ -107,6 +108,7 @@ public class PolynomialEvaluator {
 					m.put("lte", new LteFunction());
 					m.put("eq", new EqFunction());
 					m.put("not", new NotFunction());
+					m.put("random", new RandomFunction());
 					GLOBAL_FUNCTIONS = m;
 				}
 			}

@@ -71,6 +71,7 @@ import cz.bliksoft.javautils.xml.xpath.IfElseIf;
 import cz.bliksoft.javautils.xml.xpath.Join;
 import cz.bliksoft.javautils.xml.xpath.LogFunction;
 import cz.bliksoft.javautils.xml.xpath.MapXPathFunction;
+import cz.bliksoft.javautils.xml.xpath.NowFunction;
 import cz.bliksoft.javautils.xml.xpath.SprintfFunction;
 import cz.bliksoft.javautils.xml.xpath.UuidFunction;
 import cz.bliksoft.javautils.xml.xpath.XPathVarCache;
@@ -608,6 +609,7 @@ public class XmlUtils {
 			functionResolver.addFunction(nsPrefix, "first", new First());
 			functionResolver.addFunction(nsPrefix, "join", new Join());
 			functionResolver.addFunction(nsPrefix, "uuid", new UuidFunction());
+			functionResolver.addFunction(nsPrefix, "now", new NowFunction());
 			functionResolver.addFunction(nsPrefix, "formatDate:2", new FormatDateFunction());
 			functionResolver.addFunction(nsPrefix, "formatNumber:2", new FormatNumberFunction());
 			functionResolver.addFunction(nsPrefix, "sprintf", new SprintfFunction());

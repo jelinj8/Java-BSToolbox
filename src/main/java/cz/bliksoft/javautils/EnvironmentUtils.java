@@ -34,12 +34,12 @@ public class EnvironmentUtils {
 	 */
 	public static final String PROP_ENVIRONMENT_CONFIG_DIR = "environmentConfigDir";
 	/**
-	 * environment confiruration file name
+	 * environment configuration file name
 	 */
 	public static final String PROP_ENVIRONMENT_PROPERTIES_FILE = "environmentConfig";
 
 	/**
-	 * placeholder property for formatteed timestamp, created at initialization
+	 * placeholder property for formatted timestamp, created at initialization
 	 */
 	public static final String PROP_TIMESTAMP = "timestamp";
 
@@ -47,7 +47,7 @@ public class EnvironmentUtils {
 
 	public static final String PROP_APPNAME = "appName";
 
-	public static final String PATH_APPUSERDIR = "USERDIRDIR";
+	public static final String PATH_APPUSERDIR = "APPUSERDIR";
 	public static final String PATH_USERDIR = "USERDIR";
 	public static final String PATH_TEMPDIR = "TEMPDIR";
 
@@ -226,7 +226,12 @@ public class EnvironmentUtils {
 		initialized = true;
 	}
 
-	private static void checkInit() {
+	/**
+	 * asserts that {@link #init()} was called
+	 *
+	 * @throws InitializationException when the toolset was not initialized
+	 */
+	public static void checkInit() {
 		if (globalConfigDir == null)
 			throw new InitializationException(
 					"EnvironmentUtils.init was not called to initialize PropertiesUtils functions.");
@@ -348,7 +353,7 @@ public class EnvironmentUtils {
 	 */
 	public static void setEnvironmentConfigDirectory(File directory) {
 		if (environmentConfigDir != null)
-			throw new InitializationException("Environment config directorz was alreadz set, can't change!");
+			throw new InitializationException("Environment config directory was already set, can't change!");
 		environmentConfigDir = directory;
 	}
 

@@ -2,6 +2,7 @@ package cz.bliksoft.javautils.math.polynomial.functions;
 
 import cz.bliksoft.javautils.math.polynomial.PolynomialFunction;
 
+/** Equality test with tolerance 1e-9: eq(a, b) returns 1.0 or 0.0. */
 public class EqFunction implements PolynomialFunction {
 
 	public double apply(double... args) {

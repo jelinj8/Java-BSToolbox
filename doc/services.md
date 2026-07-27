@@ -314,10 +314,12 @@ that each attach their own handler to a different path.
 
 | Method | Notes |
 |---|---|
-| `BSHttpServer(FileObject)` | Reads `port` (mandatory) / `address` (optional), starts the server |
+| `BSHttpServer(FileObject)` | Reads `port` (mandatory) / `address` (optional), starts the server. HTTPS mode when `keystoreFile` is set (with `keystorePassword`, optional `keystoreType`/`keyPassword`/`keyAlias`); adding `truststoreFile` (optional `truststorePassword`/`truststoreType`) enables mutual TLS. An optional `mdnsName` attribute announces the server via mDNS |
 | `static getSingleton()` | `Singletons.getSingleton(BSHttpServer.class)` |
 | `addHandler(path, handler)` | Registers a handler; live-attaches if the server is already running |
 | `removeHandler(path)` | Idempotent — safe to call even if the path was never registered or the server is already stopped |
+| `registerMdnsService(name[, path])` | Announces the server on the LAN via mDNS/Bonjour as `{name}.local` (`_http._tcp` or `_https._tcp` depending on TLS mode). Requires `org.jmdns:jmdns` on the classpath — logs a warning and returns `null` otherwise |
+| `unregisterMdnsService(handle)` / `unregisterAllMdnsServices()` | Removes mDNS announcements; all are removed automatically by `stop()` |
 | `close()` (`Closeable`) | Calls `stop()`; safe to call multiple times. Invoked by `Singletons.cleanup()` |
 
 Because `removeHandler` and `close()`/`stop()` are both idempotent and

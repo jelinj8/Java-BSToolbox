@@ -2,6 +2,7 @@ package cz.bliksoft.javautils.math.polynomial.functions;
 
 import cz.bliksoft.javautils.math.polynomial.PolynomialFunction;
 
+/** Greater-than test: gt(a, b) returns 1.0 if a &gt; b, else 0.0. */
 public class GtFunction implements PolynomialFunction {
 
 	public double apply(double... args) {

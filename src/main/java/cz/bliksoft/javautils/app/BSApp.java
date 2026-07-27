@@ -37,6 +37,21 @@ public class BSApp {
 
 	static Logger log = null;
 
+	/**
+	 * Error logging usable before {@link #init()}: Log4j must not be initialized
+	 * until the configured log directory is known, so until {@code init()} creates
+	 * the logger, errors fall back to {@code System.err}.
+	 */
+	private static void logError(String message, Throwable t) {
+		if (log != null) {
+			log.error(message, t);
+		} else {
+			System.err.println(message);
+			if (t != null)
+				t.printStackTrace();
+		}
+	}
+
 	/** Folder name for core framework configuration resources. */
 	public static final String CORE_CONFIG_FOLDER = "core";
 
@@ -321,7 +336,7 @@ public class BSApp {
 		if (getGlobalProperties().isWritable())
 			getGlobalProperties().save();
 		else {
-			log.error("Can't write global properties to " + getGlobalProperties().getPath());
+			logError("Can't write global properties to " + getGlobalProperties().getPath(), null);
 			// throw new ViewableException();
 		}
 	}
@@ -365,8 +380,8 @@ public class BSApp {
 	private static File userAppdir = null;
 
 	/**
-	 * Returns the application's settings directory ({@code APPDATA/.{appName}}),
-	 * creating it if necessary.
+	 * Returns the application's settings directory
+	 * ({@code {workingDir}/.{appName}}), creating it if necessary.
 	 *
 	 * @return the settings directory; never {@code null}
 	 */
@@ -377,7 +392,7 @@ public class BSApp {
 			try {
 				userAppdir.mkdirs();
 			} catch (Exception e) {
-				log.error("Failed to create app settings directory.", e);
+				logError("Failed to create app settings directory.", e);
 			}
 		}
 		return userAppdir;
@@ -398,7 +413,7 @@ public class BSApp {
 			try {
 				userHomedir.mkdirs();
 			} catch (Exception e) {
-				log.error("Failed to create app home directory.", e);
+				logError("Failed to create app home directory.", e);
 			}
 		}
 		return userHomedir;

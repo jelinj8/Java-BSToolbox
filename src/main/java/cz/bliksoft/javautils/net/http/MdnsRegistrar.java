@@ -11,6 +11,13 @@ import java.util.logging.Logger;
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceInfo;
 
+/**
+ * Announces services on the LAN via mDNS/Bonjour using JmDNS. One {@link JmDNS}
+ * instance is created per service name ({@code {name}.local});
+ * {@link #registerService} returns an opaque handle accepted by
+ * {@link #unregisterService(Object)}. {@link #close()} unregisters everything.
+ * Requires {@code org.jmdns:jmdns} on the classpath.
+ */
 public class MdnsRegistrar implements Closeable {
 	private static final Logger log = Logger.getLogger(MdnsRegistrar.class.getName());
 

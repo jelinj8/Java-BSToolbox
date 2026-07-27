@@ -18,6 +18,13 @@ import cz.bliksoft.javautils.xmlfilesystem.FileObject;
 import cz.bliksoft.javautils.xmlfilesystem.FileObjectClassLoader;
 import cz.bliksoft.javautils.xmlfilesystem.FileSystem;
 
+/**
+ * Static registry of all {@link Permission}s. Lazily discovers permissions from
+ * the XML virtual filesystem ({@code core/permissions} folder) and from
+ * {@link java.util.ServiceLoader} on first access. {@link #isAllowed(Class)}
+ * checks the current user's permission set via the active
+ * {@link SessionManager}.
+ */
 public class Permissions {
 	private static final Logger log = LogManager.getLogger();
 

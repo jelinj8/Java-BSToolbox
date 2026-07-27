@@ -24,6 +24,23 @@ Most heavyweight features are `optional` — the library compiles without them a
 | WS client | `dependency-management-8-client` BOM |
 | WS server | `dependency-management-8-service` BOM |
 | QR code generation | `com.google.zxing:core` |
+| mDNS/Bonjour announcement | `org.jmdns:jmdns` |
+
+## Documentation
+
+Detailed guides in [`doc/`](doc/):
+[app](doc/app.md) ·
+[context](doc/context.md) ·
+[modules](doc/modules.md) ·
+[xml-filesystem](doc/xml-filesystem.md) ·
+[services](doc/services.md) ·
+[freemarker](doc/freemarker.md) ·
+[database](doc/database.md) ·
+[math](doc/math.md) ·
+[ws](doc/ws.md) ·
+[classloader](doc/classloader.md) ·
+[environment-utils](doc/environment-utils.md) ·
+[image-utils](doc/image-utils.md)
 
 ---
 
@@ -119,6 +136,20 @@ Modules can contribute an XML virtual filesystem descriptor via `getFilesystemXm
 
 ---
 
+## Application Framework (`cz.bliksoft.javautils.app`)
+
+`BSApp` builds an application skeleton on top of the modules framework: lifecycle (`init()` → `start()`/`startConsole()`, vetoable shutdown via `TryCloseEvent`), layered XML properties (global `{workingDir}/.{appName}/settings.xml` + local `~/.{appName}/settings.xml`, with per-environment key prefixes), an application event-dispatch thread (`executeLater`), and a pluggable permission/session model (`Permissions`, `SessionManager`, `UserInfo`). Requires Log4j 2.
+
+```java
+BSApp.setAppName("myapp");
+BSApp.init();
+BSApp.startConsole(); // blocks; 'q' + Enter quits
+```
+
+See [`doc/app.md`](doc/app.md) for the full reference.
+
+---
+
 ## XML Virtual Filesystem (`cz.bliksoft.javautils.xmlfilesystem`)
 
 Modules contribute XML descriptors that are merged at runtime into a single virtual `FileSystem` of `FileObject` nodes — used for configuration, class wiring, and translations.
@@ -206,14 +237,16 @@ IDBConnectionProvider p = DBConnectionProvidersRegister.get("mydb");
 try (Connection c = p.getConnection()) { ... }
 ```
 
-Built-in implementations: `MySQLConnection`, `MariaDbConnection` (require the respective JDBC driver on the classpath).
+Built-in implementations: `MySQLConnection`, `MariaDbConnection`, `OracleDbConnection` (require the respective JDBC driver on the classpath). See [`doc/database.md`](doc/database.md).
 
 ---
 
 ## Network / HTTP (`cz.bliksoft.javautils.net`)
 
-Lightweight embedded HTTP handler helpers:
+Lightweight embedded HTTP server and handler helpers:
 
+- **`BSHttpServer`** — embeddable HTTP(S) server (`com.sun.net.httpserver` wrapper); handlers attachable at runtime, optional thread pool, TLS/mutual TLS from code or XML config, mDNS announcement via `registerMdnsService(name)`. Can be shared app-wide as a singleton — see [`doc/services.md`](doc/services.md).
+- **`MdnsRegistrar`** — announces services on the LAN via mDNS/Bonjour (requires `org.jmdns:jmdns`).
 - **`DefaultFileHTTPHandler`** — serves files from a directory.
 - **`DefaultResourceHTTPHandler`** — serves classpath resources.
 - **`SystemReportHTTPHandler`** — exposes a simple system-info endpoint.
@@ -234,8 +267,32 @@ Lightweight embedded HTTP handler helpers:
 | `OffsetDateTimeAdapter` | `OffsetDateTime` |
 | `ZonedDateTimeAdapter` | `ZonedDateTime` |
 | `BigDecimalAdapter` | `BigDecimal` |
+| `SimpleObjectMapAdapter` | `Map<String,Object>` as typed `<integer/string/boolean/float/local-date/…>` elements with `name`/`value` attributes; custom types via `registerTypeHandler` |
 
-**XPath extensions** (`cz.bliksoft.javautils.xml.xpath`): `FormatXPathFunction`, `ChooseXPathFunction`, `IfElseIf`, `MapXPathFunction`, `UuidFunction`.
+**XPath extensions** (`cz.bliksoft.javautils.xml.xpath`) — custom functions usable in XPath expressions. Register once with `XmlUtils.registerXPathExtensions()` (binds namespace prefix `bsExt` → `http://bliksoft.cz`; overloads accept a custom prefix or namespace context), then compile expressions via `XmlUtils.compileXPath(...)`:
+
+```java
+XmlUtils.registerXPathExtensions();
+String s = XmlUtils.getResultText(
+    XmlUtils.compileXPath("bsExt:formatDate(bsExt:now(), 'yyyy-MM-dd')").evaluate(doc));
+```
+
+| Function | Purpose |
+|---|---|
+| `choose(cond, ifTrue, ifFalse)` | Ternary operator |
+| `ifElseIf(cond1, res1 [, cond2, res2, …][, elseRes])` | Chained conditions; odd trailing argument is the else value |
+| `map(input, val1, res1 [, val2, res2, …][, default])` | Value-to-value mapping; even trailing argument is the default |
+| `default(value, fallback)` | Fallback when the value is empty or missing |
+| `first(a, b, …)` | First non-empty argument as text |
+| `join(separator, a, b, …)` | Joins non-empty text values with a separator |
+| `format(pattern, args…)` | `MessageFormat`-style formatting |
+| `sprintf(format, args…)` | `String.format`-style formatting |
+| `formatNumber(value, pattern)` | `DecimalFormat` number formatting |
+| `formatDate(value, pattern)` | `DateTimeFormatter` formatting; accepts temporal objects, `Date`, epoch millis, or ISO strings |
+| `now()` | Current time as epoch milliseconds (feed into `formatDate`) |
+| `uuid()` | Random UUID string |
+| `log(...)` | Logs a message and passes a value through |
+| `var(namespace, name)` | Reads a value from the static `XPathVarCache` (set from Java) |
 
 ---
 
@@ -245,6 +302,7 @@ Lightweight embedded HTTP handler helpers:
 |---|---|
 | `StringUtils` | `hasText`, `format` (MessageFormat shorthand), `ellipsis` |
 | `NumericUtils` | Numeric parsing and conversion helpers |
+| `BooleanUtils` | Lenient `toBoolean(Object)` coercion (numbers, strings, null-safe) |
 | `DateUtils` | Date/time formatting and parsing |
 | `GeneralUtils` | Miscellaneous object utilities |
 | `ClasspathUtils` | Classpath resource loading |

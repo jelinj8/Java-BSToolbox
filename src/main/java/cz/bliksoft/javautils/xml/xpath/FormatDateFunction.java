@@ -16,6 +16,17 @@ import javax.xml.xpath.XPathFunctionException;
 
 import cz.bliksoft.javautils.xml.XmlUtils;
 
+/**
+ * {@code formatDate(value, pattern)} - formats a date/time value with a
+ * {@link DateTimeFormatter} pattern.
+ *
+ * <p>
+ * The value may be a {@link TemporalAccessor}, a {@link Date}, a number
+ * (interpreted as epoch milliseconds, e.g. the result of {@code now()}), or a
+ * string parseable as ISO zoned/local date-time, local date, local time,
+ * instant, or epoch milliseconds. Returns an empty string for a null or empty
+ * value.
+ */
 public class FormatDateFunction implements XPathFunction {
 
 	@Override

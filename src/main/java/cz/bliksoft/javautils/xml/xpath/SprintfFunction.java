@@ -8,6 +8,11 @@ import javax.xml.xpath.XPathFunctionException;
 
 import cz.bliksoft.javautils.xml.XmlUtils;
 
+/**
+ * {@code sprintf(format, args...)} - formats via
+ * {@link String#format(String, Object...)}. All arguments are passed as
+ * strings, so use {@code %s} conversions in the format.
+ */
 public class SprintfFunction implements XPathFunction {
 
 	@Override

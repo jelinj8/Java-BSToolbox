@@ -8,6 +8,11 @@ import javax.xml.xpath.XPathFunctionException;
 
 import cz.bliksoft.javautils.xml.XmlUtils;
 
+/**
+ * {@code formatNumber(value, pattern)} - formats a numeric value with a
+ * {@link DecimalFormat} pattern. Returns an empty string for a null or empty
+ * value.
+ */
 public class FormatNumberFunction implements XPathFunction {
 
 	@Override

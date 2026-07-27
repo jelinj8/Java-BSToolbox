@@ -3,6 +3,10 @@ package cz.bliksoft.javautils.math.statistics;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
+/**
+ * Exact mean over the last {@code windowSize} values; keeps the window in a
+ * deque. Thread-safe.
+ */
 public class RollingAverageFilter implements IStatisticFilter {
 
 	Deque<Double> values;
@@ -17,7 +21,7 @@ public class RollingAverageFilter implements IStatisticFilter {
 		values = new ArrayDeque<Double>(windowSize + 1);
 	}
 
-	public void addValue(Double value) {
+	public synchronized void addValue(Double value) {
 		sum += value;
 		values.add(value);
 		if (values.size() > windowSize)
@@ -29,20 +33,20 @@ public class RollingAverageFilter implements IStatisticFilter {
 		addValue(value.doubleValue());
 	}
 
-	public Long getLongValue() {
+	public synchronized Long getLongValue() {
 		return Math.round(sum / values.size());
 	}
 
-	public Double getValue() {
+	public synchronized Double getValue() {
 		return sum / values.size();
 	}
 
-	public Long getCount() {
+	public synchronized Long getCount() {
 		return (long) values.size();
 	}
 
 	@Override
-	public Long getTotalCount() {
+	public synchronized Long getTotalCount() {
 		return totalValCount;
 	}
 

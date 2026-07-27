@@ -2,6 +2,10 @@ package cz.bliksoft.javautils.math.polynomial.functions;
 
 import cz.bliksoft.javautils.math.polynomial.PolynomialFunction;
 
+/**
+ * Uniform random number: random() in [0, 1), random(max) in [0, max),
+ * random(min, max) in [min, max).
+ */
 public class RandomFunction implements PolynomialFunction {
 
 	public double apply(double... args) {

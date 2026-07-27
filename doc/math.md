@@ -111,6 +111,27 @@ Registered in the global registries on first use of `eval()` or `evaluate()`.
 |---|---|---|
 | `lerp` | 3 | `lerp(a, b, t)` = `a + (b-a)*t` |
 
+**Comparison and logic** (return `1.0` for true, `0.0` for false)
+
+| Name | Arity | Behaviour |
+|---|---|---|
+| `eq` | 2 | `eq(a, b)` — equality with tolerance `1e-9` |
+| `gt` | 2 | `gt(a, b)` — `a > b` |
+| `gte` | 2 | `gte(a, b)` — `a >= b` |
+| `lt` | 2 | `lt(a, b)` — `a < b` |
+| `lte` | 2 | `lte(a, b)` — `a <= b` |
+| `not` | 1 | `1.0` if the argument is exactly `0.0`, else `0.0` |
+| `positive` | 1 | `1.0` if the argument is `> 0` |
+| `negative` | 1 | `1.0` if the argument is `< 0` |
+
+**Random numbers**
+
+| Name | Arity | Behaviour |
+|---|---|---|
+| `random` | 0 | uniform random in `[0, 1)` |
+| `random` | 1 | `random(max)` — uniform random in `[0, max)` |
+| `random` | 2 | `random(min, max)` — uniform random in `[min, max)` |
+
 **Constants** (global variables)
 
 | Name | Value |
@@ -230,3 +251,37 @@ PolynomialEvaluator.registerGlobalFunction("lerp", args -> {
     return args[0] + (args[1] - args[0]) * args[2];
 });
 ```
+
+---
+
+## Statistics filters
+
+`cz.bliksoft.javautils.math.statistics`
+
+Incremental single-value aggregators sharing the `IStatisticFilter` interface. Feed values in with `addValue(Double)` / `addValue(Long)` and read the current aggregate back at any time:
+
+| Method | Meaning |
+|---|---|
+| `getValue()` / `getLongValue()` | current aggregate as `Double` / rounded `Long` |
+| `getCount()` | number of values currently affecting the result (e.g. inside the window) |
+| `getTotalCount()` | total number of values ever added |
+
+Implementations:
+
+| Class | Aggregate |
+|---|---|
+| `AverageFilter` | Cumulative arithmetic mean of all values. Extra overloads `addValue(value, count)` add a pre-aggregated sum with its own count. |
+| `RollingAverageFilter` | Exact mean over the last *N* values (constructor `windowSize`); keeps the window in a deque. |
+| `ApproximatedRollingAverage` | Approximate rolling mean with O(1) memory — no window storage; each new value is blended in with weight `1/windowSize` once warmed up. |
+| `CountFilter` | Simply counts added values; the values themselves are ignored. |
+| `ThroughputFilter` | Events per second over a sliding time window (constructor `windowSeconds`). The value passed to `addValue` is ignored — each call counts as one event. While the filter is younger than its window the rate is extrapolated from elapsed time. |
+
+```java
+ThroughputFilter tp = new ThroughputFilter(60); // 60-second window
+// on every processed request:
+tp.addValue(1L);
+// anytime:
+double reqPerSec = tp.getValue();
+```
+
+All filters are thread-safe — values can be fed and read from multiple threads without external synchronization.

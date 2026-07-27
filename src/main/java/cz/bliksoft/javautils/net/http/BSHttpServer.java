@@ -32,6 +32,15 @@ import com.sun.net.httpserver.HttpsServer;
 import cz.bliksoft.javautils.xmlfilesystem.FileObject;
 import cz.bliksoft.javautils.xmlfilesystem.singletons.Singletons;
 
+/**
+ * Embeddable HTTP(S) server wrapping {@link com.sun.net.httpserver.HttpServer}.
+ * Supports handler registration on a running server, optional multithreaded
+ * request execution, TLS (including mutual TLS) configured programmatically or
+ * from a {@link FileObject}, and optional mDNS/Bonjour service announcement
+ * (requires {@code org.jmdns:jmdns} on the classpath). Can be registered as a
+ * {@code /singletons} entry and shared via {@link #getSingleton()} — see
+ * {@code doc/services.md}.
+ */
 public class BSHttpServer implements Closeable {
 	private Logger log = Logger.getLogger(BSHttpServer.class.getName());
 

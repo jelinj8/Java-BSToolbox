@@ -13,6 +13,12 @@ import org.apache.logging.log4j.Logger;
 import cz.bliksoft.javautils.app.BSAppMessages;
 import cz.bliksoft.javautils.exceptions.ViewableException;
 
+/**
+ * {@link Properties} backed by an XML file ({@code loadFromXML} /
+ * {@code storeToXML}). Loaded from the given file on construction (missing file
+ * = empty properties); {@link #save()} writes atomically via a {@code .tmp}
+ * file. Adds typed accessors for {@code Double} and {@code Boolean} values.
+ */
 public class XmlProperties extends Properties {
 	/**
 	 *

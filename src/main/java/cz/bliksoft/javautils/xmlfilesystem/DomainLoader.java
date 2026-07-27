@@ -6,6 +6,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Loads typed objects from the children of a virtual-filesystem folder by
+ * dispatching each child to the {@link FileLoader} registered for its
+ * {@code type} attribute. Children with no matching loader are skipped. Note
+ * that the loader registry is static, i.e. shared by all instances.
+ */
 public class DomainLoader {
 
 	private static final Map<String, FileLoader> subLoaders = new LinkedHashMap<>();

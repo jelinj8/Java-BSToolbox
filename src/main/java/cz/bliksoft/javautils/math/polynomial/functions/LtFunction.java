@@ -2,6 +2,7 @@ package cz.bliksoft.javautils.math.polynomial.functions;
 
 import cz.bliksoft.javautils.math.polynomial.PolynomialFunction;
 
+/** Less-than test: lt(a, b) returns 1.0 if a &lt; b, else 0.0. */
 public class LtFunction implements PolynomialFunction {
 
 	public double apply(double... args) {

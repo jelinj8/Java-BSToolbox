@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Universal Java utility library (`cz.bliksoft.java:common-java-utils:0.6-SNAPSHOT`). Must stay compatible with JDK 8. No new hard dependencies; avoid new `provided` dependencies too.
+Universal Java utility library (`cz.bliksoft.java:common-java-utils:0.7-SNAPSHOT`). Must stay compatible with JDK 8. No new hard dependencies. Avoid new `provided` dependencies for non-isolated functionality; for isolated features (e.g. QR codes, mDNS) a `provided`/`optional` dependency is acceptable when explicitly approved.
 
 ## Build Commands
 
@@ -36,7 +36,7 @@ Plugin system using Java SPI (`ServiceLoader`):
 
 - **`IModule`** — interface with lifecycle: `init()` → `install()` → `cleanup()`. Also provides `getFilesystemXml()` for virtual file contributions and `getModuleLoadingOrder()` for priority.
 - **`ModuleBase`** — convenient abstract base; auto-discovers `{ClassName}.xml` in its package and integrates git version info.
-- **`Modules`** — static registry; loading phases: `loadModules()` → `initModules()` → `installModules()`. Supports enable/disable by class name (`"*"` enables all). Always loads `cz.bliksoft.javautils.app.BaseAppModule`.
+- **`Modules`** — static registry; loading phases: `loadModules()` → `initModules()` → `installModules()`. Supports enable/disable by class name (`"*"` enables all). Force-enables `cz.bliksoft.javautils.app.BaseAppModule` when a module of that name is discovered (the class itself is not part of this library).
 
 ### XML Virtual Filesystem (`cz.bliksoft.javautils.xmlfilesystem`)
 
@@ -116,6 +116,7 @@ These are `optional` in `pom.xml`; callers must provide their own dependency:
 | WS interface/JAXB | `dependency-management-8-servicedef` BOM |
 | WS client | `dependency-management-8-client` BOM |
 | WS server | `dependency-management-8-service` BOM |
+| mDNS/Bonjour announcement | `org.jmdns:jmdns` |
 
 For JAXB/WS POJO mappings use `LocalDateAdapter` and `OffsetDateTimeAdapter` in `cz.bliksoft.javautils.xml.adapters` via a `bindings.xml`.
 

@@ -1,8 +1,12 @@
-﻿package cz.bliksoft.javautils.math.statistics;
+package cz.bliksoft.javautils.math.statistics;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
 
+/**
+ * Measures events per second over a sliding time window. The value passed to
+ * {@code addValue} is ignored — every call counts as one event. Thread-safe.
+ */
 public class ThroughputFilter implements IStatisticFilter {
 
 	private final long windowMs;
@@ -26,7 +30,7 @@ public class ThroughputFilter implements IStatisticFilter {
 	}
 
 	@Override
-	public void addValue(Double value) {
+	public synchronized void addValue(Double value) {
 		long now = System.currentTimeMillis();
 		evict(now - windowMs);
 		timestamps.addLast(now);
@@ -45,7 +49,7 @@ public class ThroughputFilter implements IStatisticFilter {
 	 * stabilises progressively.
 	 */
 	@Override
-	public Double getValue() {
+	public synchronized Double getValue() {
 		long now = System.currentTimeMillis();
 		evict(now - windowMs);
 		long effectiveWindowMs = Math.min(now - startTime, windowMs);
@@ -61,12 +65,12 @@ public class ThroughputFilter implements IStatisticFilter {
 
 	/** Raw count of events within the current window. */
 	@Override
-	public Long getCount() {
+	public synchronized Long getCount() {
 		return count;
 	}
 
 	@Override
-	public Long getTotalCount() {
+	public synchronized Long getTotalCount() {
 		return totalCount;
 	}
 

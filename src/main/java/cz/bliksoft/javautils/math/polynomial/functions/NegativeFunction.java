@@ -2,6 +2,7 @@ package cz.bliksoft.javautils.math.polynomial.functions;
 
 import cz.bliksoft.javautils.math.polynomial.PolynomialFunction;
 
+/** Sign test: negative(x) returns 1.0 if x &lt; 0, else 0.0. */
 public class NegativeFunction implements PolynomialFunction {
 
 	public double apply(double... args) {

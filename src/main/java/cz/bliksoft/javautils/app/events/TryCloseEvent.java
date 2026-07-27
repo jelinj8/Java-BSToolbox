@@ -9,6 +9,11 @@ import org.apache.logging.log4j.Logger;
 
 import cz.bliksoft.javautils.context.Context;
 
+/**
+ * Vetoable shutdown request fired on the root context. Listeners may call
+ * {@link #blockClosing(String)} to veto; if no listener blocks it,
+ * {@link AppClosedEvent} is fired automatically and the application shuts down.
+ */
 public class TryCloseEvent {
 
 	static Logger log = LogManager.getLogger();

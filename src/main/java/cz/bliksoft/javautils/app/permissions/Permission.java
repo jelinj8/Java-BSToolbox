@@ -2,6 +2,11 @@ package cz.bliksoft.javautils.app.permissions;
 
 import cz.bliksoft.javautils.app.BSAppMessages;
 
+/**
+ * A single named application permission. Subclass and register via the XML
+ * filesystem ({@code core/permissions} folder) or Java SPI
+ * ({@code META-INF/services}); permissions are identified by their class.
+ */
 public abstract class Permission {
 	public abstract String getName();
 

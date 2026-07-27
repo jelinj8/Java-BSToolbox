@@ -1,6 +1,16 @@
 package cz.bliksoft.javautils;
 
+/** Boolean coercion helpers. */
 public class BooleanUtils {
+	/**
+	 * Lenient conversion of an arbitrary value to {@code boolean}: {@code Boolean}
+	 * as-is; numbers (and numeric strings) are {@code true} when they round to a
+	 * non-zero value; {@code "true"}/{@code "false"} (case-insensitive) as
+	 * expected; {@code null}, empty, and unparseable strings are {@code false}.
+	 *
+	 * @param value the value to convert; may be {@code null}
+	 * @return the boolean interpretation of {@code value}
+	 */
 	public static boolean toBoolean(Object value) {
 		if (value == null)
 			return false;

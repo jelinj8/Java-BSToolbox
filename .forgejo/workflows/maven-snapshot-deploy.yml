@@ -51,9 +51,15 @@ jobs:
           </settings>
           SETTINGSEOF
 
+      # -U forces Maven to re-check the registry for newer SNAPSHOT dependencies every run,
+      # rather than trusting its default once-per-day update policy - necessary now that the
+      # local repo cache persists across separate job runs (see K8s_Talos/talos-minipc/
+      # k8s_forgejo/04-runner-config-configmap.yaml's maven-cache volume). Applied
+      # unconditionally even though this project has no snapshot dependencies of its own today -
+      # harmless no-op, and it may gain one later.
       - name: Build and test
         working-directory: src
-        run: mvn -B verify
+        run: mvn -B -U verify
 
       - name: Determine current version/coordinates
         working-directory: src
@@ -64,7 +70,7 @@ jobs:
       - name: Deploy
         working-directory: src
         run: |
-          mvn -B -s ../settings.xml deploy -DskipTests \
+          mvn -B -U -s ../settings.xml deploy -DskipTests \
             -DaltDeploymentRepository=forgejo-deploy::default::https://${{ vars.REGISTRY_URL }}/api/packages/${{ github.repository_owner }}/maven
         env:
           MVN_TOKEN: ${{ secrets.ORG_PACKAGES_TOKEN }}

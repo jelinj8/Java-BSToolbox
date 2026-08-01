@@ -1,0 +1,84 @@
+# Publishes a Maven library snapshot to Forgejo's own package registry on every push. Adapted
+# from SYS/devenv's samples/maven-snapshot-deploy.yml (proven working there) for this repo
+# specifically: no <distributionManagement> in pom.xml (existing house convention - the target
+# repo has always come from the local ~/.m2 "bliksoft" profile instead), so this deploys via
+# Maven's -DaltDeploymentRepository flag instead of relying on the pom, meaning this workflow
+# file is the ONLY change needed here - no pom.xml edit required.
+#
+# This file lives on GitHub (the real source of truth for this repo, which Forgejo pull-mirrors)
+# rather than being pushed directly to the Forgejo side - a commit made only on the Forgejo side
+# of a pull mirror would very likely be silently discarded on the next sync from GitHub.
+#
+# Forgejo tolerates re-publishing the same snapshot version (both uploads just coexist under the
+# one listed version) - no delete-first step needed.
+#
+# Note: this project targets Java 8 (<java.version>8</java.version> in pom.xml), while the
+# maven-jdk runner image is JDK 21 - cross-compiling old releases from a newer JDK is normally
+# fine, but this is the first Java-8-targeted project run through this pipeline, so watch the
+# first run's "Build and test" step closely in case something doesn't cross-compile cleanly.
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  snapshot-deploy:
+    runs-on: maven-jdk
+    # Pin an explicit local repo path - Maven's default `~/.m2` resolves via $HOME, which isn't
+    # reliably stable across this runner's separate `run:` step invocations even within one job
+    # container. Also matches the shared cache volume the runner mounts at this same path, so
+    # dependencies persist across separate job runs too.
+    env:
+      MAVEN_OPTS: "-Dmaven.repo.local=/tmp/m2-repo"
+    steps:
+      - name: Clone repository
+        run: |
+          git clone --depth 1 --branch "${{ github.ref_name }}" \
+            "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@${{ vars.REGISTRY_URL }}/${{ github.repository }}.git" src
+
+      - name: Write Maven settings.xml
+        run: |
+          cat > settings.xml <<'SETTINGSEOF'
+          <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0">
+            <servers>
+              <server>
+                <id>forgejo-deploy</id>
+                <username>bot</username>
+                <password>${env.MVN_TOKEN}</password>
+              </server>
+            </servers>
+          </settings>
+          SETTINGSEOF
+
+      - name: Build and test
+        working-directory: src
+        run: mvn -B verify
+
+      - name: Determine current version/coordinates
+        working-directory: src
+        run: |
+          echo "VERSION=$(mvn -B -q help:evaluate -Dexpression=revision -DforceStdout)" >> "$GITHUB_ENV"
+          echo "ARTIFACT_ID=$(mvn -B -q help:evaluate -Dexpression=project.artifactId -DforceStdout)" >> "$GITHUB_ENV"
+
+      - name: Deploy
+        working-directory: src
+        run: |
+          mvn -B -s ../settings.xml deploy -DskipTests \
+            -DaltDeploymentRepository=forgejo-deploy::default::https://${{ vars.REGISTRY_URL }}/api/packages/${{ github.repository_owner }}/maven
+        env:
+          MVN_TOKEN: ${{ secrets.ORG_PACKAGES_TOKEN }}
+
+      - name: Link package to this repo (best-effort, cosmetic only)
+        run: |
+          # Purely so the package shows up under this repo's own Packages tab - consumption
+          # always goes through the owner-level Maven registry URL regardless of linking, so
+          # this doesn't restrict who/what can depend on it. Package "name" is
+          # groupId:artifactId (colon, unencoded - matches Forgejo's own html_url scheme).
+          OWNER=$(echo "${{ github.repository }}" | cut -d/ -f1)
+          REPO_NAME=$(echo "${{ github.repository }}" | cut -d/ -f2)
+          PKG_NAME=$(curl -sf -u "bot:${{ secrets.ORG_PACKAGES_TOKEN }}" \
+            "https://${{ vars.REGISTRY_URL }}/api/v1/packages/$OWNER?type=maven" \
+            | jq -r --arg a "$ARTIFACT_ID" '.[] | select(.name | contains($a)) | .name' | head -1)
+          curl -s -w 'link status=%{http_code}\n' -u "bot:${{ secrets.ORG_PACKAGES_TOKEN }}" -X POST \
+            "https://${{ vars.REGISTRY_URL }}/api/v1/packages/$OWNER/maven/$PKG_NAME/-/link/$REPO_NAME"

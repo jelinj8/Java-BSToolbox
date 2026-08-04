@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 public class TemplateParameterUtils {
 
 	// {var|type|name|title[|default[|parameters]]}
-	public static final String PROPERTY_DEFINITION_PATTERN = "^\\s*\\{var\\|(?<type>[^\\|]+)\\|(?<name>[^\\|\\s]+)\\|(?<title>[^\\|\\}]+)(?:\\|(?<default>[^\\|\\}]*)(?:\\|(?<parameters>[^\\}]+?))?)?\\}\\s*$";
+	public static final String PROPERTY_DEFINITION_PATTERN = "^\\s*\\{var\\|(?<type>[^\\|]+)\\|(?<name>[^\\|\\s]+)\\|(?<title>[^\\|\\}]+)(?:\\|(?<default>[^\\|\\}]*)(?:\\|(?<parameters>[^\\}]*?))?)?\\}\\s*$";
 	public static final String PATT_NAME = "name";
 	public static final String PATT_TITLE = "title";
 	public static final String PATT_DEFAULT = "default";
@@ -70,8 +70,11 @@ public class TemplateParameterUtils {
 		List<TemplateParameter> result = new ArrayList<>();
 		Matcher matcher = regexPattern.matcher(templateSource);
 		while (matcher.find()) {
+			String parameters = matcher.group(PATT_PARAMS);
+			if (parameters != null && parameters.isEmpty())
+				parameters = null;
 			result.add(new TemplateParameter(matcher.group(PATT_TYPE), matcher.group(PATT_NAME),
-					matcher.group(PATT_TITLE), matcher.group(PATT_DEFAULT), matcher.group(PATT_PARAMS)));
+					matcher.group(PATT_TITLE), matcher.group(PATT_DEFAULT), parameters));
 		}
 		return result;
 	}

@@ -12,15 +12,16 @@ import com.github.weisj.jsvg.SVGDocument;
 import cz.bliksoft.javautils.images.ImageLoader;
 
 /**
- * {@link ImageLoader} for the {@code svg} extension, backed by {@link SvgConverter}
- * (JSVG). Additional args, in order: {@code W, H, scale, stroke, fill} — blank,
- * missing, or the literal string {@code "null"} are treated as unset.
+ * {@link ImageLoader} for the {@code svg} extension, backed by
+ * {@link SvgConverter} (JSVG). Additional args, in order:
+ * {@code W, H, scale, stroke, fill} — blank, missing, or the literal string
+ * {@code "null"} are treated as unset.
  * <p>
- * JSVG is an optional dependency of this module (see {@code pom.xml}); it is only
- * resolved lazily, the first time an SVG is actually rendered, so registering this
- * loader is safe even when JSVG is absent from the final application's classpath.
- * A missing JSVG surfaces as an {@link IOException} at that point instead of an
- * uncaught {@link LinkageError}.
+ * JSVG is an optional dependency of this module (see {@code pom.xml}); it is
+ * only resolved lazily, the first time an SVG is actually rendered, so
+ * registering this loader is safe even when JSVG is absent from the final
+ * application's classpath. A missing JSVG surfaces as an {@link IOException} at
+ * that point instead of an uncaught {@link LinkageError}.
  */
 public class SvgImageLoader extends ImageLoader {
 

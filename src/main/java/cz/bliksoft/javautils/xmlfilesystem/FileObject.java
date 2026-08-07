@@ -147,6 +147,7 @@ public class FileObject implements Comparable<Object> {
 
 	public static final String SYMLINK_ELEMENT = "symlink"; //$NON-NLS-1$
 	public static final String SYMLINK_FILE_PATH = "path"; //$NON-NLS-1$
+	public static final String SYMLINK_TARGET_ID = "target-id"; //$NON-NLS-1$
 
 	/**
 	 * mode attribute for require/include - "ro" (default) or "rw"
@@ -275,7 +276,15 @@ public class FileObject implements Comparable<Object> {
 
 		this.folder = false;
 		NamedNodeMap attribs = xmlDefinition.getAttributes();
-		this.name = attribs.getNamedItem(ATTRIBUTE_NAME).getNodeValue();
+		Node nameNode = attribs.getNamedItem(ATTRIBUTE_NAME);
+		if (nameNode != null) {
+			this.name = nameNode.getNodeValue();
+		} else if (xmlDefinition.getNodeName().equalsIgnoreCase(FILE_ELEMENT)) {
+			throw new InitializationException(
+					StringUtils.format("<file> requires a 'name' attribute:\n{0}", XmlUtils.outerXml(xmlDefinition)));
+		}
+		// <symlink> without 'name': FileSymlink's constructor derives it from the
+		// resolved target
 
 		Node typeNode = attribs.getNamedItem(ATTRIBUTE_FILE_TYPE);
 		if (typeNode != null) {

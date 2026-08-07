@@ -87,10 +87,9 @@
 	</xs:element>
 	<xs:element name="symlink">
 		<xs:complexType>
-			<xs:attribute name="name" type="xs:string"
-				use="required" />
-			<xs:attribute name="path" type="xs:string"
-				use="required" />
+			<xs:attribute name="name" type="xs:string" />
+			<xs:attribute name="path" type="xs:string" />
+			<xs:attribute name="target-id" type="xs:string" />
 		</xs:complexType>
 	</xs:element>
 </xs:schema>

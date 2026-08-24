@@ -163,6 +163,50 @@ Both mechanisms share a single "applied" flag on the generator instance, so call
 `${applyTemplateDefaults()}` is a no-op if `setResolveTemplateDefaults(true)` already
 applied the defaults for this render (and vice versa) — it is safe to use both at once.
 
+### Conventional parameter types
+
+`TemplateParameterUtils` itself treats `type` as an opaque string — its regex doesn't
+special-case any particular value, and `extractDefaultVariables` only branches on `INT`
+and `BOOLEAN` (for typed defaults) plus skips `INFO`/`COMMENT`/`CSVFILE` (no usable scalar
+default). The full type vocabulary below is a **convention**, not something this class
+enforces — it's followed independently by each UI that turns a parsed parameter list into
+an actual form: StorageManagerServer's web print UI (`ui.ftlh`'s `parameterinputs` macro,
+consumed by `PrintController`) and StorageManagerDesktopClient2's `PrintLabelDialog`. There
+is no shared rendering code between them — keep both in sync by hand when adding/changing a
+type.
+
+| Type | `default` meaning | `parameters` meaning | Rendered as |
+|---|---|---|---|
+| `int` | numeric default | `min:max:step` | Number spinner |
+| `string` | text default | `maxlength:size` | Single-line text input |
+| `multiline` | text default | `rows:cols` | Textarea |
+| `boolean` | `true`/`false` | — | Checkbox |
+| `combo` | selected option | `;`-separated option list | Dropdown |
+| `radio` | — | — | Not implemented in either consumer yet |
+| `csvfile` | — (no default) | `size:accept` (e.g. `20:.csv,.txt`) | File picker; submitted value becomes a parsed `List<Map<String,String>>`, not a scalar |
+| `info` | **the actual displayed value** | — | Read-only row: `title` as the left-hand label, `default` as the right-hand value — a label:value pair, not an input |
+| `comment` | — (unused) | — | Free text taken from `title` (not `default`), rendered spanning the **whole row** (full width, wrapped/pre-wrapped) instead of split into a label/value pair |
+
+`info` and `comment` are both purely presentational — neither is bound to a real
+variable — but they place their text in different fields and render at different widths:
+use `info` for a short label:value fact (e.g. the template's own display name —
+conventionally one `{var|info|-|Šablona|<name>}` line per template, name field `-` since it
+isn't a real variable), and `comment` for a longer explanatory note that needs the full row
+rather than being squeezed into the narrow value column next to a label. `comment`'s `title`
+group isn't restricted to a single line — since `TemplateParameterUtils`'s regex only
+excludes literal `|` and `}` characters (not newlines), a `comment` declaration can span
+several source lines and they're preserved (`ui.ftlh` renders it with `pre-wrap`;
+`PrintLabelDialog` uses a wrapping `Label`):
+
+```ftl
+<#--
+{var|info|-|Šablona|My Label}
+{var|comment|comment|Explains something the user should know before filling out the form,
+possibly across more than one line.}
+{var|multiline|zpl|ZPL content||10:200}
+-->
+```
+
 ---
 
 ## Extensions added manually

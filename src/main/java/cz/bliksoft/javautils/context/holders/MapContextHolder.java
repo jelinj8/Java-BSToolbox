@@ -6,8 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.logging.Logger;
 
 import cz.bliksoft.javautils.StringUtils;
 import cz.bliksoft.javautils.context.Context;
@@ -17,7 +16,7 @@ import cz.bliksoft.javautils.context.Context;
  * the active child.
  */
 public class MapContextHolder<T, C extends Context> extends SingleContextHolder {
-	private static final Logger log = LogManager.getLogger();
+	private static final Logger log = Logger.getLogger(MapContextHolder.class.getName());
 
 	private final Map<T, C> map = new LinkedHashMap<>();
 
@@ -71,7 +70,7 @@ public class MapContextHolder<T, C extends Context> extends SingleContextHolder 
 	public void select(T key) {
 		C context = map.get(key);
 		if (context == null) {
-			log.warn("No context registered for key: {}", key);
+			log.warning("No context registered for key: " + key);
 			return;
 		}
 		replaceContext(context);

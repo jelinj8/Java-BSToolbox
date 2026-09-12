@@ -8,14 +8,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import cz.bliksoft.javautils.xmlfilesystem.FileObject;
 import cz.bliksoft.javautils.xmlfilesystem.FileSystem;
 
 public class Singletons {
-	private static final Logger log = LogManager.getLogger();
+	private static final Logger log = Logger.getLogger(Singletons.class.getName());
 
 	private Singletons() {
 	}
@@ -81,7 +81,7 @@ public class Singletons {
 							Class<?> c = Class.forName(clsname);
 							singletonObjects.put(fo, new SingletonContainer(fo, c));
 						} catch (Exception e) {
-							log.error("Singleton implementing class not found for " + fo.getFullPath(), e);
+							log.log(Level.SEVERE, "Singleton implementing class not found for " + fo.getFullPath(), e);
 						}
 					}
 				});
@@ -152,7 +152,7 @@ public class Singletons {
 						try {
 							((Closeable) e.getValue().getValue()).close();
 						} catch (IOException ex) {
-							log.error("Closing singleton " + e.getKey(), ex);
+							log.log(Level.SEVERE, "Closing singleton " + e.getKey(), ex);
 						}
 					}
 				}

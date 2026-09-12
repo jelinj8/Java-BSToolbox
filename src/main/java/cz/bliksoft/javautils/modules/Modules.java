@@ -13,9 +13,8 @@ import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 import java.util.Set;
 
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import cz.bliksoft.javautils.logging.LogUtils;
 import cz.bliksoft.javautils.xmlfilesystem.FileSystem;
@@ -24,7 +23,7 @@ public class Modules {
 	private Modules() {
 	}
 
-	static Logger log; // init in loadModules (called after log4j is initialized)
+	static Logger log; // init in loadModules
 
 	private static Set<Class<? extends IModule>> autoloadedModules = new HashSet<>();
 	private static Set<String> forceEnabledModules = new HashSet<>();
@@ -62,7 +61,7 @@ public class Modules {
 	 * enabled modules.
 	 */
 	public static void loadModules() {
-		log = LogManager.getLogger();
+		log = Logger.getLogger(Modules.class.getName());
 		forceEnabledModules.add("cz.bliksoft.javautils.app.BaseAppModule");
 
 		ServiceLoader<IModule> loader = ServiceLoader.load(IModule.class);
@@ -81,7 +80,7 @@ public class Modules {
 				localAutoloadedModules.remove(pd.getClass());
 				registerModule(pd, allEnabled);
 			} catch (ServiceConfigurationError e) {
-				log.error(ModulesMessages.getString("Modules.ClassNotAModule"), e.getMessage()); //$NON-NLS-1$
+				log.severe(ModulesMessages.getString("Modules.ClassNotAModule", e.getMessage())); //$NON-NLS-1$
 			}
 		}
 
@@ -91,7 +90,7 @@ public class Modules {
 				registerModule(pd, allEnabled);
 			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 					| InvocationTargetException | NoSuchMethodException | SecurityException e) {
-				log.error(ModulesMessages.getString("Modules.ClassNotAModule"), e.getMessage()); //$NON-NLS-1$
+				log.severe(ModulesMessages.getString("Modules.ClassNotAModule", e.getMessage())); //$NON-NLS-1$
 			}
 		});
 
@@ -102,24 +101,24 @@ public class Modules {
 			modules.put(pd.getClass().getName(), pd);
 
 			if (pd.isEnabled()) {
-				log.log(Level.INFO, ModulesMessages.getString("Modules.ModuleFound"), pd.getModuleName(), //$NON-NLS-1$
-						pd.getVersionInfo()); // $NON-NLS-2$
+				log.log(Level.INFO, ModulesMessages.getString("Modules.ModuleFound", pd.getModuleName(), //$NON-NLS-1$
+						pd.getVersionInfo())); // $NON-NLS-2$
 				InputStream is = pd.getFilesystemXml();
 				if (is != null) {
 					try {
 						FileSystem.getDefault().importXml(is, "module:" + pd.getModuleName()); //$NON-NLS-1$
 					} catch (Exception e) {
-						log.error(ModulesMessages.getString("Modules.FailedToLoadRootXMLForModule"), pd.getModuleName(), //$NON-NLS-1$
-								LogUtils.traceToString(e));
+						log.severe(ModulesMessages.getString("Modules.FailedToLoadRootXMLForModule", pd.getModuleName(), //$NON-NLS-1$
+								LogUtils.traceToString(e)));
 						throw e;
 					}
 				} else {
-					log.warn(ModulesMessages.getString("Modules.ModuleMissingRootXML"), pd.getModuleName()); //$NON-NLS-1$
+					log.warning(ModulesMessages.getString("Modules.ModuleMissingRootXML", pd.getModuleName())); //$NON-NLS-1$
 				}
 
 			} else {
-				log.log(Level.INFO, ModulesMessages.getString("Modules.ModuleDisabledByCfg"), pd.getClass().getName(), //$NON-NLS-1$
-						pd.getModuleName()); // $NON-NLS-2$
+				log.log(Level.INFO, ModulesMessages.getString("Modules.ModuleDisabledByCfg", pd.getClass().getName(), //$NON-NLS-1$
+						pd.getModuleName())); // $NON-NLS-2$
 			}
 		}
 
@@ -149,29 +148,31 @@ public class Modules {
 	 * Initialize loaded modules
 	 */
 	public static void initModules() {
-		log.log(Level.DEBUG, ModulesMessages.getString("Modules.ModulesInitialionStart"));
+		log.log(Level.FINE, ModulesMessages.getString("Modules.ModulesInitialionStart"));
 		for (IModule pd : sortedModules) {
 			if (pd.isEnabled()) {
 				try {
 					if (!ModuleBase.class.equals(pd.getClass().getMethod("init").getDeclaringClass())) { //$NON-NLS-1$
-						log.log(Level.DEBUG, ModulesMessages.getString("Modules.ModuleInitializationStart"),
-								pd.getModuleName());
+						log.log(Level.FINE,
+								ModulesMessages.getString("Modules.ModuleInitializationStart", pd.getModuleName()));
 						pd.init();
-						log.log(Level.DEBUG, ModulesMessages.getString("Modules.ModuleInitializationCompleted"), //$NON-NLS-1$
-								pd.getModuleName()); // $NON-NLS-2$
+						log.log(Level.FINE, ModulesMessages.getString("Modules.ModuleInitializationCompleted", //$NON-NLS-1$
+								pd.getModuleName())); // $NON-NLS-2$
 					} else {
-						log.debug(ModulesMessages.getString("Modules.ModuleNotProvidingInitMethod"), //$NON-NLS-1$
-								pd.getModuleName());
+						log.fine(ModulesMessages.getString("Modules.ModuleNotProvidingInitMethod", //$NON-NLS-1$
+								pd.getModuleName()));
 					}
 				} catch (NoSuchMethodException | SecurityException e) {
 					e.printStackTrace();
 				} catch (Exception e) {
-					log.error(ModulesMessages.getString("Modules.ModuleInitializationCrashed"), pd.getModuleName(), e); //$NON-NLS-1$
+					log.log(Level.SEVERE,
+							ModulesMessages.getString("Modules.ModuleInitializationCrashed", pd.getModuleName()), //$NON-NLS-1$
+							e);
 					throw e;
 				}
 			}
 		}
-		log.log(Level.DEBUG, ModulesMessages.getString("Modules.ModulesInitialionCompleted"));
+		log.log(Level.FINE, ModulesMessages.getString("Modules.ModulesInitialionCompleted"));
 	}
 
 	/**
@@ -187,19 +188,20 @@ public class Modules {
 				if (md.isEnabled()) {
 					try {
 						if (!ModuleBase.class.equals(md.getClass().getMethod("install").getDeclaringClass())) { //$NON-NLS-1$
-							log.log(Level.DEBUG,
+							log.log(Level.FINE,
 									ModulesMessages.getString("Modules.ModuleInstalationStart", md.getModuleName())); //$NON-NLS-1$
 							md.install();
-							log.log(Level.DEBUG, ModulesMessages.getString("Modules.ModuleInstalationCompleted", //$NON-NLS-1$
+							log.log(Level.FINE, ModulesMessages.getString("Modules.ModuleInstalationCompleted", //$NON-NLS-1$
 									md.getModuleName()));
 						} else {
-							log.debug(ModulesMessages.getString("Modules.ModuleNotProvidingInstallMethod"), //$NON-NLS-1$
-									md.getModuleName());
+							log.fine(ModulesMessages.getString("Modules.ModuleNotProvidingInstallMethod", //$NON-NLS-1$
+									md.getModuleName()));
 						}
 					} catch (NoSuchMethodException | SecurityException e) {
 						e.printStackTrace();
 					} catch (Exception e) {
-						log.error(ModulesMessages.getString("Modules.ModuleInstallationCrashed"), md.getModuleName(), //$NON-NLS-1$
+						log.log(Level.SEVERE,
+								ModulesMessages.getString("Modules.ModuleInstallationCrashed", md.getModuleName()), //$NON-NLS-1$
 								e);
 						throw e;
 					}
@@ -213,11 +215,11 @@ public class Modules {
 		for (IModule pd : modules.values()) {
 			try {
 				if (pd.isEnabled()) {
-					log.info(ModulesMessages.getString("Modules.Cleanup"), pd.getModuleName()); //$NON-NLS-1$
+					log.info(ModulesMessages.getString("Modules.Cleanup", pd.getModuleName())); //$NON-NLS-1$
 					pd.cleanup();
 				}
 			} catch (Exception e) {
-				log.error(ModulesMessages.getString("Modules.CleanupFailed"), pd.getModuleName(), e); //$NON-NLS-1$
+				log.log(Level.SEVERE, ModulesMessages.getString("Modules.CleanupFailed", pd.getModuleName()), e); //$NON-NLS-1$
 			}
 		}
 	}

@@ -8,15 +8,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import cz.bliksoft.javautils.xmlfilesystem.FileLoader;
 import cz.bliksoft.javautils.xmlfilesystem.FileObject;
 import cz.bliksoft.javautils.xmlfilesystem.FileSystem;
 
 public class Services {
-	private static final Logger log = LogManager.getLogger();
+	private static final Logger log = Logger.getLogger(Services.class.getName());
 
 	private Services() {
 	}
@@ -118,7 +118,7 @@ public class Services {
 					try {
 						((Closeable) e.getValue()).close();
 					} catch (IOException ex) {
-						log.error("Closing service " + e.getKey(), ex);
+						log.log(Level.SEVERE, "Closing service " + e.getKey(), ex);
 					}
 				}
 			}

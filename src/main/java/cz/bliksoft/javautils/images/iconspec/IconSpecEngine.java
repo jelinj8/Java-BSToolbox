@@ -28,8 +28,8 @@ import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.github.weisj.jsvg.SVGDocument;
 import com.github.weisj.jsvg.view.FloatSize;
@@ -160,7 +160,7 @@ import cz.bliksoft.javautils.math.polynomial.PolynomialEvaluator;
  */
 public final class IconSpecEngine {
 
-	private static final Logger log = LogManager.getLogger();
+	private static final Logger log = Logger.getLogger(IconSpecEngine.class.getName());
 
 	private IconSpecEngine() {
 	}
@@ -254,7 +254,7 @@ public final class IconSpecEngine {
 	 */
 	public static BufferedImage createImage(String spec) {
 		if (spec == null) {
-			log.debug("NULL image spec requested");
+			log.fine("NULL image spec requested");
 			return null;
 		}
 
@@ -326,7 +326,7 @@ public final class IconSpecEngine {
 				}
 				return SvgConverter.createImageFromSVG(doc, outW, outH, ps.s);
 			} catch (Exception e) {
-				log.error("Failed to rasterize inline SVG path for spec '{}': {}", spec, e.getMessage());
+				log.severe("Failed to rasterize inline SVG path for spec '" + spec + "': " + e.getMessage());
 				return null;
 			}
 		}
@@ -352,7 +352,7 @@ public final class IconSpecEngine {
 				}
 				return img;
 			} catch (Exception e) {
-				log.warn("Invalid EMPTY canvas spec '{}': {}", spec, e.getMessage());
+				log.warning("Invalid EMPTY canvas spec '" + spec + "': " + e.getMessage());
 				return null;
 			}
 		}
@@ -364,7 +364,7 @@ public final class IconSpecEngine {
 			String data = params.length > 5 ? String.join("|", java.util.Arrays.copyOfRange(params, 5, params.length)) //$NON-NLS-1$
 					: ""; //$NON-NLS-1$
 			if (!StringUtils.hasLength(data)) {
-				log.warn("Invalid QR spec '{}': missing data", spec);
+				log.warning("Invalid QR spec '" + spec + "': missing data");
 				return null;
 			}
 			try {
@@ -380,7 +380,7 @@ public final class IconSpecEngine {
 						: null;
 				return QRGenerator.render(data, ec, moduleSize, targetSize, border);
 			} catch (Exception e) {
-				log.warn("Failed to render QR code for spec '{}': {}", spec, e.getMessage());
+				log.warning("Failed to render QR code for spec '" + spec + "': " + e.getMessage());
 				return null;
 			}
 		}
@@ -399,7 +399,7 @@ public final class IconSpecEngine {
 				if (params.length > 3 && StringUtils.hasLength(params[3]))
 					svgScale = (float) evalNum(params[3]);
 			} catch (Exception e) {
-				log.error("Failed to evaluate SVG size params for spec '{}': {}", spec, e.getMessage());
+				log.severe("Failed to evaluate SVG size params for spec '" + spec + "': " + e.getMessage());
 				return null;
 			}
 
@@ -420,10 +420,15 @@ public final class IconSpecEngine {
 				String res = filePath.startsWith("/") ? filePath : (brandingImagesRoot + filePath); //$NON-NLS-1$
 				return SvgConverter.createImageFromSVGResource(res, w, h, svgScale, strokeColor, fillColor);
 			} catch (IllegalArgumentException e) {
-				log.error("Failed to load SVG image: {} - {}", spec, e.getMessage());
+				log.severe("Failed to load SVG image: " + spec + " - " + e.getMessage());
 				return null;
-			} catch (Exception e) {
-				log.error("Failed to load SVG image: {}", spec, e);
+			} catch (Exception | LinkageError e) {
+				log.log(Level.SEVERE,
+						"Failed to load SVG image: " + spec
+								+ (e instanceof LinkageError
+										? " (missing an optional SVG dependency - jsvg/commons-io on the classpath?)"
+										: ""),
+						e);
 				return null;
 			}
 		}
@@ -438,7 +443,7 @@ public final class IconSpecEngine {
 				if (params.length > 2 && StringUtils.hasLength(params[2]))
 					icoH = (int) Math.round(evalNum(params[2]));
 			} catch (Exception e) {
-				log.error("Failed to evaluate ICO size params for spec '{}': {}", spec, e.getMessage());
+				log.severe("Failed to evaluate ICO size params for spec '" + spec + "': " + e.getMessage());
 				return null;
 			}
 			if (icoW != null && icoH == null)
@@ -454,8 +459,13 @@ public final class IconSpecEngine {
 				}
 				String res = filePath.startsWith("/") ? filePath : (brandingImagesRoot + filePath); //$NON-NLS-1$
 				return IcoReader.loadFromResource(res, icoW, icoH);
-			} catch (Exception e) {
-				log.error("Failed to load ICO image: {}", spec, e);
+			} catch (Exception | LinkageError e) {
+				log.log(Level.SEVERE,
+						"Failed to load ICO image: " + spec
+								+ (e instanceof LinkageError
+										? " (missing an optional ICO dependency - commons-io on the classpath?)"
+										: ""),
+						e);
 				return null;
 			}
 		}
@@ -469,7 +479,7 @@ public final class IconSpecEngine {
 						return ImageIO.read(in);
 					}
 				}
-				log.error("Image file not found: {} (path: {})", spec, f.getAbsolutePath());
+				log.severe("Image file not found: " + spec + " (path: " + f.getAbsolutePath() + ")");
 				return null;
 			}
 			String res = filePath.startsWith("/") ? filePath : (brandingImagesRoot + filePath); //$NON-NLS-1$
@@ -479,9 +489,9 @@ public final class IconSpecEngine {
 					return ImageIO.read(in);
 				}
 			}
-			log.error("Image resource not found: {} (resolved: {})", spec, res);
+			log.severe("Image resource not found: " + spec + " (resolved: " + res + ")");
 		} catch (Exception e) {
-			log.error("Failed to load raster image: {}", spec, e);
+			log.log(Level.SEVERE, "Failed to load raster image: " + spec, e);
 		}
 		return null;
 	}
@@ -658,7 +668,7 @@ public final class IconSpecEngine {
 			if (!stack.isEmpty() && parts.length > 1) {
 				ImageFilter filter = ImageFilter.fromName(parts[1]);
 				if (filter == null) {
-					log.warn("Unknown filter name in: {}", token); //$NON-NLS-1$
+					log.warning("Unknown filter name in: " + token); //$NON-NLS-1$
 				} else {
 					BufferedImage top = stack.pop();
 					BufferedImage result = applyFilter(filter, top, parts, 2, mode);
@@ -672,7 +682,7 @@ public final class IconSpecEngine {
 			if (stack.size() >= 2 && parts.length > 1) {
 				ImageFilter filter = ImageFilter.fromName(parts[1]);
 				if (filter == null) {
-					log.warn("Unknown filter name in ** command: {}", token); //$NON-NLS-1$
+					log.warning("Unknown filter name in ** command: " + token); //$NON-NLS-1$
 				} else {
 					int align = modeInt(mode, "align", ALIGN_BOTTOM_RIGHT); //$NON-NLS-1$
 					int offsetX = modeInt(mode, "offsetX", 0); //$NON-NLS-1$
@@ -773,7 +783,7 @@ public final class IconSpecEngine {
 			break;
 		case "DRAW": // IconspecCommand.DRAW //$NON-NLS-1$
 			if (stack.isEmpty() || parts.length < 2) {
-				log.warn("DRAW requires a canvas on the stack and a shape name: {}", token); //$NON-NLS-1$
+				log.warning("DRAW requires a canvas on the stack and a shape name: " + token); //$NON-NLS-1$
 			} else {
 				Integer fillArgb = resolveModeArgbOrNone(mode.get("fillColor")); //$NON-NLS-1$
 				Integer strokeArgb = resolveModeArgbOrNone(mode.get("strokeColor")); //$NON-NLS-1$
@@ -799,7 +809,7 @@ public final class IconSpecEngine {
 					break;
 				}
 				if (geomCount < 0) {
-					log.warn("Unknown DRAW shape '{}': {}", shape, token); //$NON-NLS-1$
+					log.warning("Unknown DRAW shape '" + shape + "': " + token); //$NON-NLS-1$
 				} else {
 					// t override: parts[2+geomCount] if present
 					if (parts.length > 2 + geomCount && StringUtils.hasLength(parts[2 + geomCount]))
@@ -876,7 +886,7 @@ public final class IconSpecEngine {
 			noCacheTL.set(Boolean.TRUE);
 			break;
 		default:
-			log.warn("Unknown postfix command: {} in spec: {}", token, spec); //$NON-NLS-1$
+			log.warning("Unknown postfix command: " + token + " in spec: " + spec); //$NON-NLS-1$
 			break;
 		}
 	}
@@ -972,7 +982,7 @@ public final class IconSpecEngine {
 		try {
 			return (int) Math.round(evalNum(s.trim()));
 		} catch (Exception e) {
-			log.warn("parseInt: failed to evaluate '{}': {}", s, e.getMessage());
+			log.warning("parseInt: failed to evaluate '" + s + "': " + e.getMessage());
 			return defaultVal;
 		}
 	}
@@ -983,7 +993,7 @@ public final class IconSpecEngine {
 		try {
 			return evalNum(s.trim());
 		} catch (Exception e) {
-			log.warn("parseDouble: failed to evaluate '{}': {}", s, e.getMessage());
+			log.warning("parseDouble: failed to evaluate '" + s + "': " + e.getMessage());
 			return defaultVal;
 		}
 	}
@@ -1417,7 +1427,7 @@ public final class IconSpecEngine {
 				break;
 			}
 			default:
-				log.warn("Unknown DRAW shape: {}", shape); //$NON-NLS-1$
+				log.warning("Unknown DRAW shape: " + shape); //$NON-NLS-1$
 				break;
 			}
 		} finally {

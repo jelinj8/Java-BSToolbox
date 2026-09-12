@@ -6,9 +6,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import cz.bliksoft.javautils.app.BSAppMessages;
 import cz.bliksoft.javautils.exceptions.ViewableException;
@@ -46,7 +45,7 @@ public class XmlProperties extends Properties {
 		String dir = this.path.getParent();
 		File savedir = new File(dir);
 		savedir.mkdirs();
-		getLogger().trace("Saving properties file {}", this.path);
+		getLogger().finer("Saving properties file " + this.path);
 		try {
 			File tmpfile = new File(this.path.getPath() + ".tmp");
 			try (FileOutputStream fs = new FileOutputStream(tmpfile)) {
@@ -55,7 +54,7 @@ public class XmlProperties extends Properties {
 			path.delete();
 			tmpfile.renameTo(path);
 		} catch (Exception e) {
-			getLogger().log(Level.ERROR, "Error saving XML properties file", e);
+			getLogger().log(Level.SEVERE, "Error saving XML properties file", e);
 			throw new ViewableException(BSAppMessages.getString("XmlProperties.savingError"), e);
 		}
 	}
@@ -73,7 +72,7 @@ public class XmlProperties extends Properties {
 
 	private static Logger getLogger() {
 		if (log == null)
-			log = LogManager.getLogger();
+			log = Logger.getLogger(XmlProperties.class.getName());
 		return log;
 	}
 

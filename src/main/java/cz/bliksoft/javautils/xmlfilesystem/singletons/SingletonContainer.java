@@ -7,8 +7,7 @@ package cz.bliksoft.javautils.xmlfilesystem.singletons;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.logging.Logger;
 
 import cz.bliksoft.javautils.exceptions.InitializationException;
 import cz.bliksoft.javautils.xmlfilesystem.FileObject;
@@ -20,7 +19,7 @@ import cz.bliksoft.javautils.xmlfilesystem.IInitializeWithFileObject;
  * @author jelinj8
  */
 public class SingletonContainer {
-	Logger log = LogManager.getLogger();
+	Logger log = Logger.getLogger(SingletonContainer.class.getName());
 
 	private static final Object badValue = new Object();
 

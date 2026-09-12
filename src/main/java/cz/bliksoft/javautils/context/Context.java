@@ -7,9 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import cz.bliksoft.javautils.StringUtils;
 import cz.bliksoft.javautils.collections.WeakIdentityHashMap;
@@ -18,7 +17,7 @@ import cz.bliksoft.javautils.context.holders.SingleContextHolder;
 
 /** Base class for the application context tree. */
 public class Context {
-	private static final Logger log = LogManager.getLogger();
+	private static final Logger log = Logger.getLogger(Context.class.getName());
 
 	private static WeakIdentityHashMap<IContextProvider, Context> contextProviderContexts = new WeakIdentityHashMap<>();
 
@@ -85,8 +84,8 @@ public class Context {
 			return;
 		this.childContexts.add(context);
 		StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
-		log.trace("{}:{}: Added ''{}'' to ''{}''", stackTraceElements[2].getClassName(),
-				stackTraceElements[2].getLineNumber(), context, this);
+		log.finer(stackTraceElements[2].getClassName() + ":" + stackTraceElements[2].getLineNumber() + ": Added '"
+				+ context + "' to '" + this + "'");
 		context.parentContexts.add(this);
 		context.notifyContextAllAdded(this);
 	}
@@ -97,22 +96,22 @@ public class Context {
 			return;
 		if (this.childContexts.remove(context)) {
 			StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
-			log.trace("{}:{}: Removing ''{}'' from ''{}''", stackTraceElements[2].getClassName(),
-					stackTraceElements[2].getLineNumber(), context, this);
+			log.finer(stackTraceElements[2].getClassName() + ":" + stackTraceElements[2].getLineNumber()
+					+ ": Removing '" + context + "' from '" + this + "'");
 			context.parentContexts.remove(this);
 			context.notifyContextAllRemoved(this);
 		} else {
 			StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
-			log.trace("{}:{}: Not removing ''{}'' from ''{}'' (not there)", stackTraceElements[2].getClassName(),
-					stackTraceElements[2].getLineNumber(), context, this);
+			log.finer(stackTraceElements[2].getClassName() + ":" + stackTraceElements[2].getLineNumber()
+					+ ": Not removing '" + context + "' from '" + this + "' (not there)");
 		}
 	}
 
 	/** Removes all registered child contexts. */
 	public void removeAllContexts() {
 		StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
-		log.log(Level.TRACE, "{}:{}: Removing all contexts from ''{}''", stackTraceElements[2].getClassName(),
-				stackTraceElements[2].getLineNumber(), this);
+		log.log(Level.FINER, stackTraceElements[2].getClassName() + ":" + stackTraceElements[2].getLineNumber()
+				+ ": Removing all contexts from '" + this + "'");
 		ArrayList<Context> ctr = new ArrayList<>(this.childContexts);
 		for (Context ctx : ctr) {
 			this.removeContext(ctx);
@@ -166,8 +165,8 @@ public class Context {
 	 */
 	public void notifyListeners(ContextSearchResult value) {
 		boolean propagate = true;
-		if (value.getContext() == this && log.isTraceEnabled())
-			log.debug(StringUtils.format("ContextChangeFiring in ctx ''{0}'', {1}:{2}", value.getContext(),
+		if (value.getContext() == this && log.isLoggable(Level.FINER))
+			log.fine(StringUtils.format("ContextChangeFiring in ctx ''{0}'', {1}:{2}", value.getContext(),
 					getAbbrevDescription(value.key), getAbbrevDescription(value.result)));
 
 		ArrayList<AbstractContextListener<?>> lstnrs = new ArrayList<>(this.contextListeners);
@@ -181,7 +180,7 @@ public class Context {
 						propagate = false;
 					}
 				} catch (Exception e) {
-					log.error("ContextChanged ERR:", e);
+					log.log(Level.SEVERE, "ContextChanged ERR:", e);
 				}
 			}
 		}
@@ -189,8 +188,8 @@ public class Context {
 			for (Context parent : this.parentContexts) {
 				ContextSearchResult newResult = parent.getValue(value.getKey());
 				newResult.setLevelsCrossed(value.getLevelsCrossed() + (isLevelContext ? 1 : 0));
-				if (log.isTraceEnabled())
-					log.trace("Context change propagated from [{}] to [{}] [{}]", this, parent, newResult);
+				if (log.isLoggable(Level.FINER))
+					log.finer("Context change propagated from [" + this + "] to [" + parent + "] [" + newResult + "]");
 				parent.notifyListeners(newResult);
 			}
 		}
@@ -365,7 +364,7 @@ public class Context {
 				this.mapValues.put(key, value);
 				this.notifyListeners(new ContextSearchResult(this, key, value));
 			} else {
-				log.error("Unassignable Class key! Key value nulled."); //$NON-NLS-1$
+				log.severe("Unassignable Class key! Key value nulled."); //$NON-NLS-1$
 				this.mapValues.remove(key);
 				this.notifyListeners(ContextSearchResult.getInvalid(this, key));
 			}

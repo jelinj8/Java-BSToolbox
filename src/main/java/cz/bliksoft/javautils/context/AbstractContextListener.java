@@ -1,9 +1,8 @@
 package cz.bliksoft.javautils.context;
 
 import java.text.MessageFormat;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import cz.bliksoft.javautils.StringUtils;
 import cz.bliksoft.javautils.context.events.EventListener;
@@ -26,7 +25,7 @@ public abstract class AbstractContextListener<T> extends EventListener<ContextCh
 //	@Override
 //	public abstract void fired(ContextChangedEvent<T> event);
 
-	private static final Logger log = LogManager.getLogger();
+	private static final Logger log = Logger.getLogger(AbstractContextListener.class.getName());
 
 	/** The context key this listener watches. */
 	Object key;
@@ -56,8 +55,8 @@ public abstract class AbstractContextListener<T> extends EventListener<ContextCh
 				return true;
 		} else if (this.key.equals(resultKey))
 			return true;
-		else if (log.isDebugEnabled())
-			log.trace("{} is not interrested in value {}", this, resultKey);
+		else if (log.isLoggable(Level.FINE))
+			log.finer(this + " is not interrested in value " + resultKey);
 		return false;
 	}
 
@@ -75,8 +74,8 @@ public abstract class AbstractContextListener<T> extends EventListener<ContextCh
 	 */
 	protected final Boolean fireContextChanged(ContextSearchResult contextSearchResult) {
 		if (this.active) {
-			log.trace("Listener ''{}'' updated from ''{}'' to ''{}''", this, Context.getAbbrevDescription(oldValue),
-					Context.getAbbrevDescription(contextSearchResult));
+			log.finer("Listener '" + this + "' updated from '" + Context.getAbbrevDescription(oldValue) + "' to '"
+					+ Context.getAbbrevDescription(contextSearchResult) + "'");
 
 			// Boolean result = this.contextChanged(this.oldValue, contextSearchResult);
 			ContextChangedEvent<T> event = new ContextChangedEvent<>(oldValue, contextSearchResult);

@@ -4,8 +4,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.logging.Logger;
 
 /**
  * Parses CSS-style color specifications into ARGB ints — the non-JavaFX
@@ -16,7 +15,7 @@ import org.apache.logging.log4j.Logger;
  */
 public final class CssColor {
 
-	private static final Logger log = LogManager.getLogger();
+	private static final Logger log = Logger.getLogger(CssColor.class.getName());
 
 	private CssColor() {
 	}
@@ -32,7 +31,7 @@ public final class CssColor {
 		try {
 			return parseWeb(normalize(spec));
 		} catch (Exception e) {
-			log.warn("Invalid color '{}': {}", spec, e.getMessage());
+			log.warning("Invalid color '" + spec + "': " + e.getMessage());
 			return defaultArgb;
 		}
 	}

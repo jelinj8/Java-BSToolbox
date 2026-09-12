@@ -1,6 +1,5 @@
 package cz.bliksoft.javautils.app;
 
-import java.text.MessageFormat;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
@@ -34,17 +33,31 @@ public class BSAppMessages {
 	}
 
 	/**
-	 * Returns the localized string for the given key, formatted with
-	 * {@link MessageFormat}.
+	 * Returns the localized string for the given key, substituting {@code {}}
+	 * placeholders (in encounter order, log4j {@code ParameterizedMessage} style -
+	 * this bundle's entries are written for that, not for
+	 * {@link java.text.MessageFormat}'s {@code {0}} style) with {@code params}.
 	 *
 	 * @param key    the message key
-	 * @param params format arguments substituted via {@link MessageFormat}
+	 * @param params substituted for each {@code {}} placeholder, in order
 	 *
 	 * @return the formatted string; never {@code null}
 	 */
 	public static String getString(String key, Object... params) {
 		try {
-			return MessageFormat.format(RESOURCE_BUNDLE.getString(key), params);
+			String pattern = RESOURCE_BUNDLE.getString(key);
+			StringBuilder sb = new StringBuilder(pattern.length());
+			int argIndex = 0;
+			for (int i = 0; i < pattern.length(); i++) {
+				char c = pattern.charAt(i);
+				if (c == '{' && i + 1 < pattern.length() && pattern.charAt(i + 1) == '}') {
+					sb.append(argIndex < params.length ? String.valueOf(params[argIndex++]) : "{}");
+					i++;
+				} else {
+					sb.append(c);
+				}
+			}
+			return sb.toString();
 		} catch (MissingResourceException e) {
 			return '!' + key + '!';
 		}

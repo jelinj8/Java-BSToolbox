@@ -1,7 +1,6 @@
 package cz.bliksoft.javautils.context.holders;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.logging.Logger;
 
 import cz.bliksoft.javautils.StringUtils;
 import cz.bliksoft.javautils.context.Context;
@@ -12,7 +11,7 @@ import cz.bliksoft.javautils.context.ContextSearchResult;
  * context.
  */
 public class ContextHolder extends Context {
-	private static final Logger log = LogManager.getLogger();
+	private static final Logger log = Logger.getLogger(ContextHolder.class.getName());
 
 	/** Creates a holder with the given debug label. */
 	public ContextHolder(String comment) {
@@ -42,7 +41,7 @@ public class ContextHolder extends Context {
 	@Override
 	public void put(Object key, Object value) {
 		if (childContexts.isEmpty()) {
-			log.error("Can't put value into empty SingleContextContainer ({})", comment);
+			log.severe("Can't put value into empty SingleContextContainer (" + comment + ")");
 			return;
 		}
 

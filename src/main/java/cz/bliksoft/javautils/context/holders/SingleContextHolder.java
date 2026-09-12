@@ -1,7 +1,6 @@
 package cz.bliksoft.javautils.context.holders;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.logging.Logger;
 
 import cz.bliksoft.javautils.StringUtils;
 import cz.bliksoft.javautils.context.Context;
@@ -11,7 +10,7 @@ import cz.bliksoft.javautils.context.Context;
  * atomically.
  */
 public class SingleContextHolder extends ContextHolder {
-	private static final Logger log = LogManager.getLogger();
+	private static final Logger log = Logger.getLogger(SingleContextHolder.class.getName());
 
 	/** Creates a holder with the given debug label. */
 	public SingleContextHolder(String comment) {
@@ -27,7 +26,7 @@ public class SingleContextHolder extends ContextHolder {
 		if (childContexts.isEmpty())
 			super.addContext(context);
 		else
-			log.error("SingleContextHolder can hold MAX 1 context!");
+			log.severe("SingleContextHolder can hold MAX 1 context!");
 	}
 
 	/**

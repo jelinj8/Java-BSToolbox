@@ -16,9 +16,9 @@ import java.util.Optional;
 
 import javax.imageio.ImageIO;
 
+import java.util.logging.Logger;
+
 import org.apache.commons.io.IOUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * Reads multi-frame Windows ICO files and decodes the best-matching frame to a
@@ -27,7 +27,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class IcoReader {
 
-	private static final Logger log = LogManager.getLogger();
+	private static final Logger log = Logger.getLogger(IcoReader.class.getName());
 
 	private static final int ICO_TYPE = 1;
 	private static final int PNG_MAGIC = 0x89504E47;
@@ -105,12 +105,13 @@ public class IcoReader {
 		for (int i = 0; i < count; i++) {
 			int base = 6 + i * 16;
 			if (base + 16 > all.length) {
-				log.warn("ICO directory truncated at entry {}", i);
+				log.warning("ICO directory truncated at entry " + i);
 				break;
 			}
 			IcoEntry e = buildEntry(all, base);
 			if (e.dataOffset() + e.dataSize() > all.length) {
-				log.warn("ICO entry {} out of bounds (offset={} size={}), skipping", i, e.dataOffset(), e.dataSize());
+				log.warning("ICO entry " + i + " out of bounds (offset=" + e.dataOffset() + " size=" + e.dataSize()
+						+ "), skipping");
 				continue;
 			}
 			entries.add(e);

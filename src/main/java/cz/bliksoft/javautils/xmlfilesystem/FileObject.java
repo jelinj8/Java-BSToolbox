@@ -21,9 +21,9 @@ import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -44,7 +44,7 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 @XmlRootElement(name = FileObject.FILE_ELEMENT)
 @XmlAccessorType(XmlAccessType.NONE)
 public class FileObject implements Comparable<Object> {
-	private static final Logger log = LogManager.getLogger();
+	private static final Logger log = Logger.getLogger(FileObject.class.getName());
 
 	class FileAttribute {
 		public String value;
@@ -349,7 +349,7 @@ public class FileObject implements Comparable<Object> {
 					NamedNodeMap attrlist = fNode.getAttributes();
 					Node attrNameAttr = attrlist.getNamedItem(ATTRIBUTE_NAME);
 					if (attrNameAttr == null) {
-						log.log(Level.WARN, StringUtils.format("FileAttribute without name!\n{0}", //$NON-NLS-1$
+						log.log(Level.WARNING, StringUtils.format("FileAttribute without name!\n{0}", //$NON-NLS-1$
 								XmlUtils.outerXml(xmlDefinition)));
 						continue;
 					}
@@ -416,11 +416,11 @@ public class FileObject implements Comparable<Object> {
 				throw new InitializationException("Importing " + pathString + " for " + getFullPath(), e);
 			}
 		} else if (isRequire) {
-			log.log(Level.ERROR, StringUtils.format("Required file {0} not found ({1})!", pathString, resourceId));
+			log.log(Level.SEVERE, StringUtils.format("Required file {0} not found ({1})!", pathString, resourceId));
 			throw new InitializationException("Required file not found",
 					new FileNotFoundException(incFile.getAbsolutePath()));
 		} else {
-			log.log(Level.WARN,
+			log.log(Level.WARNING,
 					StringUtils.format("Included file {0} ({1}) not found, skipping.", pathString, resourceId));
 		}
 	}
@@ -440,7 +440,7 @@ public class FileObject implements Comparable<Object> {
 		String pathString = attribs.getNamedItem(CLASSPATH_PATH).getNodeValue();
 		Node modeNode = attribs.getNamedItem(ATTRIBUTE_MODE);
 		if (modeNode != null && MODE_READWRITE.equalsIgnoreCase(modeNode.getNodeValue())) {
-			log.log(Level.WARN,
+			log.log(Level.WARNING,
 					StringUtils.format("mode=\"rw\" is not supported for <classpath> includes ({0} for {1}), ignoring.",
 							pathString, resourceId));
 		}
@@ -758,7 +758,7 @@ public class FileObject implements Comparable<Object> {
 				Collections.sort(this.children);
 			} else { // merge
 				if (existing.getFullPath().equals(fo.getFullPath())) {
-					log.warn("File object {} duplicated in the same resource.", fo.getFullPath());
+					log.warning("File object " + fo.getFullPath() + " duplicated in the same resource.");
 				}
 				if (fo.order != 0) {
 					existing.order = fo.order;
@@ -895,7 +895,7 @@ public class FileObject implements Comparable<Object> {
 	}
 
 	public static String convertGlobToRegEx(String line) {
-		log.debug("got line [{}]", line);
+		log.fine("got line [" + line + "]");
 		line = line.trim();
 		int strLen = line.length();
 		StringBuilder sb = new StringBuilder(strLen);

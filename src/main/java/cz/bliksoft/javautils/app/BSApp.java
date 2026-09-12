@@ -10,9 +10,8 @@ import java.util.WeakHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import cz.bliksoft.javautils.ClasspathUtils;
 import cz.bliksoft.javautils.EnvironmentUtils;
@@ -38,13 +37,12 @@ public class BSApp {
 	static Logger log = null;
 
 	/**
-	 * Error logging usable before {@link #init()}: Log4j must not be initialized
-	 * until the configured log directory is known, so until {@code init()} creates
-	 * the logger, errors fall back to {@code System.err}.
+	 * Error logging usable before {@link #init()}: the logger isn't created until
+	 * {@code init()} runs, so until then, errors fall back to {@code System.err}.
 	 */
 	private static void logError(String message, Throwable t) {
 		if (log != null) {
-			log.error(message, t);
+			log.log(Level.SEVERE, message, t);
 		} else {
 			System.err.println(message);
 			if (t != null)
@@ -430,19 +428,19 @@ public class BSApp {
 	 */
 	public static void init() {
 
-		log = LogManager.getLogger();
+		log = Logger.getLogger(BSApp.class.getName());
 
 		String plugDir = BSApp.getGlobalProperties().getProperty(PREF_MODULEDIR);
 		if (StringUtils.hasText(plugDir)) {
 			File pluginsDir = new File(plugDir); // $NON-NLS-1$ //$NON-NLS-2$
 			if (pluginsDir.isDirectory()) {
 				ClasspathUtils.addDirectory(pluginsDir);
-				log.log(Level.DEBUG, BSAppMessages.getString("App.pluginDirAddedToCp"), pluginsDir); //$NON-NLS-1$ //$NON-NLS-2$
+				log.log(Level.FINE, BSAppMessages.getString("App.pluginDirAddedToCp", pluginsDir)); //$NON-NLS-1$ //$NON-NLS-2$
 			} else {
-				log.log(Level.WARN, BSAppMessages.getString("App.pluginsDirNotFound"), pluginsDir); //$NON-NLS-1$ //$NON-NLS-2$
+				log.log(Level.WARNING, BSAppMessages.getString("App.pluginsDirNotFound", pluginsDir)); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		} else {
-			log.debug("No \"modules\" directory configured.");
+			log.fine("No \"modules\" directory configured.");
 		}
 
 		{
@@ -463,7 +461,7 @@ public class BSApp {
 		// getAppName();
 		environmentName = getGlobalProperties().getProperty("app.configname", "default"); //$NON-NLS-1$ //$NON-NLS-2$
 
-		log = LogManager.getLogger();
+		log = Logger.getLogger(BSApp.class.getName());
 
 		String langCode = getGlobalProperties().getProperty(environmentName + ".lang", "--"); //$NON-NLS-1$ //$NON-NLS-2$
 		if (!"--".equals(langCode)) { //$NON-NLS-1$
@@ -472,13 +470,12 @@ public class BSApp {
 			if (l != null) {
 				Locale.setDefault(l);
 				BSAppMessages.reload();
-				log.info(BSAppMessages.getString("App.locale_set"), l.toLanguageTag()); //$NON-NLS-1$
+				log.info(BSAppMessages.getString("App.locale_set", l.toLanguageTag())); //$NON-NLS-1$
 			}
 		}
 
-		log.log(Level.INFO, BSAppMessages.getString("App.starting") //$NON-NLS-1$
-				+ "  vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv", //$NON-NLS-1$
-				getAppName()); // $NON-NLS-3$
+		log.log(Level.INFO, BSAppMessages.getString("App.starting", getAppName()) //$NON-NLS-1$
+				+ "  vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv"); //$NON-NLS-1$ //$NON-NLS-3$
 
 		// přidání konfigurované lib složky do classpath
 		String libDir = getGlobalProperties().getProperty(PREF_LIBDIR);
@@ -487,19 +484,19 @@ public class BSApp {
 
 			if (libsDir.isDirectory()) {
 				ClasspathUtils.addDirectory(libsDir);
-				log.log(Level.DEBUG, BSAppMessages.getString("App.libDirAddedToCp"), libsDir); //$NON-NLS-1$ //$NON-NLS-2$
+				log.log(Level.FINE, BSAppMessages.getString("App.libDirAddedToCp", libsDir)); //$NON-NLS-1$ //$NON-NLS-2$
 			} else {
-				log.log(Level.WARN, BSAppMessages.getString("App.LibDirNotFound"), libsDir); //$NON-NLS-1$ //$NON-NLS-2$
+				log.log(Level.WARNING, BSAppMessages.getString("App.LibDirNotFound", libsDir)); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		} else {
-			log.debug("No \"lib\" directory configured.");
+			log.fine("No \"lib\" directory configured.");
 		}
 
 		if (sessionManager == null) {
 			setSessionManager(new DefaultUnrestrictedSessionManager());
-			log.debug("Session manager wasn't set, setting to default: {}", String.valueOf(sessionManager));
+			log.fine("Session manager wasn't set, setting to default: " + sessionManager);
 		} else {
-			log.debug("Session manager was set to {}", String.valueOf(sessionManager));
+			log.fine("Session manager was set to " + sessionManager);
 		}
 
 		loadModules();
@@ -608,7 +605,7 @@ public class BSApp {
 						try {
 							task.run();
 						} catch (Exception e) {
-							log.error("EDT task threw an exception", e);
+							log.log(Level.SEVERE, "EDT task threw an exception", e);
 						}
 					}
 				} catch (InterruptedException e) {
@@ -647,7 +644,7 @@ public class BSApp {
 						}
 					}
 				} catch (IOException e) {
-					log.debug("Console input stream closed.", e);
+					log.log(Level.FINE, "Console input stream closed.", e);
 				}
 			}
 		});

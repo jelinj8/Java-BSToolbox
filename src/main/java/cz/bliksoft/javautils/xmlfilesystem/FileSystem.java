@@ -13,9 +13,9 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -34,7 +34,7 @@ import cz.bliksoft.javautils.exceptions.InitializationException;
  *
  */
 public final class FileSystem {
-	private static final Logger log = LogManager.getLogger();
+	private static final Logger log = Logger.getLogger(FileSystem.class.getName());
 
 	public static final String DEFAULT_TRANSLATION_ATTR_NAME = "default"; //$NON-NLS-1$
 	public static final String TRANSLATION_ROOT_NAME = "translations"; //$NON-NLS-1$
@@ -49,7 +49,7 @@ public final class FileSystem {
 		try {
 			root = new FileObject();
 		} catch (Exception ex) {
-			log.log(Level.ERROR, (String) null, ex);
+			log.log(Level.SEVERE, (String) null, ex);
 		}
 	}
 
@@ -74,7 +74,7 @@ public final class FileSystem {
 	private void importXml(InputStream f, String resourceId, boolean writable, WritableXmlFile owner,
 			FileObject target) {
 		if (f == null) {
-			log.log(Level.WARN, "Empty stream! ({})", resourceId);
+			log.log(Level.WARNING, "Empty stream! (" + resourceId + ")");
 			return;
 		}
 		Document doc;
@@ -85,19 +85,19 @@ public final class FileSystem {
 
 				@Override
 				public void warning(SAXParseException arg0) throws SAXException {
-					log.log(Level.WARN, StringUtils.format("Warning in filesystem {0}[{2}:{3}]: {1}", resourceId,
+					log.log(Level.WARNING, StringUtils.format("Warning in filesystem {0}[{2}:{3}]: {1}", resourceId,
 							arg0.getMessage(), arg0.getLineNumber(), arg0.getColumnNumber()));
 				}
 
 				@Override
 				public void fatalError(SAXParseException arg0) throws SAXException {
-					log.log(Level.ERROR, StringUtils.format("Fatal error in filesystem {0}[{2}:{3}]: {1}", resourceId,
+					log.log(Level.SEVERE, StringUtils.format("Fatal error in filesystem {0}[{2}:{3}]: {1}", resourceId,
 							arg0.getMessage(), arg0.getLineNumber(), arg0.getColumnNumber()));
 				}
 
 				@Override
 				public void error(SAXParseException arg0) throws SAXException {
-					log.log(Level.ERROR, StringUtils.format("Error in filesystem {0}[{2}:{3}]: {1}", resourceId,
+					log.log(Level.SEVERE, StringUtils.format("Error in filesystem {0}[{2}:{3}]: {1}", resourceId,
 							arg0.getMessage(), arg0.getLineNumber(), arg0.getColumnNumber()));
 				}
 			});
@@ -119,7 +119,7 @@ public final class FileSystem {
 					String pathString = path.getNodeValue();
 					Node modeNode = attribs.getNamedItem(FileObject.ATTRIBUTE_MODE);
 					if (modeNode != null && FileObject.MODE_READWRITE.equalsIgnoreCase(modeNode.getNodeValue())) {
-						log.log(Level.WARN, StringUtils.format(
+						log.log(Level.WARNING, StringUtils.format(
 								"mode=\"rw\" is not supported for <classpath> includes ({0} for {1}), ignoring.",
 								pathString, resourceId));
 					}
@@ -159,11 +159,11 @@ public final class FileSystem {
 						}
 					} else {
 						if (FileObject.REQUIRE_ELEMENT.equals(n.getNodeName())) {
-							log.log(Level.ERROR,
+							log.log(Level.SEVERE,
 									StringUtils.format("Required file {0} not found ({1})!", pathString, resourceId));
 							throw new FileNotFoundException(incFile.getAbsolutePath());
 						} else {
-							log.log(Level.WARN, StringUtils.format("Included file {0} ({1}) not found, skipping.",
+							log.log(Level.WARNING, StringUtils.format("Included file {0} ({1}) not found, skipping.",
 									pathString, resourceId));
 						}
 					}
@@ -192,11 +192,11 @@ public final class FileSystem {
 				case "#comment":
 					break;
 				default:
-					log.error("Importing unknown element type " + n.getNodeName());
+					log.severe("Importing unknown element type " + n.getNodeName());
 				}
 			}
 		} catch (ParserConfigurationException | SAXException | IOException | DOMException ex) {
-			log.log(Level.ERROR, "Error while processing filesystem", ex);
+			log.log(Level.SEVERE, "Error while processing filesystem", ex);
 		}
 	}
 
@@ -241,7 +241,7 @@ public final class FileSystem {
 
 	public static void addTranslation(String key, String value) {
 		if (translations.containsKey(key)) {
-			log.log(Level.ERROR, StringUtils.format("Duplicate FileSystem translation key: {0}", key)); //$NON-NLS-1$
+			log.log(Level.SEVERE, StringUtils.format("Duplicate FileSystem translation key: {0}", key)); //$NON-NLS-1$
 		} else {
 			translations.put(key, value);
 		}

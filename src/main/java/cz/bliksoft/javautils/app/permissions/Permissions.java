@@ -10,8 +10,7 @@ import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 import java.util.Set;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.logging.Logger;
 
 import cz.bliksoft.javautils.app.BSApp;
 import cz.bliksoft.javautils.xmlfilesystem.FileObject;
@@ -26,7 +25,7 @@ import cz.bliksoft.javautils.xmlfilesystem.FileSystem;
  * {@link SessionManager}.
  */
 public class Permissions {
-	private static final Logger log = LogManager.getLogger();
+	private static final Logger log = Logger.getLogger(Permissions.class.getName());
 
 	private static volatile boolean isLoaded = false;
 	private static Map<Class<? extends Permission>, Permission> registeredPermissions = null;
@@ -39,7 +38,7 @@ public class Permissions {
 	}
 
 	private static void registerPermission(Permission permission) {
-		log.info("Permission [{}] {}", permission.getAlias(), permission.getName());
+		log.info("Permission [" + permission.getAlias() + "] " + permission.getName());
 		List<Permission> category = permissionsByCategory.get(permission.getCategory());
 		if (category == null) {
 			category = new ArrayList<>();
@@ -58,7 +57,7 @@ public class Permissions {
 			if (isLoaded)
 				return;
 
-			log.debug("Loading application permissions.");
+			log.fine("Loading application permissions.");
 
 			registeredPermissions = new HashMap<>();
 			permissionsByCategory = new HashMap<>();
@@ -71,7 +70,7 @@ public class Permissions {
 						Permission permission = loader.loadFile(f);
 						registerPermission(permission);
 					} catch (Exception e) {
-						log.error("Failed to register permission {} ({})", f.getName(), e.getMessage());
+						log.severe("Failed to register permission " + f.getName() + " (" + e.getMessage() + ")");
 					}
 				}
 			}
@@ -83,8 +82,8 @@ public class Permissions {
 					Permission permission = permissionIterator.next();
 					registerPermission(permission);
 				} catch (ServiceConfigurationError e) {
-					log.error("Class doesn't seem to be a valid BSAppJFX Permission implementation: {}",
-							e.getMessage());
+					log.severe(
+							"Class doesn't seem to be a valid BSAppJFX Permission implementation: " + e.getMessage());
 				}
 			}
 
@@ -104,7 +103,7 @@ public class Permissions {
 		if (isLoaded)
 			return registeredPermissions.get(permission);
 		else {
-			log.error("Permissions were not yet loaded!");
+			log.severe("Permissions were not yet loaded!");
 			return null;
 		}
 	}
@@ -120,7 +119,7 @@ public class Permissions {
 			else
 				return NotAllowedPermission.class;
 		} catch (ClassNotFoundException e) {
-			log.error("Failed to find class {} as a permission.", cls);
+			log.severe("Failed to find class " + cls + " as a permission.");
 			return NotAllowedPermission.class;
 		}
 	}

@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.logging.Logger;
 
 import cz.bliksoft.javautils.context.Context;
 
@@ -16,7 +15,7 @@ import cz.bliksoft.javautils.context.Context;
  */
 public class TryCloseEvent {
 
-	static Logger log = LogManager.getLogger();
+	static Logger log = Logger.getLogger(TryCloseEvent.class.getName());
 
 	private String closeReason;
 	private ArrayList<String> blockedReasons = new ArrayList<>();

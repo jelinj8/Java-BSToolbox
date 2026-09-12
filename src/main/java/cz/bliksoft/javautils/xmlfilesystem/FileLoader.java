@@ -2,12 +2,11 @@ package cz.bliksoft.javautils.xmlfilesystem;
 
 import java.util.HashMap;
 
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public abstract class FileLoader {
-	private static final Logger log = LogManager.getLogger();
+	private static final Logger log = Logger.getLogger(FileLoader.class.getName());
 
 	public static String baseFileloaderPath = "/";
 	public static final String FILE_LOADERS_DIR = "fileLoaders";
@@ -24,7 +23,7 @@ public abstract class FileLoader {
 			return null;
 
 		if (file.getType() == null) {
-			log.log(Level.WARN, "File type not specified for {}", file); //$NON-NLS-1$
+			log.log(Level.WARNING, "File type not specified for " + file); //$NON-NLS-1$
 			return null;
 		}
 
@@ -32,7 +31,7 @@ public abstract class FileLoader {
 		if (fl != null) {
 			return (T) fl.loadObject(file);
 		} else {
-			log.log(Level.ERROR, "File loader not found for {}", file); //$NON-NLS-1$
+			log.log(Level.SEVERE, "File loader not found for " + file); //$NON-NLS-1$
 			return null;
 		}
 	}
@@ -61,7 +60,7 @@ public abstract class FileLoader {
 					FileLoader loader = fl.loadFile(f);
 					loaders.put(loader.getSupportedType(), loader);
 				} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-					log.error("Class doesn't seem to be a valid BSFramework FileLoader: {}", e.getMessage());
+					log.severe("Class doesn't seem to be a valid BSFramework FileLoader: " + e.getMessage());
 				}
 			}
 		}

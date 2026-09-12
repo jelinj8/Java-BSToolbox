@@ -10,8 +10,7 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.logging.Logger;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
@@ -28,7 +27,7 @@ import cz.bliksoft.javautils.StringUtils;
  */
 public class QRGenerator {
 
-	private static final Logger log = LogManager.getLogger();
+	private static final Logger log = Logger.getLogger(QRGenerator.class.getName());
 
 	/**
 	 * Encodes {@code contents} as a QR code bit matrix.
@@ -194,7 +193,7 @@ public class QRGenerator {
 			try {
 				ec = ErrorCorrectionLevel.valueOf(errorCorrectionLevel.trim().toUpperCase());
 			} catch (IllegalArgumentException e) {
-				log.warn("Unknown QR error-correction level '{}', defaulting to M", errorCorrectionLevel);
+				log.warning("Unknown QR error-correction level '" + errorCorrectionLevel + "', defaulting to M");
 			}
 		}
 

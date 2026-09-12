@@ -1,14 +1,12 @@
 package cz.bliksoft.javautils.context;
 
 import java.text.MessageFormat;
-
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /** Wraps the result of a key lookup in the context tree. */
 public class ContextSearchResult {
-	private static final Logger log = LogManager.getLogger();
+	private static final Logger log = Logger.getLogger(ContextSearchResult.class.getName());
 
 	Object result;
 	Object key;
@@ -28,7 +26,7 @@ public class ContextSearchResult {
 	public Object getResult() {
 		if (!isValid()) {
 			// throw new InvalidObjectException("Empty value!");
-			log.log(Level.ERROR, "Reading invalid value!"); //$NON-NLS-1$
+			log.log(Level.SEVERE, "Reading invalid value!"); //$NON-NLS-1$
 		}
 		return result;
 	}

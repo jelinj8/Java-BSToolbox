@@ -58,4 +58,25 @@ public class ImageUtils {
 		graphics2D.dispose();
 		return resizedImage;
 	}
+
+	/**
+	 * Checks if the image has any transparent pixels (alpha &lt; 128).
+	 *
+	 * @param img the image to check
+	 * @return {@code true} if the image has transparent pixels
+	 */
+	public static boolean hasTransparency(BufferedImage img) {
+		int width = img.getWidth();
+		int height = img.getHeight();
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				int argb = img.getRGB(x, y);
+				int alpha = (argb >>> 24) & 0xFF;
+				if (alpha < 128) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 }

@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 import cz.bliksoft.javautils.freemarker.extensions.TextReplacer;
 import cz.bliksoft.javautils.freemarker.extensions.local.ApplyTemplateDefaults;
 import cz.bliksoft.javautils.freemarker.utils.TemplateParameterUtils;
+import cz.bliksoft.javautils.freemarker.utils.TemplateValueCoercion;
 import cz.bliksoft.javautils.freemarker.extensions.global.Base64File;
 import cz.bliksoft.javautils.freemarker.extensions.global.Base64IconSpec;
 import cz.bliksoft.javautils.freemarker.extensions.global.Base64QR;
@@ -357,6 +358,20 @@ public class FreemarkerGenerator {
 	public void setVariables(Map<String, Object> vars) {
 		if (vars != null)
 			variables.putAll(vars);
+	}
+
+	/**
+	 * Like {@link #setVariable}, but when {@code rawValue} is a {@link String}
+	 * and a value is already set for {@code name}, coerces it to match that
+	 * existing value's runtime type (see {@link TemplateValueCoercion#coerceToMatch})
+	 * instead of blindly overwriting it with an untyped String. A non-String
+	 * {@code rawValue} is set as-is, same as {@link #setVariable}.
+	 */
+	public void setVariableCoerced(String name, Object rawValue) {
+		if (rawValue instanceof String)
+			variables.put(name, TemplateValueCoercion.coerceToMatch((String) rawValue, variables.get(name)));
+		else
+			variables.put(name, rawValue);
 	}
 
 	@SuppressWarnings("unchecked")

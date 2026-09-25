@@ -220,6 +220,61 @@ public final class IconSpecEngine {
 	private static final ThreadLocal<Map<String, String>> metadataTL = new ThreadLocal<>();
 
 	/**
+	 * App-pushed {@code ${name}} substitution variables (e.g. a host app's current
+	 * {@code dpi}/label size) - a plain static registry, not a {@code ThreadLocal}
+	 * like the fields above: these are long-lived, occasionally-updated app
+	 * config, not per-call-stack transient state. Unlike JavaFX's
+	 * {@code IconspecUtils} (which layers a much larger, XmlFilesystem-declared
+	 * variable set on top of this - see its {@code mergedVars()}), this is the
+	 * toolkit-agnostic base a non-JavaFX caller (server-side template rendering,
+	 * etc.) can also use directly. See {@link #setVariable}.
+	 */
+	private static final Map<String, String> extraVariables = new java.util.concurrent.ConcurrentHashMap<>();
+
+	/**
+	 * Registers (or, with {@code value == null}, removes) a {@code ${name}}
+	 * substitution variable, applied to every spec passed to {@link #createImage}
+	 * before any other parsing. Global and immediate - takes effect for the next
+	 * {@link #createImage} call from any thread.
+	 */
+	public static void setVariable(String name, String value) {
+		if (value == null)
+			extraVariables.remove(name);
+		else
+			extraVariables.put(name, value);
+	}
+
+	/** Returns a snapshot of the currently-registered {@link #setVariable} variables. */
+	public static Map<String, String> getVariables() {
+		return java.util.Collections.unmodifiableMap(new LinkedHashMap<>(extraVariables));
+	}
+
+	/**
+	 * Replaces every {@code ${name}} occurrence found in {@link #extraVariables},
+	 * repeating until stable (so a variable's own value may itself reference
+	 * another variable). A spec with no registered variables, or none referenced,
+	 * is returned unchanged (including when it already arrives fully substituted,
+	 * e.g. from {@code IconspecUtils} - idempotent, no remaining {@code ${}} to
+	 * match).
+	 */
+	private static String substituteVariables(String spec) {
+		if (extraVariables.isEmpty() || !spec.contains("${")) //$NON-NLS-1$
+			return spec;
+		String resolved = spec;
+		boolean changed;
+		do {
+			changed = false;
+			for (Map.Entry<String, String> e : extraVariables.entrySet()) {
+				String next = resolved.replace("${" + e.getKey() + "}", e.getValue()); //$NON-NLS-1$ //$NON-NLS-2$
+				if (!next.equals(resolved))
+					changed = true;
+				resolved = next;
+			}
+		} while (changed && resolved.contains("${")); //$NON-NLS-1$
+		return resolved;
+	}
+
+	/**
 	 * Returns whether the most recent {@link #createImage} evaluation on this
 	 * thread executed {@code *NOCACHE} — callers should then skip storing the
 	 * result in their own outer caches.
@@ -242,10 +297,14 @@ public final class IconSpecEngine {
 	// ---- Entry point ----
 
 	/**
-	 * Creates an image from a raw spec string (no cache look-up; no token
-	 * substitution — callers are expected to have already resolved {@code ${...}}
-	 * placeholders). If the spec contains {@code #}, it is evaluated as a postfix
-	 * expression; otherwise it is treated as a single file spec.
+	 * Creates an image from a raw spec string (no cache look-up). Only variables
+	 * registered via {@link #setVariable} are substituted here - callers with a
+	 * richer variable set of their own (e.g. JavaFX's {@code IconspecUtils}, which
+	 * layers XmlFilesystem-declared tokens on top of this same registry) are
+	 * still expected to resolve those themselves first; this is a no-op pass on a
+	 * spec that already arrives fully substituted. If the spec contains {@code #},
+	 * it is evaluated as a postfix expression; otherwise it is treated as a single
+	 * file spec.
 	 *
 	 * @param spec the icon spec string; may be {@code null}
 	 *
@@ -257,6 +316,7 @@ public final class IconSpecEngine {
 			log.fine("NULL image spec requested");
 			return null;
 		}
+		spec = substituteVariables(spec);
 
 		noCacheTL.remove();
 		metadataTL.set(new LinkedHashMap<>());

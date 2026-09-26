@@ -6,4 +6,15 @@
 		<file
 			name="cz.bliksoft.javautils.xmlfilesystem.loaders.ClassFileLoader" />
 	</file>
+
+	<!-- self-credit for the About dialog of common-java-utils-jfx (lib_credits, see its
+	     doc/Help.md; same id as its own entry, so the two merge; LGPL21 is defined there) -->
+	<file name="lib_credits" sorted="true">
+		<file name="bstoolbox">
+			<attribute name="name" value="BSToolbox (common-java-utils)" />
+			<attribute name="url" value="https://github.com/jelinj8/Java-BSToolbox" />
+			<attribute name="comment" value="application framework core: modules, XmlFilesystem, utilities" />
+			<attribute name="licence" value="LGPL21" />
+		</file>
+	</file>
 </root>

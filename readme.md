@@ -8,7 +8,7 @@ Universal Java utility library. Compatible with JDK 8+.
 <dependency>
     <groupId>cz.bliksoft.java</groupId>
     <artifactId>common-java-utils</artifactId>
-    <version>0.6</version>
+    <version>0.10</version>
 </dependency>
 ```
 

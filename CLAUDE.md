@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Universal Java utility library (`cz.bliksoft.java:common-java-utils:0.7-SNAPSHOT`). Must stay compatible with JDK 8. No new hard dependencies. Avoid new `provided` dependencies for non-isolated functionality; for isolated features (e.g. QR codes, mDNS) a `provided`/`optional` dependency is acceptable when explicitly approved.
+Universal Java utility library (`cz.bliksoft.java:common-java-utils:0.11-SNAPSHOT`). Must stay compatible with JDK 8. No new hard dependencies. Avoid new `provided` dependencies for non-isolated functionality; for isolated features (e.g. QR codes, mDNS) a `provided`/`optional` dependency is acceptable when explicitly approved.
 
 ## Build Commands
 

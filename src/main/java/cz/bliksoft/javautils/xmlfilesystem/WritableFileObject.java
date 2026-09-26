@@ -1,7 +1,6 @@
 package cz.bliksoft.javautils.xmlfilesystem;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -90,7 +89,7 @@ public class WritableFileObject extends FileObject {
 		child.document = this.document;
 		this.folder = true;
 		children.add(child);
-		Collections.sort(children);
+		markChildrenUnsorted();
 		markDirty();
 	}
 
@@ -103,11 +102,15 @@ public class WritableFileObject extends FileObject {
 
 	public void setOrder(int order) {
 		this.order = order;
+		if (parent != null)
+			parent.markChildrenUnsorted();
 		markDirty();
 	}
 
 	public void setSorted(boolean sorted) {
 		this.sorted = sorted;
+		this.sortedDeclared = true;
+		markChildrenUnsorted();
 		markDirty();
 	}
 

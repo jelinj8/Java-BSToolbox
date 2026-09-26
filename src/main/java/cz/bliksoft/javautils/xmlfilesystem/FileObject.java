@@ -84,7 +84,9 @@ public class FileObject implements Comparable<Object> {
 
 	/**
 	 * attribute specifying file sorting when no order is defined or the "order"
-	 * values are the same (true = sort by name, false = keep order)
+	 * values are the same (true = sort by name, false = keep order). An explicit
+	 * value also applies when merging into a folder another import created first -
+	 * the last explicit value wins, so one module declaring it is enough.
 	 */
 	public static final String ATTRIBUTE_FILE_SORTED = "sorted"; // $NON-NLS-1$
 
@@ -218,6 +220,24 @@ public class FileObject implements Comparable<Object> {
 	@XmlAttribute
 	boolean sorted = false;
 
+	/**
+	 * the {@code sorted} attribute was given explicitly (so it applies on merge)
+	 */
+	boolean sortedDeclared = false;
+
+	/**
+	 * {@code sorted} merged in from a different resource onto a writable node: in
+	 * effect at runtime, never saved back (like {@code overrideAttributes})
+	 */
+	Boolean sortedOverride = null;
+
+	/**
+	 * children were added or reordered since the last sort - sorting is deferred
+	 * to the first ordered read ({@link #ensureChildrenSorted()}), so imports and
+	 * merges don't re-sort the same list over and over
+	 */
+	private boolean childrenUnsorted = false;
+
 	@XmlAttribute
 	private Boolean locked = null;
 
@@ -315,6 +335,7 @@ public class FileObject implements Comparable<Object> {
 		Node sortedNode = attribs.getNamedItem(ATTRIBUTE_FILE_SORTED);
 		if (sortedNode != null) {
 			this.sorted = Boolean.parseBoolean(sortedNode.getNodeValue());
+			this.sortedDeclared = true;
 		}
 
 		Node removeNode = attribs.getNamedItem(ATTRIBUTE_FILE_REMOVE);
@@ -379,13 +400,45 @@ public class FileObject implements Comparable<Object> {
 					importNestedClasspathXml(fNode);
 				}
 			}
-			if (this.children != null)
-				Collections.sort(this.children);
+			markChildrenUnsorted();
 		}
 	}
 
 	private void addChild(FileObject ch) {
 		children.add(ch);
+	}
+
+	/**
+	 * the children need sorting before their next ordered read
+	 */
+	protected void markChildrenUnsorted() {
+		childrenUnsorted = true;
+	}
+
+	/**
+	 * sorts the children if they changed since the last sort - called by every
+	 * read that exposes their order (not by exact-name lookups, which the imports
+	 * themselves use)
+	 */
+	protected void ensureChildrenSorted() {
+		initChildren();
+		if (!childrenUnsorted)
+			return;
+		synchronized (this) {
+			if (childrenUnsorted) {
+				if (children != null)
+					Collections.sort(children);
+				childrenUnsorted = false;
+			}
+		}
+	}
+
+	/**
+	 * @return whether the children are sorted by name (within the same order),
+	 *         including a value merged in from another resource
+	 */
+	public boolean isSortingChildren() {
+		return sortedOverride != null ? sortedOverride : sorted;
 	}
 
 	/**
@@ -482,7 +535,7 @@ public class FileObject implements Comparable<Object> {
 	 * @return all children, including hidden ones (.*)
 	 */
 	public List<FileObject> getAllChildren() {
-		initChildren();
+		ensureChildrenSorted();
 		return new ArrayList<>(this.children);
 	}
 
@@ -490,7 +543,7 @@ public class FileObject implements Comparable<Object> {
 	 * @return children, without hidden ones (.*)
 	 */
 	public List<FileObject> getChildren() {
-		initChildren();
+		ensureChildrenSorted();
 		ArrayList<FileObject> result = new ArrayList<>();
 		if (children == null)
 			return result;
@@ -506,7 +559,7 @@ public class FileObject implements Comparable<Object> {
 	 * @return children (files only), without hidden ones (.*)
 	 */
 	public List<FileObject> getChildFiles() {
-		initChildren();
+		ensureChildrenSorted();
 		ArrayList<FileObject> result = new ArrayList<>();
 		if (children == null)
 			return result;
@@ -522,7 +575,7 @@ public class FileObject implements Comparable<Object> {
 	 * @return list of subdirectories, without hidden ones
 	 */
 	public List<FileObject> getDirectories() {
-		initChildren();
+		ensureChildrenSorted();
 		ArrayList<FileObject> result = new ArrayList<>();
 		if (children == null)
 			return result;
@@ -538,7 +591,7 @@ public class FileObject implements Comparable<Object> {
 	 * @return leaves only, without hidden ones
 	 */
 	public List<FileObject> getWithoutDirectories() {
-		initChildren();
+		ensureChildrenSorted();
 		ArrayList<FileObject> result = new ArrayList<>();
 		if (children == null)
 			return result;
@@ -621,7 +674,7 @@ public class FileObject implements Comparable<Object> {
 				return -1;
 			if (this.order > fo.order)
 				return 1;
-			if (this.parent != null && this.parent.sorted)
+			if (this.parent != null && this.parent.isSortingChildren())
 				return this.name.compareTo(fo.name);
 			else
 				return 0;
@@ -654,14 +707,19 @@ public class FileObject implements Comparable<Object> {
 		File f = new File(fileName);
 		File parentFile = f.getParentFile();
 		if (parentFile == null) {
-			initChildren();
+			// a wildcard returns the first match, so it needs the order; an exact name
+			// doesn't (and the imports look up by exact name - no sorting mid-merge)
+			if (f.getName().contains("*")) //$NON-NLS-1$
+				ensureChildrenSorted();
+			else
+				initChildren();
 			if (this.children != null)
 				for (FileObject ch : this.children) {
 					if (f.getName().startsWith("*") && ch.name.endsWith(f.getName().substring(1))) //$NON-NLS-1$
 						return ch;
 
 					if (f.getName().endsWith("*") //$NON-NLS-1$
-							&& ch.name.startsWith(f.getName().substring(0, f.getName().length() - 2)))
+							&& ch.name.startsWith(f.getName().substring(0, f.getName().length() - 1)))
 						return ch;
 
 					if (ch.name.equals(f.getName()))
@@ -747,21 +805,30 @@ public class FileObject implements Comparable<Object> {
 				if (fo.id != null)
 					namedFiles.remove(fo.id);
 				existing.parent = null;
-			} else if (replace) {
+			} else if (fo.replace) {
 				children.remove(existing);
 				existing.parent = null;
+				registerSubtree(fo);
 				addChild(fo);
-				if (fo.id != null)
-					namedFiles.put(fo.id, fo);
-
 				fo.parent = this;
-				Collections.sort(this.children);
+				markChildrenUnsorted();
 			} else { // merge
 				if (existing.getFullPath().equals(fo.getFullPath())) {
 					log.warning("File object " + fo.getFullPath() + " duplicated in the same resource.");
 				}
 				if (fo.order != 0) {
 					existing.order = fo.order;
+				}
+				if (fo.sortedDeclared) {
+					if (existing instanceof WritableFileObject
+							&& !existing.getResourceId().equals(fo.getResourceId())) {
+						// foreign value onto a writable node: in effect, never saved back
+						existing.sortedOverride = fo.sorted;
+					} else {
+						existing.sorted = fo.sorted;
+						existing.sortedDeclared = true;
+					}
+					existing.markChildrenUnsorted();
 				}
 				if (fo.attributes != null && !fo.attributes.isEmpty()) {
 					if (existing instanceof WritableFileObject
@@ -780,27 +847,14 @@ public class FileObject implements Comparable<Object> {
 					for (FileObject internal : fo.children) {
 						existing.importFile(internal);
 					}
-				if (this.children != null)
-					Collections.sort(this.children);
+				markChildrenUnsorted();
 			}
 		} else {
 			if (!fo.remove) {
-				fo.streamDFAllChildren(true).forEach(fo2 -> {
-					if (fo2.id != null) {
-						if (namedFiles.containsKey(fo2.id) && namedFiles.get(fo2.id) != fo2 && !fo.replace)
-							throw new InitializationException("File with ID=" + fo2.id
-									+ " already registered and not force-replacing it by " + fo2);
-
-						namedFiles.put(fo2.id, fo2);
-					}
-
-					if (fo2.target != null) {
-						fo.importFile(fo2);
-					}
-				});
+				registerSubtree(fo);
 				addChild(fo);
 				fo.parent = this;
-				Collections.sort(this.children);
+				markChildrenUnsorted();
 			}
 		}
 	}
@@ -880,7 +934,7 @@ public class FileObject implements Comparable<Object> {
 	}
 
 	public FileObject searchByName(String search) {
-		initChildren();
+		ensureChildrenSorted();
 		if (search.equals(name))
 			return this;
 		if ((children != null) && (!children.isEmpty())) {
@@ -1122,11 +1176,51 @@ public class FileObject implements Comparable<Object> {
 			attributes.entrySet().stream().sorted(Entry.comparingByKey()).forEach(a -> sb
 					.append(MessageFormat.format("{0}[{1}]={2}\n", currentPrefix, a.getKey(), a.getValue().value)));
 		}
-		initChildren();
+		ensureChildrenSorted();
 		if (children != null)
 			for (FileObject f : children) {
 				f.dump(sb, currentPrefix);
 			}
+	}
+
+	/**
+	 * registers the ids of an imported subtree and imports its {@code target}
+	 * redirects - for a new node and for one replacing an existing node
+	 */
+	private void registerSubtree(FileObject fo) {
+		fo.subtreeUnsorted().forEach(fo2 -> {
+			if (fo2.id != null) {
+				if (namedFiles.containsKey(fo2.id) && namedFiles.get(fo2.id) != fo2 && !fo.replace)
+					throw new InitializationException(
+							"File with ID=" + fo2.id + " already registered and not force-replacing it by " + fo2);
+
+				namedFiles.put(fo2.id, fo2);
+			}
+
+			if (fo2.target != null) {
+				fo.importFile(fo2);
+			}
+		});
+	}
+
+	/**
+	 * this object and its whole subtree (depth first) in the current, possibly not
+	 * yet sorted, order - for the import itself (registering ids, linking
+	 * documents), which must not trigger the deferred sorting
+	 */
+	List<FileObject> subtreeUnsorted() {
+		List<FileObject> result = new ArrayList<>();
+		Deque<FileObject> stack = new ArrayDeque<>();
+		stack.push(this);
+		while (!stack.isEmpty()) {
+			FileObject n = stack.pop();
+			result.add(n);
+			n.initChildren();
+			if (n.children != null)
+				for (int i = n.children.size() - 1; i >= 0; i--)
+					stack.push(n.children.get(i));
+		}
+		return result;
 	}
 
 	/**

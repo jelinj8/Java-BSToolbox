@@ -55,6 +55,19 @@ public class FileSymlink extends FileObject {
 			this.children = targetFile.children;
 	}
 
+	/**
+	 * the children are the target's list - sorting (and its deferral) is the
+	 * target's
+	 */
+	@Override
+	protected void ensureChildrenSorted() {
+		initChildren();
+		if (targetFile != null)
+			targetFile.ensureChildrenSorted();
+		else
+			super.ensureChildrenSorted();
+	}
+
 	private boolean initializedAttributes = false;
 
 	@Override

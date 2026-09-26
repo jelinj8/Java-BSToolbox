@@ -32,7 +32,7 @@ Represents a file or folder node. JAXB-serialisable; maps to `<file>` in the XML
 | `type` | Arbitrary type tag used by `FileLoader` to select a loader |
 | `id` | Unique identifier for symlink targets |
 | `position` | Sort order among siblings |
-| `sorted` | Sort children alphabetically when `true` |
+| `sorted` | Sort children alphabetically (by name, after `position`) when `true`. An explicit value also applies when merging into a node another descriptor created first - the last explicit value wins, so one module declaring it is enough |
 | `locked` | Prevent children from being added or replaced when `true` |
 | `translation` | Translation key for the display name |
 | `mark` | Arbitrary string marker |
@@ -54,6 +54,8 @@ Represents a file or folder node. JAXB-serialisable; maps to `<file>` in the XML
 | `String getLocalizedName()` | Translated display name; falls back to `name`, or `<$translationId$>` if key is missing |
 | `void importFile(FileObject fo)` | Merge another `FileObject` into this node |
 | `boolean isWritable()` | `true` if this node is a `WritableFileObject`, i.e. was loaded from a `mode="rw"` `<include>`/`<require>` |
+
+**Sorting** is deferred: imports and merges only mark a folder's children as needing a sort, and it happens once, on the first read that exposes their order (`getChildren()`, `getAllChildren()`, the stream methods, a wildcard `getFile`, ...). Exact-name lookups - which the merge itself uses - never sort.
 
 **XML child elements:**
 
@@ -259,6 +261,7 @@ Represents one source XML document and the `WritableFileObject` roots loaded fro
 ### Merge semantics for writable nodes
 
 - A read-only `<include>`/`<require>` (from a different `resourceId`) can still merge attributes onto an existing writable node, but those attributes are kept separately as "override attributes": they are visible via `getAttribute`/`getLocalizedAttribute`/`getAttributeTranslationId`, take precedence over the node's own attributes, but are never written back by `save()`.
+- The same holds for an explicit `sorted` merged onto a writable node from a different `resourceId`: in effect at runtime, never written back by `save()`.
 - A foreign `remove`/`replace` of a writable node (i.e. from a different `resourceId`) is rejected with an `InitializationException` — only the document that owns a writable node may remove or replace it.
 - For `mode="rw"`, each top-level `<file>`/`<symlink>` root must not collide with an existing node of the same name (or `target` ID) — a collision throws `InitializationException`.
 

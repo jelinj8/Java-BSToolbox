@@ -70,7 +70,7 @@ public class WritableXmlFile {
 	 */
 	public void addRoot(FileObject fo) {
 		roots.add(fo);
-		fo.streamDFAllChildren(true).forEach(f -> {
+		fo.subtreeUnsorted().forEach(f -> {
 			if (f instanceof WritableFileObject)
 				((WritableFileObject) f).setDocument(this);
 		});

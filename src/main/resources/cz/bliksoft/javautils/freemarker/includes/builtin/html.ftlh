@@ -1,5 +1,5 @@
-<#macro document class=''><!DOCTYPE html<#if additionalDoctypeDeclarationContent?has_content>${additionalDoctypeDeclarationContent?no_esc}</#if>>
-<html <#if class?has_content>class="${class}"</#if>>
+<#macro document class='' lang=''><!DOCTYPE html<#if additionalDoctypeDeclarationContent?has_content>${additionalDoctypeDeclarationContent?no_esc}</#if>>
+<html <#if class?has_content>class="${class}"</#if><#if lang?has_content> lang="${lang}"</#if>>
 <#nested>
 </html>
 </#macro>
@@ -114,8 +114,8 @@ body {
 <#macro documentHeader class=''><#assign definedHeaderClass=class /><#assign definedHeader><#nested></#assign></#macro>
 <#macro documentFooter class=''><#assign definedFooterClass=class /><#assign definedFooter><#nested></#assign></#macro>
 
-<#macro simpleDocument class='' htmlClass=''>
-<@document htmlClass>
+<#macro simpleDocument class='' htmlClass='' lang=''>
+<@document htmlClass lang>
 <@head>
 <@utf8 />
 <@css_styles />

@@ -2,6 +2,7 @@ package cz.bliksoft.javautils.freemarker.utils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -24,8 +25,9 @@ public final class TemplateValueCoercion {
 
 	/**
 	 * Coerces {@code raw} to {@code targetType}. Returns {@code null} if
-	 * {@code raw} is {@code null} or cannot be parsed into a numeric/boolean
-	 * target type. {@code Map.class} is decoded via {@link MapPropertyCodec}
+	 * {@code raw} is {@code null} or cannot be parsed into a numeric/boolean/enum
+	 * target type. An enum target type matches a constant name ignoring case, with
+	 * {@code -} for {@code _}. {@code Map.class} is decoded via {@link MapPropertyCodec}
 	 * (never {@code null}, empty map on blank input). Any other target type
 	 * (including {@code String.class}) returns {@code raw} unchanged.
 	 *
@@ -48,22 +50,52 @@ public final class TemplateValueCoercion {
 			if (targetType == BigInteger.class)
 				return new BigInteger(trimmed);
 			if (targetType == Float.class || targetType == float.class)
-				return Float.parseFloat(trimmed);
+				return Float.parseFloat(decimalDot(trimmed));
 			if (targetType == Double.class || targetType == double.class)
-				return Double.parseDouble(trimmed);
+				return Double.parseDouble(decimalDot(trimmed));
 			if (targetType == BigDecimal.class)
-				return new BigDecimal(trimmed);
+				return new BigDecimal(decimalDot(trimmed));
 		} catch (NumberFormatException e) {
 			return null;
 		}
 		if (targetType == Boolean.class || targetType == boolean.class)
 			return Boolean.parseBoolean(trimmed);
+		if (targetType.isEnum())
+			return enumConstant(trimmed, targetType);
 		return raw;
 	}
 
 	/**
+	 * A decimal number typed in any locale: a decimal dot or comma ({@code "1.5"},
+	 * {@code "1,5"}); {@code null} when blank or not a number.
+	 */
+	public static Double parseDecimal(String raw) {
+		if (raw == null || raw.trim().isEmpty())
+			return null;
+		try {
+			return Double.parseDouble(decimalDot(raw.trim()));
+		} catch (NumberFormatException e) {
+			return null;
+		}
+	}
+
+	private static String decimalDot(String s) {
+		return s.replace(',', '.');
+	}
+
+	private static Object enumConstant(String name, Class<?> enumType) {
+		String normalized = name.replace('-', '_').toUpperCase(Locale.ROOT);
+		for (Object constant : enumType.getEnumConstants()) {
+			if (((Enum<?>) constant).name().toUpperCase(Locale.ROOT).equals(normalized))
+				return constant;
+		}
+		return null;
+	}
+
+	/**
 	 * Coerces {@code raw} to match {@code existingValue}'s runtime type (any
-	 * numeric type {@link #coerce} supports, plus {@code Boolean}/{@code Map}).
+	 * numeric type {@link #coerce} supports, plus {@code Boolean}/{@code Map} and
+	 * enums).
 	 * Falls back to {@code raw} unchanged when {@code existingValue} is
 	 * {@code null}, of some other type, or when coercion fails — an override
 	 * always lands, it just stays untyped on failure rather than being dropped.
@@ -73,6 +105,8 @@ public final class TemplateValueCoercion {
 			return raw;
 		if (existingValue instanceof Map)
 			return withFallback(coerce(raw, Map.class), raw);
+		if (existingValue instanceof Enum)
+			return withFallback(coerce(raw, ((Enum<?>) existingValue).getDeclaringClass()), raw);
 		Class<?> existingType = existingValue.getClass();
 		if (!isCoercibleType(existingType))
 			return raw;

@@ -12,6 +12,45 @@ import org.junit.jupiter.api.Test;
 
 class TemplateValueCoercionTest {
 
+	enum Mode {
+		DISABLED, WHEN_NEEDED, ALWAYS
+	}
+
+	@Test
+	void parsesDecimalWithDotOrComma() {
+		assertEquals(1.5, TemplateValueCoercion.parseDecimal("1.5"));
+		assertEquals(1.5, TemplateValueCoercion.parseDecimal("1,5"));
+		assertEquals(-2.0, TemplateValueCoercion.parseDecimal(" -2 "));
+		assertNull(TemplateValueCoercion.parseDecimal("x"));
+		assertNull(TemplateValueCoercion.parseDecimal(" "));
+		assertNull(TemplateValueCoercion.parseDecimal(null));
+		assertEquals(84.5, TemplateValueCoercion.coerce("84,5", Double.class));
+	}
+
+	@Test
+	void decimalTemplateDefault() {
+		Map<String, Object> defaults = TemplateParameterUtils
+				.extractDefaultVariables("{var|DECIMAL|w|Width|60,5}\n{var|DECIMAL|h|Height}");
+		assertEquals(60.5, defaults.get("w"));
+		assertEquals(0.0, defaults.get("h"));
+	}
+
+	@Test
+	void coercesEnumTarget() {
+		assertEquals(Mode.ALWAYS, TemplateValueCoercion.coerce("ALWAYS", Mode.class));
+		assertEquals(Mode.ALWAYS, TemplateValueCoercion.coerce(" always ", Mode.class));
+		assertEquals(Mode.WHEN_NEEDED, TemplateValueCoercion.coerce("when-needed", Mode.class));
+		assertNull(TemplateValueCoercion.coerce("sometimes", Mode.class));
+		assertNull(TemplateValueCoercion.coerce("", Mode.class));
+		assertNull(TemplateValueCoercion.coerce(null, Mode.class));
+	}
+
+	@Test
+	void coercesToMatchEnum() {
+		assertEquals(Mode.DISABLED, TemplateValueCoercion.coerceToMatch("disabled", Mode.ALWAYS));
+		assertEquals("sometimes", TemplateValueCoercion.coerceToMatch("sometimes", Mode.ALWAYS));
+	}
+
 	@Test
 	void coercesIntegerTarget() {
 		assertEquals(300, TemplateValueCoercion.coerce("300", Integer.class));

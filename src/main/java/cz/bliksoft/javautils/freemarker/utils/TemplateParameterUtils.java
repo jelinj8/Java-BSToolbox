@@ -104,6 +104,10 @@ public class TemplateParameterUtils {
 				}
 				result.put(name, intValue);
 				break;
+			case "DECIMAL":
+				Double decimalValue = TemplateValueCoercion.parseDecimal(defaultValue);
+				result.put(name, decimalValue != null ? decimalValue : 0.0);
+				break;
 			case "BOOLEAN":
 				result.put(name, Boolean.parseBoolean(defaultValue));
 				break;

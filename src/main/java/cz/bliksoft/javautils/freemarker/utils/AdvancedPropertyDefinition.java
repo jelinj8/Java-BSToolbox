@@ -10,8 +10,9 @@ package cz.bliksoft.javautils.freemarker.utils;
  * and which value-editor widget a UI presents for the property; it is one of
  * {@code Integer.class}, {@code Double.class}, {@code Boolean.class},
  * {@code Map.class} (an ordered {@code String->String} map, see
- * {@link MapPropertyCodec}), or {@code String.class} (the default, untyped
- * case).
+ * {@link MapPropertyCodec}), an enum class (a choice of its constants - a
+ * UI offers them in a combo; stored as the constant name), or
+ * {@code String.class} (the default, untyped case).
  */
 public final class AdvancedPropertyDefinition {
 

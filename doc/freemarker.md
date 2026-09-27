@@ -228,6 +228,12 @@ a `default` part, `title` is the text itself (the original form):
 ```
 
 The name field of `comment`/`hint`/`info` is not a variable; use `-`.
+
+Any parameter's **title** can be translated as well: `:key[:fallback]` - the translation of `key`,
+else `fallback` (the key itself when there is none); a title without the leading `:` is shown as it
+is. E.g. `{var|int|printQuantity|:labels/param/printQuantity:počet výtisků|1|1:100}`
+(`resolveTitle(title, locale)`; `parseFormParameters` applies it to every title, `parseParameters`
+keeps the raw declaration).
 `TemplateParameterUtils.parseFormParameters` returns the declarations ready for a form: `comment`
 titles resolved to their text, `hint` lines removed and their texts attached (joined by newlines)
 to the preceding parameter's `getHint()`. A hint with no preceding parameter is dropped.

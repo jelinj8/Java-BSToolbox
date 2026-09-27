@@ -25,6 +25,10 @@ import cz.bliksoft.javautils.xmlfilesystem.FileSystem;
  * ({@code {var|comment|-|text}}) the title is the text itself. A {@code HINT}
  * adds no form row - {@link #parseFormParameters(String)} attaches its text to
  * the preceding parameter.
+ * <p>
+ * Any parameter's title can be translated too: {@code :key[:fallback]}, e.g.
+ * {@code {var|int|printQuantity|:labels/param/printQuantity:počet výtisků|1|1:100}}
+ * ({@link #resolveTitle(String, Locale)}).
  */
 public class TemplateParameterUtils {
 
@@ -41,6 +45,11 @@ public class TemplateParameterUtils {
 	public static final String TYPE_HINT = "HINT";
 	/** Title/key placeholder meaning "no translation key". */
 	public static final String NO_KEY = "-";
+	/**
+	 * Prefix of a translated title {@code :key[:fallback]}, also the separator of
+	 * its fallback text (see {@link #resolveTitle(String, Locale)}).
+	 */
+	public static final String TITLE_KEY_PREFIX = ":";
 
 	private static final Logger log = Logger.getLogger(TemplateParameterUtils.class.getName());
 
@@ -121,9 +130,10 @@ public class TemplateParameterUtils {
 	}
 
 	/**
-	 * Parses the declarations for building a form: {@code COMMENT} titles are
-	 * resolved to their display text (translation or fallback, the default part is
-	 * cleared) and {@code HINT} lines are removed, their resolved texts attached
+	 * Parses the declarations for building a form: {@code :key[:fallback]} titles
+	 * are translated, {@code COMMENT} titles are resolved to their display text
+	 * (translation or fallback, the default part is cleared) and {@code HINT} lines
+	 * are removed, their resolved texts attached
 	 * (joined by newlines) to the preceding parameter's
 	 * {@link TemplateParameter#getHint() hint}. A hint with no preceding parameter
 	 * is dropped.
@@ -154,15 +164,34 @@ public class TemplateParameterUtils {
 			} else if (TYPE_COMMENT.equals(type)) {
 				result.add(new TemplateParameter(p.getType(), p.getName(), text(p, locale), null, p.getParameters()));
 			} else {
-				result.add(p);
+				result.add(new TemplateParameter(p.getType(), p.getName(), resolveTitle(p.getTitle(), locale),
+						p.getDefaultValue(), p.getParameters()));
 			}
 		}
 		return result;
 	}
 
-	/** COMMENT/HINT display text: with a default part the title is a translation key. */
+	/**
+	 * COMMENT/HINT display text: with a default part the title is a translation
+	 * key, otherwise the text (or a {@code :key[:fallback]} title).
+	 */
 	private static String text(TemplateParameter p, Locale locale) {
-		return p.getDefaultValue() == null ? p.getTitle() : resolveText(p.getTitle(), p.getDefaultValue(), locale);
+		return p.getDefaultValue() == null ? resolveTitle(p.getTitle(), locale)
+				: resolveText(p.getTitle(), p.getDefaultValue(), locale);
+	}
+
+	/**
+	 * A parameter title: {@code :key[:fallback]} is the XML-filesystem translation
+	 * of {@code key}, else {@code fallback} (the key itself when there is none);
+	 * any other title is shown as it is.
+	 */
+	public static String resolveTitle(String title, Locale locale) {
+		if (title == null || !title.startsWith(TITLE_KEY_PREFIX))
+			return title;
+		String rest = title.substring(TITLE_KEY_PREFIX.length());
+		int sep = rest.indexOf(TITLE_KEY_PREFIX);
+		String key = sep < 0 ? rest : rest.substring(0, sep);
+		return resolveText(key, sep < 0 ? key : rest.substring(sep + 1), locale);
 	}
 
 	/** Parses all {@code {var|...}} declarations from the given template source. */

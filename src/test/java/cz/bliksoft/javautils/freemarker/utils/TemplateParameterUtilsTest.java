@@ -50,6 +50,28 @@ class TemplateParameterUtilsTest {
 	}
 
 	@Test
+	void translatedTitles() {
+		List<TemplateParameter> params = TemplateParameterUtils.parseFormParameters(String.join("\n", //
+				"{var|int|a|:test/localized/text:fallback A|1|1:9}", //
+				"{var|int|b|:test/localized/missing:fallback: with colon|1}", //
+				"{var|int|c|:test/localized/missing|1}", //
+				"{var|info|-|:test/localized/text|name}", //
+				"{var|string|d|plain: not a key|}", //
+				"{var|comment|-|:test/localized/text:comment}"), new Locale("cs"));
+		assertEquals("B", params.get(0).getTitle());
+		assertEquals("1:9", params.get(0).getParameters());
+		assertEquals("fallback: with colon", params.get(1).getTitle());
+		assertEquals("test/localized/missing", params.get(2).getTitle());
+		assertEquals("B", params.get(3).getTitle());
+		assertEquals("name", params.get(3).getDefaultValue());
+		assertEquals("plain: not a key", params.get(4).getTitle());
+		assertEquals("B", params.get(5).getTitle());
+		// raw parsing keeps the declaration as written
+		assertEquals(":test/localized/text:fallback A",
+				TemplateParameterUtils.parseParameters("{var|int|a|:test/localized/text:fallback A|1}").get(0).getTitle());
+	}
+
+	@Test
 	void translationsByLocale() {
 		assertEquals("A", FileSystem.getTranslation("test/localized/text", Locale.ENGLISH));
 		assertEquals("B", FileSystem.getTranslation("test/localized/text", new Locale("cs")));

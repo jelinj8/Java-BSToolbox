@@ -3,6 +3,7 @@ package cz.bliksoft.javautils.freemarker.utils;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -104,9 +105,18 @@ public class TemplateParameterUtils {
 	 * {@value #NO_KEY} or has no translation.
 	 */
 	public static String resolveText(String key, String fallback) {
+		return resolveText(key, fallback, null);
+	}
+
+	/**
+	 * {@link #resolveText(String, String)} in the given language
+	 * ({@link FileSystem#getTranslation(String, Locale)}, e.g. a web request's
+	 * locale); {@code null} = the language the translations were loaded in.
+	 */
+	public static String resolveText(String key, String fallback, Locale locale) {
 		if (key == null || key.trim().isEmpty() || NO_KEY.equals(key.trim()))
 			return fallback;
-		String translated = FileSystem.getTranslation(key.trim());
+		String translated = FileSystem.getTranslation(key.trim(), locale);
 		return translated != null ? translated : fallback;
 	}
 
@@ -119,11 +129,20 @@ public class TemplateParameterUtils {
 	 * is dropped.
 	 */
 	public static List<TemplateParameter> parseFormParameters(String templateSource) {
+		return parseFormParameters(templateSource, null);
+	}
+
+	/**
+	 * {@link #parseFormParameters(String)} with the texts in the given language
+	 * ({@link #resolveText(String, String, Locale)}); {@code null} = the language
+	 * the translations were loaded in.
+	 */
+	public static List<TemplateParameter> parseFormParameters(String templateSource, Locale locale) {
 		List<TemplateParameter> result = new ArrayList<>();
 		for (TemplateParameter p : parseParameters(templateSource)) {
 			String type = p.getType() != null ? p.getType().toUpperCase() : "";
 			if (TYPE_HINT.equals(type)) {
-				String text = text(p);
+				String text = text(p, locale);
 				if (result.isEmpty()) {
 					log.warning("Template hint with no preceding parameter ignored: " + text);
 					continue;
@@ -133,7 +152,7 @@ public class TemplateParameterUtils {
 				result.set(result.size() - 1, new TemplateParameter(prev.getType(), prev.getName(), prev.getTitle(),
 						prev.getDefaultValue(), prev.getParameters(), hint));
 			} else if (TYPE_COMMENT.equals(type)) {
-				result.add(new TemplateParameter(p.getType(), p.getName(), text(p), null, p.getParameters()));
+				result.add(new TemplateParameter(p.getType(), p.getName(), text(p, locale), null, p.getParameters()));
 			} else {
 				result.add(p);
 			}
@@ -142,8 +161,8 @@ public class TemplateParameterUtils {
 	}
 
 	/** COMMENT/HINT display text: with a default part the title is a translation key. */
-	private static String text(TemplateParameter p) {
-		return p.getDefaultValue() == null ? p.getTitle() : resolveText(p.getTitle(), p.getDefaultValue());
+	private static String text(TemplateParameter p, Locale locale) {
+		return p.getDefaultValue() == null ? p.getTitle() : resolveText(p.getTitle(), p.getDefaultValue(), locale);
 	}
 
 	/** Parses all {@code {var|...}} declarations from the given template source. */

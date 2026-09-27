@@ -16,7 +16,8 @@ Singleton. Access via `FileSystem.getDefault()`.
 | `getFile(String path)` | Retrieve a `FileObject` by path (e.g. `"config/logging"`) |
 | `getFile(String basePath, String... subpaths)` | Retrieve a node by path segments |
 | `loadTranslations()` | Walk the `/translations` folder and populate the translation map; call once after all modules are loaded |
-| `getTranslation(String translationId)` | Look up a translation by ID; returns `null` if not found |
+| `getTranslation(String translationId)` | Look up a translation by ID (in the language `loadTranslations()` loaded); returns `null` if not found |
+| `getTranslation(String translationId, Locale locale)` | The translation in the given language, read directly from the `translations/<id>` node (e.g. per web request); `null` locale = the loaded language - see [Per-call language](#per-call-language) |
 | `addTranslation(String key, String value)` | Register a single translation entry programmatically; logs an error on duplicate keys |
 | `addTranslations(Map<String,String> translations)` | Register multiple translation entries at once |
 
@@ -186,7 +187,11 @@ The locale-specific string and the `default` fallback are stored as `<attribute>
 
 ### Locale selection
 
-The active locale code defaults to `Locale.getDefault().getLanguage()` at class-load time (e.g. `"en"`, `"cs"`). It can be overridden by writing to `FileSystem.localeCode` before `loadTranslations()` is called.
+The locale code `loadTranslations()` uses is `Locale.getDefault().getLanguage()` at class-load time (e.g. `"en"`, `"cs"`); it is private and can't be changed afterwards - set the JVM's language (`-Duser.language=cs`) to choose it. It suits a single-user application; for several languages at once (a web UI) use the locale getters below.
+
+### Per-call language
+
+`FileSystem.getTranslation(id, Locale)` reads the `translations/<id>` node on each call, independent of the loaded map: its attribute `locale.toString()` (`cs_CZ`), then `locale.getLanguage()` (`cs`), then `default`. With no such node (a translation added in code) it falls back to `getTranslation(id)`; a `null` locale is `getTranslation(id)`. `FileObject.getLocalizedAttribute(name, def, Locale)` and `getLocalizedName(Locale)` are the per-language forms of the node getters below, with the same fallbacks. StorageManagerServer's print form passes the request's locale (`LocaleContextHolder.getLocale()`, from `Accept-Language`).
 
 ### Loading translations
 

@@ -235,6 +235,33 @@ public final class FileSystem {
 		return translations.get(id);
 	}
 
+	/**
+	 * The translation of {@code id} to the given language, read directly from the
+	 * {@code translations/<id>} file (for multi-language use, e.g. per web request,
+	 * independent of the language {@link #loadTranslations()} loaded): its
+	 * attribute {@code locale.toString()} ({@code cs_CZ}), then
+	 * {@code locale.getLanguage()} ({@code cs}), then {@code default}. Falls back
+	 * to {@link #getTranslation(String)} when there is no such file (translations
+	 * added in code); {@code null} locale = {@link #getTranslation(String)}.
+	 *
+	 * @return the translation, {@code null} when there is none
+	 */
+	public static String getTranslation(String id, Locale locale) {
+		if (locale == null || id == null)
+			return getTranslation(id);
+		FileObject file = getFile(TRANSLATION_ROOT_NAME + "/" + id); //$NON-NLS-1$
+		if (file == null || file.isDirectory())
+			return getTranslation(id);
+		for (String attr : new String[] { locale.toString(), locale.getLanguage(), DEFAULT_TRANSLATION_ATTR_NAME }) {
+			if (!StringUtils.hasText(attr))
+				continue;
+			String val = file.getAttribute(attr, (String) null);
+			if (StringUtils.hasText(val))
+				return val;
+		}
+		return null;
+	}
+
 	public static void addTranslations(Map<String, String> translations) {
 		FileSystem.translations.putAll(translations);
 	}

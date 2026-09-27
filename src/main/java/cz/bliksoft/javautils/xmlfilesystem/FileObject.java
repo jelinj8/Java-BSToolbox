@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Spliterator;
@@ -638,13 +639,22 @@ public class FileObject implements Comparable<Object> {
 	 * @return
 	 */
 	public String getLocalizedAttribute(String name, String def) {
+		return getLocalizedAttribute(name, def, null);
+	}
+
+	/**
+	 * {@link #getLocalizedAttribute(String, String)} translated to the given
+	 * language ({@link FileSystem#getTranslation(String, Locale)}); {@code null}
+	 * locale = the language the translations were loaded in.
+	 */
+	public String getLocalizedAttribute(String name, String def, Locale locale) {
 		initAttributes();
 		if (this.overrideAttributes != null && this.overrideAttributes.containsKey(name)) {
 			FileAttribute a = this.overrideAttributes.get(name);
 			if (a.translationID == null)
 				return a.value;
 			else {
-				String res = FileSystem.getTranslation(a.translationID);
+				String res = FileSystem.getTranslation(a.translationID, locale);
 				return res == null ? a.value : res;
 			}
 		}
@@ -655,7 +665,7 @@ public class FileObject implements Comparable<Object> {
 			if (a.translationID == null)
 				return a.value;
 			else {
-				String res = FileSystem.getTranslation(a.translationID);
+				String res = FileSystem.getTranslation(a.translationID, locale);
 				if (res == null)
 					return a.value;
 				else
@@ -903,10 +913,19 @@ public class FileObject implements Comparable<Object> {
 	 *         translation key
 	 */
 	public String getLocalizedName() {
+		return getLocalizedName(null);
+	}
+
+	/**
+	 * {@link #getLocalizedName()} translated to the given language
+	 * ({@link FileSystem#getTranslation(String, Locale)}); {@code null} locale =
+	 * the language the translations were loaded in.
+	 */
+	public String getLocalizedName(Locale locale) {
 		if (!StringUtils.hasText(translation))
 			return this.name;
 		else {
-			String res = FileSystem.getTranslation(translation);
+			String res = FileSystem.getTranslation(translation, locale);
 			if (StringUtils.hasText(res))
 				return res;
 			else

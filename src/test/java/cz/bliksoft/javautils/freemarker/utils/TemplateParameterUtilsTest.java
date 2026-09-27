@@ -4,9 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import cz.bliksoft.javautils.freemarker.utils.TemplateParameterUtils.TemplateParameter;
@@ -26,8 +30,42 @@ class TemplateParameterUtilsTest {
 			"{var|string|txt|text||40}", //
 			"-->");
 
-	static {
+	@BeforeAll
+	static void translations() throws Exception {
 		FileSystem.addTranslation("test/templateParams/translated", "Translated");
+		String xml = "<root xmlns=\"http://bliksoft.cz/XmlFilesystem\">\n" //
+				+ "<file name=\"translations\"><file name=\"test\"><file name=\"localized\">\n" //
+				+ "  <file name=\"text\" translation=\"test/localized/text\">\n" //
+				+ "    <attribute name=\"default\" value=\"A\"/>\n" //
+				+ "    <attribute name=\"cs\" value=\"B\"/>\n" //
+				+ "    <attribute name=\"cs_CZ\" value=\"C\"/>\n" //
+				+ "  </file>\n" //
+				+ "</file></file></file>\n" //
+				+ "<file name=\"testLocalized\">\n" //
+				+ "  <attribute name=\"label\" translation=\"test/localized/text\" value=\"raw\"/>\n" //
+				+ "</file>\n" //
+				+ "</root>\n";
+		FileSystem.getDefault().importXml(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)),
+				"TemplateParameterUtilsTest");
+	}
+
+	@Test
+	void translationsByLocale() {
+		assertEquals("A", FileSystem.getTranslation("test/localized/text", Locale.ENGLISH));
+		assertEquals("B", FileSystem.getTranslation("test/localized/text", new Locale("cs")));
+		assertEquals("C", FileSystem.getTranslation("test/localized/text", new Locale("cs", "CZ")));
+		assertNull(FileSystem.getTranslation("test/localized/missing", Locale.ENGLISH));
+		// no file: the in-code translations
+		assertEquals("Translated", FileSystem.getTranslation("test/templateParams/translated", Locale.ENGLISH));
+
+		assertEquals("B", TemplateParameterUtils.resolveText("test/localized/text", "f", new Locale("cs")));
+		assertEquals("f", TemplateParameterUtils.resolveText("test/localized/missing", "f", new Locale("cs")));
+		List<TemplateParameter> params = TemplateParameterUtils.parseFormParameters(
+				"{var|csvfile|list|list||:.csv}\n{var|hint|-|test/localized/text|x}", Locale.ENGLISH);
+		assertEquals("A", params.get(0).getHint());
+
+		assertEquals("C",
+				FileSystem.getFile("testLocalized").getLocalizedAttribute("label", null, new Locale("cs", "CZ")));
 	}
 
 	@Test

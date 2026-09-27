@@ -231,7 +231,10 @@ The name field of `comment`/`hint`/`info` is not a variable; use `-`.
 `TemplateParameterUtils.parseFormParameters` returns the declarations ready for a form: `comment`
 titles resolved to their text, `hint` lines removed and their texts attached (joined by newlines)
 to the preceding parameter's `getHint()`. A hint with no preceding parameter is dropped.
-`resolveText(key, fallback)` is the key-or-fallback lookup. `extractDefaultVariables` skips
+`resolveText(key, fallback)` is the key-or-fallback lookup. Both take an optional `Locale`
+(`parseFormParameters(source, locale)`, `resolveText(key, fallback, locale)`) for the texts in a
+given language (`FileSystem.getTranslation(id, locale)`) - StorageManagerServer's web form passes
+the browser's; without it the language `FileSystem.loadTranslations()` loaded is used. `extractDefaultVariables` skips
 `hint` as well. Consumers: BSToolbox-jfx `FormField.fromTemplate`/`ParametricFormPane` (and
 `FormField.withHint` for rows built in code), StorageManagerServer's `PrintController`/`ui.ftlh`.
 The label templates' CSV help texts are in BSToolbox-print's `PrintModule.xml`

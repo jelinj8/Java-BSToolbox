@@ -106,6 +106,15 @@ public class ObjectWrapperRegister extends DefaultObjectWrapper {
 		});
 	}
 
+	/**
+	 * Makes {@code toString()} the last resort for objects without a registered
+	 * converter (instead of FreeMarker's default bean wrapping). <b>Global</b> - it
+	 * applies to every configuration using this wrapper, and hides all properties
+	 * and methods of such objects: e.g. Spring's {@code springMacroRequestContext}
+	 * becomes a plain string. The default wrapping already renders
+	 * {@code ${obj}} by {@code toString()}, so this is rarely needed; prefer
+	 * {@link #addConverter} for specific classes.
+	 */
 	public static void useToString() {
 		lastResortConverter = (o) -> {
 			try {

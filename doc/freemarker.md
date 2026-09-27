@@ -143,9 +143,10 @@ e.g.
 ```
 
 `cz.bliksoft.javautils.freemarker.utils.TemplateParameterUtils` parses these declarations
-(`parseParameters`) and derives a `Map<String, Object>` of default values per declared
+(`parseParameters`, or `parseFormParameters` for building a form - see
+[Hints and translated texts](#hints-and-translated-texts)) and derives a `Map<String, Object>` of default values per declared
 variable (`extractDefaultVariables`), typed by their declared `type` (`INT` → `Integer`,
-`BOOLEAN` → `Boolean`, everything else → `String`). `INFO`, `COMMENT` and `CSVFILE`
+`BOOLEAN` → `Boolean`, everything else → `String`). `INFO`, `COMMENT`, `HINT` and `CSVFILE`
 declarations are skipped — they have no usable scalar default.
 
 `FreemarkerGenerator` can apply these defaults automatically, filling in **only** variables
@@ -167,7 +168,7 @@ applied the defaults for this render (and vice versa) — it is safe to use both
 
 `TemplateParameterUtils` itself treats `type` as an opaque string — its regex doesn't
 special-case any particular value, and `extractDefaultVariables` only branches on `INT`
-and `BOOLEAN` (for typed defaults) plus skips `INFO`/`COMMENT`/`CSVFILE` (no usable scalar
+and `BOOLEAN` (for typed defaults) plus skips `INFO`/`COMMENT`/`HINT`/`CSVFILE` (no usable scalar
 default). The full type vocabulary below is a **convention**, not something this class
 enforces — it's followed independently by each UI that turns a parsed parameter list into
 an actual form: StorageManagerServer's web print UI (`ui.ftlh`'s `parameterinputs` macro,
@@ -185,7 +186,8 @@ type.
 | `radio` | — | — | Not implemented in either consumer yet |
 | `csvfile` | — (no default) | `size:accept` (e.g. `20:.csv,.txt`) | File picker; submitted value becomes a parsed `List<Map<String,String>>`, not a scalar |
 | `info` | **the actual displayed value** | — | Read-only row: `title` as the left-hand label, `default` as the right-hand value — a label:value pair, not an input |
-| `comment` | — (unused) | — | Free text taken from `title` (not `default`), rendered spanning the **whole row** (full width, wrapped/pre-wrapped) instead of split into a label/value pair |
+| `comment` | fallback text of a translated comment (see below) | — | Free text taken from `title`, rendered spanning the **whole row** (full width, wrapped/pre-wrapped) instead of split into a label/value pair |
+| `hint` | fallback text (see below) | — | No row: help text of the **preceding** parameter, shown as a tooltip of its label |
 
 `info` and `comment` are both purely presentational — neither is bound to a real
 variable — but they place their text in different fields and render at different widths:
@@ -206,6 +208,34 @@ possibly across more than one line.}
 {var|multiline|zpl|ZPL content||10:200}
 -->
 ```
+
+### Hints and translated texts
+
+`comment` and `hint` texts can come from the XML-filesystem translations
+(`FileSystem.getTranslation`, the `translations/` tree of the module XMLs). When the
+declaration has a `default` part, `title` is a translation **key** and `default` the fallback
+text used when the key has no translation (key `-` = no key, the fallback is used as is). Without
+a `default` part, `title` is the text itself (the original form):
+
+```ftl
+<#--
+{var|comment|-|A literal comment.}
+{var|comment|-|my/app/note|Fallback note text}
+{var|csvfile|list|List||:.csv}
+{var|hint|-|labels/csv/count.copies|count - number of copies}
+{var|hint|-|-|title - a literal hint line}
+-->
+```
+
+The name field of `comment`/`hint`/`info` is not a variable; use `-`.
+`TemplateParameterUtils.parseFormParameters` returns the declarations ready for a form: `comment`
+titles resolved to their text, `hint` lines removed and their texts attached (joined by newlines)
+to the preceding parameter's `getHint()`. A hint with no preceding parameter is dropped.
+`resolveText(key, fallback)` is the key-or-fallback lookup. `extractDefaultVariables` skips
+`hint` as well. Consumers: BSToolbox-jfx `FormField.fromTemplate`/`ParametricFormPane` (and
+`FormField.withHint` for rows built in code), StorageManagerServer's `PrintController`/`ui.ftlh`.
+The label templates' CSV help texts are in BSToolbox-print's `PrintModule.xml`
+(`labels/csv/*`).
 
 ---
 

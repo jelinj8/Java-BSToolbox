@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import cz.bliksoft.javautils.xmlfilesystem.FileSystem;
 
 /**
  * Parses the {@code {var|type|name|title[|default[|parameters]]}} parameter
@@ -13,6 +16,14 @@ import java.util.regex.Pattern;
  * (not tied to ZPL templates) and is used by web/desktop UIs to build parameter
  * forms, and by {@link cz.bliksoft.javautils.freemarker.FreemarkerGenerator} to
  * fill in default values for variables not supplied by the caller.
+ * <p>
+ * {@code COMMENT} and {@code HINT} texts can be translated: with a default part
+ * ({@code {var|comment|-|key|text}}) the title position holds an XML-filesystem
+ * translation key and the default is the fallback text (see
+ * {@link #resolveText(String, String)}); without it
+ * ({@code {var|comment|-|text}}) the title is the text itself. A {@code HINT}
+ * adds no form row - {@link #parseFormParameters(String)} attaches its text to
+ * the preceding parameter.
  */
 public class TemplateParameterUtils {
 
@@ -25,6 +36,13 @@ public class TemplateParameterUtils {
 	public static final String PATT_TYPE = "type";
 	public static final Pattern regexPattern = Pattern.compile(PROPERTY_DEFINITION_PATTERN, Pattern.MULTILINE);
 
+	public static final String TYPE_COMMENT = "COMMENT";
+	public static final String TYPE_HINT = "HINT";
+	/** Title/key placeholder meaning "no translation key". */
+	public static final String NO_KEY = "-";
+
+	private static final Logger log = Logger.getLogger(TemplateParameterUtils.class.getName());
+
 	private TemplateParameterUtils() {
 	}
 
@@ -35,13 +53,20 @@ public class TemplateParameterUtils {
 		private final String title;
 		private final String defaultValue;
 		private final String parameters;
+		private final String hint;
 
 		public TemplateParameter(String type, String name, String title, String defaultValue, String parameters) {
+			this(type, name, title, defaultValue, parameters, null);
+		}
+
+		public TemplateParameter(String type, String name, String title, String defaultValue, String parameters,
+				String hint) {
 			this.type = type;
 			this.name = name;
 			this.title = title;
 			this.defaultValue = defaultValue;
 			this.parameters = parameters;
+			this.hint = hint;
 		}
 
 		public String getType() {
@@ -63,6 +88,62 @@ public class TemplateParameterUtils {
 		public String getParameters() {
 			return parameters;
 		}
+
+		/**
+		 * Help text for the parameter (from the {@code HINT} lines following it), or
+		 * {@code null}.
+		 */
+		public String getHint() {
+			return hint;
+		}
+	}
+
+	/**
+	 * Resolves a possibly translated text: the XML-filesystem translation of
+	 * {@code key}, or {@code fallback} when the key is {@code null}, blank,
+	 * {@value #NO_KEY} or has no translation.
+	 */
+	public static String resolveText(String key, String fallback) {
+		if (key == null || key.trim().isEmpty() || NO_KEY.equals(key.trim()))
+			return fallback;
+		String translated = FileSystem.getTranslation(key.trim());
+		return translated != null ? translated : fallback;
+	}
+
+	/**
+	 * Parses the declarations for building a form: {@code COMMENT} titles are
+	 * resolved to their display text (translation or fallback, the default part is
+	 * cleared) and {@code HINT} lines are removed, their resolved texts attached
+	 * (joined by newlines) to the preceding parameter's
+	 * {@link TemplateParameter#getHint() hint}. A hint with no preceding parameter
+	 * is dropped.
+	 */
+	public static List<TemplateParameter> parseFormParameters(String templateSource) {
+		List<TemplateParameter> result = new ArrayList<>();
+		for (TemplateParameter p : parseParameters(templateSource)) {
+			String type = p.getType() != null ? p.getType().toUpperCase() : "";
+			if (TYPE_HINT.equals(type)) {
+				String text = text(p);
+				if (result.isEmpty()) {
+					log.warning("Template hint with no preceding parameter ignored: " + text);
+					continue;
+				}
+				TemplateParameter prev = result.get(result.size() - 1);
+				String hint = prev.getHint() == null ? text : prev.getHint() + "\n" + text;
+				result.set(result.size() - 1, new TemplateParameter(prev.getType(), prev.getName(), prev.getTitle(),
+						prev.getDefaultValue(), prev.getParameters(), hint));
+			} else if (TYPE_COMMENT.equals(type)) {
+				result.add(new TemplateParameter(p.getType(), p.getName(), text(p), null, p.getParameters()));
+			} else {
+				result.add(p);
+			}
+		}
+		return result;
+	}
+
+	/** COMMENT/HINT display text: with a default part the title is a translation key. */
+	private static String text(TemplateParameter p) {
+		return p.getDefaultValue() == null ? p.getTitle() : resolveText(p.getTitle(), p.getDefaultValue());
 	}
 
 	/** Parses all {@code {var|...}} declarations from the given template source. */
@@ -81,8 +162,8 @@ public class TemplateParameterUtils {
 
 	/**
 	 * Extracts the typed default values declared for the template's parameters,
-	 * keyed by parameter name. {@code INFO}, {@code COMMENT} and {@code CSVFILE}
-	 * parameters are skipped, as they have no usable scalar default.
+	 * keyed by parameter name. {@code INFO}, {@code COMMENT}, {@code HINT} and
+	 * {@code CSVFILE} parameters are skipped, as they have no usable scalar default.
 	 */
 	public static Map<String, Object> extractDefaultVariables(String templateSource) {
 		Map<String, Object> result = new LinkedHashMap<>();
@@ -91,7 +172,7 @@ public class TemplateParameterUtils {
 			String name = param.getName();
 			String defaultValue = param.getDefaultValue();
 
-			if ("INFO".equals(type) || "COMMENT".equals(type) || "CSVFILE".equals(type))
+			if ("INFO".equals(type) || TYPE_COMMENT.equals(type) || TYPE_HINT.equals(type) || "CSVFILE".equals(type))
 				continue;
 
 			switch (type) {

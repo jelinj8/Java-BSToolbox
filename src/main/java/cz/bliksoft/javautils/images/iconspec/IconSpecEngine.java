@@ -67,6 +67,10 @@ import cz.bliksoft.javautils.math.polynomial.PolynomialEvaluator;
  * <li>{@code /absolute/path.png} — absolute classpath resource</li>
  * <li>{@code [F]:/filesystem/path.png} — explicit file-system path (also
  * supported for {@code .svg} / {@code .ico})</li>
+ * <li>{@code name.png|w|h|scale} — a raster image (anything {@link ImageIO}
+ * reads: PNG, JPG, GIF, BMP) resized: {@code w} and {@code h} = that size, only
+ * one of them = the other by the aspect ratio, {@code scale} = a multiplier
+ * applied after that; no parameters = the image as it is</li>
  * <li>{@code name.svg|w|h|scale|stroke|fill} — SVG rendered via
  * {@link SvgConverter}, with optional size and color overrides; {@code w}/
  * {@code h} default to the SVG's natural aspect ratio if omitted, and
@@ -530,30 +534,100 @@ public final class IconSpecEngine {
 			}
 		}
 
-		// Raster images
+		// Raster images: file|w|h|scale
+		Double rasterW = null;
+		Double rasterH = null;
+		Double rasterScale = null;
 		try {
+			if (params.length > 1 && StringUtils.hasLength(params[1]))
+				rasterW = evalNum(params[1]);
+			if (params.length > 2 && StringUtils.hasLength(params[2]))
+				rasterH = evalNum(params[2]);
+			if (params.length > 3 && StringUtils.hasLength(params[3]))
+				rasterScale = evalNum(params[3]);
+		} catch (Exception e) {
+			log.severe("Failed to evaluate image size params for spec '" + spec + "': " + e.getMessage());
+			return null;
+		}
+		try {
+			BufferedImage img = null;
 			if (filePath.startsWith(PREFIX_FILE)) {
 				File f = new File(filePath.substring(4));
 				if (f.exists() && f.isFile()) {
 					try (InputStream in = new FileInputStream(f)) {
-						return ImageIO.read(in);
+						img = ImageIO.read(in);
 					}
+				} else {
+					log.severe("Image file not found: " + spec + " (path: " + f.getAbsolutePath() + ")");
+					return null;
 				}
-				log.severe("Image file not found: " + spec + " (path: " + f.getAbsolutePath() + ")");
+			} else {
+				String res = filePath.startsWith("/") ? filePath : (brandingImagesRoot + filePath); //$NON-NLS-1$
+				URL url = IconSpecEngine.class.getResource(res);
+				if (url == null) {
+					log.severe("Image resource not found: " + spec + " (resolved: " + res + ")");
+					return null;
+				}
+				try (InputStream in = url.openStream()) {
+					img = ImageIO.read(in);
+				}
+			}
+			if (img == null) {
+				log.severe("Unsupported image format: " + spec);
 				return null;
 			}
-			String res = filePath.startsWith("/") ? filePath : (brandingImagesRoot + filePath); //$NON-NLS-1$
-			URL url = IconSpecEngine.class.getResource(res);
-			if (url != null) {
-				try (InputStream in = url.openStream()) {
-					return ImageIO.read(in);
-				}
-			}
-			log.severe("Image resource not found: " + spec + " (resolved: " + res + ")");
+			return resizeRaster(img, rasterW, rasterH, rasterScale);
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "Failed to load raster image: " + spec, e);
 		}
 		return null;
+	}
+
+	/**
+	 * A raster image at {@code w} x {@code h} (one of them {@code null} = by the
+	 * aspect ratio), times {@code scale}; all {@code null} = {@code img} itself.
+	 */
+	static BufferedImage resizeRaster(BufferedImage img, Double w, Double h, Double scale) {
+		if (w == null && h == null && scale == null)
+			return img;
+		double srcW = img.getWidth(), srcH = img.getHeight();
+		double targetW, targetH;
+		if (w != null && h != null) {
+			targetW = w;
+			targetH = h;
+		} else if (w != null) {
+			targetW = w;
+			targetH = srcH * w / srcW;
+		} else if (h != null) {
+			targetH = h;
+			targetW = srcW * h / srcH;
+		} else {
+			targetW = srcW;
+			targetH = srcH;
+		}
+		if (scale != null) {
+			targetW *= scale;
+			targetH *= scale;
+		}
+		int outW = Math.max(1, (int) Math.round(targetW));
+		int outH = Math.max(1, (int) Math.round(targetH));
+		if (outW == img.getWidth() && outH == img.getHeight())
+			return img;
+		BufferedImage out = new BufferedImage(outW, outH, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = out.createGraphics();
+		try {
+			if (outW <= img.getWidth() && outH <= img.getHeight()) {
+				// downscaling (e.g. a photo onto a label): area averaging keeps detail
+				g.drawImage(img.getScaledInstance(outW, outH, java.awt.Image.SCALE_AREA_AVERAGING), 0, 0, null);
+			} else {
+				g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+				g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+				g.drawImage(img, 0, 0, outW, outH, null);
+			}
+		} finally {
+			g.dispose();
+		}
+		return out;
 	}
 
 	// ---- Inline path specs: [PI]: (rasterized here); [P]:/[PS]: parsed here for

@@ -3,6 +3,7 @@ package cz.bliksoft.javautils.freemarker.utils;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
@@ -67,8 +68,8 @@ class TemplateParameterUtilsTest {
 		assertEquals("plain: not a key", params.get(4).getTitle());
 		assertEquals("B", params.get(5).getTitle());
 		// raw parsing keeps the declaration as written
-		assertEquals(":test/localized/text:fallback A",
-				TemplateParameterUtils.parseParameters("{var|int|a|:test/localized/text:fallback A|1}").get(0).getTitle());
+		assertEquals(":test/localized/text:fallback A", TemplateParameterUtils
+				.parseParameters("{var|int|a|:test/localized/text:fallback A|1}").get(0).getTitle());
 	}
 
 	@Test
@@ -130,5 +131,20 @@ class TemplateParameterUtilsTest {
 		assertEquals(1, defaults.size());
 		assertEquals("", defaults.get("txt"));
 		assertFalse(defaults.containsKey("-"));
+	}
+
+	@Test
+	void dateDefaults() {
+		Map<String, Object> defaults = TemplateParameterUtils.extractDefaultVariables(
+				"{var|date|d|Date|2026-10-02|today..}\n{var|DATETIME|t|Time|2026-10-02 08:30}\n"
+						+ "{var|date|e|Empty|}\n{var|date|r|Relative|today+7}");
+		assertEquals(java.time.LocalDate.of(2026, 10, 2), defaults.get("d"));
+		assertEquals(java.time.LocalDateTime.of(2026, 10, 2, 8, 30), defaults.get("t"));
+		assertTrue(defaults.containsKey("e"));
+		assertNull(defaults.get("e"));
+		assertEquals(java.time.LocalDate.now().plusDays(7), defaults.get("r"));
+		assertEquals("today..",
+				TemplateParameterUtils.parseParameters("{var|date|d|Date|2026-10-02|today..}").get(0).getParameters());
+		assertEquals("DATE", TemplateParameterUtils.parseParameters("{var|date|d|Date}").get(0).getNormalizedType());
 	}
 }

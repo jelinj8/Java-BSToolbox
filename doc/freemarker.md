@@ -146,8 +146,10 @@ e.g.
 (`parseParameters`, or `parseFormParameters` for building a form - see
 [Hints and translated texts](#hints-and-translated-texts)) and derives a `Map<String, Object>` of default values per declared
 variable (`extractDefaultVariables`), typed by their declared `type` (`INT` → `Integer`,
-`BOOLEAN` → `Boolean`, everything else → `String`). `INFO`, `COMMENT`, `HINT` and `CSVFILE`
-declarations are skipped — they have no usable scalar default.
+`DECIMAL` → `Double`, `BOOLEAN` → `Boolean`, `DATE` → `LocalDate`, `DATETIME` → `LocalDateTime`
+- a [date expression](#date-expressions) evaluated now, `null` when empty -, everything else →
+`String`). `INFO`, `COMMENT`, `HINT` and `CSVFILE` declarations are skipped — they have no usable
+scalar default. A template should print an optional date as `${due!}` / test `due??`.
 
 `FreemarkerGenerator` can apply these defaults automatically, filling in **only** variables
 that have not already been set — explicitly supplied values always win:
@@ -166,23 +168,28 @@ applied the defaults for this render (and vice versa) — it is safe to use both
 
 ### Conventional parameter types
 
-`TemplateParameterUtils` itself treats `type` as an opaque string — its regex doesn't
-special-case any particular value, and `extractDefaultVariables` only branches on `INT`
-and `BOOLEAN` (for typed defaults) plus skips `INFO`/`COMMENT`/`HINT`/`CSVFILE` (no usable scalar
-default). The full type vocabulary below is a **convention**, not something this class
-enforces — it's followed independently by each UI that turns a parsed parameter list into
-an actual form: StorageManagerServer's web print UI (`ui.ftlh`'s `parameterinputs` macro,
-consumed by `PrintController`) and StorageManagerDesktopClient2's `PrintLabelDialog`. There
-is no shared rendering code between them — keep both in sync by hand when adding/changing a
-type.
+`TemplateParameterUtils` itself treats `type` as an opaque string (compared ignoring case,
+`TYPE_*` constants) — its regex doesn't special-case any particular value. The type vocabulary
+below is followed by each UI that turns a parsed parameter list into an actual form:
+StorageManagerServer's web print UI (`ui.ftlh`'s `parameterinputs` macro, consumed by
+`PrintController`) and BSToolbox-jfx `ParametricFormPane` (StorageManagerDesktopClient2's
+`PrintLabelDialog`, BSLabelDesigner). Their type-independent logic - options, initial values,
+typing of entered text - is shared in `TemplateFormSupport` (see
+[Prefill model and options](#prefill-model-and-name_options)); the controls themselves are
+per UI, keep them in sync when adding/changing a type.
 
 | Type | `default` meaning | `parameters` meaning | Rendered as |
 |---|---|---|---|
 | `int` | numeric default | `min:max:step` | Number spinner |
+| `decimal` | number, dot or comma | — | Text input for a decimal number; value `Double` |
 | `string` | text default | `maxlength:size` | Single-line text input |
 | `multiline` | text default | `rows:cols` | Textarea |
 | `boolean` | `true`/`false` | — | Checkbox |
-| `combo` | selected option | `;`-separated option list | Dropdown |
+| `combo` | selected option | `;`-separated option list (`,` when there is no `;`) | Dropdown; options replaceable by the model's `<name>_options` |
+| `font` | selected font | option list used when the printer's fonts are unknown | Dropdown of the printer's fonts |
+| `date` | ISO date or [date expression](#date-expressions) (`today+7`) | `min..max` range (date expressions, either side optional) | Date picker; value `LocalDate` |
+| `datetime` | ISO date-time (`2026-10-02T14:30`, `2026-10-02 14:30`) or date expression (`now-1h`) | `min..max` range | Date + time (`HH:mm`) input; value `LocalDateTime` |
+| `hidden` | the value | — | No row; the value (or the model's) is submitted |
 | `radio` | — | — | Not implemented in either consumer yet |
 | `csvfile` | — (no default) | `size:accept` (e.g. `20:.csv,.txt`) | File picker; submitted value becomes a parsed `List<Map<String,String>>`, not a scalar |
 | `info` | **the actual displayed value** | — | Read-only row: `title` as the left-hand label, `default` as the right-hand value — a label:value pair, not an input |
@@ -208,6 +215,61 @@ possibly across more than one line.}
 {var|multiline|zpl|ZPL content||10:200}
 -->
 ```
+
+### Date expressions
+
+A `date`/`datetime` default (and either side of its `min..max` range) is an ISO value or an
+expression evaluated when the form is shown / the defaults are applied (`TemplateDateValues`):
+
+```
+expr   := base offset*
+base   := today [('T'|' ') time] | now | yyyy-MM-dd [('T'|' ') time]     time := H[H]:mm[:ss]
+offset := ('+'|'-') digits [d|w|M|y|h|m|s]                              (no unit = d)
+```
+
+Keywords ignore case, units do not (`M` month, `m` minute). `today` is midnight, `now` the
+current time; offsets apply left to right: `today+7`, `today-1M`, `today+1w`, `now-1h`,
+`now+1d-2h`, `today 08:00+1d`. A `date` takes the date part. The JVM's time zone is used.
+`TemplateValueCoercion.coerce(raw, LocalDate.class)` accepts the same, so a printer
+configuration variable may be `today` too.
+
+```ftl
+<#--
+{var|date|due|Due date|today+14|today..today+90}
+{var|datetime|packed|Packed|now}
+-->
+Due: ${(due.format('d.M.yyyy'))!}
+```
+
+`.format(pattern)` needs the `freemarker-java8` object wrapper on the classpath (registered by
+`ObjectWrapperRegister` when present); without it `${due}` prints the ISO value.
+
+### Prefill model and `<name>_options`
+
+A form generator may get a data model from the application (`Map<String, ?>`, optional). A
+field's initial value is the first usable of:
+
+1. the value the user entered (kept when the form is rebuilt),
+2. the model's value of the same name (`null` = empty; typed values are converted -
+   `BigDecimal`, `LocalDate`, `java.util.Date`, enums, ...),
+3. the template default.
+
+A value that does not fit (not a number, not one of a combo's options, ...) is skipped. A
+`combo`'s options are replaced by the model's `<name>_options`:
+
+- a `List` (or an array) - the items are the values and the labels,
+- a `Map` - keys are the values, map values the displayed labels, in the map's order,
+- text - `S;M;L`, or `r=Red;b=Blue` (value=label) when every item has a `=`.
+
+The selected value is `String.valueOf` of the key - a template gets text, like from other
+fields (`setVariableCoerced` retypes it to match a lower layer). A `font`'s options are the
+printer's fonts; `<name>_options` is used only when those are unknown.
+
+`TemplateFormSupport`: `resolveOptions(type, name, parameters, resolverOptions, model)`,
+`initialValue(type, name, default, model, entered, optionValues)`, `formValue(type, value)`
+(value → form text), `typedValue(type, text)` (form text → `Integer`/`Double`/`Boolean`/
+`LocalDate`/`LocalDateTime`/`String`) and `coerceToDeclaredTypes(parameters, variables)` for
+values that did not come from a form (AI tools, configuration).
 
 ### Hints and translated texts
 

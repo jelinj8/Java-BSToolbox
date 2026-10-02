@@ -2,21 +2,24 @@ package cz.bliksoft.javautils.freemarker.utils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Locale;
 import java.util.Map;
 
 /**
- * Coerces a raw {@code String} value (e.g. read from XML config, a form
- * field, or JSON) into a typed value, either against an explicitly declared
- * target type or against an already-set value's own runtime type. Used when
- * merging printer advanced-properties/template-variable layers into a
- * template's variable map, so a later {@code String} override honors the
- * type an earlier layer already established for the same variable name.
+ * Coerces a raw {@code String} value (e.g. read from XML config, a form field,
+ * or JSON) into a typed value, either against an explicitly declared target
+ * type or against an already-set value's own runtime type. Used when merging
+ * printer advanced-properties/template-variable layers into a template's
+ * variable map, so a later {@code String} override honors the type an earlier
+ * layer already established for the same variable name.
  *
  * <p>
- * This intentionally does not touch {@link TemplateParameterUtils#extractDefaultVariables},
- * which has its own, differently-behaved (fallback-to-zero-on-failure)
- * INT/BOOLEAN coercion for template-declared {@code {var|...}} defaults.
+ * This intentionally does not touch
+ * {@link TemplateParameterUtils#extractDefaultVariables}, which has its own,
+ * differently-behaved (fallback-to-zero-on-failure) INT/DECIMAL/BOOLEAN
+ * coercion for template-declared {@code {var|...}} defaults.
  */
 public final class TemplateValueCoercion {
 
@@ -27,14 +30,16 @@ public final class TemplateValueCoercion {
 	 * Coerces {@code raw} to {@code targetType}. Returns {@code null} if
 	 * {@code raw} is {@code null} or cannot be parsed into a numeric/boolean/enum
 	 * target type. An enum target type matches a constant name ignoring case, with
-	 * {@code -} for {@code _}. {@code Map.class} is decoded via {@link MapPropertyCodec}
-	 * (never {@code null}, empty map on blank input). Any other target type
-	 * (including {@code String.class}) returns {@code raw} unchanged.
+	 * {@code -} for {@code _}. {@code Map.class} is decoded via
+	 * {@link MapPropertyCodec} (never {@code null}, empty map on blank input).
+	 * {@code LocalDate}/ {@code LocalDateTime} accept an ISO value or a date
+	 * expression ({@link TemplateDateValues}, e.g. {@code today+7}). Any other
+	 * target type (including {@code String.class}) returns {@code raw} unchanged.
 	 *
 	 * <p>
 	 * Supported numeric target types: {@code Integer}/{@code int}, {@code Long}/
-	 * {@code long}, {@link BigInteger}, {@code Float}/{@code float}, {@code Double}/
-	 * {@code double}, {@link BigDecimal}.
+	 * {@code long}, {@link BigInteger}, {@code Float}/{@code float},
+	 * {@code Double}/ {@code double}, {@link BigDecimal}.
 	 */
 	public static Object coerce(String raw, Class<?> targetType) {
 		if (targetType == Map.class)
@@ -62,6 +67,10 @@ public final class TemplateValueCoercion {
 			return Boolean.parseBoolean(trimmed);
 		if (targetType.isEnum())
 			return enumConstant(trimmed, targetType);
+		if (targetType == LocalDate.class)
+			return TemplateDateValues.tryParseDate(trimmed);
+		if (targetType == LocalDateTime.class)
+			return TemplateDateValues.tryParseDateTime(trimmed);
 		return raw;
 	}
 
@@ -94,11 +103,11 @@ public final class TemplateValueCoercion {
 
 	/**
 	 * Coerces {@code raw} to match {@code existingValue}'s runtime type (any
-	 * numeric type {@link #coerce} supports, plus {@code Boolean}/{@code Map} and
-	 * enums).
-	 * Falls back to {@code raw} unchanged when {@code existingValue} is
-	 * {@code null}, of some other type, or when coercion fails — an override
-	 * always lands, it just stays untyped on failure rather than being dropped.
+	 * numeric type {@link #coerce} supports, plus {@code Boolean}/{@code Map},
+	 * {@code LocalDate}/{@code LocalDateTime} and enums). Falls back to {@code raw}
+	 * unchanged when {@code existingValue} is {@code null}, of some other type, or
+	 * when coercion fails — an override always lands, it just stays untyped on
+	 * failure rather than being dropped.
 	 */
 	public static Object coerceToMatch(String raw, Object existingValue) {
 		if (existingValue == null)
@@ -115,7 +124,8 @@ public final class TemplateValueCoercion {
 
 	private static boolean isCoercibleType(Class<?> type) {
 		return type == Integer.class || type == Long.class || type == BigInteger.class || type == Float.class
-				|| type == Double.class || type == BigDecimal.class || type == Boolean.class;
+				|| type == Double.class || type == BigDecimal.class || type == Boolean.class || type == LocalDate.class
+				|| type == LocalDateTime.class;
 	}
 
 	private static Object withFallback(Object coerced, String raw) {

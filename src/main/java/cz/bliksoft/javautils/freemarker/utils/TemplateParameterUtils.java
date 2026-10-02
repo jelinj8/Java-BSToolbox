@@ -27,8 +27,8 @@ import cz.bliksoft.javautils.xmlfilesystem.FileSystem;
  * the preceding parameter.
  * <p>
  * Any parameter's title can be translated too: {@code :key[:fallback]}, e.g.
- * {@code {var|int|printQuantity|:labels/param/printQuantity:počet výtisků|1|1:100}}
- * ({@link #resolveTitle(String, Locale)}).
+ * {@code {var|int|printQuantity|:labels/param/printQuantity:počet
+ * výtisků|1|1:100}} ({@link #resolveTitle(String, Locale)}).
  */
 public class TemplateParameterUtils {
 
@@ -41,8 +41,29 @@ public class TemplateParameterUtils {
 	public static final String PATT_TYPE = "type";
 	public static final Pattern regexPattern = Pattern.compile(PROPERTY_DEFINITION_PATTERN, Pattern.MULTILINE);
 
+	public static final String TYPE_STRING = "STRING";
+	public static final String TYPE_INT = "INT";
+	public static final String TYPE_DECIMAL = "DECIMAL";
+	public static final String TYPE_BOOLEAN = "BOOLEAN";
+	public static final String TYPE_MULTILINE = "MULTILINE";
+	public static final String TYPE_COMBO = "COMBO";
+	public static final String TYPE_FONT = "FONT";
+	public static final String TYPE_CSVFILE = "CSVFILE";
+	public static final String TYPE_INFO = "INFO";
+	public static final String TYPE_HIDDEN = "HIDDEN";
+	/** {@code LocalDate} - ISO or a {@link TemplateDateValues date expression} */
+	public static final String TYPE_DATE = "DATE";
+	/**
+	 * {@code LocalDateTime} - ISO or a {@link TemplateDateValues date expression}
+	 */
+	public static final String TYPE_DATETIME = "DATETIME";
 	public static final String TYPE_COMMENT = "COMMENT";
 	public static final String TYPE_HINT = "HINT";
+	/**
+	 * Suffix of a model entry replacing a {@code COMBO}'s options:
+	 * {@code <name>_options} (see {@link TemplateFormSupport}).
+	 */
+	public static final String OPTIONS_SUFFIX = "_options";
 	/** Title/key placeholder meaning "no translation key". */
 	public static final String NO_KEY = "-";
 	/**
@@ -83,6 +104,13 @@ public class TemplateParameterUtils {
 			return type;
 		}
 
+		/**
+		 * The type upper-cased, {@value TemplateParameterUtils#TYPE_STRING} when blank.
+		 */
+		public String getNormalizedType() {
+			return normalizeType(type);
+		}
+
 		public String getName() {
 			return name;
 		}
@@ -106,6 +134,13 @@ public class TemplateParameterUtils {
 		public String getHint() {
 			return hint;
 		}
+	}
+
+	/** A parameter type upper-cased, {@value #TYPE_STRING} when blank. */
+	public static String normalizeType(String type) {
+		if (type == null || type.trim().isEmpty())
+			return TYPE_STRING;
+		return type.trim().toUpperCase(Locale.ROOT);
 	}
 
 	/**
@@ -133,10 +168,9 @@ public class TemplateParameterUtils {
 	 * Parses the declarations for building a form: {@code :key[:fallback]} titles
 	 * are translated, {@code COMMENT} titles are resolved to their display text
 	 * (translation or fallback, the default part is cleared) and {@code HINT} lines
-	 * are removed, their resolved texts attached
-	 * (joined by newlines) to the preceding parameter's
-	 * {@link TemplateParameter#getHint() hint}. A hint with no preceding parameter
-	 * is dropped.
+	 * are removed, their resolved texts attached (joined by newlines) to the
+	 * preceding parameter's {@link TemplateParameter#getHint() hint}. A hint with
+	 * no preceding parameter is dropped.
 	 */
 	public static List<TemplateParameter> parseFormParameters(String templateSource) {
 		return parseFormParameters(templateSource, null);
@@ -211,7 +245,10 @@ public class TemplateParameterUtils {
 	/**
 	 * Extracts the typed default values declared for the template's parameters,
 	 * keyed by parameter name. {@code INFO}, {@code COMMENT}, {@code HINT} and
-	 * {@code CSVFILE} parameters are skipped, as they have no usable scalar default.
+	 * {@code CSVFILE} parameters are skipped, as they have no usable scalar
+	 * default. {@code DATE}/{@code DATETIME} defaults are evaluated now
+	 * ({@code today+7} is a date a week from today), {@code null} when empty or
+	 * invalid.
 	 */
 	public static Map<String, Object> extractDefaultVariables(String templateSource) {
 		Map<String, Object> result = new LinkedHashMap<>();
@@ -239,6 +276,12 @@ public class TemplateParameterUtils {
 				break;
 			case "BOOLEAN":
 				result.put(name, Boolean.parseBoolean(defaultValue));
+				break;
+			case TYPE_DATE:
+				result.put(name, TemplateDateValues.tryParseDate(defaultValue));
+				break;
+			case TYPE_DATETIME:
+				result.put(name, TemplateDateValues.tryParseDateTime(defaultValue));
 				break;
 			default:
 				result.put(name, defaultValue != null ? defaultValue : "");

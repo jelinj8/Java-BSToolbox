@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -163,5 +165,17 @@ class TemplateValueCoercionTest {
 	@Test
 	void coerceToMatchFallsBackToRawOnParseFailure() {
 		assertEquals("abc", TemplateValueCoercion.coerceToMatch("abc", 300));
+	}
+
+	@Test
+	void coercesDates() {
+		assertEquals(LocalDate.of(2026, 10, 2), TemplateValueCoercion.coerce(" 2026-10-02 ", LocalDate.class));
+		assertEquals(LocalDate.now(), TemplateValueCoercion.coerce("today", LocalDate.class));
+		assertEquals(LocalDateTime.of(2026, 10, 2, 10, 0),
+				TemplateValueCoercion.coerce("2026-10-02 10:00", LocalDateTime.class));
+		assertNull(TemplateValueCoercion.coerce("soon", LocalDate.class));
+		assertEquals(LocalDateTime.of(2026, 10, 2, 10, 0),
+				TemplateValueCoercion.coerceToMatch("2026-10-02T10:00", LocalDateTime.of(2000, 1, 1, 0, 0)));
+		assertEquals("soon", TemplateValueCoercion.coerceToMatch("soon", LocalDate.of(2000, 1, 1)));
 	}
 }

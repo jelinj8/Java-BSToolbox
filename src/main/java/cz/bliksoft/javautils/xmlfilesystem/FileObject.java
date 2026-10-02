@@ -233,8 +233,8 @@ public class FileObject implements Comparable<Object> {
 	Boolean sortedOverride = null;
 
 	/**
-	 * children were added or reordered since the last sort - sorting is deferred
-	 * to the first ordered read ({@link #ensureChildrenSorted()}), so imports and
+	 * children were added or reordered since the last sort - sorting is deferred to
+	 * the first ordered read ({@link #ensureChildrenSorted()}), so imports and
 	 * merges don't re-sort the same list over and over
 	 */
 	private boolean childrenUnsorted = false;
@@ -417,8 +417,8 @@ public class FileObject implements Comparable<Object> {
 	}
 
 	/**
-	 * sorts the children if they changed since the last sort - called by every
-	 * read that exposes their order (not by exact-name lookups, which the imports
+	 * sorts the children if they changed since the last sort - called by every read
+	 * that exposes their order (not by exact-name lookups, which the imports
 	 * themselves use)
 	 */
 	protected void ensureChildrenSorted() {

@@ -226,12 +226,12 @@ public final class IconSpecEngine {
 	/**
 	 * App-pushed {@code ${name}} substitution variables (e.g. a host app's current
 	 * {@code dpi}/label size) - a plain static registry, not a {@code ThreadLocal}
-	 * like the fields above: these are long-lived, occasionally-updated app
-	 * config, not per-call-stack transient state. Unlike JavaFX's
-	 * {@code IconspecUtils} (which layers a much larger, XmlFilesystem-declared
-	 * variable set on top of this - see its {@code mergedVars()}), this is the
-	 * toolkit-agnostic base a non-JavaFX caller (server-side template rendering,
-	 * etc.) can also use directly. See {@link #setVariable}.
+	 * like the fields above: these are long-lived, occasionally-updated app config,
+	 * not per-call-stack transient state. Unlike JavaFX's {@code IconspecUtils}
+	 * (which layers a much larger, XmlFilesystem-declared variable set on top of
+	 * this - see its {@code mergedVars()}), this is the toolkit-agnostic base a
+	 * non-JavaFX caller (server-side template rendering, etc.) can also use
+	 * directly. See {@link #setVariable}.
 	 */
 	private static final Map<String, String> extraVariables = new java.util.concurrent.ConcurrentHashMap<>();
 
@@ -248,7 +248,10 @@ public final class IconSpecEngine {
 			extraVariables.put(name, value);
 	}
 
-	/** Returns a snapshot of the currently-registered {@link #setVariable} variables. */
+	/**
+	 * Returns a snapshot of the currently-registered {@link #setVariable}
+	 * variables.
+	 */
 	public static Map<String, String> getVariables() {
 		return java.util.Collections.unmodifiableMap(new LinkedHashMap<>(extraVariables));
 	}
@@ -304,11 +307,11 @@ public final class IconSpecEngine {
 	 * Creates an image from a raw spec string (no cache look-up). Only variables
 	 * registered via {@link #setVariable} are substituted here - callers with a
 	 * richer variable set of their own (e.g. JavaFX's {@code IconspecUtils}, which
-	 * layers XmlFilesystem-declared tokens on top of this same registry) are
-	 * still expected to resolve those themselves first; this is a no-op pass on a
-	 * spec that already arrives fully substituted. If the spec contains {@code #},
-	 * it is evaluated as a postfix expression; otherwise it is treated as a single
-	 * file spec.
+	 * layers XmlFilesystem-declared tokens on top of this same registry) are still
+	 * expected to resolve those themselves first; this is a no-op pass on a spec
+	 * that already arrives fully substituted. If the spec contains {@code #}, it is
+	 * evaluated as a postfix expression; otherwise it is treated as a single file
+	 * spec.
 	 *
 	 * @param spec the icon spec string; may be {@code null}
 	 *

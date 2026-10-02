@@ -25,7 +25,10 @@ class SortedMergeTest {
 				.getDocumentElement();
 	}
 
-	/** imports {@code xml} into {@code root} as if from the resource {@code resourceId} */
+	/**
+	 * imports {@code xml} into {@code root} as if from the resource
+	 * {@code resourceId}
+	 */
 	private static void importFrom(FileObject root, String resourceId, String xml) throws Exception {
 		root.importFile(FileObject.createChild(parseElement(xml), null, resourceId, false));
 	}
@@ -66,7 +69,8 @@ class SortedMergeTest {
 	void positionStillComesBeforeTheName() throws Exception {
 		FileObject root = new FileObject();
 		importFrom(root, "first", "<file name=\"menu\" sorted=\"true\"><file name=\"a\" position=\"20\"/></file>");
-		importFrom(root, "second", "<file name=\"menu\"><file name=\"b\" position=\"10\"/><file name=\"c\" position=\"20\"/></file>");
+		importFrom(root, "second",
+				"<file name=\"menu\"><file name=\"b\" position=\"10\"/><file name=\"c\" position=\"20\"/></file>");
 
 		assertEquals(Arrays.asList("b", "a", "c"), names(root.getFile("menu").getChildren()));
 	}

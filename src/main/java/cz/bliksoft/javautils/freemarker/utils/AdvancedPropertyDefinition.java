@@ -1,17 +1,17 @@
 package cz.bliksoft.javautils.freemarker.utils;
 
 /**
- * Declares the expected Java type of a printer/config "advanced property"
- * (or template-variable override), and whether it should be automatically
+ * Declares the expected Java type of a printer/config "advanced property" (or
+ * template-variable override), and whether it should be automatically
  * propagated as a typed default template variable at generation time.
  *
  * <p>
- * {@code type} drives both the coercion performed by {@link TemplateValueCoercion}
- * and which value-editor widget a UI presents for the property; it is one of
- * {@code Integer.class}, {@code Double.class}, {@code Boolean.class},
- * {@code Map.class} (an ordered {@code String->String} map, see
- * {@link MapPropertyCodec}), an enum class (a choice of its constants - a
- * UI offers them in a combo; stored as the constant name), or
+ * {@code type} drives both the coercion performed by
+ * {@link TemplateValueCoercion} and which value-editor widget a UI presents for
+ * the property; it is one of {@code Integer.class}, {@code Double.class},
+ * {@code Boolean.class}, {@code Map.class} (an ordered {@code String->String}
+ * map, see {@link MapPropertyCodec}), an enum class (a choice of its constants
+ * - a UI offers them in a combo; stored as the constant name), or
  * {@code String.class} (the default, untyped case).
  */
 public final class AdvancedPropertyDefinition {

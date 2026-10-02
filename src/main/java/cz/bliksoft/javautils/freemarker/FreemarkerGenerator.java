@@ -361,9 +361,9 @@ public class FreemarkerGenerator {
 	}
 
 	/**
-	 * Like {@link #setVariable}, but when {@code rawValue} is a {@link String}
-	 * and a value is already set for {@code name}, coerces it to match that
-	 * existing value's runtime type (see {@link TemplateValueCoercion#coerceToMatch})
+	 * Like {@link #setVariable}, but when {@code rawValue} is a {@link String} and
+	 * a value is already set for {@code name}, coerces it to match that existing
+	 * value's runtime type (see {@link TemplateValueCoercion#coerceToMatch})
 	 * instead of blindly overwriting it with an untyped String. A non-String
 	 * {@code rawValue} is set as-is, same as {@link #setVariable}.
 	 */

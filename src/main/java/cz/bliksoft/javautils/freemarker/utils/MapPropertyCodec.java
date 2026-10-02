@@ -5,10 +5,10 @@ import java.util.Map;
 
 /**
  * Encodes/decodes an ordered {@code String->String} map as
- * {@code name1=value1;name2=value2;...}, the format used by
- * {@code Map}-typed advanced properties (e.g. a printer's font-name-to-file
- * mapping, where the first entry is the implicit default). Order is
- * preserved on decode via a {@link LinkedHashMap}.
+ * {@code name1=value1;name2=value2;...}, the format used by {@code Map}-typed
+ * advanced properties (e.g. a printer's font-name-to-file mapping, where the
+ * first entry is the implicit default). Order is preserved on decode via a
+ * {@link LinkedHashMap}.
  */
 public final class MapPropertyCodec {
 

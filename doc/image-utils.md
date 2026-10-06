@@ -120,7 +120,7 @@ Parses CSS-style colour strings to ARGB ints — the non-JavaFX equivalent of `j
 
 ---
 
-## `images.ico` — `IcoReader` / `IcoWriter`
+## `images.ico` — `IcoReader` / `IcoWriter` / `IcoGenerator`
 
 Package: `cz.bliksoft.javautils.images.ico`
 
@@ -131,6 +131,33 @@ IcoWriter.write(new File("app.ico"), List.of(icon16, icon32, icon48, icon256));
 
 - **`IcoReader`** reads multi-frame Windows ICO files and decodes the best-matching frame for the requested target size to a `BufferedImage`. Supports PNG-in-ICO (Vista+), 32-bpp BGRA DIB, 24-bpp BGR DIB, and indexed (≤8-bpp) DIB frames. `loadFromFile`/`loadFromResource` take optional `targetW`/`targetH` hints used to pick and scale the closest frame.
 - **`IcoWriter`** writes multi-frame ICO files using PNG-in-ICO encoding (the same format `IcoReader` reads), one frame per supplied image — typical icon sets use 16/32/48/256 px frames. `write(File/OutputStream, List<BufferedImage>)`.
+- **`IcoGenerator`** renders an icon spec in several sizes (default 16/24/32/48/64/128/256) into an `.ico` — a `${size}` token in the spec is replaced by the size, a spec without it is a base path completed to `<spec><size>.png`. `generate(spec, sizes, File)`, or a `main` for build-time use, e.g. an application icon file from a spec stored as an attribute of an XML-filesystem XML:
+
+```xml
+<plugin>
+  <groupId>org.codehaus.mojo</groupId>
+  <artifactId>exec-maven-plugin</artifactId>
+  <executions>
+    <execution>
+      <id>app-icon</id>
+      <phase>prepare-package</phase>
+      <goals><goal>java</goal></goals>
+      <configuration>
+        <mainClass>cz.bliksoft.javautils.images.ico.IcoGenerator</mainClass>
+        <arguments>
+          <argument>--xml</argument>
+          <argument>/com/example/MyModule.xml</argument>  <!-- classpath resource or file -->
+          <argument>--attribute</argument>
+          <argument>appIcon</argument>                    <!-- attribute holding the spec -->
+          <argument>${project.build.directory}/MyApp.ico</argument>
+        </arguments>
+      </configuration>
+    </execution>
+  </executions>
+</plugin>
+```
+
+  (`--spec <iconspec>` instead of `--xml`; `--sizes 16,32,48,256` overrides the sizes.)
 
 ---
 

@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.w3c.dom.Element;
@@ -18,7 +19,9 @@ import cz.bliksoft.javautils.images.iconspec.IconSpecEngine;
 /**
  * Renders an icon spec (see {@link IconSpecEngine}) into a multi-size Windows
  * {@code .ico} - e.g. at build time, an application icon file rendered from an
- * icon spec. Headless, no JavaFX.
+ * icon spec. Headless, no JavaFX. A {@code .png} target gets a single image in
+ * the largest size instead (e.g. the icon of a Linux {@code .desktop}
+ * launcher).
  * <p>
  * The spec is rendered once per size: a {@code ${size}} token is replaced by
  * the size, a spec without it is a base path completed to
@@ -28,8 +31,8 @@ import cz.bliksoft.javautils.images.iconspec.IconSpecEngine;
  * spec's resources on the classpath):
  *
  * <pre>
- * IcoGenerator [--sizes 16,32,48,256] --spec &lt;iconspec&gt; &lt;target.ico&gt;
- * IcoGenerator [--sizes ...] --xml &lt;xml&gt; --attribute &lt;name&gt; &lt;target.ico&gt;
+ * IcoGenerator [--sizes 16,32,48,256] --spec &lt;iconspec&gt; &lt;target.ico|.png&gt;
+ * IcoGenerator [--sizes ...] --xml &lt;xml&gt; --attribute &lt;name&gt; &lt;target.ico|.png&gt;
  * </pre>
  *
  * {@code --xml} takes the spec from the {@code value} of the first
@@ -45,22 +48,46 @@ public class IcoGenerator {
 	}
 
 	/**
-	 * Renders {@code iconspec} in each of {@code sizes} into {@code target}.
+	 * Renders {@code iconspec} in each of {@code sizes} into {@code target}; a
+	 * {@code .png} target only in the largest of them (see {@link #generatePng}).
 	 *
 	 * @throws IOException if a size can't be rendered or the file can't be written
 	 */
 	public static void generate(String iconspec, int[] sizes, File target) throws IOException {
-		List<BufferedImage> frames = new ArrayList<>(sizes.length);
-		for (int s : sizes) {
-			String spec = specForSize(iconspec, s);
-			BufferedImage img = IconSpecEngine.createImage(spec);
-			if (img == null)
-				throw new IOException("Could not render iconspec: " + spec);
-			frames.add(img);
+		if (target.getName().toLowerCase().endsWith(".png")) { //$NON-NLS-1$
+			int max = 0;
+			for (int s : sizes)
+				max = Math.max(max, s);
+			generatePng(iconspec, max, target);
+			return;
 		}
+		List<BufferedImage> frames = new ArrayList<>(sizes.length);
+		for (int s : sizes)
+			frames.add(render(iconspec, s));
 		if (target.getParentFile() != null)
 			target.getParentFile().mkdirs();
 		IcoWriter.write(target, frames);
+	}
+
+	/**
+	 * Renders {@code iconspec} in {@code size} into a {@code .png}.
+	 *
+	 * @throws IOException if it can't be rendered or the file can't be written
+	 */
+	public static void generatePng(String iconspec, int size, File target) throws IOException {
+		BufferedImage img = render(iconspec, size);
+		if (target.getParentFile() != null)
+			target.getParentFile().mkdirs();
+		if (!ImageIO.write(img, "png", target)) //$NON-NLS-1$
+			throw new IOException("No PNG writer for " + target);
+	}
+
+	private static BufferedImage render(String iconspec, int size) throws IOException {
+		String spec = specForSize(iconspec, size);
+		BufferedImage img = IconSpecEngine.createImage(spec);
+		if (img == null)
+			throw new IOException("Could not render iconspec: " + spec);
+		return img;
 	}
 
 	/** The spec for one size ({@code ${size}} token or base path). */
@@ -127,7 +154,7 @@ public class IcoGenerator {
 		}
 		if (target == null || (spec == null) == (xml == null) || (xml != null && attribute == null))
 			throw new IllegalArgumentException(
-					"Usage: IcoGenerator [--sizes 16,32,...] (--spec <iconspec> | --xml <resource|file> --attribute <name>) <target.ico>");
+					"Usage: IcoGenerator [--sizes 16,32,...] (--spec <iconspec> | --xml <resource|file> --attribute <name>) <target.ico|.png>");
 
 		if (xml != null)
 			spec = readSpecFromXml(xml, attribute);

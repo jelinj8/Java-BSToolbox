@@ -66,16 +66,21 @@ public final class FileSystem {
 	 * for {@code <include>}/{@code <require>}/{@code <classpath>} elements nested
 	 * inside a {@code <file>} - their content is imported into the given file, not
 	 * the filesystem root)
+	 *
+	 * @return the {@link WritableXmlFile} backing this import if {@code writable},
+	 *         even when the document turned out to contribute no root
+	 *         {@code <file>} elements (e.g. a freshly auto-created empty file) -
+	 *         {@code null} otherwise
 	 */
-	void importXml(InputStream f, String resourceId, boolean writable, FileObject target) {
-		importXml(f, resourceId, writable, null, target);
+	WritableXmlFile importXml(InputStream f, String resourceId, boolean writable, FileObject target) {
+		return importXml(f, resourceId, writable, null, target);
 	}
 
-	private void importXml(InputStream f, String resourceId, boolean writable, WritableXmlFile owner,
+	private WritableXmlFile importXml(InputStream f, String resourceId, boolean writable, WritableXmlFile owner,
 			FileObject target) {
 		if (f == null) {
 			log.log(Level.WARNING, "Empty stream! (" + resourceId + ")");
-			return;
+			return owner;
 		}
 		Document doc;
 		try {
@@ -147,6 +152,9 @@ public final class FileSystem {
 							&& FileObject.MODE_READWRITE.equalsIgnoreCase(modeNode.getNodeValue());
 
 					File incFile = new File(pathString);
+					if (!incFile.exists() && childWritable)
+						FileObject.createMissingWritableImport(incFile, pathString, resourceId);
+
 					if (incFile.exists()) {
 						log.log(Level.INFO,
 								StringUtils.format("Importing XML file {0} for {1}", pathString, resourceId));
@@ -154,11 +162,16 @@ public final class FileSystem {
 						try (InputStream stream = new FileInputStream(incFile)) {
 							// ClassLoader.getSystemResourceAsStream(pathString);
 							if (stream != null) {
-								importXml(stream, pathString, childWritable, null, target);
+								WritableXmlFile overlay = importXml(stream, pathString, childWritable, null, target);
+								// registered even if this import contributed zero root <file>
+								// elements (e.g. just auto-created), so a first child can still be
+								// created & persisted later under the non-writable enclosing file
+								if (childWritable && overlay != null)
+									target.addWritableOverlay(overlay);
 							}
 						}
 					} else {
-						if (FileObject.REQUIRE_ELEMENT.equals(n.getNodeName())) {
+						if (FileObject.REQUIRE_ELEMENT.equals(n.getNodeName()) && !childWritable) {
 							log.log(Level.SEVERE,
 									StringUtils.format("Required file {0} not found ({1})!", pathString, resourceId));
 							throw new FileNotFoundException(incFile.getAbsolutePath());
@@ -198,6 +211,7 @@ public final class FileSystem {
 		} catch (ParserConfigurationException | SAXException | IOException | DOMException ex) {
 			log.log(Level.SEVERE, "Error while processing filesystem", ex);
 		}
+		return owner;
 	}
 
 	private static FileSystem instance;

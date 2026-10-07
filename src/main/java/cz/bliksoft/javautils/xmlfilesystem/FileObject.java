@@ -3,8 +3,10 @@ package cz.bliksoft.javautils.xmlfilesystem;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.text.MessageFormat;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -160,6 +162,38 @@ public class FileObject implements Comparable<Object> {
 	public static final String MODE_READWRITE = "rw"; //$NON-NLS-1$
 
 	/**
+	 * namespace used by the root element of a filesystem XML document, incl. the
+	 * minimal stub written by {@link #createMissingWritableImport}
+	 */
+	private static final String XML_NAMESPACE = "http://bliksoft.cz/XmlFilesystem"; //$NON-NLS-1$
+
+	/**
+	 * Creates a missing {@code mode="rw"} import target with a minimal empty root
+	 * element, so writable config (e.g. printer settings) can be created on
+	 * demand instead of requiring every app to ship a pre-existing local-settings
+	 * file. Best-effort: only logs a WARNING and returns {@code false} if creation
+	 * fails (e.g. due to permissions) - callers fall back to their usual
+	 * missing-file handling (log+skip) in that case rather than failing hard.
+	 */
+	static boolean createMissingWritableImport(File incFile, String pathString, String resourceId) {
+		try {
+			File parent = incFile.getParentFile();
+			if (parent != null)
+				Files.createDirectories(parent.toPath());
+			try (FileWriter writer = new FileWriter(incFile)) {
+				writer.write("<root xmlns=\"" + XML_NAMESPACE + "\"/>"); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			log.log(Level.INFO, StringUtils.format(
+					"Writable import {0} ({1}) did not exist, created an empty one.", pathString, resourceId));
+			return true;
+		} catch (IOException e) {
+			log.log(Level.WARNING, StringUtils.format("Could not create missing writable import {0} ({1}): {2}",
+					pathString, resourceId, e.getMessage()));
+			return false;
+		}
+	}
+
+	/**
 	 * attribute specifying the large icon
 	 */
 	// public static final String ATTRIBUTE_LARGE_ICON = "large_icon"; //
@@ -216,6 +250,60 @@ public class FileObject implements Comparable<Object> {
 	 */
 	public boolean isWritable() {
 		return writable;
+	}
+
+	/**
+	 * backing document(s) of {@code mode="rw"} {@code <include>}/{@code <require>}
+	 * elements nested directly inside this (possibly non-writable) file - tracked
+	 * even when such an import currently contributes zero root {@code <file>}
+	 * elements (e.g. one just auto-created empty by
+	 * {@link #createMissingWritableImport}), so {@link #createWritableChild} can
+	 * still create and persist a first child under it later
+	 */
+	private List<WritableXmlFile> writableOverlays;
+
+	void addWritableOverlay(WritableXmlFile wxf) {
+		if (writableOverlays == null)
+			writableOverlays = new ArrayList<>();
+		writableOverlays.add(wxf);
+	}
+
+	/**
+	 * @return the nested {@code mode="rw"} import's backing document directly
+	 *         inside this file (see {@link #addWritableOverlay}), or
+	 *         {@code null} if this file has none
+	 */
+	public WritableXmlFile getWritableOverlay() {
+		return writableOverlays != null && !writableOverlays.isEmpty() ? writableOverlays.get(0) : null;
+	}
+
+	/**
+	 * Creates a new writable child under this file and persists it immediately,
+	 * backed either by this file's own document (if it is itself writable) or by
+	 * its nested {@code mode="rw"} overlay document ({@link #getWritableOverlay}).
+	 * Lets writable config be created under a non-writable wrapper {@code <file>}
+	 * the very first time, even when the backing file started out empty (e.g.
+	 * just auto-created by {@link #createMissingWritableImport}).
+	 *
+	 * @throws IllegalStateException if this file is neither writable itself nor
+	 *                                has a writable overlay
+	 */
+	public WritableFileObject createWritableChild(String name) {
+		if (this instanceof WritableFileObject)
+			return ((WritableFileObject) this).getCreateFile(name);
+
+		WritableXmlFile overlay = getWritableOverlay();
+		if (overlay == null)
+			throw new IllegalStateException(
+					"File " + getFullPath() + " is not writable and has no writable overlay");
+
+		WritableFileObject child = new WritableFileObject(name, false, this);
+		child.setDocument(overlay);
+		addChild(child);
+		markChildrenUnsorted();
+		overlay.addRoot(child);
+		overlay.markDirty();
+		return child;
 	}
 
 	@XmlAttribute
@@ -462,14 +550,22 @@ public class FileObject implements Comparable<Object> {
 		boolean childWritable = modeNode != null && MODE_READWRITE.equalsIgnoreCase(modeNode.getNodeValue());
 
 		File incFile = new File(pathString);
+		if (!incFile.exists() && childWritable)
+			createMissingWritableImport(incFile, pathString, resourceId);
+
 		if (incFile.exists()) {
 			log.log(Level.INFO, StringUtils.format("Importing XML file {0} for {1}", pathString, resourceId));
 			try (InputStream stream = new FileInputStream(incFile)) {
-				FileSystem.getDefault().importXml(stream, pathString, childWritable, this);
+				WritableXmlFile overlay = FileSystem.getDefault().importXml(stream, pathString, childWritable, this);
+				// registered even if this import contributed zero root <file> elements
+				// (e.g. just auto-created), so a first child can still be created &
+				// persisted later under this non-writable enclosing file
+				if (childWritable && overlay != null)
+					addWritableOverlay(overlay);
 			} catch (IOException e) {
 				throw new InitializationException("Importing " + pathString + " for " + getFullPath(), e);
 			}
-		} else if (isRequire) {
+		} else if (isRequire && !childWritable) {
 			log.log(Level.SEVERE, StringUtils.format("Required file {0} not found ({1})!", pathString, resourceId));
 			throw new InitializationException("Required file not found",
 					new FileNotFoundException(incFile.getAbsolutePath()));

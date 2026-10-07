@@ -102,12 +102,20 @@ public class WritableXmlFile {
 		Document clone = (Document) templateDocument.cloneNode(true);
 		Element docElement = clone.getDocumentElement();
 
+		// Drop the old <file>/<symlink> elements being replaced below, AND any
+		// whitespace-only text nodes between them (the indenting Transformer in
+		// XmlUtils.writeNode adds its own indentation on top of whatever is already
+		// there; leaving old indentation in place would make every save() add one
+		// more blank line between the root and its first child, accumulating
+		// indefinitely across save cycles).
 		List<Node> existingFiles = new ArrayList<>();
 		NodeList children = docElement.getChildNodes();
 		for (int i = 0; i < children.getLength(); i++) {
 			Node n = children.item(i);
 			if (n.getNodeType() == Node.ELEMENT_NODE && (n.getNodeName().equalsIgnoreCase(FileObject.FILE_ELEMENT)
 					|| n.getNodeName().equalsIgnoreCase(FileObject.SYMLINK_ELEMENT)))
+				existingFiles.add(n);
+			else if (n.getNodeType() == Node.TEXT_NODE && n.getTextContent().trim().isEmpty())
 				existingFiles.add(n);
 		}
 		for (Node n : existingFiles)

@@ -342,6 +342,73 @@ class WritableXmlFileTest {
 	}
 
 	@Test
+	void saveDoesNotAccumulateWhitespaceBetweenRootAndFirstChild(@TempDir File tempDir) throws Exception {
+		File file = new File(tempDir, "writable.xml");
+		Files.write(file.toPath(), ("<root xmlns=\"" + NS + "\">\n" + "  <file name=\"a\">\n"
+				+ "    <attribute name=\"foo\" value=\"bar\"/>\n" + "  </file>\n" + "</root>\n")
+				.getBytes(StandardCharsets.UTF_8));
+
+		// save several times in a row, as repeated config edits would in the app
+		for (int i = 0; i < 5; i++) {
+			WritableXmlFile wxf = WritableXmlFile.load(file);
+			WritableFileObject a = (WritableFileObject) wxf.getRoots().get(0);
+			a.setAttribute("foo", "value" + i);
+			wxf.save();
+		}
+
+		String savedXml = new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
+		// exactly one newline (the Transformer's own indentation) between the root
+		// element's '>' and the first child - not a growing run of blank lines
+		int rootEnd = savedXml.indexOf('>') + 1;
+		int firstChildStart = savedXml.indexOf('<', rootEnd);
+		String between = savedXml.substring(rootEnd, firstChildStart);
+		assertEquals(1, between.chars().filter(c -> c == '\n').count(),
+				"expected exactly one newline between root and first child, got: " + between.replace("\n", "\\n"));
+	}
+
+	@Test
+	void missingWritableRequireIsCreatedInsteadOfFailing(@TempDir File tempDir) throws Exception {
+		try {
+			cz.bliksoft.javautils.EnvironmentUtils.setAppName("WritableXmlFileTest-missingRw");
+		} catch (cz.bliksoft.javautils.exceptions.InitializationException e) {
+			// already set by another test in this JVM
+		}
+
+		// writableFile deliberately does NOT exist on disk yet
+		File writableFile = new File(tempDir, "does-not-exist-yet.xml");
+		assertFalse(writableFile.exists());
+
+		File filesystemFile = new File(tempDir, "filesystem-missing-rw.xml");
+		Files.write(filesystemFile.toPath(),
+				("<root xmlns=\"" + NS + "\">\n" + "  <file name=\"settingsMissing\">\n" + "    <require path=\""
+						+ writableFile.getAbsolutePath() + "\" mode=\"rw\"/>\n" + "  </file>\n" + "</root>\n")
+						.getBytes(StandardCharsets.UTF_8));
+
+		// must not throw even though the rw target was missing
+		try (FileInputStream stream = new FileInputStream(filesystemFile)) {
+			FileSystem.getDefault().importXml(stream, filesystemFile.getPath());
+		}
+
+		assertTrue(writableFile.exists(), "missing mode=\"rw\" require target should have been created");
+
+		FileObject settings = FileSystem.getFile("settingsMissing");
+		assertNotNull(settings);
+		assertFalse(settings.isWritable(), "the enclosing wrapper stays non-writable, as usual");
+
+		// even though the freshly-created file contributed zero roots (so
+		// "settingsMissing" itself has no writable children yet), its writable
+		// overlay can still be used to create & persist a first one
+		WritableFileObject created = settings.createWritableChild("printer");
+		created.setAttribute("dpi", "300");
+		created.save();
+
+		WritableXmlFile reloaded = WritableXmlFile.load(writableFile);
+		assertEquals(1, reloaded.getRoots().size());
+		assertEquals("printer", reloaded.getRoots().get(0).getName());
+		assertEquals("300", reloaded.getRoots().get(0).getAttribute("dpi", null));
+	}
+
+	@Test
 	void nestedRequireModeRwUnderFileWithIdDoesNotDoubleRegister(@TempDir File tempDir) throws Exception {
 		try {
 			cz.bliksoft.javautils.EnvironmentUtils.setAppName("WritableXmlFileTest-nestedId");

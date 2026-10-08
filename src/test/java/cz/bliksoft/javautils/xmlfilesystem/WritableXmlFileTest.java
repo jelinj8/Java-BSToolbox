@@ -344,9 +344,10 @@ class WritableXmlFileTest {
 	@Test
 	void saveDoesNotAccumulateWhitespaceBetweenRootAndFirstChild(@TempDir File tempDir) throws Exception {
 		File file = new File(tempDir, "writable.xml");
-		Files.write(file.toPath(), ("<root xmlns=\"" + NS + "\">\n" + "  <file name=\"a\">\n"
-				+ "    <attribute name=\"foo\" value=\"bar\"/>\n" + "  </file>\n" + "</root>\n")
-				.getBytes(StandardCharsets.UTF_8));
+		Files.write(file.toPath(),
+				("<root xmlns=\"" + NS + "\">\n" + "  <file name=\"a\">\n"
+						+ "    <attribute name=\"foo\" value=\"bar\"/>\n" + "  </file>\n" + "</root>\n")
+						.getBytes(StandardCharsets.UTF_8));
 
 		// save several times in a row, as repeated config edits would in the app
 		for (int i = 0; i < 5; i++) {

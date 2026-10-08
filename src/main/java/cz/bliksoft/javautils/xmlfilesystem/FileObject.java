@@ -169,11 +169,11 @@ public class FileObject implements Comparable<Object> {
 
 	/**
 	 * Creates a missing {@code mode="rw"} import target with a minimal empty root
-	 * element, so writable config (e.g. printer settings) can be created on
-	 * demand instead of requiring every app to ship a pre-existing local-settings
-	 * file. Best-effort: only logs a WARNING and returns {@code false} if creation
-	 * fails (e.g. due to permissions) - callers fall back to their usual
-	 * missing-file handling (log+skip) in that case rather than failing hard.
+	 * element, so writable config (e.g. printer settings) can be created on demand
+	 * instead of requiring every app to ship a pre-existing local-settings file.
+	 * Best-effort: only logs a WARNING and returns {@code false} if creation fails
+	 * (e.g. due to permissions) - callers fall back to their usual missing-file
+	 * handling (log+skip) in that case rather than failing hard.
 	 */
 	static boolean createMissingWritableImport(File incFile, String pathString, String resourceId) {
 		try {
@@ -183,8 +183,8 @@ public class FileObject implements Comparable<Object> {
 			try (FileWriter writer = new FileWriter(incFile)) {
 				writer.write("<root xmlns=\"" + XML_NAMESPACE + "\"/>"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
-			log.log(Level.INFO, StringUtils.format(
-					"Writable import {0} ({1}) did not exist, created an empty one.", pathString, resourceId));
+			log.log(Level.INFO, StringUtils.format("Writable import {0} ({1}) did not exist, created an empty one.",
+					pathString, resourceId));
 			return true;
 		} catch (IOException e) {
 			log.log(Level.WARNING, StringUtils.format("Could not create missing writable import {0} ({1}): {2}",
@@ -270,8 +270,8 @@ public class FileObject implements Comparable<Object> {
 
 	/**
 	 * @return the nested {@code mode="rw"} import's backing document directly
-	 *         inside this file (see {@link #addWritableOverlay}), or
-	 *         {@code null} if this file has none
+	 *         inside this file (see {@link #addWritableOverlay}), or {@code null}
+	 *         if this file has none
 	 */
 	public WritableXmlFile getWritableOverlay() {
 		return writableOverlays != null && !writableOverlays.isEmpty() ? writableOverlays.get(0) : null;
@@ -282,11 +282,11 @@ public class FileObject implements Comparable<Object> {
 	 * backed either by this file's own document (if it is itself writable) or by
 	 * its nested {@code mode="rw"} overlay document ({@link #getWritableOverlay}).
 	 * Lets writable config be created under a non-writable wrapper {@code <file>}
-	 * the very first time, even when the backing file started out empty (e.g.
-	 * just auto-created by {@link #createMissingWritableImport}).
+	 * the very first time, even when the backing file started out empty (e.g. just
+	 * auto-created by {@link #createMissingWritableImport}).
 	 *
-	 * @throws IllegalStateException if this file is neither writable itself nor
-	 *                                has a writable overlay
+	 * @throws IllegalStateException if this file is neither writable itself nor has
+	 *                               a writable overlay
 	 */
 	public WritableFileObject createWritableChild(String name) {
 		if (this instanceof WritableFileObject)
@@ -294,8 +294,7 @@ public class FileObject implements Comparable<Object> {
 
 		WritableXmlFile overlay = getWritableOverlay();
 		if (overlay == null)
-			throw new IllegalStateException(
-					"File " + getFullPath() + " is not writable and has no writable overlay");
+			throw new IllegalStateException("File " + getFullPath() + " is not writable and has no writable overlay");
 
 		WritableFileObject child = new WritableFileObject(name, false, this);
 		child.setDocument(overlay);

@@ -91,13 +91,19 @@ public class TokenReplacingReader extends Reader {
 
 		data = this.pushbackReader.read();
 		if (data != '{') {
-			this.pushbackReader.unread(data);
+			if (data != -1)
+				this.pushbackReader.unread(data);
 			return '$';
 		}
 		this.tokenNameBuffer.delete(0, this.tokenNameBuffer.length());
 
 		data = this.pushbackReader.read();
 		while (data != '}') {
+			if (data == -1) {
+				// unterminated token - pass it through verbatim
+				this.tokenValue = "${" + this.tokenNameBuffer.toString();
+				return this.tokenValue.charAt(this.tokenValueIndex++);
+			}
 			this.tokenNameBuffer.append((char) data);
 			data = this.pushbackReader.read();
 		}

@@ -189,7 +189,7 @@
 			<dependency>
 				<groupId>cz.bliksoft.java</groupId>
 				<artifactId>dependency-management</artifactId>
-				<version>1.8.3</version>
+				<version>1.8.4-SNAPSHOT</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -265,7 +265,6 @@
 		<dependency>
 			<groupId>com.github.weisj</groupId>
 			<artifactId>jsvg</artifactId>
-			<version>2.1.0</version>
 			<scope>provided</scope>
 			<optional>true</optional>
 		</dependency>

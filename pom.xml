@@ -189,7 +189,7 @@
 			<dependency>
 				<groupId>cz.bliksoft.java</groupId>
 				<artifactId>dependency-management</artifactId>
-				<version>1.8.1</version>
+				<version>1.8.3-SNAPSHOT</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -287,7 +287,6 @@
 		<dependency>
 			<groupId>org.jmdns</groupId>
 			<artifactId>jmdns</artifactId>
-			<version>3.6.0</version>
 			<scope>provided</scope>
 			<optional>true</optional>
 		</dependency>
